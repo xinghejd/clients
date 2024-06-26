@@ -1180,7 +1180,7 @@ export default class MainBackground {
     await this.notificationBackground.init();
     this.filelessImporterBackground.init();
     await this.commandsBackground.init();
-    await this.overlayBackground.init();
+    await this.overlayBackground?.init();
     await this.tabsBackground.init();
     this.contextMenusBackground?.init();
     await this.idleBackground.init();

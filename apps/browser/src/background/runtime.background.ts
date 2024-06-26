@@ -70,6 +70,7 @@ export default class RuntimeBackground {
         "biometricUnlock",
         "getUseTreeWalkerApiForPageDetailsCollectionFeatureFlag",
         "getInlineMenuFieldQualificationFeatureFlag",
+        "getAutofillInlineMenuImprovementsFeatureFlag",
       ];
 
       if (messagesWithResponse.includes(msg.command)) {
@@ -189,6 +190,9 @@ export default class RuntimeBackground {
       }
       case "getInlineMenuFieldQualificationFeatureFlag": {
         return await this.configService.getFeatureFlag(FeatureFlag.InlineMenuFieldQualification);
+      }
+      case "getAutofillInlineMenuImprovementsFeatureFlag": {
+        return await this.configService.getFeatureFlag(FeatureFlag.AutofillInlineMenuImprovements);
       }
     }
   }

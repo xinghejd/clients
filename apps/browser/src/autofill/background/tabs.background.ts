@@ -1,3 +1,5 @@
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+
 import MainBackground from "../../background/main.background";
 
 import { OverlayBackground } from "./abstractions/overlay.background";
@@ -86,6 +88,14 @@ export default class TabsBackground {
     changeInfo: chrome.tabs.TabChangeInfo,
     tab: chrome.tabs.Tab,
   ) => {
+    const overlayImprovementsFlag = await this.main.configService.getFeatureFlag(
+      FeatureFlag.AutofillInlineMenuImprovements,
+    );
+    const removePageDetailsStatus = new Set(["loading", "unloaded"]);
+    if (!!overlayImprovementsFlag && removePageDetailsStatus.has(changeInfo.status)) {
+      this.overlayBackground?.removePageDetails(tabId);
+    }
+
     if (this.focusedWindowId > 0 && tab.windowId !== this.focusedWindowId) {
       return;
     }
@@ -94,7 +104,7 @@ export default class TabsBackground {
       return;
     }
 
-    await this.overlayBackground.updateOverlayCiphers();
+    await this.overlayBackground?.updateOverlayCiphers();
 
     if (this.main.onUpdatedRan) {
       return;
@@ -113,7 +123,7 @@ export default class TabsBackground {
    * @param tabId - The ID of the tab that was removed.
    */
   private handleTabOnRemoved = async (tabId: number) => {
-    this.overlayBackground.removePageDetails(tabId);
+    this.overlayBackground?.removePageDetails(tabId);
   };
 
   /**
@@ -124,7 +134,7 @@ export default class TabsBackground {
     await Promise.all([
       this.main.refreshBadge(),
       this.main.refreshMenu(),
-      this.overlayBackground.updateOverlayCiphers(),
+      this.overlayBackground?.updateOverlayCiphers(),
     ]);
   };
 }
