@@ -1134,7 +1134,7 @@ export default class MainBackground {
     this.userAutoUnlockKeyService = new UserAutoUnlockKeyService(this.cryptoService);
 
     this.configService
-      .getFeatureFlag(FeatureFlag.AutofillInlineMenuImprovements)
+      .getFeatureFlag(FeatureFlag.InlineMenuPositioningImprovements)
       .then(async (enabled) => {
         if (!enabled) {
           this.overlayBackground = new LegacyOverlayBackground(

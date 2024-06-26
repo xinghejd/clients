@@ -173,10 +173,10 @@ export default class AutofillService implements AutofillServiceInterface {
     let mainAutofillScript = "bootstrap-autofill.js";
 
     if (inlineMenuVisibility) {
-      const inlineMenuImprovementsFeatureFlagSet = await this.configService.getFeatureFlag(
-        FeatureFlag.AutofillInlineMenuImprovements,
+      const inlineMenuPositioningImprovements = await this.configService.getFeatureFlag(
+        FeatureFlag.InlineMenuPositioningImprovements,
       );
-      mainAutofillScript = inlineMenuImprovementsFeatureFlagSet
+      mainAutofillScript = inlineMenuPositioningImprovements
         ? "bootstrap-autofill-overlay.js"
         : "bootstrap-legacy-autofill-overlay.js";
     }

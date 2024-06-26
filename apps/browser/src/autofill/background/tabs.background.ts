@@ -89,7 +89,7 @@ export default class TabsBackground {
     tab: chrome.tabs.Tab,
   ) => {
     const overlayImprovementsFlag = await this.main.configService.getFeatureFlag(
-      FeatureFlag.AutofillInlineMenuImprovements,
+      FeatureFlag.InlineMenuPositioningImprovements,
     );
     const removePageDetailsStatus = new Set(["loading", "unloaded"]);
     if (!!overlayImprovementsFlag && removePageDetailsStatus.has(changeInfo.status)) {

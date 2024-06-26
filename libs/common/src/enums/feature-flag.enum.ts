@@ -20,7 +20,7 @@ export enum FeatureFlag {
   EmailVerification = "email-verification",
   InlineMenuFieldQualification = "inline-menu-field-qualification",
   MemberAccessReport = "ac-2059-member-access-report",
-  AutofillInlineMenuImprovements = "autofill-inline-menu-improvements",
+  InlineMenuPositioningImprovements = "inline-menu-positioning-improvements",
 }
 
 export type AllowedFeatureFlagTypes = boolean | number | string;
@@ -51,7 +51,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.EmailVerification]: FALSE,
   [FeatureFlag.InlineMenuFieldQualification]: FALSE,
   [FeatureFlag.MemberAccessReport]: FALSE,
-  [FeatureFlag.AutofillInlineMenuImprovements]: FALSE,
+  [FeatureFlag.InlineMenuPositioningImprovements]: FALSE,
 } satisfies Record<FeatureFlag, AllowedFeatureFlagTypes>;
 
 export type DefaultFeatureFlagValueType = typeof DefaultFeatureFlagValue;
