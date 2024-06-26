@@ -186,5 +186,5 @@ export type InlineMenuListPortMessageHandlers = {
 export interface OverlayBackground {
   init(): Promise<void>;
   removePageDetails(tabId: number): void;
-  updateInlineMenuCiphers(): void;
+  updateOverlayCiphers(): Promise<void>;
 }

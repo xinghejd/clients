@@ -120,6 +120,16 @@ const plugins = [
     filename: "overlay/menu.html",
     chunks: ["overlay/menu"],
   }),
+  new HtmlWebpackPlugin({
+    template: "./src/autofill/deprecated/overlay/pages/button/legacy-button.html",
+    filename: "overlay/legacy-button.html",
+    chunks: ["overlay/legacy-button"],
+  }),
+  new HtmlWebpackPlugin({
+    template: "./src/autofill/deprecated/overlay/pages/list/legacy-list.html",
+    filename: "overlay/legacy-list.html",
+    chunks: ["overlay/legacy-list"],
+  }),
   new CopyWebpackPlugin({
     patterns: [
       manifestVersion == 3
@@ -166,6 +176,8 @@ const mainConfig = {
       "./src/autofill/content/trigger-autofill-script-injection.ts",
     "content/bootstrap-autofill": "./src/autofill/content/bootstrap-autofill.ts",
     "content/bootstrap-autofill-overlay": "./src/autofill/content/bootstrap-autofill-overlay.ts",
+    "content/bootstrap-legacy-autofill-overlay":
+      "./src/autofill/deprecated/content/bootstrap-legacy-autofill-overlay.ts",
     "content/autofiller": "./src/autofill/content/autofiller.ts",
     "content/notificationBar": "./src/autofill/content/notification-bar.ts",
     "content/contextMenuHandler": "./src/autofill/content/context-menu-handler.ts",
@@ -177,6 +189,12 @@ const mainConfig = {
       "./src/autofill/overlay/inline-menu/pages/button/bootstrap-autofill-inline-menu-button.ts",
     "overlay/list":
       "./src/autofill/overlay/inline-menu/pages/list/bootstrap-autofill-inline-menu-list.ts",
+
+    "overlay/legacy-button":
+      "./src/autofill/deprecated/overlay/pages/button/bootstrap-autofill-overlay-button.deprecated.ts",
+    "overlay/legacy-list":
+      "./src/autofill/deprecated/overlay/pages/list/bootstrap-autofill-overlay-list.deprecated.ts",
+
     "overlay/menu":
       "./src/autofill/overlay/inline-menu/pages/menu-container/bootstrap-autofill-inline-menu-container.ts",
     "encrypt-worker": "../../libs/common/src/platform/services/cryptography/encrypt.worker.ts",
