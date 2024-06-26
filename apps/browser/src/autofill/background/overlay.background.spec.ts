@@ -740,7 +740,7 @@ describe("OverlayBackground", () => {
       await overlayBackground.updateOverlayCiphers();
 
       expect(BrowserApi.getTabFromCurrentWindowId).toHaveBeenCalled();
-      expect(cipherService.getAllDecryptedForUrl).toHaveBeenCalledWith(url);
+      expect(cipherService.getAllDecryptedForUrl).toHaveBeenCalledWith(url, [CipherType.Card]);
       expect(cipherService.sortCiphersByLastUsedThenName).toHaveBeenCalled();
       expect(overlayBackground["inlineMenuCiphers"]).toStrictEqual(
         new Map([
@@ -752,6 +752,7 @@ describe("OverlayBackground", () => {
 
     it("posts an `updateOverlayListCiphers` message to the overlay list port, and send a `updateAutofillInlineMenuListCiphers` message to the tab indicating that the list of ciphers is populated", async () => {
       overlayBackground["inlineMenuListPort"] = mock<chrome.runtime.Port>();
+      overlayBackground["focusedFieldData"] = createFocusedFieldDataMock({ tabId: tab.id });
       cipherService.getAllDecryptedForUrl.mockResolvedValue([cipher1, cipher2]);
       cipherService.sortCiphersByLastUsedThenName.mockReturnValue(-1);
       getTabFromCurrentWindowIdSpy.mockResolvedValueOnce(tab);
@@ -761,21 +762,6 @@ describe("OverlayBackground", () => {
       expect(overlayBackground["inlineMenuListPort"].postMessage).toHaveBeenCalledWith({
         command: "updateAutofillInlineMenuListCiphers",
         ciphers: [
-          {
-            card: cipher2.card.subTitle,
-            favorite: cipher2.favorite,
-            icon: {
-              fallbackImage: "",
-              icon: "bwi-credit-card",
-              image: undefined,
-              imageEnabled: true,
-            },
-            id: "inline-menu-cipher-0",
-            login: null,
-            name: "name-2",
-            reprompt: cipher2.reprompt,
-            type: 3,
-          },
           {
             card: null,
             favorite: cipher1.favorite,
@@ -791,7 +777,7 @@ describe("OverlayBackground", () => {
             },
             name: "name-1",
             reprompt: cipher1.reprompt,
-            type: 1,
+            type: CipherType.Login,
           },
         ],
       });

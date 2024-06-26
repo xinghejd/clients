@@ -34,7 +34,7 @@ export type WebsiteIconData = {
 export type FocusedFieldData = {
   focusedFieldStyles: Partial<CSSStyleDeclaration>;
   focusedFieldRects: Partial<DOMRect>;
-  filledByCipherType: CipherType;
+  filledByCipherType?: CipherType;
   tabId?: number;
   frameId?: number;
 };

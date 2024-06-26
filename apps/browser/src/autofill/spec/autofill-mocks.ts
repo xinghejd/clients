@@ -254,6 +254,7 @@ export function createFocusedFieldDataMock(customFields = {}) {
       paddingRight: "6px",
       paddingLeft: "6px",
     },
+    filledByCipherType: CipherType.Login,
     tabId: 1,
     frameId: 2,
     ...customFields,

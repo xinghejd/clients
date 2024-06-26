@@ -2,6 +2,7 @@ import { mock } from "jest-mock-extended";
 
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { AutofillOverlayVisibility, EVENTS } from "@bitwarden/common/autofill/constants";
+import { CipherType } from "@bitwarden/common/vault/enums";
 
 import AutofillInit from "../content/autofill-init";
 import {
@@ -196,7 +197,10 @@ describe("AutofillOverlayContentService", () => {
     });
 
     it("skips setup on fields that have been previously set up", async () => {
-      autofillOverlayContentService["formFieldElements"].add(autofillFieldElement);
+      autofillOverlayContentService["formFieldElements"].set(
+        autofillFieldElement,
+        autofillFieldData,
+      );
 
       await autofillOverlayContentService.setupInlineMenu(
         autofillFieldElement,
@@ -1120,6 +1124,7 @@ describe("AutofillOverlayContentService", () => {
             autofillOverlayContentService["focusedFieldData"] = {
               focusedFieldStyles: { paddingRight: "10", paddingLeft: "10" },
               focusedFieldRects: { width: 10, height: 10, top: 10, left: 10 },
+              filledByCipherType: CipherType.Login,
             };
           });
 
@@ -1569,7 +1574,7 @@ describe("AutofillOverlayContentService", () => {
         });
 
         it("skips setup when no form fields exist on the current frame", async () => {
-          autofillOverlayContentService["formFieldElements"] = new Set();
+          autofillOverlayContentService["formFieldElements"] = new Map();
 
           sendMockExtensionMessage({ command: "setupRebuildSubFrameOffsetsListeners" });
           await flushPromises();
@@ -1586,7 +1591,10 @@ describe("AutofillOverlayContentService", () => {
       });
 
       it("sets up the sub frame rebuild listeners when the sub frame contains fields", async () => {
-        autofillOverlayContentService["formFieldElements"].add(autofillFieldElement);
+        autofillOverlayContentService["formFieldElements"].set(
+          autofillFieldElement,
+          createAutofillFieldMock(),
+        );
 
         sendMockExtensionMessage({ command: "setupRebuildSubFrameOffsetsListeners" });
         await flushPromises();
@@ -1603,7 +1611,10 @@ describe("AutofillOverlayContentService", () => {
 
       describe("triggering the sub frame listener", () => {
         beforeEach(async () => {
-          autofillOverlayContentService["formFieldElements"].add(autofillFieldElement);
+          autofillOverlayContentService["formFieldElements"].set(
+            autofillFieldElement,
+            createAutofillFieldMock(),
+          );
           await sendMockExtensionMessage({ command: "setupRebuildSubFrameOffsetsListeners" });
         });
 

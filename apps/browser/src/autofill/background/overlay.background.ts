@@ -241,12 +241,11 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       this.inlineMenuCiphers.set(`inline-menu-cipher-${cipherIndex}`, ciphersViews[cipherIndex]);
     }
 
-    // TODO: Consider the implication of this, going to comment it out for now...
-    // const ciphers = await this.getInlineMenuCipherData();
-    // this.inlineMenuListPort?.postMessage({
-    //   command: "updateAutofillInlineMenuListCiphers",
-    //   ciphers,
-    // });
+    const ciphers = await this.getInlineMenuCipherData();
+    this.inlineMenuListPort?.postMessage({
+      command: "updateAutofillInlineMenuListCiphers",
+      ciphers,
+    });
   }
 
   private async getCipherViews(
@@ -285,7 +284,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
 
     for (let cipherIndex = 0; cipherIndex < inlineMenuCiphersArray.length; cipherIndex++) {
       const [inlineMenuCipherId, cipher] = inlineMenuCiphersArray[cipherIndex];
-      if (this.focusedFieldData.filledByCipherType !== cipher.type) {
+      if (this.focusedFieldData?.filledByCipherType !== cipher.type) {
         continue;
       }
 
