@@ -7,7 +7,7 @@ export class ConsoleLogService extends BaseConsoleLogService {
   }
 
   write(level: LogLevelType, message?: any, ...optionalParams: any[]) {
-    if (this.filter != null && this.filter(level)) {
+    if (!this.filter(level)) {
       return;
     }
 

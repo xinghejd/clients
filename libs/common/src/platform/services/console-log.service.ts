@@ -37,7 +37,7 @@ export class ConsoleLogService implements LogServiceAbstraction {
   }
 
   write(level: LogLevelType, message?: any, ...optionalParams: any[]) {
-    if (this.filter != null && this.filter(level)) {
+    if (!this.filter(level)) {
       return;
     }
 

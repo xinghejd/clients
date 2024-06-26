@@ -10,7 +10,7 @@ import { isDev } from "../../utils";
 
 export class ElectronLogMainService extends BaseLogService {
   constructor(
-    protected filter: (level: LogLevelType) => boolean = null,
+    filter: (level: LogLevelType) => boolean = null,
     private logDir: string = null,
   ) {
     super(isDev(), filter);
@@ -31,7 +31,7 @@ export class ElectronLogMainService extends BaseLogService {
   }
 
   write(level: LogLevelType, message?: any, ...optionalParams: any[]) {
-    if (this.filter != null && this.filter(level)) {
+    if (!this.filter(level)) {
       return;
     }
 
