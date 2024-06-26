@@ -720,7 +720,9 @@ class LegacyOverlayBackground implements OverlayBackgroundInterface {
     port.postMessage({
       command: `initAutofillOverlay${isOverlayListPort ? "List" : "Button"}`,
       authStatus: await this.getAuthStatus(),
-      styleSheetUrl: chrome.runtime.getURL(`overlay/${isOverlayListPort ? "list" : "button"}.css`),
+      styleSheetUrl: chrome.runtime.getURL(
+        `overlay/${isOverlayListPort ? "legacy-list" : "legacy-button"}.css`,
+      ),
       theme: await firstValueFrom(this.themeStateService.selectedTheme$),
       translations: this.getTranslations(),
       ciphers: isOverlayListPort ? await this.getOverlayCipherData() : null,

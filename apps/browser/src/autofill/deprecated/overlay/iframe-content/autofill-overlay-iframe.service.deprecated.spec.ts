@@ -14,7 +14,7 @@ import {
 import AutofillOverlayIframeService from "./autofill-overlay-iframe.service.deprecated";
 
 describe("AutofillOverlayIframeService", () => {
-  const iframePath = "overlay/list.html";
+  const iframePath = "overlay/legacy-list.html";
   let autofillOverlayIframeService: AutofillOverlayIframeService;
   let portSpy: chrome.runtime.Port;
   let shadowAppendSpy: jest.SpyInstance;

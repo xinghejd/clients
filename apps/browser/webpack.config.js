@@ -111,7 +111,7 @@ const plugins = [
     chunks: ["overlay/button"],
   }),
   new HtmlWebpackPlugin({
-    template: "./src/autofill/deprecated/overlay/pages/button/button.html",
+    template: "./src/autofill/deprecated/overlay/pages/button/legacy-button.html",
     filename: "overlay/legacy-button.html",
     chunks: ["overlay/legacy-button"],
   }),
@@ -121,7 +121,7 @@ const plugins = [
     chunks: ["overlay/list"],
   }),
   new HtmlWebpackPlugin({
-    template: "./src/autofill/deprecated/overlay/pages/list/list.html",
+    template: "./src/autofill/deprecated/overlay/pages/list/legacy-list.html",
     filename: "overlay/legacy-list.html",
     chunks: ["overlay/legacy-list"],
   }),

@@ -6,7 +6,7 @@ class AutofillOverlayListIframe extends AutofillOverlayIframeElement {
   constructor(element: HTMLElement) {
     super(
       element,
-      "overlay/list.html",
+      "overlay/legacy-list.html",
       AutofillOverlayPort.List,
       {
         height: "0px",
