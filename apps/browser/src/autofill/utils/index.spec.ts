@@ -38,9 +38,7 @@ describe("generateRandomCustomElementName", () => {
 
 describe("sendExtensionMessage", () => {
   it("sends a message to the extension", async () => {
-    const extensionMessagePromise = sendExtensionMessage("toggleAutofillInlineMenuHidden", {
-      display: "none",
-    });
+    const extensionMessagePromise = sendExtensionMessage("some-extension-message");
 
     // Jest doesn't give anyway to select the typed overload of "sendMessage",
     // a cast is needed to get the correct spy type.

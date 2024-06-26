@@ -75,7 +75,7 @@ describe("TabsBackground", () => {
 
         expect(mainBackground.refreshBadge).toHaveBeenCalled();
         expect(mainBackground.refreshMenu).toHaveBeenCalled();
-        expect(overlayBackground.updateInlineMenuCiphers).toHaveBeenCalled();
+        expect(overlayBackground.updateOverlayCiphers).toHaveBeenCalled();
       });
 
       it("sends a `windowChanged` message", async () => {
@@ -93,7 +93,7 @@ describe("TabsBackground", () => {
 
         expect(mainBackground.refreshBadge).toHaveBeenCalled();
         expect(mainBackground.refreshMenu).toHaveBeenCalled();
-        expect(overlayBackground.updateInlineMenuCiphers).toHaveBeenCalled();
+        expect(overlayBackground.updateOverlayCiphers).toHaveBeenCalled();
       });
 
       it("sends a `tabChanged` message to the messaging service", async () => {
@@ -129,7 +129,7 @@ describe("TabsBackground", () => {
 
         expect(mainBackground.refreshBadge).toHaveBeenCalled();
         expect(mainBackground.refreshMenu).toHaveBeenCalled();
-        expect(overlayBackground.updateInlineMenuCiphers).toHaveBeenCalled();
+        expect(overlayBackground.updateOverlayCiphers).toHaveBeenCalled();
       });
 
       it("sends a `tabChanged` message to the messaging service", async () => {
@@ -146,6 +146,7 @@ describe("TabsBackground", () => {
 
       beforeEach(() => {
         mainBackground.onUpdatedRan = false;
+        mainBackground.configService.getFeatureFlag = jest.fn().mockResolvedValue(true);
         tabsBackground["focusedWindowId"] = focusedWindowId;
         tab = mock<chrome.tabs.Tab>({
           windowId: focusedWindowId,
@@ -161,7 +162,7 @@ describe("TabsBackground", () => {
 
         expect(mainBackground.refreshBadge).not.toHaveBeenCalled();
         expect(mainBackground.refreshMenu).not.toHaveBeenCalled();
-        expect(overlayBackground.updateInlineMenuCiphers).not.toHaveBeenCalled();
+        expect(overlayBackground.updateOverlayCiphers).not.toHaveBeenCalled();
       });
 
       it("skips updating the current tab data if the updated tab is not for the focusedWindowId", async () => {
@@ -171,7 +172,7 @@ describe("TabsBackground", () => {
 
         expect(mainBackground.refreshBadge).not.toHaveBeenCalled();
         expect(mainBackground.refreshMenu).not.toHaveBeenCalled();
-        expect(overlayBackground.updateInlineMenuCiphers).not.toHaveBeenCalled();
+        expect(overlayBackground.updateOverlayCiphers).not.toHaveBeenCalled();
       });
 
       it("skips updating the current tab data if the updated tab is not active", async () => {
@@ -181,7 +182,7 @@ describe("TabsBackground", () => {
 
         expect(mainBackground.refreshBadge).not.toHaveBeenCalled();
         expect(mainBackground.refreshMenu).not.toHaveBeenCalled();
-        expect(overlayBackground.updateInlineMenuCiphers).not.toHaveBeenCalled();
+        expect(overlayBackground.updateOverlayCiphers).not.toHaveBeenCalled();
       });
 
       it("skips updating the badge, context menu and notification bar if the `onUpdatedRan` property of the main background class is set to `true`", async () => {
@@ -206,7 +207,7 @@ describe("TabsBackground", () => {
 
         expect(mainBackground.refreshBadge).toHaveBeenCalled();
         expect(mainBackground.refreshMenu).toHaveBeenCalled();
-        expect(overlayBackground.updateInlineMenuCiphers).toHaveBeenCalled();
+        expect(overlayBackground.updateOverlayCiphers).toHaveBeenCalled();
       });
 
       it("sends a `tabChanged` message to the messaging service", async () => {

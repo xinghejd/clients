@@ -1,3 +1,5 @@
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+
 import MainBackground from "../../background/main.background";
 
 import { OverlayBackground } from "./abstractions/overlay.background";
@@ -86,6 +88,14 @@ export default class TabsBackground {
     changeInfo: chrome.tabs.TabChangeInfo,
     tab: chrome.tabs.Tab,
   ) => {
+    const overlayImprovementsFlag = await this.main.configService.getFeatureFlag(
+      FeatureFlag.InlineMenuPositioningImprovements,
+    );
+    const removePageDetailsStatus = new Set(["loading", "unloaded"]);
+    if (!!overlayImprovementsFlag && removePageDetailsStatus.has(changeInfo.status)) {
+      this.overlayBackground.removePageDetails(tabId);
+    }
+
     if (this.focusedWindowId > 0 && tab.windowId !== this.focusedWindowId) {
       return;
     }
@@ -94,7 +104,7 @@ export default class TabsBackground {
       return;
     }
 
-    this.overlayBackground.updateInlineMenuCiphers();
+    await this.overlayBackground.updateOverlayCiphers();
 
     if (this.main.onUpdatedRan) {
       return;
@@ -121,7 +131,10 @@ export default class TabsBackground {
    * for the current tab. Also updates the overlay ciphers.
    */
   private updateCurrentTabData = async () => {
-    this.overlayBackground.updateInlineMenuCiphers();
-    await Promise.all([this.main.refreshBadge(), this.main.refreshMenu()]);
+    await Promise.all([
+      this.main.refreshBadge(),
+      this.main.refreshMenu(),
+      this.overlayBackground.updateOverlayCiphers(),
+    ]);
   };
 }

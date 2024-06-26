@@ -111,10 +111,10 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       this.triggerDestroyInlineMenuListeners(sender.tab, message.subFrameData.frameId),
     collectPageDetailsResponse: ({ message, sender }) => this.storePageDetails(message, sender),
     unlockCompleted: ({ message }) => this.unlockCompleted(message),
-    addedCipher: () => this.updateInlineMenuCiphers(),
-    addEditCipherSubmitted: () => this.updateInlineMenuCiphers(),
-    editedCipher: () => this.updateInlineMenuCiphers(),
-    deletedCipher: () => this.updateInlineMenuCiphers(),
+    addedCipher: () => this.updateOverlayCiphers(),
+    addEditCipherSubmitted: () => this.updateOverlayCiphers(),
+    editedCipher: () => this.updateOverlayCiphers(),
+    deletedCipher: () => this.updateOverlayCiphers(),
   };
   private readonly inlineMenuButtonPortMessageHandlers: InlineMenuButtonPortMessageHandlers = {
     triggerDelayedAutofillInlineMenuClosure: ({ port }) => this.triggerDelayedInlineMenuClosure(),
@@ -217,7 +217,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
    * Queries all ciphers for the given url, and sorts them by last used. Will not update the
    * list of ciphers if the extension is not unlocked.
    */
-  async updateInlineMenuCiphers(updateAllCipherTypes = true) {
+  async updateOverlayCiphers(updateAllCipherTypes = true) {
     const authStatus = await firstValueFrom(this.authService.activeAccountStatus$);
     if (authStatus !== AuthenticationStatus.Unlocked) {
       if (this.focusedFieldData) {
@@ -1069,7 +1069,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
    */
   private async unlockCompleted(message: OverlayBackgroundExtensionMessage) {
     await this.updateInlineMenuButtonAuthStatus();
-    await this.updateInlineMenuCiphers();
+    await this.updateOverlayCiphers();
 
     if (message.data?.commandToRetry?.message?.command === "openAutofillInlineMenu") {
       await this.openInlineMenu(true);

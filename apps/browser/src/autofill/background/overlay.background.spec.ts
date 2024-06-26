@@ -685,7 +685,7 @@ describe("OverlayBackground", () => {
     it("skips updating the overlay ciphers if the user's auth status is not unlocked", async () => {
       activeAccountStatusMock$.next(AuthenticationStatus.Locked);
 
-      await overlayBackground.updateInlineMenuCiphers();
+      await overlayBackground.updateOverlayCiphers();
 
       expect(getTabFromCurrentWindowIdSpy).not.toHaveBeenCalled();
       expect(cipherService.getAllDecryptedForUrl).not.toHaveBeenCalled();
@@ -697,7 +697,7 @@ describe("OverlayBackground", () => {
       overlayBackground["focusedFieldData"] = createFocusedFieldDataMock({ tabId: 1 });
       getTabSpy.mockResolvedValueOnce(previousTab);
 
-      await overlayBackground.updateInlineMenuCiphers();
+      await overlayBackground.updateOverlayCiphers();
 
       expect(tabsSendMessageSpy).toHaveBeenCalledWith(
         previousTab,
@@ -709,7 +709,7 @@ describe("OverlayBackground", () => {
     it("ignores updating the overlay ciphers if the tab is undefined", async () => {
       getTabFromCurrentWindowIdSpy.mockResolvedValueOnce(undefined);
 
-      await overlayBackground.updateInlineMenuCiphers();
+      await overlayBackground.updateOverlayCiphers();
 
       expect(getTabFromCurrentWindowIdSpy).toHaveBeenCalled();
       expect(cipherService.getAllDecryptedForUrl).not.toHaveBeenCalled();
@@ -723,7 +723,7 @@ describe("OverlayBackground", () => {
       overlayBackground["focusedFieldData"] = createFocusedFieldDataMock({ tabId: 15 });
       getTabSpy.mockResolvedValueOnce(previousTab);
 
-      await overlayBackground.updateInlineMenuCiphers();
+      await overlayBackground.updateOverlayCiphers();
 
       expect(tabsSendMessageSpy).toHaveBeenCalledWith(
         previousTab,
@@ -737,7 +737,7 @@ describe("OverlayBackground", () => {
       cipherService.getAllDecryptedForUrl.mockResolvedValue([cipher1, cipher2]);
       cipherService.sortCiphersByLastUsedThenName.mockReturnValue(-1);
 
-      await overlayBackground.updateInlineMenuCiphers();
+      await overlayBackground.updateOverlayCiphers();
 
       expect(BrowserApi.getTabFromCurrentWindowId).toHaveBeenCalled();
       expect(cipherService.getAllDecryptedForUrl).toHaveBeenCalledWith(url);
@@ -756,7 +756,7 @@ describe("OverlayBackground", () => {
       cipherService.sortCiphersByLastUsedThenName.mockReturnValue(-1);
       getTabFromCurrentWindowIdSpy.mockResolvedValueOnce(tab);
 
-      await overlayBackground.updateInlineMenuCiphers();
+      await overlayBackground.updateOverlayCiphers();
 
       expect(overlayBackground["inlineMenuListPort"].postMessage).toHaveBeenCalledWith({
         command: "updateAutofillInlineMenuListCiphers",
@@ -1561,7 +1561,7 @@ describe("OverlayBackground", () => {
       let updateInlineMenuCiphersSpy: jest.SpyInstance;
 
       beforeEach(async () => {
-        updateInlineMenuCiphersSpy = jest.spyOn(overlayBackground, "updateInlineMenuCiphers");
+        updateInlineMenuCiphersSpy = jest.spyOn(overlayBackground, "updateOverlayCiphers");
         await initOverlayElementPorts();
       });
 
@@ -1576,7 +1576,7 @@ describe("OverlayBackground", () => {
       });
 
       it("updates the overlay ciphers", async () => {
-        const updateInlineMenuCiphersSpy = jest.spyOn(overlayBackground, "updateInlineMenuCiphers");
+        const updateInlineMenuCiphersSpy = jest.spyOn(overlayBackground, "updateOverlayCiphers");
         sendMockExtensionMessage({ command: "unlockCompleted" });
         await flushPromises();
 
@@ -1616,13 +1616,13 @@ describe("OverlayBackground", () => {
       ];
 
       beforeEach(() => {
-        jest.spyOn(overlayBackground, "updateInlineMenuCiphers").mockImplementation();
+        jest.spyOn(overlayBackground, "updateOverlayCiphers").mockImplementation();
       });
 
       extensionMessages.forEach((message) => {
         it(`triggers an update of the overlay ciphers when the ${message} message is received`, () => {
           sendMockExtensionMessage({ command: message });
-          expect(overlayBackground.updateInlineMenuCiphers).toHaveBeenCalled();
+          expect(overlayBackground.updateOverlayCiphers).toHaveBeenCalled();
         });
       });
     });
