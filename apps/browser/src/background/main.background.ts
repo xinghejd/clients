@@ -1058,20 +1058,25 @@ export default class MainBackground {
               this.platformUtilsService,
               themeStateService,
             );
-            return;
+          } else {
+            this.overlayBackground = new OverlayBackground(
+              this.logService,
+              this.cipherService,
+              this.autofillService,
+              this.authService,
+              this.environmentService,
+              this.domainSettingsService,
+              this.autofillSettingsService,
+              this.i18nService,
+              this.platformUtilsService,
+              themeStateService,
+            );
           }
 
-          this.overlayBackground = new OverlayBackground(
-            this.logService,
-            this.cipherService,
-            this.autofillService,
-            this.authService,
-            this.environmentService,
-            this.domainSettingsService,
-            this.autofillSettingsService,
-            this.i18nService,
-            this.platformUtilsService,
-            themeStateService,
+          this.tabsBackground = new TabsBackground(
+            this,
+            this.notificationBackground,
+            this.overlayBackground,
           );
         })
         .catch((error) => this.logService.error(`Error initializing OverlayBackground: ${error}`));
@@ -1084,11 +1089,6 @@ export default class MainBackground {
         this.importService,
         this.syncService,
         this.scriptInjectorService,
-      );
-      this.tabsBackground = new TabsBackground(
-        this,
-        this.notificationBackground,
-        this.overlayBackground,
       );
 
       const contextMenuClickedHandler = new ContextMenuClickedHandler(
@@ -1207,7 +1207,7 @@ export default class MainBackground {
     this.filelessImporterBackground.init();
     await this.commandsBackground.init();
     await this.overlayBackground?.init();
-    await this.tabsBackground.init();
+    await this.tabsBackground?.init();
     this.contextMenusBackground?.init();
     await this.idleBackground.init();
     this.webRequestBackground?.startListening();

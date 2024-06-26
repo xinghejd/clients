@@ -693,7 +693,7 @@ class LegacyOverlayBackground implements OverlayBackgroundInterface {
     }
 
     const messageResponse = handler({ message, sender });
-    if (!messageResponse) {
+    if (typeof messageResponse === "undefined") {
       return null;
     }
 

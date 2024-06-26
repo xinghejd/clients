@@ -10,7 +10,7 @@ import {
   InitAutofillOverlayListMessage,
   OverlayListWindowMessageHandlers,
 } from "../../abstractions/autofill-overlay-list.deprecated";
-import AutofillOverlayPageElement from "../shared/autofill-overlay-page-element";
+import AutofillOverlayPageElement from "../shared/autofill-overlay-page-element.deprecated";
 
 class AutofillOverlayList extends AutofillOverlayPageElement {
   private overlayListContainer: HTMLDivElement;

@@ -355,6 +355,7 @@ describe("AutofillService", () => {
     let sender: chrome.runtime.MessageSender;
 
     beforeEach(() => {
+      configService.getFeatureFlag.mockResolvedValue(true);
       tabMock = createChromeTabMock();
       sender = { tab: tabMock, frameId: 1 };
       jest.spyOn(BrowserApi, "executeScriptInTab").mockImplementation();

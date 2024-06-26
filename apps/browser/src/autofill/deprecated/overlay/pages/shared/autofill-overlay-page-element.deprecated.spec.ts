@@ -2,11 +2,14 @@ import { mock } from "jest-mock-extended";
 
 import { OverlayButtonWindowMessageHandlers } from "../../abstractions/autofill-overlay-button.deprecated";
 
-import AutofillOverlayPageElement from "./autofill-overlay-page-element";
+import AutofillOverlayPageElementDeprecated from "./autofill-overlay-page-element.deprecated";
 
 describe("AutofillOverlayPageElement", () => {
-  globalThis.customElements.define("autofill-overlay-page-element", AutofillOverlayPageElement);
-  let autofillOverlayPageElement: AutofillOverlayPageElement;
+  globalThis.customElements.define(
+    "autofill-overlay-page-element",
+    AutofillOverlayPageElementDeprecated,
+  );
+  let autofillOverlayPageElement: AutofillOverlayPageElementDeprecated;
   const translations = {
     locale: "en",
     buttonPageTitle: "buttonPageTitle",

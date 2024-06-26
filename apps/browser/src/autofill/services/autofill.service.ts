@@ -177,8 +177,8 @@ export default class AutofillService implements AutofillServiceInterface {
         FeatureFlag.AutofillInlineMenuImprovements,
       );
       mainAutofillScript = inlineMenuImprovementsFeatureFlagSet
-        ? "bootstrap-legacy-autofill-overlay.js"
-        : "bootstrap-autofill-overlay.js";
+        ? "bootstrap-autofill-overlay.js"
+        : "bootstrap-legacy-autofill-overlay.js";
     }
 
     const injectedScripts = [mainAutofillScript];

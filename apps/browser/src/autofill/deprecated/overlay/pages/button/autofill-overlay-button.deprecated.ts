@@ -10,7 +10,7 @@ import {
   OverlayButtonMessage,
   OverlayButtonWindowMessageHandlers,
 } from "../../abstractions/autofill-overlay-button.deprecated";
-import AutofillOverlayPageElement from "../shared/autofill-overlay-page-element";
+import AutofillOverlayPageElement from "../shared/autofill-overlay-page-element.deprecated";
 
 class AutofillOverlayButton extends AutofillOverlayPageElement {
   private authStatus: AuthenticationStatus = AuthenticationStatus.LoggedOut;
