@@ -3,7 +3,11 @@ import "lit/polyfill-support.js";
 import { FocusableElement, tabbable } from "tabbable";
 
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
-import { EVENTS, AutofillOverlayVisibility } from "@bitwarden/common/autofill/constants";
+import {
+  EVENTS,
+  AutofillOverlayVisibility,
+  AUTOFILL_OVERLAY_HANDLE_REPOSITION,
+} from "@bitwarden/common/autofill/constants";
 
 import {
   FocusedFieldData,
@@ -18,7 +22,12 @@ import {
 import AutofillField from "../models/autofill-field";
 import AutofillPageDetails from "../models/autofill-page-details";
 import { ElementWithOpId, FillableFormFieldElement, FormFieldElement } from "../types";
-import { elementIsFillableFormField, getAttributeBoolean, sendExtensionMessage } from "../utils";
+import {
+  elementIsFillableFormField,
+  getAttributeBoolean,
+  sendExtensionMessage,
+  throttle,
+} from "../utils";
 
 import {
   AutofillOverlayContentExtensionMessageHandlers,
@@ -1048,11 +1057,15 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
    * the overlay elements on scroll or resize.
    */
   private setOverlayRepositionEventListeners() {
-    globalThis.addEventListener(EVENTS.SCROLL, this.handleOverlayRepositionEvent, {
+    const handler = this.useEventHandlersMemo(
+      throttle(this.handleOverlayRepositionEvent, 900),
+      AUTOFILL_OVERLAY_HANDLE_REPOSITION,
+    );
+    globalThis.addEventListener(EVENTS.SCROLL, handler, {
       capture: true,
       passive: true,
     });
-    globalThis.addEventListener(EVENTS.RESIZE, this.handleOverlayRepositionEvent);
+    globalThis.addEventListener(EVENTS.RESIZE, handler);
   }
 
   /**
@@ -1060,10 +1073,13 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
    * the overlay elements on scroll or resize.
    */
   private removeOverlayRepositionEventListeners() {
-    globalThis.removeEventListener(EVENTS.SCROLL, this.handleOverlayRepositionEvent, {
+    const handler = this.eventHandlersMemo[AUTOFILL_OVERLAY_HANDLE_REPOSITION];
+    globalThis.removeEventListener(EVENTS.SCROLL, handler, {
       capture: true,
     });
-    globalThis.removeEventListener(EVENTS.RESIZE, this.handleOverlayRepositionEvent);
+    globalThis.removeEventListener(EVENTS.RESIZE, handler);
+
+    delete this.eventHandlersMemo[AUTOFILL_OVERLAY_HANDLE_REPOSITION];
   }
 
   /**
