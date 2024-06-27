@@ -117,7 +117,7 @@ export class AutofillInlineMenuButton extends AutofillInlineMenuPageElement {
    * to the parent window indicating that the inline menu should be closed.
    */
   private checkButtonFocused() {
-    if (globalThis.document.hasFocus()) {
+    if (globalThis.document.hasFocus() || this.buttonElement.matches(":hover")) {
       return;
     }
 

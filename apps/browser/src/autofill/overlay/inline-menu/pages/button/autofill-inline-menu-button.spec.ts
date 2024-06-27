@@ -78,8 +78,21 @@ describe("AutofillInlineMenuButton", () => {
       });
     });
 
+    it("does not post a message to close the autofill inline menu if the button element is hovered", async () => {
+      jest.spyOn(globalThis.document, "hasFocus").mockReturnValue(false);
+      jest.spyOn(autofillInlineMenuButton["buttonElement"], "matches").mockReturnValue(true);
+
+      postWindowMessage({ command: "checkAutofillInlineMenuButtonFocused" });
+      await flushPromises();
+
+      expect(globalThis.parent.postMessage).not.toHaveBeenCalledWith({
+        command: "triggerDelayedAutofillInlineMenuClosure",
+      });
+    });
+
     it("posts a message to close the autofill inline menu if the element is not focused during the focus check", async () => {
       jest.spyOn(globalThis.document, "hasFocus").mockReturnValue(false);
+      jest.spyOn(autofillInlineMenuButton["buttonElement"], "matches").mockReturnValue(false);
 
       postWindowMessage({ command: "checkAutofillInlineMenuButtonFocused" });
       await flushPromises();

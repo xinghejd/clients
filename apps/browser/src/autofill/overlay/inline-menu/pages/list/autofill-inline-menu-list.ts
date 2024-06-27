@@ -562,7 +562,7 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
    * If not focused, will check if the button element is focused.
    */
   private checkInlineMenuListFocused() {
-    if (globalThis.document.hasFocus()) {
+    if (globalThis.document.hasFocus() || this.inlineMenuListContainer.matches(":hover")) {
       return;
     }
 

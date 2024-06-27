@@ -305,7 +305,7 @@ export class AutofillInlineMenuIframeService implements AutofillInlineMenuIframe
    * mutation observer is triggered excessively.
    */
   private forceCloseInlineMenu() {
-    void this.sendExtensionMessage("closeAutofillInlineMenu", { forceClose: true });
+    void this.sendExtensionMessage("closeAutofillInlineMenu", { forceCloseInlineMenu: true });
   }
 
   /**

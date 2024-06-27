@@ -1010,12 +1010,14 @@ export class OverlayBackground implements OverlayBackgroundInterface {
    * @param port - The port of the inline menu button
    */
   private async handleInlineMenuButtonClicked(port: chrome.runtime.Port) {
+    this.clearDelayedInlineMenuClosure();
+    this.cancelInlineMenuFadeInAndPositionUpdate();
+
     if ((await this.getAuthStatus()) !== AuthenticationStatus.Unlocked) {
       await this.unlockVault(port);
       return;
     }
 
-    this.clearDelayedInlineMenuClosure();
     await this.openInlineMenu(false, true);
   }
 
