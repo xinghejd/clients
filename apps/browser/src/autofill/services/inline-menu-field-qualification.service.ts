@@ -24,20 +24,30 @@ export class InlineMenuFieldQualificationService
     ...CreditCardAutoFillConstants.CardNumberFieldNames,
     ...CreditCardAutoFillConstants.CardExpiryFieldNames,
     ...CreditCardAutoFillConstants.ExpiryMonthFieldNames,
+    ...CreditCardAutoFillConstants.ExpiryYearFieldNames,
     ...CreditCardAutoFillConstants.CVVFieldNames,
     ...CreditCardAutoFillConstants.CardBrandFieldNames,
   ]);
-  private creditCardAutocompleteValues = new Set([
+  private creditCardNameAutocompleteValues = new Set([
     "cc-name",
     "cc-given-name,",
     "cc-additional-name",
     "cc-family-name",
-    "cc-number",
-    "cc-exp",
-    "cc-exp-month",
-    "cc-exp-year",
-    "cc-csc",
-    "cc-type",
+  ]);
+  private creditCardExpirationDateAutocompleteValue = "cc-exp";
+  private creditCardExpirationMonthAutocompleteValue = "cc-exp-month";
+  private creditCardExpirationYearAutocompleteValue = "cc-exp-year";
+  private creditCardCvvAutocompleteValue = "cc-csc";
+  private creditCardNumberAutocompleteValue = "cc-number";
+  private creditCardTypeAutocompleteValue = "cc-type";
+  private creditCardAutocompleteValues = new Set([
+    ...this.creditCardNameAutocompleteValues,
+    this.creditCardExpirationDateAutocompleteValue,
+    this.creditCardExpirationMonthAutocompleteValue,
+    this.creditCardExpirationYearAutocompleteValue,
+    this.creditCardNumberAutocompleteValue,
+    this.creditCardCvvAutocompleteValue,
+    this.creditCardTypeAutocompleteValue,
   ]);
   private inlineMenuFieldQualificationFlagSet = false;
 
@@ -95,8 +105,8 @@ export class InlineMenuFieldQualificationService
     }
 
     return (
-      this.keywordsFoundInFieldData(field, [...this.creditCardFieldKeywords]) &&
-      !this.autocompleteDisabledValues.has(field.autoCompleteType)
+      !this.autocompleteDisabledValues.has(field.autoCompleteType) &&
+      this.keywordsFoundInFieldData(field, [...this.creditCardFieldKeywords])
     );
   }
 
@@ -263,6 +273,126 @@ export class InlineMenuFieldQualificationService
     // If no visible password fields are found, this field might be part of a multipart form.
     // Check for an invalid autocompleteType to determine if the field is part of a login form.
     return !this.autocompleteDisabledValues.has(field.autoCompleteType);
+  }
+
+  /**
+   * Validates the provided field as a field for a credit card name field.
+   *
+   * @param field - The field to validate
+   */
+  isFieldForCardholderName(field: AutofillField): boolean {
+    if (this.creditCardNameAutocompleteValues.has(field.autoCompleteType)) {
+      return true;
+    }
+
+    return (
+      !this.autocompleteDisabledValues.has(field.autoCompleteType) &&
+      this.keywordsFoundInFieldData(field, CreditCardAutoFillConstants.CardHolderFieldNames)
+    );
+  }
+
+  /**
+   * Validates the provided field as a field for a credit card number field.
+   *
+   * @param field - The field to validate
+   */
+  isFieldForCardNumber(field: AutofillField): boolean {
+    if (field.autoCompleteType === this.creditCardNumberAutocompleteValue) {
+      return true;
+    }
+
+    if (this.isFieldForCardCvv(field)) {
+      return false;
+    }
+
+    return (
+      !this.autocompleteDisabledValues.has(field.autoCompleteType) &&
+      this.keywordsFoundInFieldData(field, CreditCardAutoFillConstants.CardNumberFieldNames)
+    );
+  }
+
+  /**
+   * Validates the provided field as a field for a credit card expiration date field.
+   *
+   * @param field - The field to validate
+   */
+  isFieldForCardExpirationDate(field: AutofillField): boolean {
+    if (field.autoCompleteType === this.creditCardExpirationDateAutocompleteValue) {
+      return true;
+    }
+
+    return (
+      !this.autocompleteDisabledValues.has(field.autoCompleteType) &&
+      this.keywordsFoundInFieldData(field, CreditCardAutoFillConstants.CardExpiryFieldNames)
+    );
+  }
+
+  /**
+   * Validates the provided field as a field for a credit card expiration month field.
+   *
+   * @param field - The field to validate
+   */
+  isFieldForCardExpirationMonth(field: AutofillField): boolean {
+    if (field.autoCompleteType === this.creditCardExpirationMonthAutocompleteValue) {
+      return true;
+    }
+
+    return (
+      !this.autocompleteDisabledValues.has(field.autoCompleteType) &&
+      this.keywordsFoundInFieldData(field, CreditCardAutoFillConstants.ExpiryMonthFieldNames)
+    );
+  }
+
+  /**
+   * Validates the provided field as a field for a credit card expiration year field.
+   *
+   * @param field - The field to validate
+   */
+  isFieldForCardExpirationYear(field: AutofillField): boolean {
+    if (field.autoCompleteType === this.creditCardExpirationYearAutocompleteValue) {
+      return true;
+    }
+
+    return (
+      !this.autocompleteDisabledValues.has(field.autoCompleteType) &&
+      this.keywordsFoundInFieldData(field, CreditCardAutoFillConstants.ExpiryYearFieldNames)
+    );
+  }
+
+  /**
+   * Validates the provided field as a field for a credit card CVV field.
+   *
+   * @param field - The field to validate
+   */
+  isFieldForCardCvv(field: AutofillField): boolean {
+    if (field.autoCompleteType === this.creditCardCvvAutocompleteValue) {
+      return true;
+    }
+
+    if (this.isFieldForCardNumber(field)) {
+      return false;
+    }
+
+    return (
+      !this.autocompleteDisabledValues.has(field.autoCompleteType) &&
+      this.keywordsFoundInFieldData(field, CreditCardAutoFillConstants.CVVFieldNames)
+    );
+  }
+
+  /**
+   * Validates the provided field as a field for a credit card brand field.
+   *
+   * @param field - The field to validate
+   */
+  isFieldForCardBrand(field: AutofillField): boolean {
+    if (field.autoCompleteType === this.creditCardTypeAutocompleteValue) {
+      return true;
+    }
+
+    return (
+      !this.autocompleteDisabledValues.has(field.autoCompleteType) &&
+      this.keywordsFoundInFieldData(field, CreditCardAutoFillConstants.CardBrandFieldNames)
+    );
   }
 
   /**

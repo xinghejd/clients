@@ -58,7 +58,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
   private eventHandlersMemo: { [key: string]: EventListener } = {};
   private readonly extensionMessageHandlers: AutofillOverlayContentExtensionMessageHandlers = {
     openAutofillInlineMenu: ({ message }) => this.openInlineMenu(message),
-    addNewVaultItemFromOverlay: () => this.addNewVaultItem(),
+    addNewVaultItemFromOverlay: ({ message }) => this.addNewVaultItem(message),
     blurMostRecentlyFocusedField: () => this.blurMostRecentlyFocusedField(),
     unsetMostRecentlyFocusedField: () => this.unsetMostRecentlyFocusedField(),
     checkIsMostRecentlyFocusedFieldWithinViewport: () =>
@@ -195,19 +195,39 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
    * Formats any found user filled fields for a login cipher and sends a message
    * to the background script to add a new cipher.
    */
-  async addNewVaultItem() {
+  async addNewVaultItem({ addNewCipherType }: AutofillExtensionMessage) {
     if (!(await this.isInlineMenuListVisible())) {
       return;
     }
 
-    const login = {
-      username: this.userFilledFields["username"]?.value || "",
-      password: this.userFilledFields["password"]?.value || "",
-      uri: globalThis.document.URL,
-      hostname: globalThis.document.location.hostname,
-    };
+    const command = "autofillOverlayAddNewVaultItem";
 
-    void this.sendExtensionMessage("autofillOverlayAddNewVaultItem", { login });
+    if (addNewCipherType === CipherType.Login) {
+      const login = {
+        username: this.userFilledFields["username"]?.value || "",
+        password: this.userFilledFields["password"]?.value || "",
+        uri: globalThis.document.URL,
+        hostname: globalThis.document.location.hostname,
+      };
+
+      void this.sendExtensionMessage(command, { addNewCipherType, login });
+
+      return;
+    }
+
+    if (addNewCipherType === CipherType.Card) {
+      const card = {
+        cardholderName: this.userFilledFields["cardholderName"]?.value || "",
+        number: this.userFilledFields["cardNumber"]?.value || "",
+        expirationMonth: this.userFilledFields["cardExpirationMonth"]?.value || "",
+        expirationYear: this.userFilledFields["cardExpirationYear"]?.value || "",
+        expirationDate: this.userFilledFields["cardExpirationDate"]?.value || "",
+        cvv: this.userFilledFields["cardCvv"]?.value || "",
+        brand: this.userFilledFields["cardBrand"]?.value || "",
+      };
+
+      void this.sendExtensionMessage(command, { addNewCipherType, card });
+    }
   }
 
   /**
@@ -426,12 +446,77 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
       void this.updateMostRecentlyFocusedField(formFieldElement);
     }
 
+    const autofillFieldData = this.formFieldElements.get(formFieldElement);
+    if (!autofillFieldData) {
+      return;
+    }
+
+    if (autofillFieldData.filledByCipherType === CipherType.Login) {
+      this.storeUserFilledLoginField(formFieldElement);
+    }
+
+    if (autofillFieldData.filledByCipherType === CipherType.Card) {
+      this.storeUserFilledCardField(formFieldElement, autofillFieldData);
+    }
+  }
+
+  /**
+   * Handles storing the user field login field to be used when adding a new vault item.
+   *
+   * @param formFieldElement - The form field element that triggered the input event.
+   */
+  private storeUserFilledLoginField(formFieldElement: ElementWithOpId<FillableFormFieldElement>) {
     if (formFieldElement.type === "password") {
       this.userFilledFields.password = formFieldElement;
       return;
     }
 
     this.userFilledFields.username = formFieldElement;
+  }
+
+  /**
+   * Handles storing the user field card field to be used when adding a new vault item.
+   *
+   * @param formFieldElement - The form field element that triggered the input event.
+   * @param autofillFieldData - Autofill field data captured from the form field element.
+   */
+  private storeUserFilledCardField(
+    formFieldElement: ElementWithOpId<FillableFormFieldElement>,
+    autofillFieldData: AutofillField,
+  ) {
+    if (this.inlineMenuFieldQualificationService.isFieldForCardholderName(autofillFieldData)) {
+      this.userFilledFields.cardholderName = formFieldElement;
+      return;
+    }
+
+    if (this.inlineMenuFieldQualificationService.isFieldForCardNumber(autofillFieldData)) {
+      this.userFilledFields.cardNumber = formFieldElement;
+      return;
+    }
+
+    if (this.inlineMenuFieldQualificationService.isFieldForCardExpirationMonth(autofillFieldData)) {
+      this.userFilledFields.cardExpirationMonth = formFieldElement;
+      return;
+    }
+
+    if (this.inlineMenuFieldQualificationService.isFieldForCardExpirationYear(autofillFieldData)) {
+      this.userFilledFields.cardExpirationYear = formFieldElement;
+      return;
+    }
+
+    if (this.inlineMenuFieldQualificationService.isFieldForCardExpirationDate(autofillFieldData)) {
+      this.userFilledFields.cardExpirationDate = formFieldElement;
+      return;
+    }
+
+    if (this.inlineMenuFieldQualificationService.isFieldForCardCvv(autofillFieldData)) {
+      this.userFilledFields.cardCvv = formFieldElement;
+      return;
+    }
+
+    if (this.inlineMenuFieldQualificationService.isFieldForCardBrand(autofillFieldData)) {
+      this.userFilledFields.cardBrand = formFieldElement;
+    }
   }
 
   /**

@@ -213,7 +213,10 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
    * Sends a message to the parent window to add a new vault item.
    */
   private handeNewItemButtonClick = () => {
-    this.postMessageToParent({ command: "addNewVaultItem" });
+    this.postMessageToParent({
+      command: "addNewVaultItem",
+      addNewCipherType: this.filledByCipherType,
+    });
   };
 
   /**

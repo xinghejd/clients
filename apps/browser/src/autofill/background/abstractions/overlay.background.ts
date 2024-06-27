@@ -52,11 +52,21 @@ export type InlineMenuPosition = {
 };
 
 export type OverlayAddNewItemMessage = {
+  addNewCipherType?: CipherType;
   login?: {
     uri?: string;
     hostname: string;
     username: string;
     password: string;
+  };
+  card?: {
+    cardholderName: string;
+    number: string;
+    expirationMonth: string;
+    expirationYear: string;
+    expirationDate?: string;
+    cvv: string;
+    brand: string;
   };
 };
 
@@ -92,6 +102,7 @@ export type OverlayPortMessage = {
   command: string;
   direction?: string;
   inlineMenuCipherId?: string;
+  addNewCipherType?: CipherType;
 };
 
 export type InlineMenuCipherData = {
@@ -178,7 +189,7 @@ export type InlineMenuListPortMessageHandlers = {
   autofillInlineMenuBlurred: () => void;
   unlockVault: ({ port }: PortConnectionParam) => void;
   fillAutofillInlineMenuCipher: ({ message, port }: PortOnMessageHandlerParams) => void;
-  addNewVaultItem: ({ port }: PortConnectionParam) => void;
+  addNewVaultItem: ({ message, port }: PortOnMessageHandlerParams) => void;
   viewSelectedCipher: ({ message, port }: PortOnMessageHandlerParams) => void;
   redirectAutofillInlineMenuFocusOut: ({ message, port }: PortOnMessageHandlerParams) => void;
   updateAutofillInlineMenuListHeight: ({ message, port }: PortOnMessageHandlerParams) => void;

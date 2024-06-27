@@ -19,6 +19,7 @@ import { ThemeStateService } from "@bitwarden/common/platform/theming/theme-stat
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { buildCipherIcon } from "@bitwarden/common/vault/icon/build-cipher-icon";
+import { CardView } from "@bitwarden/common/vault/models/view/card.view";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { LoginUriView } from "@bitwarden/common/vault/models/view/login-uri.view";
 import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
@@ -132,7 +133,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     autofillInlineMenuBlurred: () => this.checkInlineMenuButtonFocused(),
     unlockVault: ({ port }) => this.unlockVault(port),
     fillAutofillInlineMenuCipher: ({ message, port }) => this.fillInlineMenuCipher(message, port),
-    addNewVaultItem: ({ port }) => this.getNewVaultItemDetails(port),
+    addNewVaultItem: ({ message, port }) => this.getNewVaultItemDetails(message, port),
     viewSelectedCipher: ({ message, port }) => this.viewSelectedCipher(message, port),
     redirectAutofillInlineMenuFocusOut: ({ message, port }) =>
       this.redirectInlineMenuFocusOut(message, port),
@@ -1137,16 +1138,20 @@ export class OverlayBackground implements OverlayBackgroundInterface {
    * Triggers adding a new vault item from the overlay. Gathers data
    * input by the user before calling to open the add/edit window.
    *
+   * @param addNewCipherType - The type of cipher to add
    * @param sender - The sender of the port message
    */
-  private getNewVaultItemDetails({ sender }: chrome.runtime.Port) {
-    if (!this.senderTabHasFocusedField(sender)) {
+  private getNewVaultItemDetails(
+    { addNewCipherType }: OverlayPortMessage,
+    { sender }: chrome.runtime.Port,
+  ) {
+    if (!addNewCipherType || !this.senderTabHasFocusedField(sender)) {
       return;
     }
 
     void BrowserApi.tabSendMessage(
       sender.tab,
-      { command: "addNewVaultItemFromOverlay" },
+      { command: "addNewVaultItemFromOverlay", addNewCipherType },
       {
         frameId: this.focusedFieldData.frameId || 0,
       },
@@ -1157,32 +1162,58 @@ export class OverlayBackground implements OverlayBackgroundInterface {
    * Handles adding a new vault item from the overlay. Gathers data login
    * data captured in the extension message.
    *
+   * @param addNewCipherType - The type of cipher to add
    * @param login - The login data captured from the extension message
+   * @param card - The card data captured from the extension message
    * @param sender - The sender of the extension message
    */
   private async addNewVaultItem(
-    { login }: OverlayAddNewItemMessage,
+    { addNewCipherType, login, card }: OverlayAddNewItemMessage,
     sender: chrome.runtime.MessageSender,
   ) {
-    if (!login) {
+    if (!addNewCipherType) {
+      return;
+    }
+
+    let cipherView: CipherView;
+
+    if (login && addNewCipherType === CipherType.Login) {
+      const uriView = new LoginUriView();
+      uriView.uri = login.uri;
+
+      const loginView = new LoginView();
+      loginView.uris = [uriView];
+      loginView.username = login.username || "";
+      loginView.password = login.password || "";
+
+      cipherView = new CipherView();
+      cipherView.name = (Utils.getHostname(login.uri) || login.hostname).replace(/^www\./, "");
+      cipherView.folderId = null;
+      cipherView.type = CipherType.Login;
+      cipherView.login = loginView;
+    }
+
+    if (card && addNewCipherType === CipherType.Card) {
+      const cardView = new CardView();
+      cardView.cardholderName = card.cardholderName || "";
+      cardView.number = card.number || "";
+      cardView.expMonth = card.expirationMonth || "";
+      cardView.expYear = card.expirationYear || "";
+      cardView.code = card.cvv || "";
+      cardView.brand = card.brand || "";
+
+      cipherView = new CipherView();
+      cipherView.name = "";
+      cipherView.folderId = null;
+      cipherView.type = CipherType.Card;
+      cipherView.card = cardView;
+    }
+
+    if (!cipherView) {
       return;
     }
 
     this.closeInlineMenu(sender);
-    const uriView = new LoginUriView();
-    uriView.uri = login.uri;
-
-    const loginView = new LoginView();
-    loginView.uris = [uriView];
-    loginView.username = login.username || "";
-    loginView.password = login.password || "";
-
-    const cipherView = new CipherView();
-    cipherView.name = (Utils.getHostname(login.uri) || login.hostname).replace(/^www\./, "");
-    cipherView.folderId = null;
-    cipherView.type = CipherType.Login;
-    cipherView.login = loginView;
-
     await this.cipherService.setAddEditCipherInfo({
       cipher: cipherView,
       collectionIds: cipherView.collectionIds,
