@@ -1051,10 +1051,14 @@ describe("AutofillOverlayContentService", () => {
           .spyOn(autofillOverlayContentService as any, "isInlineMenuListVisible")
           .mockResolvedValue(true);
 
-        sendMockExtensionMessage({ command: "addNewVaultItemFromOverlay" });
+        sendMockExtensionMessage({
+          command: "addNewVaultItemFromOverlay",
+          addNewCipherType: CipherType.Login,
+        });
         await flushPromises();
 
         expect(sendExtensionMessageSpy).toHaveBeenCalledWith("autofillOverlayAddNewVaultItem", {
+          addNewCipherType: CipherType.Login,
           login: {
             username: "",
             password: "",
@@ -1087,10 +1091,14 @@ describe("AutofillOverlayContentService", () => {
           password: passwordField,
         };
 
-        sendMockExtensionMessage({ command: "addNewVaultItemFromOverlay" });
+        sendMockExtensionMessage({
+          command: "addNewVaultItemFromOverlay",
+          addNewCipherType: CipherType.Login,
+        });
         await flushPromises();
 
         expect(sendExtensionMessageSpy).toHaveBeenCalledWith("autofillOverlayAddNewVaultItem", {
+          addNewCipherType: CipherType.Login,
           login: {
             username: "test-username",
             password: "test-password",

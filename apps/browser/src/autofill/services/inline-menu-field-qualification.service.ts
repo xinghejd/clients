@@ -14,7 +14,12 @@ export class InlineMenuFieldQualificationService
   private usernameAutocompleteValues = new Set(["username", "email"]);
   private fieldIgnoreListString = AutoFillConstants.FieldIgnoreList.join(",");
   private passwordFieldExcludeListString = AutoFillConstants.PasswordFieldExcludeList.join(",");
-  private passwordAutoCompleteValues = new Set(["new-password", "current-password"]);
+  private currentPasswordAutocompleteValue = "current-password";
+  private newPasswordAutoCompleteValue = "new-password";
+  private passwordAutoCompleteValues = new Set([
+    this.currentPasswordAutocompleteValue,
+    this.newPasswordAutoCompleteValue,
+  ]);
   private autofillFieldKeywordsMap: WeakMap<AutofillField, string> = new WeakMap();
   private autocompleteDisabledValues = new Set(["off", "false"]);
   private newFieldKeywords = new Set(["new", "change", "neue", "ändern"]);
@@ -94,21 +99,34 @@ export class InlineMenuFieldQualificationService
    * @param field
    */
   isFieldForCreditCardForm(field: AutofillField): boolean {
-    if (this.creditCardAutocompleteValues.has(field.autoCompleteType)) {
+    if (
+      this.fieldContainsAutocompleteValues(
+        field.autoCompleteType,
+        this.creditCardAutocompleteValues,
+      )
+    ) {
       return true;
     }
 
     if (
-      this.usernameAutocompleteValues.has(field.autoCompleteType) ||
-      this.passwordAutoCompleteValues.has(field.autoCompleteType) ||
+      this.fieldContainsAutocompleteValues(
+        field.autoCompleteType,
+        this.usernameAutocompleteValues,
+      ) ||
+      this.fieldContainsAutocompleteValues(
+        field.autoCompleteType,
+        this.passwordAutoCompleteValues,
+      ) ||
       this.keywordsFoundInFieldData(field, [...this.newFieldKeywords])
     ) {
       return false;
     }
 
     return (
-      !this.autocompleteDisabledValues.has(field.autoCompleteType) &&
-      this.keywordsFoundInFieldData(field, [...this.creditCardFieldKeywords])
+      !this.fieldContainsAutocompleteValues(
+        field.autoCompleteType,
+        this.autocompleteDisabledValues,
+      ) && this.keywordsFoundInFieldData(field, [...this.creditCardFieldKeywords])
     );
   }
 
@@ -124,7 +142,12 @@ export class InlineMenuFieldQualificationService
   ): boolean {
     // If the provided field is set with an autocomplete value of "current-password", we should assume that
     // the page developer intends for this field to be interpreted as a password field for a login form.
-    if (field.autoCompleteType === "current-password") {
+    if (
+      this.fieldContainsAutocompleteValues(
+        field.autoCompleteType,
+        this.currentPasswordAutocompleteValue,
+      )
+    ) {
       return true;
     }
 
@@ -157,7 +180,11 @@ export class InlineMenuFieldQualificationService
       // If a single username field or less is present on the page, then we can assume that the
       // provided field is for a login form. This will only be the case if the field does not
       // explicitly have its autocomplete attribute set to "off" or "false".
-      return !this.autocompleteDisabledValues.has(field.autoCompleteType);
+
+      return !this.fieldContainsAutocompleteValues(
+        field.autoCompleteType,
+        this.autocompleteDisabledValues,
+      );
     }
 
     // If the field has a form parent and there are multiple visible password fields
@@ -179,7 +206,10 @@ export class InlineMenuFieldQualificationService
 
     // If the field has a form parent and no username field exists and the field has an
     // autocomplete attribute set to "off" or "false", this is not a password field
-    return !this.autocompleteDisabledValues.has(field.autoCompleteType);
+    return !this.fieldContainsAutocompleteValues(
+      field.autoCompleteType,
+      this.autocompleteDisabledValues,
+    );
   }
 
   /**
@@ -194,7 +224,9 @@ export class InlineMenuFieldQualificationService
   ): boolean {
     // If the provided field is set with an autocomplete of "username", we should assume that
     // the page developer intends for this field to be interpreted as a username field.
-    if (this.usernameAutocompleteValues.has(field.autoCompleteType)) {
+    if (
+      this.fieldContainsAutocompleteValues(field.autoCompleteType, this.usernameAutocompleteValues)
+    ) {
       const newPasswordFieldsInPageDetails = pageDetails.fields.filter(this.isNewPasswordField);
       return newPasswordFieldsInPageDetails.length === 0;
     }
@@ -237,7 +269,10 @@ export class InlineMenuFieldQualificationService
       // If the page does not contain any password fields, it might be part of a multistep login form.
       // That will only be the case if the field does not explicitly have its autocomplete attribute
       // set to "off" or "false".
-      return !this.autocompleteDisabledValues.has(field.autoCompleteType);
+      return !this.fieldContainsAutocompleteValues(
+        field.autoCompleteType,
+        this.autocompleteDisabledValues,
+      );
     }
 
     // If the field is structured within a form, but no password fields are present in the form,
@@ -245,7 +280,12 @@ export class InlineMenuFieldQualificationService
     if (passwordFieldsInPageDetails.length === 0) {
       // If the field's autocomplete is set to a disabled value, we should assume that the field is
       // not part of a login form.
-      if (this.autocompleteDisabledValues.has(field.autoCompleteType)) {
+      if (
+        this.fieldContainsAutocompleteValues(
+          field.autoCompleteType,
+          this.autocompleteDisabledValues,
+        )
+      ) {
         return false;
       }
 
@@ -274,7 +314,10 @@ export class InlineMenuFieldQualificationService
 
     // If no visible password fields are found, this field might be part of a multipart form.
     // Check for an invalid autocompleteType to determine if the field is part of a login form.
-    return !this.autocompleteDisabledValues.has(field.autoCompleteType);
+    return !this.fieldContainsAutocompleteValues(
+      field.autoCompleteType,
+      this.autocompleteDisabledValues,
+    );
   }
 
   /**
@@ -283,13 +326,20 @@ export class InlineMenuFieldQualificationService
    * @param field - The field to validate
    */
   isFieldForCardholderName(field: AutofillField): boolean {
-    if (this.creditCardNameAutocompleteValues.has(field.autoCompleteType)) {
+    if (
+      this.fieldContainsAutocompleteValues(
+        field.autoCompleteType,
+        this.creditCardNameAutocompleteValues,
+      )
+    ) {
       return true;
     }
 
     return (
-      !this.autocompleteDisabledValues.has(field.autoCompleteType) &&
-      this.keywordsFoundInFieldData(field, CreditCardAutoFillConstants.CardHolderFieldNames)
+      !this.fieldContainsAutocompleteValues(
+        field.autoCompleteType,
+        this.autocompleteDisabledValues,
+      ) && this.keywordsFoundInFieldData(field, CreditCardAutoFillConstants.CardHolderFieldNames)
     );
   }
 
@@ -299,7 +349,12 @@ export class InlineMenuFieldQualificationService
    * @param field - The field to validate
    */
   isFieldForCardNumber(field: AutofillField): boolean {
-    if (field.autoCompleteType === this.creditCardNumberAutocompleteValue) {
+    if (
+      this.fieldContainsAutocompleteValues(
+        field.autoCompleteType,
+        this.creditCardNumberAutocompleteValue,
+      )
+    ) {
       return true;
     }
 
@@ -308,8 +363,10 @@ export class InlineMenuFieldQualificationService
     }
 
     return (
-      !this.autocompleteDisabledValues.has(field.autoCompleteType) &&
-      this.keywordsFoundInFieldData(field, CreditCardAutoFillConstants.CardNumberFieldNames)
+      !this.fieldContainsAutocompleteValues(
+        field.autoCompleteType,
+        this.autocompleteDisabledValues,
+      ) && this.keywordsFoundInFieldData(field, CreditCardAutoFillConstants.CardNumberFieldNames)
     );
   }
 
@@ -319,13 +376,20 @@ export class InlineMenuFieldQualificationService
    * @param field - The field to validate
    */
   isFieldForCardExpirationDate(field: AutofillField): boolean {
-    if (field.autoCompleteType === this.creditCardExpirationDateAutocompleteValue) {
+    if (
+      this.fieldContainsAutocompleteValues(
+        field.autoCompleteType,
+        this.creditCardExpirationDateAutocompleteValue,
+      )
+    ) {
       return true;
     }
 
     return (
-      !this.autocompleteDisabledValues.has(field.autoCompleteType) &&
-      this.keywordsFoundInFieldData(field, CreditCardAutoFillConstants.CardExpiryFieldNames)
+      !this.fieldContainsAutocompleteValues(
+        field.autoCompleteType,
+        this.autocompleteDisabledValues,
+      ) && this.keywordsFoundInFieldData(field, CreditCardAutoFillConstants.CardExpiryFieldNames)
     );
   }
 
@@ -335,13 +399,20 @@ export class InlineMenuFieldQualificationService
    * @param field - The field to validate
    */
   isFieldForCardExpirationMonth(field: AutofillField): boolean {
-    if (field.autoCompleteType === this.creditCardExpirationMonthAutocompleteValue) {
+    if (
+      this.fieldContainsAutocompleteValues(
+        field.autoCompleteType,
+        this.creditCardExpirationMonthAutocompleteValue,
+      )
+    ) {
       return true;
     }
 
     return (
-      !this.autocompleteDisabledValues.has(field.autoCompleteType) &&
-      this.keywordsFoundInFieldData(field, CreditCardAutoFillConstants.ExpiryMonthFieldNames)
+      !this.fieldContainsAutocompleteValues(
+        field.autoCompleteType,
+        this.autocompleteDisabledValues,
+      ) && this.keywordsFoundInFieldData(field, CreditCardAutoFillConstants.ExpiryMonthFieldNames)
     );
   }
 
@@ -351,13 +422,20 @@ export class InlineMenuFieldQualificationService
    * @param field - The field to validate
    */
   isFieldForCardExpirationYear(field: AutofillField): boolean {
-    if (field.autoCompleteType === this.creditCardExpirationYearAutocompleteValue) {
+    if (
+      this.fieldContainsAutocompleteValues(
+        field.autoCompleteType,
+        this.creditCardExpirationYearAutocompleteValue,
+      )
+    ) {
       return true;
     }
 
     return (
-      !this.autocompleteDisabledValues.has(field.autoCompleteType) &&
-      this.keywordsFoundInFieldData(field, CreditCardAutoFillConstants.ExpiryYearFieldNames)
+      !this.fieldContainsAutocompleteValues(
+        field.autoCompleteType,
+        this.autocompleteDisabledValues,
+      ) && this.keywordsFoundInFieldData(field, CreditCardAutoFillConstants.ExpiryYearFieldNames)
     );
   }
 
@@ -367,7 +445,12 @@ export class InlineMenuFieldQualificationService
    * @param field - The field to validate
    */
   isFieldForCardCvv(field: AutofillField): boolean {
-    if (field.autoCompleteType === this.creditCardCvvAutocompleteValue) {
+    if (
+      this.fieldContainsAutocompleteValues(
+        field.autoCompleteType,
+        this.creditCardCvvAutocompleteValue,
+      )
+    ) {
       return true;
     }
 
@@ -376,8 +459,10 @@ export class InlineMenuFieldQualificationService
     }
 
     return (
-      !this.autocompleteDisabledValues.has(field.autoCompleteType) &&
-      this.keywordsFoundInFieldData(field, CreditCardAutoFillConstants.CVVFieldNames)
+      !this.fieldContainsAutocompleteValues(
+        field.autoCompleteType,
+        this.autocompleteDisabledValues,
+      ) && this.keywordsFoundInFieldData(field, CreditCardAutoFillConstants.CVVFieldNames)
     );
   }
 
@@ -387,13 +472,20 @@ export class InlineMenuFieldQualificationService
    * @param field - The field to validate
    */
   isFieldForCardBrand(field: AutofillField): boolean {
-    if (field.autoCompleteType === this.creditCardTypeAutocompleteValue) {
+    if (
+      this.fieldContainsAutocompleteValues(
+        field.autoCompleteType,
+        this.creditCardTypeAutocompleteValue,
+      )
+    ) {
       return true;
     }
 
     return (
-      !this.autocompleteDisabledValues.has(field.autoCompleteType) &&
-      this.keywordsFoundInFieldData(field, CreditCardAutoFillConstants.CardBrandFieldNames)
+      !this.fieldContainsAutocompleteValues(
+        field.autoCompleteType,
+        this.autocompleteDisabledValues,
+      ) && this.keywordsFoundInFieldData(field, CreditCardAutoFillConstants.CardBrandFieldNames)
     );
   }
 
@@ -420,7 +512,10 @@ export class InlineMenuFieldQualificationService
    */
   private isCurrentPasswordField = (field: AutofillField): boolean => {
     if (
-      field.autoCompleteType === "new-password" ||
+      this.fieldContainsAutocompleteValues(
+        field.autoCompleteType,
+        this.newPasswordAutoCompleteValue,
+      ) ||
       this.keywordsFoundInFieldData(field, [...this.accountCreationFieldKeywords])
     ) {
       return false;
@@ -436,7 +531,10 @@ export class InlineMenuFieldQualificationService
    */
   private isNewPasswordField = (field: AutofillField): boolean => {
     if (
-      field.autoCompleteType === "current-password" ||
+      this.fieldContainsAutocompleteValues(
+        field.autoCompleteType,
+        this.currentPasswordAutocompleteValue,
+      ) ||
       !this.keywordsFoundInFieldData(field, [...this.accountCreationFieldKeywords])
     ) {
       return false;
@@ -608,6 +706,35 @@ export class InlineMenuFieldQualificationService
     this.autofillFieldKeywordsMap.set(autofillFieldData, keywordValues);
 
     return keywordValues;
+  }
+
+  /**
+   * Separates the provided field data into space-separated values and checks if any
+   * of the values are present in the provided set of autocomplete values.
+   *
+   * @param fieldAutocompleteValue - The field autocomplete value to validate
+   * @param autocompleteValues - The value or set of autocomplete values to check against
+   */
+  private fieldContainsAutocompleteValues(
+    fieldAutocompleteValue: string,
+    autocompleteValues: string | Set<string>,
+  ) {
+    if (!fieldAutocompleteValue || typeof fieldAutocompleteValue !== "string") {
+      return false;
+    }
+
+    const autocompleteValueParts = fieldAutocompleteValue.split(" ");
+    if (typeof autocompleteValues === "string") {
+      return autocompleteValueParts.includes(autocompleteValues);
+    }
+
+    for (let index = 0; index < autocompleteValueParts.length; index++) {
+      if (autocompleteValues.has(autocompleteValueParts[index])) {
+        return true;
+      }
+    }
+
+    return false;
   }
 
   /**

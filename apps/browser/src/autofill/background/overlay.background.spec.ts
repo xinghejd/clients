@@ -882,6 +882,7 @@ describe("OverlayBackground", () => {
         sendMockExtensionMessage(
           {
             command: "autofillOverlayAddNewVaultItem",
+            addNewCipherType: CipherType.Login,
             login: {
               uri: "https://tacos.com",
               hostname: "",
@@ -2026,12 +2027,16 @@ describe("OverlayBackground", () => {
         sendMockExtensionMessage({ command: "updateFocusedFieldData", focusedFieldData }, sender);
         await flushPromises();
 
-        sendPortMessage(listMessageConnectorSpy, { command: "addNewVaultItem", portKey });
+        sendPortMessage(listMessageConnectorSpy, {
+          command: "addNewVaultItem",
+          portKey,
+          addNewCipherType: CipherType.Login,
+        });
         await flushPromises();
 
         expect(tabsSendMessageSpy).toHaveBeenCalledWith(
           sender.tab,
-          { command: "addNewVaultItemFromOverlay" },
+          { command: "addNewVaultItemFromOverlay", addNewCipherType: CipherType.Login },
           { frameId: sender.frameId },
         );
       });
