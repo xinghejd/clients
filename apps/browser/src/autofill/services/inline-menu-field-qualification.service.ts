@@ -27,6 +27,18 @@ export class InlineMenuFieldQualificationService
     ...CreditCardAutoFillConstants.CVVFieldNames,
     ...CreditCardAutoFillConstants.CardBrandFieldNames,
   ]);
+  private creditCardAutocompleteValues = new Set([
+    "cc-name",
+    "cc-given-name,",
+    "cc-additional-name",
+    "cc-family-name",
+    "cc-number",
+    "cc-exp",
+    "cc-exp-month",
+    "cc-exp-year",
+    "cc-csc",
+    "cc-type",
+  ]);
   private inlineMenuFieldQualificationFlagSet = false;
 
   constructor() {
@@ -60,24 +72,32 @@ export class InlineMenuFieldQualificationService
     return this.isUsernameFieldForLoginForm(field, pageDetails);
   }
 
-  isFieldForCreditCardForm(field: AutofillField, pageDetails: AutofillPageDetails): boolean {
+  /**
+   * Validates the provided field as a field for a credit card form.
+   *
+   * @param field
+   */
+  isFieldForCreditCardForm(field: AutofillField): boolean {
     if (!this.creditCardFieldTypes.has(field.type)) {
       return false;
     }
 
-    if (this.usernameAutocompleteValues.has(field.autoCompleteType)) {
+    if (this.creditCardAutocompleteValues.has(field.autoCompleteType)) {
+      return true;
+    }
+
+    if (
+      this.usernameAutocompleteValues.has(field.autoCompleteType) ||
+      this.passwordAutoCompleteValues.has(field.autoCompleteType) ||
+      this.keywordsFoundInFieldData(field, [...this.newFieldKeywords])
+    ) {
       return false;
     }
 
-    if (this.passwordAutoCompleteValues.has(field.autoCompleteType)) {
-      return false;
-    }
-
-    if (this.keywordsFoundInFieldData(field, [...this.newFieldKeywords])) {
-      return false;
-    }
-
-    return this.keywordsFoundInFieldData(field, [...this.creditCardFieldKeywords]);
+    return (
+      this.keywordsFoundInFieldData(field, [...this.creditCardFieldKeywords]) &&
+      !this.autocompleteDisabledValues.has(field.autoCompleteType)
+    );
   }
 
   /**

@@ -658,12 +658,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
       return false;
     }
 
-    if (
-      this.inlineMenuFieldQualificationService.isFieldForCreditCardForm(
-        autofillFieldData,
-        pageDetails,
-      )
-    ) {
+    if (this.inlineMenuFieldQualificationService.isFieldForCreditCardForm(autofillFieldData)) {
       autofillFieldData.filledByCipherType = CipherType.Card;
       return false;
     }

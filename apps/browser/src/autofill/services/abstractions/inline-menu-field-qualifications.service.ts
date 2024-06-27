@@ -3,5 +3,5 @@ import AutofillPageDetails from "../../models/autofill-page-details";
 
 export interface InlineMenuFieldQualificationService {
   isFieldForLoginForm(field: AutofillField, pageDetails: AutofillPageDetails): boolean;
-  isFieldForCreditCardForm(field: AutofillField, pageDetails: AutofillPageDetails): boolean;
+  isFieldForCreditCardForm(field: AutofillField): boolean;
 }
