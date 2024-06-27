@@ -14,6 +14,8 @@ export class InlineMenuFieldQualificationService
   private usernameAutocompleteValues = new Set(["username", "email"]);
   private fieldIgnoreListString = AutoFillConstants.FieldIgnoreList.join(",");
   private passwordFieldExcludeListString = AutoFillConstants.PasswordFieldExcludeList.join(",");
+  private currentPasswordAutocompleteValues = new Set(["current-password"]);
+  private newPasswordAutoCompleteValues = new Set(["new-password"]);
   private autofillFieldKeywordsMap: WeakMap<AutofillField, string> = new WeakMap();
   private autocompleteDisabledValues = new Set(["off", "false"]);
   private newFieldKeywords = new Set(["new", "change", "neue", "ändern"]);
@@ -69,7 +71,12 @@ export class InlineMenuFieldQualificationService
   ): boolean {
     // If the provided field is set with an autocomplete value of "current-password", we should assume that
     // the page developer intends for this field to be interpreted as a password field for a login form.
-    if (field.autoCompleteType === "current-password") {
+    if (
+      this.fieldContainsAutocompleteValues(
+        field.autoCompleteType,
+        this.currentPasswordAutocompleteValues,
+      )
+    ) {
       return true;
     }
 
@@ -102,7 +109,11 @@ export class InlineMenuFieldQualificationService
       // If a single username field or less is present on the page, then we can assume that the
       // provided field is for a login form. This will only be the case if the field does not
       // explicitly have its autocomplete attribute set to "off" or "false".
-      return !this.autocompleteDisabledValues.has(field.autoCompleteType);
+
+      return !this.fieldContainsAutocompleteValues(
+        field.autoCompleteType,
+        this.autocompleteDisabledValues,
+      );
     }
 
     // If the field has a form parent and there are multiple visible password fields
@@ -124,7 +135,10 @@ export class InlineMenuFieldQualificationService
 
     // If the field has a form parent and no username field exists and the field has an
     // autocomplete attribute set to "off" or "false", this is not a password field
-    return !this.autocompleteDisabledValues.has(field.autoCompleteType);
+    return !this.fieldContainsAutocompleteValues(
+      field.autoCompleteType,
+      this.autocompleteDisabledValues,
+    );
   }
 
   /**
@@ -139,7 +153,9 @@ export class InlineMenuFieldQualificationService
   ): boolean {
     // If the provided field is set with an autocomplete of "username", we should assume that
     // the page developer intends for this field to be interpreted as a username field.
-    if (this.usernameAutocompleteValues.has(field.autoCompleteType)) {
+    if (
+      this.fieldContainsAutocompleteValues(field.autoCompleteType, this.usernameAutocompleteValues)
+    ) {
       const newPasswordFieldsInPageDetails = pageDetails.fields.filter(this.isNewPasswordField);
       return newPasswordFieldsInPageDetails.length === 0;
     }
@@ -182,7 +198,10 @@ export class InlineMenuFieldQualificationService
       // If the page does not contain any password fields, it might be part of a multistep login form.
       // That will only be the case if the field does not explicitly have its autocomplete attribute
       // set to "off" or "false".
-      return !this.autocompleteDisabledValues.has(field.autoCompleteType);
+      return !this.fieldContainsAutocompleteValues(
+        field.autoCompleteType,
+        this.autocompleteDisabledValues,
+      );
     }
 
     // If the field is structured within a form, but no password fields are present in the form,
@@ -190,7 +209,12 @@ export class InlineMenuFieldQualificationService
     if (passwordFieldsInPageDetails.length === 0) {
       // If the field's autocomplete is set to a disabled value, we should assume that the field is
       // not part of a login form.
-      if (this.autocompleteDisabledValues.has(field.autoCompleteType)) {
+      if (
+        this.fieldContainsAutocompleteValues(
+          field.autoCompleteType,
+          this.autocompleteDisabledValues,
+        )
+      ) {
         return false;
       }
 
@@ -219,7 +243,10 @@ export class InlineMenuFieldQualificationService
 
     // If no visible password fields are found, this field might be part of a multipart form.
     // Check for an invalid autocompleteType to determine if the field is part of a login form.
-    return !this.autocompleteDisabledValues.has(field.autoCompleteType);
+    return !this.fieldContainsAutocompleteValues(
+      field.autoCompleteType,
+      this.autocompleteDisabledValues,
+    );
   }
 
   /**
@@ -245,7 +272,10 @@ export class InlineMenuFieldQualificationService
    */
   private isCurrentPasswordField = (field: AutofillField): boolean => {
     if (
-      field.autoCompleteType === "new-password" ||
+      this.fieldContainsAutocompleteValues(
+        field.autoCompleteType,
+        this.newPasswordAutoCompleteValues,
+      ) ||
       this.keywordsFoundInFieldData(field, [...this.accountCreationFieldKeywords])
     ) {
       return false;
@@ -261,7 +291,10 @@ export class InlineMenuFieldQualificationService
    */
   private isNewPasswordField = (field: AutofillField): boolean => {
     if (
-      field.autoCompleteType === "current-password" ||
+      this.fieldContainsAutocompleteValues(
+        field.autoCompleteType,
+        this.currentPasswordAutocompleteValues,
+      ) ||
       !this.keywordsFoundInFieldData(field, [...this.accountCreationFieldKeywords])
     ) {
       return false;
@@ -433,6 +466,32 @@ export class InlineMenuFieldQualificationService
     this.autofillFieldKeywordsMap.set(autofillFieldData, keywordValues);
 
     return keywordValues;
+  }
+
+  /**
+   * Separates the provided field data into space-separated values and checks if any
+   * of the values are present in the provided set of autocomplete values.
+   *
+   * @param fieldAutocompleteValue - The field autocomplete value to validate
+   * @param autocompleteValues - The set of autocomplete values to check against
+   */
+  private fieldContainsAutocompleteValues(
+    fieldAutocompleteValue: string,
+    autocompleteValues: Set<string>,
+  ) {
+    if (!fieldAutocompleteValue) {
+      return false;
+    }
+
+    const autocompleteValueParts = fieldAutocompleteValue.split(" ");
+
+    for (let index = 0; index < autocompleteValueParts.length; index++) {
+      if (autocompleteValues.has(autocompleteValueParts[index])) {
+        return true;
+      }
+    }
+
+    return false;
   }
 
   /**
