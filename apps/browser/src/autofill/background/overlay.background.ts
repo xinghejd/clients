@@ -1102,6 +1102,10 @@ export class OverlayBackground implements OverlayBackgroundInterface {
         noItemsToShow: this.i18nService.translate("noItemsToShow"),
         newItem: this.i18nService.translate("newItem"),
         addNewVaultItem: this.i18nService.translate("addNewVaultItem"),
+        newLogin: this.i18nService.translate("newLogin"),
+        addNewLoginItem: this.i18nService.translate("addNewLoginItem"),
+        newCard: this.i18nService.translate("newCard"),
+        addNewCardItem: this.i18nService.translate("addNewCardItem"),
         cardNumberEndsWith: this.i18nService.translate("cardNumberEndsWith"),
       };
     }
@@ -1504,6 +1508,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       portName: isInlineMenuListPort
         ? AutofillOverlayPort.ListMessageConnector
         : AutofillOverlayPort.ButtonMessageConnector,
+      filledByCipherType: this.focusedFieldData?.filledByCipherType,
     });
     void this.updateInlineMenuPosition(
       {

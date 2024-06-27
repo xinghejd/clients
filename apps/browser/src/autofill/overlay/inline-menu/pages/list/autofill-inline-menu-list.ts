@@ -2,13 +2,14 @@ import "@webcomponents/custom-elements";
 import "lit/polyfill-support.js";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { EVENTS } from "@bitwarden/common/autofill/constants";
+import { CipherType } from "@bitwarden/common/vault/enums";
 
 import { InlineMenuCipherData } from "../../../../background/abstractions/overlay.background";
 import { buildSvgDomElement } from "../../../../utils";
 import { globeIcon, lockIcon, plusIcon, viewCipherIcon } from "../../../../utils/svg-icons";
 import {
-  InitAutofillInlineMenuListMessage,
   AutofillInlineMenuListWindowMessageHandlers,
+  InitAutofillInlineMenuListMessage,
 } from "../../abstractions/autofill-inline-menu-list";
 import { AutofillInlineMenuPageElement } from "../shared/autofill-inline-menu-page-element";
 
@@ -21,6 +22,7 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
   private cipherListScrollIsDebounced = false;
   private cipherListScrollDebounceTimeout: number | NodeJS.Timeout;
   private currentCipherIndex = 0;
+  private filledByCipherType: CipherType;
   private readonly showCiphersPerPage = 6;
   private readonly inlineMenuListWindowMessageHandlers: AutofillInlineMenuListWindowMessageHandlers =
     {
@@ -46,6 +48,7 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
    * @param authStatus - The current authentication status.
    * @param ciphers - The ciphers to display in the inline menu list.
    * @param portKey - Background generated key that allows the port to communicate with the background.
+   * @param filledByCipherType - The type of cipher that fills the current field.
    */
   private async initAutofillInlineMenuList({
     translations,
@@ -54,6 +57,7 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
     authStatus,
     ciphers,
     portKey,
+    filledByCipherType,
   }: InitAutofillInlineMenuListMessage) {
     const linkElement = await this.initAutofillInlineMenuPage(
       "list",
@@ -61,6 +65,8 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
       translations,
       portKey,
     );
+
+    this.filledByCipherType = filledByCipherType;
 
     const themeClass = `theme_${theme}`;
     globalThis.document.documentElement.classList.add(themeClass);
@@ -157,10 +163,10 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
     newItemButton.tabIndex = -1;
     newItemButton.id = "new-item-button";
     newItemButton.classList.add("add-new-item-button", "inline-menu-list-button");
-    newItemButton.textContent = this.getTranslation("newItem");
+    newItemButton.textContent = this.getNewItemButtonText();
     newItemButton.setAttribute(
       "aria-label",
-      `${this.getTranslation("addNewVaultItem")}, ${this.getTranslation("opensInANewWindow")}`,
+      `${this.getNewItemAriaLabel()}, ${this.getTranslation("opensInANewWindow")}`,
     );
     newItemButton.prepend(buildSvgDomElement(plusIcon));
     newItemButton.addEventListener(EVENTS.CLICK, this.handeNewItemButtonClick);
@@ -170,6 +176,36 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
     inlineMenuListButtonContainer.appendChild(newItemButton);
 
     this.inlineMenuListContainer.append(noItemsMessage, inlineMenuListButtonContainer);
+  }
+
+  /**
+   * Gets the new item text for the button based on the cipher type the focused field is filled by.
+   */
+  private getNewItemButtonText() {
+    if (this.filledByCipherType === CipherType.Login) {
+      return this.getTranslation("newLogin");
+    }
+
+    if (this.filledByCipherType === CipherType.Card) {
+      return this.getTranslation("newCard");
+    }
+
+    return this.getTranslation("newItem");
+  }
+
+  /**
+   * Gets the aria label for the new item button based on the cipher type the focused field is filled by.
+   */
+  private getNewItemAriaLabel() {
+    if (this.filledByCipherType === CipherType.Login) {
+      return this.getTranslation("addNewLoginItem");
+    }
+
+    if (this.filledByCipherType === CipherType.Card) {
+      return this.getTranslation("addNewCardItem");
+    }
+
+    return this.getTranslation("addNewVaultItem");
   }
 
   /**

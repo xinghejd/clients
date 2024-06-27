@@ -573,7 +573,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     this.focusedFieldData = {
       focusedFieldStyles: { paddingRight, paddingLeft },
       focusedFieldRects: { width, height, top, left },
-      filledByCipherType: autofillFieldData.filledByCipherType,
+      filledByCipherType: autofillFieldData?.filledByCipherType,
     };
 
     await this.sendExtensionMessage("updateFocusedFieldData", {
