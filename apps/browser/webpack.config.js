@@ -107,13 +107,13 @@ const plugins = [
   }),
   new HtmlWebpackPlugin({
     template: "./src/autofill/overlay/inline-menu/pages/button/button.html",
-    filename: "overlay/button.html",
-    chunks: ["overlay/button"],
+    filename: "overlay/menu-button.html",
+    chunks: ["overlay/menu-button"],
   }),
   new HtmlWebpackPlugin({
     template: "./src/autofill/overlay/inline-menu/pages/list/list.html",
-    filename: "overlay/list.html",
-    chunks: ["overlay/list"],
+    filename: "overlay/menu-list.html",
+    chunks: ["overlay/menu-list"],
   }),
   new HtmlWebpackPlugin({
     template: "./src/autofill/overlay/inline-menu/pages/menu-container/menu-container.html",
@@ -122,13 +122,13 @@ const plugins = [
   }),
   new HtmlWebpackPlugin({
     template: "./src/autofill/deprecated/overlay/pages/button/legacy-button.html",
-    filename: "overlay/legacy-button.html",
-    chunks: ["overlay/legacy-button"],
+    filename: "overlay/button.html",
+    chunks: ["overlay/button"],
   }),
   new HtmlWebpackPlugin({
     template: "./src/autofill/deprecated/overlay/pages/list/legacy-list.html",
-    filename: "overlay/legacy-list.html",
-    chunks: ["overlay/legacy-list"],
+    filename: "overlay/list.html",
+    chunks: ["overlay/list"],
   }),
   new CopyWebpackPlugin({
     patterns: [
@@ -185,18 +185,16 @@ const mainConfig = {
     "content/fido2-content-script": "./src/autofill/fido2/content/fido2-content-script.ts",
     "content/fido2-page-script": "./src/autofill/fido2/content/fido2-page-script.ts",
     "notification/bar": "./src/autofill/notification/bar.ts",
-    "overlay/button":
+    "overlay/menu-button":
       "./src/autofill/overlay/inline-menu/pages/button/bootstrap-autofill-inline-menu-button.ts",
-    "overlay/list":
+    "overlay/menu-list":
       "./src/autofill/overlay/inline-menu/pages/list/bootstrap-autofill-inline-menu-list.ts",
-
-    "overlay/legacy-button":
-      "./src/autofill/deprecated/overlay/pages/button/bootstrap-autofill-overlay-button.deprecated.ts",
-    "overlay/legacy-list":
-      "./src/autofill/deprecated/overlay/pages/list/bootstrap-autofill-overlay-list.deprecated.ts",
-
     "overlay/menu":
       "./src/autofill/overlay/inline-menu/pages/menu-container/bootstrap-autofill-inline-menu-container.ts",
+    "overlay/button":
+      "./src/autofill/deprecated/overlay/pages/button/bootstrap-autofill-overlay-button.deprecated.ts",
+    "overlay/list":
+      "./src/autofill/deprecated/overlay/pages/list/bootstrap-autofill-overlay-list.deprecated.ts",
     "encrypt-worker": "../../libs/common/src/platform/services/cryptography/encrypt.worker.ts",
     "content/lp-fileless-importer": "./src/tools/content/lp-fileless-importer.ts",
     "content/send-on-installed-message": "./src/vault/content/send-on-installed-message.ts",

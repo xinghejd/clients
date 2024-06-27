@@ -11,7 +11,7 @@ describe("AutofillOverlayIframeElement", () => {
         super();
         new AutofillOverlayIframeElement(
           this,
-          "overlay/legacy-button.html",
+          "overlay/button.html",
           "overlay/button",
           { background: "transparent", border: "none" },
           "bitwardenOverlayButton",
