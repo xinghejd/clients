@@ -34,6 +34,17 @@ describe("InlineMenuFieldQualificationService", () => {
           );
         });
 
+        it("has a keyword value that indicates the field is for a create account form", () => {
+          const field = mock<AutofillField>({
+            type: "password",
+            placeholder: "create account password",
+          });
+
+          expect(inlineMenuFieldQualificationService.isFieldForLoginForm(field, pageDetails)).toBe(
+            false,
+          );
+        });
+
         it("has a type that is an excluded type", () => {
           AutoFillConstants.ExcludedAutofillLoginTypes.forEach((excludedType) => {
             const field = mock<AutofillField>({
@@ -218,6 +229,26 @@ describe("InlineMenuFieldQualificationService", () => {
           );
         });
 
+        it("is structured on a page with a single set of username and password fields", () => {
+          const field = mock<AutofillField>({
+            type: "password",
+            htmlID: "user-password",
+            htmlName: "user-password",
+            placeholder: "user-password",
+          });
+          const usernameField = mock<AutofillField>({
+            type: "text",
+            htmlID: "user-username",
+            htmlName: "user-username",
+            placeholder: "user-username",
+          });
+          pageDetails.fields = [field, usernameField];
+
+          expect(inlineMenuFieldQualificationService.isFieldForLoginForm(field, pageDetails)).toBe(
+            true,
+          );
+        });
+
         it("has a type of `text` with an attribute that indicates the field is a password field", () => {
           const field = mock<AutofillField>({
             type: "text",
@@ -334,10 +365,9 @@ describe("InlineMenuFieldQualificationService", () => {
             });
             const passwordField = mock<AutofillField>({
               type: "password",
-              autoCompleteType: "new-password",
               htmlID: "user-password",
               htmlName: "user-password",
-              placeholder: "user-password",
+              placeholder: "register user-password",
             });
             pageDetails.fields = [field, passwordField];
 
