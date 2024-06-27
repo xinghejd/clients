@@ -18,6 +18,13 @@ export class InlineMenuFieldQualificationService
   private autofillFieldKeywordsMap: WeakMap<AutofillField, string> = new WeakMap();
   private autocompleteDisabledValues = new Set(["off", "false"]);
   private newFieldKeywords = new Set(["new", "change", "neue", "ändern"]);
+  private accountCreationFieldKeywords = new Set([
+    "register",
+    "registration",
+    "create",
+    "confirm",
+    ...this.newFieldKeywords,
+  ]);
   private creditCardFieldKeywords = new Set([
     ...CreditCardAutoFillConstants.CardHolderFieldNames,
     ...CreditCardAutoFillConstants.CardNumberFieldNames,
@@ -412,7 +419,10 @@ export class InlineMenuFieldQualificationService
    * @param field - The field to validate
    */
   private isCurrentPasswordField = (field: AutofillField): boolean => {
-    if (field.autoCompleteType === "new-password") {
+    if (
+      field.autoCompleteType === "new-password" ||
+      this.keywordsFoundInFieldData(field, [...this.accountCreationFieldKeywords])
+    ) {
       return false;
     }
 
@@ -425,7 +435,10 @@ export class InlineMenuFieldQualificationService
    * @param field - The field to validate
    */
   private isNewPasswordField = (field: AutofillField): boolean => {
-    if (field.autoCompleteType === "current-password") {
+    if (
+      field.autoCompleteType === "current-password" ||
+      !this.keywordsFoundInFieldData(field, [...this.accountCreationFieldKeywords])
+    ) {
       return false;
     }
 
