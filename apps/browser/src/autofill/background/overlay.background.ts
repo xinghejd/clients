@@ -1102,6 +1102,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
         noItemsToShow: this.i18nService.translate("noItemsToShow"),
         newItem: this.i18nService.translate("newItem"),
         addNewVaultItem: this.i18nService.translate("addNewVaultItem"),
+        cardNumberEndsWith: this.i18nService.translate("cardNumberEndsWith"),
       };
     }
 

@@ -87,7 +87,7 @@ exports[`AutofillInlineMenuList initAutofillInlineMenuList the list of ciphers f
               website login 1
             </span>
             <span
-              class="cipher-user-login"
+              class="cipher-subtitle"
               title="username1"
             >
               username1
@@ -156,7 +156,7 @@ exports[`AutofillInlineMenuList initAutofillInlineMenuList the list of ciphers f
               website login 2
             </span>
             <span
-              class="cipher-user-login"
+              class="cipher-subtitle"
               title="username2"
             >
               username2
@@ -297,7 +297,7 @@ exports[`AutofillInlineMenuList initAutofillInlineMenuList the list of ciphers f
               website login 4
             </span>
             <span
-              class="cipher-user-login"
+              class="cipher-subtitle"
               title="username4"
             >
               username4
@@ -367,7 +367,7 @@ exports[`AutofillInlineMenuList initAutofillInlineMenuList the list of ciphers f
               website login 5
             </span>
             <span
-              class="cipher-user-login"
+              class="cipher-subtitle"
               title="username5"
             >
               username5
@@ -437,7 +437,7 @@ exports[`AutofillInlineMenuList initAutofillInlineMenuList the list of ciphers f
               website login 6
             </span>
             <span
-              class="cipher-user-login"
+              class="cipher-subtitle"
               title="username6"
             >
               username6

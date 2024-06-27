@@ -3500,5 +3500,9 @@
   },
   "filters": {
     "message": "Filters"
+  },
+  "cardNumberEndsWith": {
+    "message": "card number ends with",
+    "description": "Used within the inline menu to provide an aria description when users are attempting to fill a card cipher."
   }
 }
