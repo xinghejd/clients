@@ -484,7 +484,6 @@ export class InlineMenuFieldQualificationService
     }
 
     const autocompleteValueParts = fieldAutocompleteValue.split(" ");
-
     for (let index = 0; index < autocompleteValueParts.length; index++) {
       if (autocompleteValues.has(autocompleteValueParts[index])) {
         return true;
