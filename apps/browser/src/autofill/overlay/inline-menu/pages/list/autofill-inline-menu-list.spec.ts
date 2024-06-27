@@ -305,8 +305,22 @@ describe("AutofillInlineMenuList", () => {
       expect(globalThis.parent.postMessage).not.toHaveBeenCalled();
     });
 
+    it("does not post a `checkAutofillInlineMenuButtonFocused` message if the inline menu list is currently hovered", () => {
+      jest.spyOn(globalThis.document, "hasFocus").mockReturnValue(false);
+      jest
+        .spyOn(autofillInlineMenuList["inlineMenuListContainer"], "matches")
+        .mockReturnValue(true);
+
+      postWindowMessage({ command: "checkAutofillInlineMenuListFocused" });
+
+      expect(globalThis.parent.postMessage).not.toHaveBeenCalled();
+    });
+
     it("posts a `checkAutofillInlineMenuButtonFocused` message to the parent if the inline menu is not currently focused", () => {
       jest.spyOn(globalThis.document, "hasFocus").mockReturnValue(false);
+      jest
+        .spyOn(autofillInlineMenuList["inlineMenuListContainer"], "matches")
+        .mockReturnValue(false);
 
       postWindowMessage({ command: "checkAutofillInlineMenuListFocused" });
 
