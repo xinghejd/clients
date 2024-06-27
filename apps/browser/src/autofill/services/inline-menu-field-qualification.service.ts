@@ -18,7 +18,6 @@ export class InlineMenuFieldQualificationService
   private autofillFieldKeywordsMap: WeakMap<AutofillField, string> = new WeakMap();
   private autocompleteDisabledValues = new Set(["off", "false"]);
   private newFieldKeywords = new Set(["new", "change", "neue", "ändern"]);
-  private creditCardFieldTypes = new Set(["text", "tel", "number"]);
   private creditCardFieldKeywords = new Set([
     ...CreditCardAutoFillConstants.CardHolderFieldNames,
     ...CreditCardAutoFillConstants.CardNumberFieldNames,
@@ -88,10 +87,6 @@ export class InlineMenuFieldQualificationService
    * @param field
    */
   isFieldForCreditCardForm(field: AutofillField): boolean {
-    if (!this.creditCardFieldTypes.has(field.type)) {
-      return false;
-    }
-
     if (this.creditCardAutocompleteValues.has(field.autoCompleteType)) {
       return true;
     }
