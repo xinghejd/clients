@@ -584,6 +584,37 @@ describe("OverlayBackground", () => {
             );
           });
 
+          it("skips updating the inline menu list if the user has the inline menu set to open on button click", async () => {
+            inlineMenuVisibilityMock$.next(AutofillOverlayVisibility.OnButtonClick);
+            tabsSendMessageSpy.mockImplementation((_tab, message, _options) => {
+              if (message.command === "checkMostRecentlyFocusedFieldHasValue") {
+                return Promise.resolve(true);
+              }
+
+              return Promise.resolve({});
+            });
+
+            sendMockExtensionMessage({ command: "triggerAutofillOverlayReposition" }, sender);
+            await flushUpdateInlineMenuPromises();
+
+            expect(tabsSendMessageSpy).toHaveBeenCalledWith(
+              sender.tab,
+              {
+                command: "appendAutofillInlineMenuToDom",
+                overlayElement: AutofillOverlayElement.Button,
+              },
+              { frameId: 0 },
+            );
+            expect(tabsSendMessageSpy).not.toHaveBeenCalledWith(
+              sender.tab,
+              {
+                command: "appendAutofillInlineMenuToDom",
+                overlayElement: AutofillOverlayElement.List,
+              },
+              { frameId: 0 },
+            );
+          });
+
           it("skips updating the inline menu list if the focused field has a value and the user status is not unlocked", async () => {
             activeAccountStatusMock$.next(AuthenticationStatus.Locked);
             tabsSendMessageSpy.mockImplementation((_tab, message, _options) => {
