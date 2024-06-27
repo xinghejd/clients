@@ -1044,7 +1044,7 @@ describe("OverlayBackground", () => {
       expect(listPortSpy.onMessage.addListener).toHaveBeenCalled();
       expect(listPortSpy.postMessage).toHaveBeenCalled();
       expect(overlayBackground["getAuthStatus"]).toHaveBeenCalled();
-      expect(chrome.runtime.getURL).toHaveBeenCalledWith("overlay/legacy-list.css");
+      expect(chrome.runtime.getURL).toHaveBeenCalledWith("overlay/list.css");
       expect(overlayBackground["getTranslations"]).toHaveBeenCalled();
       expect(overlayBackground["getOverlayCipherData"]).toHaveBeenCalled();
       expect(overlayBackground["updateOverlayPosition"]).toHaveBeenCalledWith(
@@ -1061,7 +1061,7 @@ describe("OverlayBackground", () => {
       expect(buttonPortSpy.onMessage.addListener).toHaveBeenCalled();
       expect(buttonPortSpy.postMessage).toHaveBeenCalled();
       expect(overlayBackground["getAuthStatus"]).toHaveBeenCalled();
-      expect(chrome.runtime.getURL).toHaveBeenCalledWith("overlay/legacy-button.css");
+      expect(chrome.runtime.getURL).toHaveBeenCalledWith("overlay/button.css");
       expect(overlayBackground["getTranslations"]).toHaveBeenCalled();
       expect(overlayBackground["updateOverlayPosition"]).toHaveBeenCalledWith(
         { overlayElement: AutofillOverlayElement.Button },
