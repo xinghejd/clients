@@ -421,7 +421,7 @@ describe("AutofillInlineMenuIframeService", () => {
           "opacity 125ms ease-out 0s",
         );
         expect(sendExtensionMessageSpy).toHaveBeenCalledWith("closeAutofillInlineMenu", {
-          forceClose: true,
+          forceCloseInlineMenu: true,
         });
       });
 
@@ -480,7 +480,7 @@ describe("AutofillInlineMenuIframeService", () => {
       await flushPromises();
 
       expect(sendExtensionMessageSpy).toHaveBeenCalledWith("closeAutofillInlineMenu", {
-        forceClose: true,
+        forceCloseInlineMenu: true,
       });
     });
 
@@ -492,7 +492,7 @@ describe("AutofillInlineMenuIframeService", () => {
       await flushPromises();
 
       expect(sendExtensionMessageSpy).toHaveBeenCalledWith("closeAutofillInlineMenu", {
-        forceClose: true,
+        forceCloseInlineMenu: true,
       });
     });
 
