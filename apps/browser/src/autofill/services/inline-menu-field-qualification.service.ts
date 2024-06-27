@@ -534,13 +534,15 @@ export class InlineMenuFieldQualificationService
       this.fieldContainsAutocompleteValues(
         field.autoCompleteType,
         this.currentPasswordAutocompleteValue,
-      ) ||
-      !this.keywordsFoundInFieldData(field, [...this.accountCreationFieldKeywords])
+      )
     ) {
       return false;
     }
 
-    return this.isPasswordField(field);
+    return (
+      this.isPasswordField(field) &&
+      this.keywordsFoundInFieldData(field, [...this.accountCreationFieldKeywords])
+    );
   };
 
   /**
