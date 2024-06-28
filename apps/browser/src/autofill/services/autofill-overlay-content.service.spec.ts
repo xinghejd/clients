@@ -684,7 +684,7 @@ describe("AutofillOverlayContentService", () => {
           });
 
           it("stores card expiration date fields", async () => {
-            inputFieldData.autoCompleteType = "card-exp";
+            inputFieldData.autoCompleteType = "cc-exp";
 
             await autofillOverlayContentService.setupInlineMenu(
               inputFieldElement,

@@ -713,4 +713,30 @@ describe("InlineMenuFieldQualificationService", () => {
       });
     });
   });
+
+  describe("isFieldForCreditCardForm", () => {
+    it("returns false for fields that contain a username autocomplete attribute", () => {
+      const field = mock<AutofillField>({
+        autoCompleteType: "username",
+      });
+
+      expect(inlineMenuFieldQualificationService.isFieldForCreditCardForm(field)).toBe(false);
+    });
+
+    it("returns false for fields that contain a password autocomplete attribute", () => {
+      const field = mock<AutofillField>({
+        autoCompleteType: "current-password",
+      });
+
+      expect(inlineMenuFieldQualificationService.isFieldForCreditCardForm(field)).toBe(false);
+    });
+
+    it("returns false for fields that reference a `new` keyword", () => {
+      const field = mock<AutofillField>({
+        placeholder: "new credit card",
+      });
+
+      expect(inlineMenuFieldQualificationService.isFieldForCreditCardForm(field)).toBe(false);
+    });
+  });
 });
