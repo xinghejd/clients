@@ -1201,18 +1201,17 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       login,
       card,
     });
-    if (!cipherView) {
-      return;
+
+    if (cipherView) {
+      this.closeInlineMenu(sender);
+      await this.cipherService.setAddEditCipherInfo({
+        cipher: cipherView,
+        collectionIds: cipherView.collectionIds,
+      });
+
+      await this.openAddEditVaultItemPopout(sender.tab, { cipherId: cipherView.id });
+      await BrowserApi.sendMessage("inlineAutofillMenuRefreshAddEditCipher");
     }
-
-    this.closeInlineMenu(sender);
-    await this.cipherService.setAddEditCipherInfo({
-      cipher: cipherView,
-      collectionIds: cipherView.collectionIds,
-    });
-
-    await this.openAddEditVaultItemPopout(sender.tab, { cipherId: cipherView.id });
-    await BrowserApi.sendMessage("inlineAutofillMenuRefreshAddEditCipher");
   }
 
   /**

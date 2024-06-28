@@ -705,6 +705,13 @@ describe("OverlayBackground", () => {
       type: CipherType.Card,
       card: { subTitle: "subtitle-2" },
     });
+    const cipher3 = mock<CipherView>({
+      id: "id-3",
+      localData: { lastUsedDate: 222 },
+      name: "name-3",
+      type: CipherType.Login,
+      login: { username: "username-3", uri: url },
+    });
 
     beforeEach(() => {
       activeAccountStatusMock$.next(AuthenticationStatus.Unlocked);
@@ -781,15 +788,19 @@ describe("OverlayBackground", () => {
     it("queries only login ciphers when not updating all cipher types", async () => {
       overlayBackground["cardAndIdentityCiphers"] = new Set([]);
       getTabFromCurrentWindowIdSpy.mockResolvedValueOnce(tab);
-      cipherService.getAllDecryptedForUrl.mockResolvedValue([cipher1]);
+      cipherService.getAllDecryptedForUrl.mockResolvedValue([cipher3, cipher1]);
       cipherService.sortCiphersByLastUsedThenName.mockReturnValue(-1);
 
       await overlayBackground.updateOverlayCiphers(false);
 
       expect(BrowserApi.getTabFromCurrentWindowId).toHaveBeenCalled();
       expect(cipherService.getAllDecryptedForUrl).toHaveBeenCalledWith(url);
+      expect(cipherService.sortCiphersByLastUsedThenName).toHaveBeenCalled();
       expect(overlayBackground["inlineMenuCiphers"]).toStrictEqual(
-        new Map([["inline-menu-cipher-0", cipher1]]),
+        new Map([
+          ["inline-menu-cipher-0", cipher1],
+          ["inline-menu-cipher-1", cipher3],
+        ]),
       );
     });
 
@@ -918,6 +929,29 @@ describe("OverlayBackground", () => {
               hostname: "",
               username: "username",
               password: "password",
+            },
+          },
+          sender,
+        );
+        await flushPromises();
+
+        expect(cipherService.setAddEditCipherInfo).toHaveBeenCalled();
+        expect(sendMessageSpy).toHaveBeenCalledWith("inlineAutofillMenuRefreshAddEditCipher");
+        expect(openAddEditVaultItemPopoutSpy).toHaveBeenCalled();
+      });
+
+      it("creates a new card cipher", async () => {
+        sendMockExtensionMessage(
+          {
+            command: "autofillOverlayAddNewVaultItem",
+            addNewCipherType: CipherType.Card,
+            card: {
+              cardholderName: "cardholderName",
+              number: "4242424242424242",
+              expirationMonth: "12",
+              expirationYear: "2025",
+              expirationDate: "12/25",
+              cvv: "123",
             },
           },
           sender,
