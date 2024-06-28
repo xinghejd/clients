@@ -1194,6 +1194,33 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       return;
     }
 
+    const cipherView: CipherView = this.buildNewVaultItemCipherView({
+      addNewCipherType,
+      login,
+      card,
+    });
+    if (!cipherView) {
+      return;
+    }
+
+    this.closeInlineMenu(sender);
+    await this.cipherService.setAddEditCipherInfo({
+      cipher: cipherView,
+      collectionIds: cipherView.collectionIds,
+    });
+
+    await this.openAddEditVaultItemPopout(sender.tab, { cipherId: cipherView.id });
+    await BrowserApi.sendMessage("inlineAutofillMenuRefreshAddEditCipher");
+  }
+
+  /**
+   * Builds and returns a new cipher view with the provided vault item data.
+   *
+   * @param addNewCipherType - The type of cipher to add
+   * @param login - The login data captured from the extension message
+   * @param card - The card data captured from the extension message
+   */
+  private buildNewVaultItemCipherView({ addNewCipherType, login, card }: OverlayAddNewItemMessage) {
     let cipherView: CipherView;
 
     if (login && addNewCipherType === CipherType.Login) {
@@ -1210,38 +1237,30 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       cipherView.folderId = null;
       cipherView.type = CipherType.Login;
       cipherView.login = loginView;
+
+      return cipherView;
     }
 
-    if (card && addNewCipherType === CipherType.Card) {
-      const cardView = new CardView();
-      cardView.cardholderName = card.cardholderName || "";
-      cardView.number = card.number || "";
-      cardView.expMonth = card.expirationMonth || "";
-      cardView.expYear = card.expirationYear || "";
-      cardView.code = card.cvv || "";
-      cardView.brand = card.number ? CardView.getCardBrandByPatterns(card.number) : "";
-
-      cipherView = new CipherView();
-      cipherView.name = "";
-      cipherView.folderId = null;
-      cipherView.type = CipherType.Card;
-      cipherView.card = cardView;
-    }
-
-    if (!cipherView) {
+    if (!card || addNewCipherType !== CipherType.Card) {
       return;
     }
 
-    this.closeInlineMenu(sender);
-    await this.cipherService.setAddEditCipherInfo({
-      cipher: cipherView,
-      collectionIds: cipherView.collectionIds,
-    });
+    const cardView = new CardView();
+    cardView.cardholderName = card.cardholderName || "";
+    cardView.number = card.number || "";
+    cardView.expMonth = card.expirationMonth || "";
+    cardView.expYear = card.expirationYear || "";
+    cardView.code = card.cvv || "";
+    cardView.brand = card.number ? CardView.getCardBrandByPatterns(card.number) : "";
 
-    await this.openAddEditVaultItemPopout(sender.tab, { cipherId: cipherView.id });
-    await BrowserApi.sendMessage("inlineAutofillMenuRefreshAddEditCipher");
+    cipherView = new CipherView();
+    cipherView.name = "";
+    cipherView.folderId = null;
+    cipherView.type = CipherType.Card;
+    cipherView.card = cardView;
+
+    return cipherView;
   }
-
   /**
    * Updates the property that identifies if a form field set up for the inline menu is currently focused.
    *
