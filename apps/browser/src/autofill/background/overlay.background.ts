@@ -328,10 +328,6 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     message: OverlayBackgroundExtensionMessage,
     sender: chrome.runtime.MessageSender,
   ) {
-    if (!this.portKeyForTab[sender.tab.id]) {
-      this.portKeyForTab[sender.tab.id] = generateRandomChars(12);
-    }
-
     const pageDetails = {
       frameId: sender.frameId,
       tab: sender.tab,
@@ -1521,6 +1517,10 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     const isInlineMenuButtonPort = port.name === AutofillOverlayPort.Button;
     if (!isInlineMenuListPort && !isInlineMenuButtonPort) {
       return;
+    }
+
+    if (!this.portKeyForTab[port.sender.tab.id]) {
+      this.portKeyForTab[port.sender.tab.id] = generateRandomChars(12);
     }
 
     this.storeOverlayPort(port);

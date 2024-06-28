@@ -614,12 +614,12 @@ export class InlineMenuFieldQualificationService
    * Separates the provided field data into space-separated values and checks if any
    * of the values are present in the provided set of autocomplete values.
    *
-   * @param autofillFieldData - The field data to check against
-   * @param autocompleteValues - The value or set of autocomplete values to check against
+   * @param autofillFieldData - The field autocomplete value to validate
+   * @param compareValues - The set of autocomplete values to check against
    */
   private fieldContainsAutocompleteValues(
     autofillFieldData: AutofillField,
-    autocompleteValues: string | Set<string>,
+    compareValues: string | Set<string>,
   ) {
     const fieldAutocompleteValue = autofillFieldData.autoCompleteType;
     if (!fieldAutocompleteValue || typeof fieldAutocompleteValue !== "string") {
@@ -627,12 +627,12 @@ export class InlineMenuFieldQualificationService
     }
 
     const autocompleteValueParts = fieldAutocompleteValue.split(" ");
-    if (typeof autocompleteValues === "string") {
-      return autocompleteValueParts.includes(autocompleteValues);
+    if (typeof compareValues === "string") {
+      return autocompleteValueParts.includes(compareValues);
     }
 
     for (let index = 0; index < autocompleteValueParts.length; index++) {
-      if (autocompleteValues.has(autocompleteValueParts[index])) {
+      if (compareValues.has(autocompleteValueParts[index])) {
         return true;
       }
     }
