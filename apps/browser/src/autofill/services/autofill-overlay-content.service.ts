@@ -753,9 +753,6 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
       return false;
     }
 
-    // creditCardFieldTypes = new Set(["text", "number", "password"]);
-    //TODO: Need to set up conditional checks to show the inline menu on the types above... but to still set up an "input" listener on types of "select"
-
     if (this.inlineMenuFieldQualificationService.isFieldForCreditCardForm(autofillFieldData)) {
       autofillFieldData.filledByCipherType = CipherType.Card;
       return false;
