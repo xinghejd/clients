@@ -286,6 +286,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       this.cardAndIdentityCiphers = new Set([]);
     }
 
+    this.cardAndIdentityCiphers.clear();
     const cipherViews = (
       await this.cipherService.getAllDecryptedForUrl(currentTab.url, [CipherType.Card])
     ).sort((a, b) => this.cipherService.sortCiphersByLastUsedThenName(a, b));
