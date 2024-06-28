@@ -70,7 +70,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
   private inlineMenuCiphers: Map<string, CipherView> = new Map();
   private inlineMenuPageTranslations: Record<string, string>;
   private inlineMenuPosition: InlineMenuPosition = {};
-  private cardAndIdentityCiphers: CipherView[] | null = null;
+  private cardAndIdentityCiphers: Set<CipherView> | null = null;
   private currentInlineMenuCiphersCount: number = 0;
   private delayedCloseTimeout: number | NodeJS.Timeout;
   private startInlineMenuFadeInSubject = new Subject<void>();
@@ -271,7 +271,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       (a, b) => this.cipherService.sortCiphersByLastUsedThenName(a, b),
     );
 
-    return cipherViews.concat(this.cardAndIdentityCiphers);
+    return cipherViews.concat(...this.cardAndIdentityCiphers);
   }
 
   /**
@@ -281,7 +281,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
    */
   private async getAllCipherTypeViews(currentTab: chrome.tabs.Tab): Promise<CipherView[]> {
     if (!this.cardAndIdentityCiphers) {
-      this.cardAndIdentityCiphers = [];
+      this.cardAndIdentityCiphers = new Set([]);
     }
 
     const cipherViews = (
@@ -289,8 +289,8 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     ).sort((a, b) => this.cipherService.sortCiphersByLastUsedThenName(a, b));
     for (let cipherIndex = 0; cipherIndex < cipherViews.length; cipherIndex++) {
       const cipherView = cipherViews[cipherIndex];
-      if (cipherView.type === CipherType.Card) {
-        this.cardAndIdentityCiphers.push(cipherView);
+      if (cipherView.type === CipherType.Card && !this.cardAndIdentityCiphers.has(cipherView)) {
+        this.cardAndIdentityCiphers.add(cipherView);
       }
     }
 
