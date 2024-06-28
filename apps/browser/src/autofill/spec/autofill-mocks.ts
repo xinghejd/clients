@@ -208,6 +208,7 @@ export function createInitAutofillInlineMenuListMessageMock(
     theme: ThemeType.Light,
     authStatus: AuthenticationStatus.Unlocked,
     portKey: "portKey",
+    filledByCipherType: CipherType.Login,
     ciphers: [
       createAutofillOverlayCipherDataMock(1, {
         icon: {
