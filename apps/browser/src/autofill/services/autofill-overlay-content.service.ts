@@ -279,6 +279,10 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
       EVENTS.INPUT,
       this.handleFormFieldInputEvent(formFieldElement),
     );
+    formFieldElement.addEventListener(
+      EVENTS.FOCUS,
+      this.handleFormFieldFocusEvent(formFieldElement),
+    );
 
     if (elementIsSelectElement(formFieldElement)) {
       return;
@@ -289,10 +293,6 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     formFieldElement.addEventListener(
       EVENTS.CLICK,
       this.handleFormFieldClickEvent(formFieldElement),
-    );
-    formFieldElement.addEventListener(
-      EVENTS.FOCUS,
-      this.handleFormFieldFocusEvent(formFieldElement),
     );
   }
 
@@ -575,6 +575,11 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
    */
   private async triggerFormFieldFocusedAction(formFieldElement: ElementWithOpId<FormFieldElement>) {
     if (await this.isFieldCurrentlyFilling()) {
+      return;
+    }
+
+    if (elementIsSelectElement(formFieldElement)) {
+      await this.sendExtensionMessage("closeAutofillInlineMenu");
       return;
     }
 
