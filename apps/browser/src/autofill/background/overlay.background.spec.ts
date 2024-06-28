@@ -203,10 +203,6 @@ describe("OverlayBackground", () => {
       );
     });
 
-    it("generates a random 12 character string used to validate port messages from the tab", () => {
-      expect(portKeyForTabSpy[tabId]).toHaveLength(12);
-    });
-
     it("stores the page details for the tab", () => {
       expect(pageDetailsForTabSpy[tabId]).toBeDefined();
     });
@@ -2171,6 +2167,16 @@ describe("OverlayBackground", () => {
 
       expect(port.onMessage.addListener).not.toHaveBeenCalled();
       expect(port.postMessage).not.toHaveBeenCalled();
+    });
+
+    it("generates a random 12 character string used to validate port messages from the tab", async () => {
+      const port = createPortSpyMock(AutofillOverlayPort.Button);
+      overlayBackground["inlineMenuButtonPort"] = port;
+
+      triggerPortOnConnectEvent(port);
+      await flushPromises();
+
+      expect(portKeyForTabSpy[port.sender.tab.id]).toHaveLength(12);
     });
 
     it("stores an existing overlay port so that it can be disconnected at a later time", async () => {
