@@ -70,7 +70,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
   private inlineMenuCiphers: Map<string, CipherView> = new Map();
   private inlineMenuPageTranslations: Record<string, string>;
   private inlineMenuPosition: InlineMenuPosition = {};
-  private cardAndIdentityCiphers: CipherView[] = [];
+  private cardAndIdentityCiphers: CipherView[] | null = null;
   private currentInlineMenuCiphersCount: number = 0;
   private delayedCloseTimeout: number | NodeJS.Timeout;
   private startInlineMenuFadeInSubject = new Subject<void>();
@@ -253,22 +253,18 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     });
   }
 
+  /**
+   * Gets the decrypted ciphers within a user's vault based on the current tab's URL.
+   *
+   * @param currentTab - The current tab
+   * @param updateAllCipherTypes - Identifies credit card and identity cipher types should also be updated
+   */
   private async getCipherViews(
     currentTab: chrome.tabs.Tab,
     updateAllCipherTypes: boolean,
   ): Promise<CipherView[]> {
-    if (updateAllCipherTypes) {
-      const cipherViews = (
-        await this.cipherService.getAllDecryptedForUrl(currentTab.url, [CipherType.Card])
-      ).sort((a, b) => this.cipherService.sortCiphersByLastUsedThenName(a, b));
-      for (let cipherIndex = 0; cipherIndex < cipherViews.length; cipherIndex++) {
-        const cipherView = cipherViews[cipherIndex];
-        if (cipherView.type === CipherType.Card) {
-          this.cardAndIdentityCiphers.push(cipherView);
-        }
-      }
-
-      return cipherViews;
+    if (updateAllCipherTypes || !this.cardAndIdentityCiphers) {
+      return this.getAllCipherTypeViews(currentTab);
     }
 
     const cipherViews = (await this.cipherService.getAllDecryptedForUrl(currentTab.url)).sort(
@@ -276,6 +272,29 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     );
 
     return cipherViews.concat(this.cardAndIdentityCiphers);
+  }
+
+  /**
+   * Queries all cipher types from the user's vault returns them sorted by last used.
+   *
+   * @param currentTab - The current tab
+   */
+  private async getAllCipherTypeViews(currentTab: chrome.tabs.Tab): Promise<CipherView[]> {
+    if (!this.cardAndIdentityCiphers) {
+      this.cardAndIdentityCiphers = [];
+    }
+
+    const cipherViews = (
+      await this.cipherService.getAllDecryptedForUrl(currentTab.url, [CipherType.Card])
+    ).sort((a, b) => this.cipherService.sortCiphersByLastUsedThenName(a, b));
+    for (let cipherIndex = 0; cipherIndex < cipherViews.length; cipherIndex++) {
+      const cipherView = cipherViews[cipherIndex];
+      if (cipherView.type === CipherType.Card) {
+        this.cardAndIdentityCiphers.push(cipherView);
+      }
+    }
+
+    return cipherViews;
   }
 
   /**
