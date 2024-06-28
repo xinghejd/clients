@@ -475,11 +475,11 @@ export class InlineMenuFieldQualificationService
    * of the values are present in the provided set of autocomplete values.
    *
    * @param fieldAutocompleteValue - The field autocomplete value to validate
-   * @param autocompleteValues - The set of autocomplete values to check against
+   * @param compareValues - The set of autocomplete values to check against
    */
   private fieldContainsAutocompleteValues(
     fieldAutocompleteValue: string,
-    autocompleteValues: Set<string>,
+    compareValues: Set<string>,
   ) {
     if (!fieldAutocompleteValue) {
       return false;
@@ -487,7 +487,7 @@ export class InlineMenuFieldQualificationService
 
     const autocompleteValueParts = fieldAutocompleteValue.split(" ");
     for (let index = 0; index < autocompleteValueParts.length; index++) {
-      if (autocompleteValues.has(autocompleteValueParts[index])) {
+      if (compareValues.has(autocompleteValueParts[index])) {
         return true;
       }
     }

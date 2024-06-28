@@ -386,10 +386,10 @@ describe("InlineMenuFieldQualificationService", () => {
             });
             const passwordField = mock<AutofillField>({
               type: "password",
+              autoCompleteType: "new-password",
               htmlID: "user-password",
               htmlName: "user-password",
-              placeholder: "register user-password",
-              autoCompleteType: "",
+              placeholder: "user-password",
             });
             pageDetails.fields = [field, passwordField];
 
@@ -399,21 +399,23 @@ describe("InlineMenuFieldQualificationService", () => {
           });
         });
 
-        ["new", "change", "neue", "ändern"].forEach((keyword) => {
-          it(`has a keyword of ${keyword} that indicates a 'new or changed' username is being filled`, () => {
-            const field = mock<AutofillField>({
-              type: "text",
-              autoCompleteType: "",
-              htmlID: "user-username",
-              htmlName: "user-username",
-              placeholder: `${keyword} username`,
-            });
+        ["new", "change", "neue", "ändern", "register", "create", "registration"].forEach(
+          (keyword) => {
+            it(`has a keyword of ${keyword} that indicates a 'new or changed' username is being filled`, () => {
+              const field = mock<AutofillField>({
+                type: "text",
+                autoCompleteType: "",
+                htmlID: "user-username",
+                htmlName: "user-username",
+                placeholder: `${keyword} username`,
+              });
 
-            expect(
-              inlineMenuFieldQualificationService.isFieldForLoginForm(field, pageDetails),
-            ).toBe(false);
-          });
-        });
+              expect(
+                inlineMenuFieldQualificationService.isFieldForLoginForm(field, pageDetails),
+              ).toBe(false);
+            });
+          },
+        );
 
         describe("does not have a parent form element", () => {
           beforeEach(() => {
