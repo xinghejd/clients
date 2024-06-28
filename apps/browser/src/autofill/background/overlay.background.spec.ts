@@ -321,6 +321,7 @@ describe("OverlayBackground", () => {
   describe("removing pageDetails", () => {
     it("removes the page details and port key for a specific tab from the pageDetailsForTab object", () => {
       const tabId = 1;
+      portKeyForTabSpy[tabId] = "portKey";
       sendMockExtensionMessage(
         { command: "collectPageDetailsResponse", details: createAutofillPageDetailsMock() },
         mock<chrome.runtime.MessageSender>({ tab: createChromeTabMock({ id: tabId }), frameId: 1 }),
@@ -759,12 +760,45 @@ describe("OverlayBackground", () => {
       );
     });
 
-    it("queries all ciphers for the given url, sort them by last used, and format them for usage in the overlay", async () => {
+    it("queries all cipher types, sorts them by last used, and formats them for usage in the overlay", async () => {
       getTabFromCurrentWindowIdSpy.mockResolvedValueOnce(tab);
       cipherService.getAllDecryptedForUrl.mockResolvedValue([cipher1, cipher2]);
       cipherService.sortCiphersByLastUsedThenName.mockReturnValue(-1);
 
       await overlayBackground.updateOverlayCiphers();
+
+      expect(BrowserApi.getTabFromCurrentWindowId).toHaveBeenCalled();
+      expect(cipherService.getAllDecryptedForUrl).toHaveBeenCalledWith(url, [CipherType.Card]);
+      expect(cipherService.sortCiphersByLastUsedThenName).toHaveBeenCalled();
+      expect(overlayBackground["inlineMenuCiphers"]).toStrictEqual(
+        new Map([
+          ["inline-menu-cipher-0", cipher2],
+          ["inline-menu-cipher-1", cipher1],
+        ]),
+      );
+    });
+
+    it("queries only login ciphers when not updating all cipher types", async () => {
+      overlayBackground["cardAndIdentityCiphers"] = new Set([]);
+      getTabFromCurrentWindowIdSpy.mockResolvedValueOnce(tab);
+      cipherService.getAllDecryptedForUrl.mockResolvedValue([cipher1]);
+      cipherService.sortCiphersByLastUsedThenName.mockReturnValue(-1);
+
+      await overlayBackground.updateOverlayCiphers(false);
+
+      expect(BrowserApi.getTabFromCurrentWindowId).toHaveBeenCalled();
+      expect(cipherService.getAllDecryptedForUrl).toHaveBeenCalledWith(url);
+      expect(overlayBackground["inlineMenuCiphers"]).toStrictEqual(
+        new Map([["inline-menu-cipher-0", cipher1]]),
+      );
+    });
+
+    it("queries all cipher types when the card and identity ciphers set is not built when only updating login ciphers", async () => {
+      getTabFromCurrentWindowIdSpy.mockResolvedValueOnce(tab);
+      cipherService.getAllDecryptedForUrl.mockResolvedValue([cipher1, cipher2]);
+      cipherService.sortCiphersByLastUsedThenName.mockReturnValue(-1);
+
+      await overlayBackground.updateOverlayCiphers(false);
 
       expect(BrowserApi.getTabFromCurrentWindowId).toHaveBeenCalled();
       expect(cipherService.getAllDecryptedForUrl).toHaveBeenCalledWith(url, [CipherType.Card]);
