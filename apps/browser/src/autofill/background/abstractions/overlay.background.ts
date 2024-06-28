@@ -51,22 +51,26 @@ export type InlineMenuPosition = {
   list?: InlineMenuElementPosition;
 };
 
+export type NewLoginCipherData = {
+  uri?: string;
+  hostname: string;
+  username: string;
+  password: string;
+};
+
+export type NewCardCipherData = {
+  cardholderName: string;
+  number: string;
+  expirationMonth: string;
+  expirationYear: string;
+  expirationDate?: string;
+  cvv: string;
+};
+
 export type OverlayAddNewItemMessage = {
   addNewCipherType?: CipherType;
-  login?: {
-    uri?: string;
-    hostname: string;
-    username: string;
-    password: string;
-  };
-  card?: {
-    cardholderName: string;
-    number: string;
-    expirationMonth: string;
-    expirationYear: string;
-    expirationDate?: string;
-    cvv: string;
-  };
+  login?: NewLoginCipherData;
+  card?: NewCardCipherData;
 };
 
 export type CloseInlineMenuMessage = {

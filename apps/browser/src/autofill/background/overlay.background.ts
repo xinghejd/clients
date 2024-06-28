@@ -55,6 +55,8 @@ import {
   CloseInlineMenuMessage,
   InlineMenuPosition,
   ToggleInlineMenuHiddenMessage,
+  NewLoginCipherData,
+  NewCardCipherData,
 } from "./abstractions/overlay.background";
 
 export class OverlayBackground implements OverlayBackgroundInterface {
@@ -1221,30 +1223,44 @@ export class OverlayBackground implements OverlayBackgroundInterface {
    * @param card - The card data captured from the extension message
    */
   private buildNewVaultItemCipherView({ addNewCipherType, login, card }: OverlayAddNewItemMessage) {
-    let cipherView: CipherView;
-
     if (login && addNewCipherType === CipherType.Login) {
-      const uriView = new LoginUriView();
-      uriView.uri = login.uri;
-
-      const loginView = new LoginView();
-      loginView.uris = [uriView];
-      loginView.username = login.username || "";
-      loginView.password = login.password || "";
-
-      cipherView = new CipherView();
-      cipherView.name = (Utils.getHostname(login.uri) || login.hostname).replace(/^www\./, "");
-      cipherView.folderId = null;
-      cipherView.type = CipherType.Login;
-      cipherView.login = loginView;
-
-      return cipherView;
+      return this.buildLoginCipherView(login);
     }
 
-    if (!card || addNewCipherType !== CipherType.Card) {
-      return;
+    if (card && addNewCipherType === CipherType.Card) {
+      return this.buildCardCipherView(card);
     }
+  }
 
+  /**
+   * Builds a new login cipher view with the provided login data.
+   *
+   * @param login - The login data captured from the extension message
+   */
+  private buildLoginCipherView(login: NewLoginCipherData) {
+    const uriView = new LoginUriView();
+    uriView.uri = login.uri;
+
+    const loginView = new LoginView();
+    loginView.uris = [uriView];
+    loginView.username = login.username || "";
+    loginView.password = login.password || "";
+
+    const cipherView = new CipherView();
+    cipherView.name = (Utils.getHostname(login.uri) || login.hostname).replace(/^www\./, "");
+    cipherView.folderId = null;
+    cipherView.type = CipherType.Login;
+    cipherView.login = loginView;
+
+    return cipherView;
+  }
+
+  /**
+   * Builds a new card cipher view with the provided card data.
+   *
+   * @param card - The card data captured from the extension message
+   */
+  private buildCardCipherView(card: NewCardCipherData) {
     const cardView = new CardView();
     cardView.cardholderName = card.cardholderName || "";
     cardView.number = card.number || "";
@@ -1253,7 +1269,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     cardView.code = card.cvv || "";
     cardView.brand = card.number ? CardView.getCardBrandByPatterns(card.number) : "";
 
-    cipherView = new CipherView();
+    const cipherView = new CipherView();
     cipherView.name = "";
     cipherView.folderId = null;
     cipherView.type = CipherType.Card;
@@ -1261,6 +1277,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
 
     return cipherView;
   }
+
   /**
    * Updates the property that identifies if a form field set up for the inline menu is currently focused.
    *
