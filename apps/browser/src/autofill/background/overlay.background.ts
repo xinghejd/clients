@@ -71,6 +71,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
   private inlineMenuPageTranslations: Record<string, string>;
   private inlineMenuPosition: InlineMenuPosition = {};
   private cardAndIdentityCiphers: CipherView[] = [];
+  private currentInlineMenuCiphersCount: number = 0;
   private delayedCloseTimeout: number | NodeJS.Timeout;
   private startInlineMenuFadeInSubject = new Subject<void>();
   private cancelInlineMenuFadeInSubject = new Subject<boolean>();
@@ -304,6 +305,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       });
     }
 
+    this.currentInlineMenuCiphersCount = inlineMenuCipherData.length;
     return inlineMenuCipherData;
   }
 
@@ -1279,7 +1281,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
    * @param sender - The sender of the message
    */
   private checkIsInlineMenuCiphersPopulated(sender: chrome.runtime.MessageSender) {
-    return this.senderTabHasFocusedField(sender) && this.inlineMenuCiphers.size > 0;
+    return this.senderTabHasFocusedField(sender) && this.currentInlineMenuCiphersCount > 0;
   }
 
   /**

@@ -928,8 +928,9 @@ describe("OverlayBackground", () => {
 
       it("returns true if the overlay login ciphers are populated", async () => {
         overlayBackground["inlineMenuCiphers"] = new Map([
-          ["inline-menu-cipher-0", mock<CipherView>()],
+          ["inline-menu-cipher-0", mock<CipherView>({ type: CipherType.Login })],
         ]);
+        await overlayBackground["getInlineMenuCipherData"]();
 
         sendMockExtensionMessage(
           { command: "checkIsInlineMenuCiphersPopulated" },

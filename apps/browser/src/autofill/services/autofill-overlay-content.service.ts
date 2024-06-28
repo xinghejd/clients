@@ -575,10 +575,12 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     const initiallyFocusedField = this.mostRecentlyFocusedField;
     await this.updateMostRecentlyFocusedField(formFieldElement);
 
+    const hideInlineMenuListOnFilledField = await this.hideInlineMenuListOnFilledField(
+      formFieldElement as FillableFormFieldElement,
+    );
     if (
       this.inlineMenuVisibility === AutofillOverlayVisibility.OnButtonClick ||
-      (initiallyFocusedField !== this.mostRecentlyFocusedField &&
-        (await this.hideInlineMenuListOnFilledField(formFieldElement as FillableFormFieldElement)))
+      (initiallyFocusedField !== this.mostRecentlyFocusedField && hideInlineMenuListOnFilledField)
     ) {
       await this.sendExtensionMessage("closeAutofillInlineMenu", {
         overlayElement: AutofillOverlayElement.List,
@@ -586,7 +588,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
       });
     }
 
-    if (await this.hideInlineMenuListOnFilledField(formFieldElement as FillableFormFieldElement)) {
+    if (hideInlineMenuListOnFilledField) {
       this.updateInlineMenuButtonPosition();
       return;
     }
