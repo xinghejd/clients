@@ -224,7 +224,6 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
         expirationYear: this.userFilledFields["cardExpirationYear"]?.value || "",
         expirationDate: this.userFilledFields["cardExpirationDate"]?.value || "",
         cvv: this.userFilledFields["cardCvv"]?.value || "",
-        brand: this.userFilledFields["cardBrand"]?.value || "",
       };
 
       void this.sendExtensionMessage(command, { addNewCipherType, card });
@@ -520,11 +519,6 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
 
     if (this.inlineMenuFieldQualificationService.isFieldForCardCvv(autofillFieldData)) {
       this.userFilledFields.cardCvv = formFieldElement;
-      return;
-    }
-
-    if (this.inlineMenuFieldQualificationService.isFieldForCardBrand(autofillFieldData)) {
-      this.userFilledFields.cardBrand = formFieldElement;
     }
   }
 

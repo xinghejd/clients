@@ -1204,7 +1204,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       cardView.expMonth = card.expirationMonth || "";
       cardView.expYear = card.expirationYear || "";
       cardView.code = card.cvv || "";
-      cardView.brand = card.brand || "";
+      cardView.brand = card.number ? CardView.getCardBrandByPatterns(card.number) : "";
 
       cipherView = new CipherView();
       cipherView.name = "";

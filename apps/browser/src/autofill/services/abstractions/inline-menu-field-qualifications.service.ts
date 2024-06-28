@@ -18,5 +18,4 @@ export interface InlineMenuFieldQualificationService {
   isFieldForCardExpirationMonth(field: AutofillField): boolean;
   isFieldForCardExpirationYear(field: AutofillField): boolean;
   isFieldForCardCvv(field: AutofillField): boolean;
-  isFieldForCardBrand(field: AutofillField): boolean;
 }

@@ -389,22 +389,6 @@ export class InlineMenuFieldQualificationService
   }
 
   /**
-   * Validates the provided field as a field for a credit card brand field.
-   *
-   * @param field - The field to validate
-   */
-  isFieldForCardBrand(field: AutofillField): boolean {
-    if (this.fieldContainsAutocompleteValues(field, this.creditCardTypeAutocompleteValue)) {
-      return true;
-    }
-
-    return (
-      !this.fieldContainsAutocompleteValues(field, this.autocompleteDisabledValues) &&
-      this.keywordsFoundInFieldData(field, CreditCardAutoFillConstants.CardBrandFieldNames)
-    );
-  }
-
-  /**
    * Validates the provided field as a username field.
    *
    * @param field - The field to validate

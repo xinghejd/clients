@@ -66,7 +66,6 @@ export type OverlayAddNewItemMessage = {
     expirationYear: string;
     expirationDate?: string;
     cvv: string;
-    brand: string;
   };
 };
 
