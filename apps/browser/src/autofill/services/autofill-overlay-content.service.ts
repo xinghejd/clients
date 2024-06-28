@@ -25,6 +25,7 @@ import AutofillPageDetails from "../models/autofill-page-details";
 import { ElementWithOpId, FillableFormFieldElement, FormFieldElement } from "../types";
 import {
   elementIsFillableFormField,
+  elementIsSelectElement,
   getAttributeBoolean,
   sendExtensionMessage,
   throttle,
@@ -274,12 +275,17 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
   private setupFormFieldElementEventListeners(formFieldElement: ElementWithOpId<FormFieldElement>) {
     this.removeCachedFormFieldEventListeners(formFieldElement);
 
-    formFieldElement.addEventListener(EVENTS.BLUR, this.handleFormFieldBlurEvent);
-    formFieldElement.addEventListener(EVENTS.KEYUP, this.handleFormFieldKeyupEvent);
     formFieldElement.addEventListener(
       EVENTS.INPUT,
       this.handleFormFieldInputEvent(formFieldElement),
     );
+
+    if (elementIsSelectElement(formFieldElement)) {
+      return;
+    }
+
+    formFieldElement.addEventListener(EVENTS.BLUR, this.handleFormFieldBlurEvent);
+    formFieldElement.addEventListener(EVENTS.KEYUP, this.handleFormFieldKeyupEvent);
     formFieldElement.addEventListener(
       EVENTS.CLICK,
       this.handleFormFieldClickEvent(formFieldElement),
@@ -421,6 +427,9 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     }
 
     this.storeModifiedFormElement(formFieldElement);
+    if (elementIsSelectElement(formFieldElement)) {
+      return;
+    }
 
     if (await this.hideInlineMenuListOnFilledField(formFieldElement)) {
       void this.sendExtensionMessage("closeAutofillInlineMenu", {
