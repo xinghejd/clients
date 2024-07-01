@@ -220,7 +220,7 @@ body {
     background-repeat: no-repeat;
 
     @include themify($themes) {
-      color: themed("mutedTextColor");
+      color: themed("buttonPrimaryColor");
     }
 
     svg {
