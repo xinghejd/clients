@@ -854,7 +854,10 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
 
     this.setupFormFieldElementEventListeners(formFieldElement);
 
-    if (this.getRootNodeActiveElement(formFieldElement) === formFieldElement) {
+    if (
+      globalThis.document.hasFocus() &&
+      this.getRootNodeActiveElement(formFieldElement) === formFieldElement
+    ) {
       await this.triggerFormFieldFocusedAction(formFieldElement);
     }
   }
