@@ -763,6 +763,16 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
       return false;
     }
 
+    if (
+      this.inlineMenuFieldQualificationService.isFieldForIdentityForm(
+        autofillFieldData,
+        pageDetails,
+      )
+    ) {
+      autofillFieldData.filledByCipherType = CipherType.Identity;
+      return false;
+    }
+
     return true;
   }
 

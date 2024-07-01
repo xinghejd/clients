@@ -103,6 +103,14 @@ export class InlineMenuFieldQualificationService
   ]);
   private identityCountryAutocompleteValues = new Set(["country", "country-name"]);
   private identityPostalCodeAutocompleteValue = "postal-code";
+  private identityPhoneAutocompleteValue = "tel";
+  private identityPhoneNumberAutocompleteValues = new Set([
+    this.identityPhoneAutocompleteValue,
+    "tel-country-code",
+    "tel-area-code",
+    "tel-local",
+    "tel-extension",
+  ]);
   private identityAutocompleteValues = new Set([
     ...this.identityNameAutocompleteValues,
     ...this.loginUsernameAutocompleteValues,
@@ -110,6 +118,7 @@ export class InlineMenuFieldQualificationService
     ...this.identityAddressAutoCompleteValues,
     ...this.identityCountryAutocompleteValues,
     this.identityPostalCodeAutocompleteValue,
+    ...this.identityPhoneNumberAutocompleteValues,
   ]);
   private inlineMenuFieldQualificationFlagSet = false;
 
@@ -211,7 +220,11 @@ export class InlineMenuFieldQualificationService
   }
 
   isFieldForIdentityForm(field: AutofillField, pageDetails: AutofillPageDetails): boolean {
-    // TODO Implement logic here
+    if (this.fieldContainsAutocompleteValues(field, this.identityAutocompleteValues)) {
+      return true;
+    }
+
+    // TODO: Refine this logic
     return false;
   }
 
