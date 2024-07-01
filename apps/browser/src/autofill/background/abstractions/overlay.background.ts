@@ -185,6 +185,7 @@ export type OverlayBackgroundExtensionMessageHandlers = {
   }: BackgroundOnMessageHandlerParams) => void;
   collectPageDetailsResponse: ({ message, sender }: BackgroundOnMessageHandlerParams) => void;
   unlockCompleted: ({ message }: BackgroundMessageParam) => void;
+  loggedIn: () => void;
   addedCipher: () => void;
   addEditCipherSubmitted: () => void;
   editedCipher: () => void;
