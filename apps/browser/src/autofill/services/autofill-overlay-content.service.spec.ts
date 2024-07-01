@@ -803,7 +803,25 @@ describe("AutofillOverlayContentService", () => {
       });
     });
 
+    it("skips triggering the form field focused handler if the document is not focused", async () => {
+      jest.spyOn(globalThis.document, "hasFocus").mockReturnValue(false);
+      const documentRoot = autofillFieldElement.getRootNode() as Document;
+      Object.defineProperty(documentRoot, "activeElement", {
+        value: autofillFieldElement,
+        writable: true,
+      });
+
+      await autofillOverlayContentService.setupInlineMenu(
+        autofillFieldElement,
+        autofillFieldData,
+        pageDetailsMock,
+      );
+
+      expect(sendExtensionMessageSpy).not.toHaveBeenCalledWith("openAutofillInlineMenu");
+    });
+
     it("triggers the form field focused handler if the current active element in the document is the passed form field", async () => {
+      jest.spyOn(globalThis.document, "hasFocus").mockReturnValue(true);
       const documentRoot = autofillFieldElement.getRootNode() as Document;
       Object.defineProperty(documentRoot, "activeElement", {
         value: autofillFieldElement,
