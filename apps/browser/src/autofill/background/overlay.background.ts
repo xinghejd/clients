@@ -288,11 +288,17 @@ export class OverlayBackground implements OverlayBackgroundInterface {
 
     this.cardAndIdentityCiphers.clear();
     const cipherViews = (
-      await this.cipherService.getAllDecryptedForUrl(currentTab.url, [CipherType.Card])
+      await this.cipherService.getAllDecryptedForUrl(currentTab.url, [
+        CipherType.Card,
+        CipherType.Identity,
+      ])
     ).sort((a, b) => this.cipherService.sortCiphersByLastUsedThenName(a, b));
     for (let cipherIndex = 0; cipherIndex < cipherViews.length; cipherIndex++) {
       const cipherView = cipherViews[cipherIndex];
-      if (cipherView.type === CipherType.Card && !this.cardAndIdentityCiphers.has(cipherView)) {
+      if (
+        !this.cardAndIdentityCiphers.has(cipherView) &&
+        [CipherType.Card, CipherType.Identity].includes(cipherView.type)
+      ) {
         this.cardAndIdentityCiphers.add(cipherView);
       }
     }
@@ -1129,6 +1135,8 @@ export class OverlayBackground implements OverlayBackgroundInterface {
         addNewLoginItem: this.i18nService.translate("addNewLoginItem"),
         newCard: this.i18nService.translate("newCard"),
         addNewCardItem: this.i18nService.translate("addNewCardItem"),
+        newIdentity: this.i18nService.translate("newIdentity"),
+        addNewIdentityItem: this.i18nService.translate("addNewIdentityItem"),
         cardNumberEndsWith: this.i18nService.translate("cardNumberEndsWith"),
       };
     }
