@@ -501,7 +501,7 @@ export class InlineMenuFieldQualificationService
    *
    * @param field - The field to validate
    */
-  private isUsernameField = (field: AutofillField): boolean => {
+  isUsernameField = (field: AutofillField): boolean => {
     if (
       !this.usernameFieldTypes.has(field.type) ||
       this.isExcludedFieldType(field, this.excludedAutofillLoginTypesSet)

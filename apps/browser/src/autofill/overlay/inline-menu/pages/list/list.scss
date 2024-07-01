@@ -42,12 +42,12 @@ body {
 .inline-menu-list-button-container {
   width: 100%;
   padding: 0.2rem;
-  background: transparent;
   transition: background-color 0.2s ease-in-out;
   border-top-width: 0.1rem;
   border-top-style: solid;
 
   @include themify($themes) {
+    background: themed("backgroundColor");
     border-top-color: themed("borderColor");
   }
 

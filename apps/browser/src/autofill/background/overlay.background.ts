@@ -40,23 +40,23 @@ import { generateRandomChars } from "../utils";
 
 import { LockedVaultPendingNotificationsData } from "./abstractions/notification.background";
 import {
+  CloseInlineMenuMessage,
   FocusedFieldData,
+  InlineMenuButtonPortMessageHandlers,
+  InlineMenuCipherData,
+  InlineMenuListPortMessageHandlers,
+  InlineMenuPosition,
+  NewCardCipherData,
+  NewLoginCipherData,
   OverlayAddNewItemMessage,
   OverlayBackground as OverlayBackgroundInterface,
   OverlayBackgroundExtensionMessage,
   OverlayBackgroundExtensionMessageHandlers,
-  InlineMenuButtonPortMessageHandlers,
-  InlineMenuCipherData,
-  InlineMenuListPortMessageHandlers,
   OverlayPortMessage,
   PageDetailsForTab,
   SubFrameOffsetData,
   SubFrameOffsetsForTab,
-  CloseInlineMenuMessage,
-  InlineMenuPosition,
   ToggleInlineMenuHiddenMessage,
-  NewLoginCipherData,
-  NewCardCipherData,
 } from "./abstractions/overlay.background";
 
 export class OverlayBackground implements OverlayBackgroundInterface {
@@ -312,9 +312,21 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     const inlineMenuCiphersArray = Array.from(this.inlineMenuCiphers);
     const inlineMenuCipherData: InlineMenuCipherData[] = [];
 
+    const isShowingIdentityCiphersOnLoginField = this.isShowingIdentityCiphersOnLoginField();
+
     for (let cipherIndex = 0; cipherIndex < inlineMenuCiphersArray.length; cipherIndex++) {
       const [inlineMenuCipherId, cipher] = inlineMenuCiphersArray[cipherIndex];
-      if (this.focusedFieldData?.filledByCipherType !== cipher.type) {
+      if (
+        !isShowingIdentityCiphersOnLoginField &&
+        this.focusedFieldData?.filledByCipherType !== cipher.type
+      ) {
+        continue;
+      }
+
+      if (
+        isShowingIdentityCiphersOnLoginField &&
+        (cipher.type !== CipherType.Identity || !this.focusedFieldData?.usernameFieldType)
+      ) {
         continue;
       }
 
@@ -325,20 +337,44 @@ export class OverlayBackground implements OverlayBackgroundInterface {
         reprompt: cipher.reprompt,
         favorite: cipher.favorite,
         icon: buildCipherIcon(this.iconsServerUrl, cipher, showFavicons),
+        usernameFieldType: this.focusedFieldData?.usernameFieldType,
         login: cipher.type === CipherType.Login ? { username: cipher.login.username } : null,
         card: cipher.type === CipherType.Card ? cipher.card.subTitle : null,
         identity:
           cipher.type === CipherType.Identity
-            ? {
-                fullName: `${cipher.identity.firstName} ${cipher.identity.lastName}`,
-                email: cipher.identity.email,
-              }
+            ? this.getIdentityCipherData(cipher, isShowingIdentityCiphersOnLoginField)
             : null,
       });
     }
 
     this.currentInlineMenuCiphersCount = inlineMenuCipherData.length;
     return inlineMenuCipherData;
+  }
+
+  private getIdentityCipherData(
+    cipher: CipherView,
+    isShowingIdentityCiphersOnLoginField: boolean,
+  ): { fullName: string; username?: string } {
+    const fullName = `${cipher.identity.firstName} ${cipher.identity.lastName}`;
+
+    if (!isShowingIdentityCiphersOnLoginField) {
+      return { fullName };
+    }
+
+    return {
+      fullName,
+      username:
+        this.focusedFieldData?.usernameFieldType === "email"
+          ? cipher.identity.email
+          : cipher.identity.username,
+    };
+  }
+
+  private isShowingIdentityCiphersOnLoginField(): boolean {
+    return (
+      this.focusedFieldData?.filledByCipherType === CipherType.Login &&
+      this.inlineMenuCiphers.size === this.cardAndIdentityCiphers?.size
+    );
   }
 
   /**
@@ -1613,6 +1649,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
         ? AutofillOverlayPort.ListMessageConnector
         : AutofillOverlayPort.ButtonMessageConnector,
       filledByCipherType: this.focusedFieldData?.filledByCipherType,
+      isShowingIdentityCiphersOnLoginField: this.isShowingIdentityCiphersOnLoginField(),
     });
     void this.updateInlineMenuPosition(
       {

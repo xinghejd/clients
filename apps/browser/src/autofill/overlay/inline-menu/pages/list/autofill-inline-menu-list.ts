@@ -23,6 +23,7 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
   private cipherListScrollDebounceTimeout: number | NodeJS.Timeout;
   private currentCipherIndex = 0;
   private filledByCipherType: CipherType;
+  private isShowingIdentityCiphersOnLoginField: boolean;
   private readonly showCiphersPerPage = 6;
   private readonly inlineMenuListWindowMessageHandlers: AutofillInlineMenuListWindowMessageHandlers =
     {
@@ -49,6 +50,7 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
    * @param ciphers - The ciphers to display in the inline menu list.
    * @param portKey - Background generated key that allows the port to communicate with the background.
    * @param filledByCipherType - The type of cipher that fills the current field.
+   * @param isShowingIdentityCiphersOnLoginField - Whether identity ciphers are shown on login fields.
    */
   private async initAutofillInlineMenuList({
     translations,
@@ -58,6 +60,7 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
     ciphers,
     portKey,
     filledByCipherType,
+    isShowingIdentityCiphersOnLoginField,
   }: InitAutofillInlineMenuListMessage) {
     const linkElement = await this.initAutofillInlineMenuPage(
       "list",
@@ -67,6 +70,7 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
     );
 
     this.filledByCipherType = filledByCipherType;
+    this.isShowingIdentityCiphersOnLoginField = isShowingIdentityCiphersOnLoginField;
 
     const themeClass = `theme_${theme}`;
     globalThis.document.documentElement.classList.add(themeClass);
@@ -107,9 +111,7 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
     unlockButtonElement.prepend(buildSvgDomElement(lockIcon));
     unlockButtonElement.addEventListener(EVENTS.CLICK, this.handleUnlockButtonClick);
 
-    const inlineMenuListButtonContainer = globalThis.document.createElement("div");
-    inlineMenuListButtonContainer.classList.add("inline-menu-list-button-container");
-    inlineMenuListButtonContainer.appendChild(unlockButtonElement);
+    const inlineMenuListButtonContainer = this.buildButtonContainer(unlockButtonElement);
 
     this.inlineMenuListContainer.append(lockedInlineMenu, inlineMenuListButtonContainer);
   }
@@ -148,6 +150,11 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
     this.loadPageOfCiphers();
 
     this.inlineMenuListContainer.appendChild(this.ciphersList);
+
+    if (this.isShowingIdentityCiphersOnLoginField) {
+      const addNewIdentityButtonContainer = this.buildNewItemButton();
+      this.inlineMenuListContainer.appendChild(addNewIdentityButtonContainer);
+    }
   }
 
   /**
@@ -159,6 +166,12 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
     noItemsMessage.classList.add("no-items", "inline-menu-list-message");
     noItemsMessage.textContent = this.getTranslation("noItemsToShow");
 
+    const newItemButton = this.buildNewItemButton();
+
+    this.inlineMenuListContainer.append(noItemsMessage, newItemButton);
+  }
+
+  private buildNewItemButton() {
     const newItemButton = globalThis.document.createElement("button");
     newItemButton.tabIndex = -1;
     newItemButton.id = "new-item-button";
@@ -171,11 +184,7 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
     newItemButton.prepend(buildSvgDomElement(plusIcon));
     newItemButton.addEventListener(EVENTS.CLICK, this.handeNewItemButtonClick);
 
-    const inlineMenuListButtonContainer = globalThis.document.createElement("div");
-    inlineMenuListButtonContainer.classList.add("inline-menu-list-button-container");
-    inlineMenuListButtonContainer.appendChild(newItemButton);
-
-    this.inlineMenuListContainer.append(noItemsMessage, inlineMenuListButtonContainer);
+    return this.buildButtonContainer(newItemButton);
   }
 
   /**
@@ -214,6 +223,14 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
     }
 
     return this.getTranslation("addNewVaultItem");
+  }
+
+  private buildButtonContainer(element: Element) {
+    const inlineMenuListButtonContainer = globalThis.document.createElement("div");
+    inlineMenuListButtonContainer.classList.add("inline-menu-list-button-container");
+    inlineMenuListButtonContainer.appendChild(element);
+
+    return inlineMenuListButtonContainer;
   }
 
   /**
@@ -552,19 +569,7 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
    * @param cipher - The cipher to build the username login element for.
    */
   private buildCipherSubtitleElement(cipher: InlineMenuCipherData): HTMLSpanElement | null {
-    let subTitleText: string;
-    if (cipher.login?.username) {
-      subTitleText = cipher.login.username;
-    }
-
-    if (cipher.card) {
-      cipher.card;
-    }
-
-    if (cipher.identity?.fullName) {
-      subTitleText = cipher.identity.fullName;
-    }
-
+    const subTitleText = this.getSubTitleText(cipher);
     if (!subTitleText) {
       return null;
     }
@@ -575,6 +580,26 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
     cipherSubtitleElement.setAttribute("title", subTitleText);
 
     return cipherSubtitleElement;
+  }
+
+  private getSubTitleText(cipher: InlineMenuCipherData): string {
+    if (cipher.identity?.username) {
+      return cipher.identity.username;
+    }
+
+    if (cipher.identity?.fullName) {
+      return cipher.identity.fullName;
+    }
+
+    if (cipher.login?.username) {
+      return cipher.login.username;
+    }
+
+    if (cipher.card) {
+      return cipher.card;
+    }
+
+    return "";
   }
 
   /**

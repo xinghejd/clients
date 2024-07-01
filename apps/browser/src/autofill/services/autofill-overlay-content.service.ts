@@ -665,10 +665,16 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     const { width, height, top, left } =
       await this.getMostRecentlyFocusedFieldRects(formFieldElement);
     const autofillFieldData = this.formFieldElements.get(formFieldElement);
+    let isUsernameField = false;
+    if (autofillFieldData?.filledByCipherType === CipherType.Login) {
+      isUsernameField = this.inlineMenuFieldQualificationService.isUsernameField(autofillFieldData);
+    }
+
     this.focusedFieldData = {
       focusedFieldStyles: { paddingRight, paddingLeft },
       focusedFieldRects: { width, height, top, left },
       filledByCipherType: autofillFieldData?.filledByCipherType,
+      usernameFieldType: isUsernameField ? autofillFieldData?.type : null,
     };
 
     await this.sendExtensionMessage("updateFocusedFieldData", {
@@ -747,6 +753,13 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     }
 
     if (
+      this.inlineMenuFieldQualificationService.isFieldForLoginForm(autofillFieldData, pageDetails)
+    ) {
+      autofillFieldData.filledByCipherType = CipherType.Login;
+      return false;
+    }
+
+    if (
       this.inlineMenuFieldQualificationService.isFieldForCreditCardForm(
         autofillFieldData,
         pageDetails,
@@ -763,13 +776,6 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
       )
     ) {
       autofillFieldData.filledByCipherType = CipherType.Identity;
-      return false;
-    }
-
-    if (
-      this.inlineMenuFieldQualificationService.isFieldForLoginForm(autofillFieldData, pageDetails)
-    ) {
-      autofillFieldData.filledByCipherType = CipherType.Login;
       return false;
     }
 
