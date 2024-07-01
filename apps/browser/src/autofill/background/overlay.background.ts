@@ -967,8 +967,6 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     { focusedFieldData }: OverlayBackgroundExtensionMessage,
     sender: chrome.runtime.MessageSender,
   ) {
-    void this.updateIdentityCiphersOnLoginField(focusedFieldData);
-
     if (this.focusedFieldData?.frameId && this.focusedFieldData.frameId !== sender.frameId) {
       void BrowserApi.tabSendMessage(
         sender.tab,
@@ -977,22 +975,28 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       );
     }
 
+    const previousFocusedFieldDataUsernameType = this.focusedFieldData?.usernameFieldType;
     this.focusedFieldData = { ...focusedFieldData, tabId: sender.tab.id, frameId: sender.frameId };
+
+    void this.updateIdentityCiphersOnLoginField(previousFocusedFieldDataUsernameType);
   }
 
-  private async updateIdentityCiphersOnLoginField(focusedFieldData: FocusedFieldData) {
-    if (!this.isInlineMenuButtonVisible) {
+  private async updateIdentityCiphersOnLoginField(previousFocusedFieldDataUsernameType: string) {
+    if (
+      !this.isInlineMenuButtonVisible ||
+      (await this.getAuthStatus()) !== AuthenticationStatus.Unlocked
+    ) {
       return;
     }
 
-    const command = "updateIdentityCiphersOnLoginField";
+    const command = "updateAutofillInlineMenuListCiphers";
 
-    if (this.focusedFieldData?.usernameFieldType && !focusedFieldData.usernameFieldType) {
+    if (previousFocusedFieldDataUsernameType && !this.focusedFieldData?.usernameFieldType) {
       this.inlineMenuListPort?.postMessage({ command, ciphers: [] });
       return;
     }
 
-    if (focusedFieldData.usernameFieldType) {
+    if (this.focusedFieldData?.usernameFieldType) {
       const ciphers = await this.getInlineMenuCipherData();
       this.inlineMenuListPort?.postMessage({ command, ciphers });
     }
