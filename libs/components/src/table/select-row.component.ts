@@ -8,13 +8,17 @@ import { TableComponent } from "./table.component";
     <input
       type="checkbox"
       bitCheckbox
-      [checked]="table.dataSource.selection.getValue(bitSelectRow)"
-      (change)="table.dataSource.selection.setValue(bitSelectRow, $any($event.target).checked)"
+      [checked]="table.dataSource.selection.getValue(row)"
+      (change)="table.dataSource.selection.setValue(row, $any($event.target).checked)"
     />
   `,
 })
 export class SelectRowComponent<T> {
-  @Input() bitSelectRow: T;
+  protected row: T;
+
+  @Input() set bitSelectRow(value: T) {
+    this.row = value;
+  }
 
   constructor(protected table: TableComponent) {}
 }
