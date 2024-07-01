@@ -1117,7 +1117,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
         buttonPageTitle: this.i18nService.translate("bitwardenOverlayButton"),
         toggleBitwardenVaultOverlay: this.i18nService.translate("toggleBitwardenVaultOverlay"),
         listPageTitle: this.i18nService.translate("bitwardenVault"),
-        unlockYourAccount: this.i18nService.translate("unlockYourAccountToViewMatchingLogins"),
+        unlockYourAccount: this.i18nService.translate("unlockYourAccountToViewAutofillSuggestions"),
         unlockAccount: this.i18nService.translate("unlockAccount"),
         fillCredentialsFor: this.i18nService.translate("fillCredentialsFor"),
         username: this.i18nService.translate("username")?.toLowerCase(),
