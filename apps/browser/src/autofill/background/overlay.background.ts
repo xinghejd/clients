@@ -327,6 +327,13 @@ export class OverlayBackground implements OverlayBackgroundInterface {
         icon: buildCipherIcon(this.iconsServerUrl, cipher, showFavicons),
         login: cipher.type === CipherType.Login ? { username: cipher.login.username } : null,
         card: cipher.type === CipherType.Card ? cipher.card.subTitle : null,
+        identity:
+          cipher.type === CipherType.Identity
+            ? {
+                fullName: `${cipher.identity.firstName} ${cipher.identity.lastName}`,
+                email: cipher.identity.email,
+              }
+            : null,
       });
     }
 

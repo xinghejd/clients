@@ -139,6 +139,10 @@ export type InlineMenuCipherData = {
   icon: WebsiteIconData;
   login?: { username: string };
   card?: string;
+  identity?: {
+    fullName?: string;
+    email?: string;
+  };
 };
 
 export type BackgroundMessageParam = {

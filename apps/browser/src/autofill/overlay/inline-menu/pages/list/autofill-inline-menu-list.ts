@@ -552,7 +552,19 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
    * @param cipher - The cipher to build the username login element for.
    */
   private buildCipherSubtitleElement(cipher: InlineMenuCipherData): HTMLSpanElement | null {
-    const subTitleText = cipher.login?.username || cipher.card;
+    let subTitleText: string;
+    if (cipher.login?.username) {
+      subTitleText = cipher.login.username;
+    }
+
+    if (cipher.card) {
+      cipher.card;
+    }
+
+    if (cipher.identity?.fullName) {
+      subTitleText = cipher.identity.fullName;
+    }
+
     if (!subTitleText) {
       return null;
     }
