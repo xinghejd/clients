@@ -18,10 +18,14 @@ export class SelectionState<T> {
     if (Array.isArray(data)) {
       data = data.slice(0, MAX_SELECTION);
       data.forEach((r) => this._selectMap.set(r, value));
-      return;
+    } else {
+      this._selectMap.set(data, value);
     }
 
-    this._selectMap.set(data, value);
+    if (!value) {
+      // If the user has deselected a row, make sure the selectAll checkbox is no longer checked
+      this.selectAll = false;
+    }
   }
 
   getControl(data: T) {
