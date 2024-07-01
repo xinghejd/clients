@@ -1,5 +1,4 @@
 import { ScrollingModule } from "@angular/cdk/scrolling";
-import { ReactiveFormsModule } from "@angular/forms";
 import { Meta, moduleMetadata, StoryObj } from "@storybook/angular";
 
 import { CheckboxModule } from "../checkbox";
@@ -12,7 +11,7 @@ export default {
   title: "Component Library/Table",
   decorators: [
     moduleMetadata({
-      imports: [TableModule, ScrollingModule, CheckboxModule, ReactiveFormsModule],
+      imports: [TableModule, ScrollingModule, CheckboxModule],
     }),
   ],
   argTypes: {

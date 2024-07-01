@@ -1,6 +1,5 @@
 import { CommonModule } from "@angular/common";
 import { NgModule } from "@angular/core";
-import { ReactiveFormsModule } from "@angular/forms";
 
 import { CheckboxModule } from "../checkbox";
 
@@ -12,7 +11,7 @@ import { SortableComponent } from "./sortable.component";
 import { TableBodyDirective, TableComponent } from "./table.component";
 
 @NgModule({
-  imports: [CommonModule, CheckboxModule, ReactiveFormsModule],
+  imports: [CommonModule, CheckboxModule],
   declarations: [
     TableComponent,
     CellDirective,

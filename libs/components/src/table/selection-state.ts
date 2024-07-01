@@ -1,29 +1,27 @@
-import { FormControl } from "@angular/forms";
-
-import { TableDataSource } from "./table-data-source";
-
 const MAX_SELECTION = 500;
 
 export class SelectionState<T> {
-  private _selectMap: Map<T, FormControl>;
+  private _selectMap: Map<T, boolean>;
 
-  allControl = new FormControl(false);
+  selectAll = false;
 
-  constructor(private dataSource: TableDataSource<T>) {
-    // TODO: unsubscribe?
-    this.allControl.valueChanges.subscribe((checked) => {
-      // Always deselect all to make sure there are no selected rows that have been filtered out
-      this.deselectAll();
-
-      if (checked) {
-        this.selectFiltered();
-      }
-    });
+  set data(data: T[]) {
+    const keyValuePairs: [T, boolean][] = data.map((row) => [row, false]);
+    this._selectMap = new Map(keyValuePairs);
   }
 
-  populateControls(data: T[]) {
-    const keyValuePairs: [T, FormControl][] = data.map((row) => [row, new FormControl(false)]);
-    this._selectMap = new Map(keyValuePairs);
+  getValue(row: T) {
+    return this._selectMap.get(row);
+  }
+
+  setValue(data: T | T[], value: boolean) {
+    if (Array.isArray(data)) {
+      data = data.slice(0, MAX_SELECTION);
+      data.forEach((r) => this._selectMap.set(r, value));
+      return;
+    }
+
+    this._selectMap.set(data, value);
   }
 
   getControl(data: T) {
@@ -32,22 +30,18 @@ export class SelectionState<T> {
 
   get selectedRows(): T[] {
     const selectedRows: T[] = [];
-    this._selectMap.forEach((formControl, data) => {
-      if (formControl.value) {
-        selectedRows.push(data);
+    this._selectMap.forEach((value, row) => {
+      if (value) {
+        selectedRows.push(row);
       }
     });
 
     return selectedRows;
   }
 
-  private deselectAll() {
-    this._selectMap.forEach((formControl, data) => formControl.setValue(false));
-  }
-
-  private selectFiltered() {
-    this.dataSource.filteredData
-      .slice(0, MAX_SELECTION)
-      .forEach((data) => this._selectMap.get(data)?.setValue(true));
+  deselectAll() {
+    for (const key of this._selectMap.keys()) {
+      this._selectMap.set(key, false);
+    }
   }
 }

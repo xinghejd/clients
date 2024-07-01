@@ -31,7 +31,7 @@ export class TableDataSource<T> extends DataSource<T> {
    */
   filteredData: T[];
 
-  selection = new SelectionState(this);
+  selection = new SelectionState();
 
   constructor() {
     super();
@@ -47,7 +47,7 @@ export class TableDataSource<T> extends DataSource<T> {
     data = Array.isArray(data) ? data : [];
 
     // Must be done before updating state so that controls are populated before the table re-renders
-    this.selection.populateControls(data);
+    this.selection.data = data;
 
     this._data.next(data);
     // Normally the `filteredData` is updated by the re-render

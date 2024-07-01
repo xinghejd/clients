@@ -8,7 +8,8 @@ import { TableComponent } from "./table.component";
     <input
       type="checkbox"
       bitCheckbox
-      [formControl]="table.dataSource.selection.getControl(bitSelectRow)"
+      [checked]="table.dataSource.selection.getValue(bitSelectRow)"
+      (change)="table.dataSource.selection.setValue(bitSelectRow, $any($event.target).checked)"
     />
   `,
 })
