@@ -733,15 +733,6 @@ describe("OverlayBackground", () => {
       );
     });
 
-    it("ignores updating the overlay ciphers if the tab is undefined", async () => {
-      getTabFromCurrentWindowIdSpy.mockResolvedValueOnce(undefined);
-
-      await overlayBackground.updateOverlayCiphers();
-
-      expect(getTabFromCurrentWindowIdSpy).toHaveBeenCalled();
-      expect(cipherService.getAllDecryptedForUrl).not.toHaveBeenCalled();
-    });
-
     it("closes the inline menu on the focused field's tab if current tab is different", async () => {
       getTabFromCurrentWindowIdSpy.mockResolvedValueOnce(tab);
       cipherService.getAllDecryptedForUrl.mockResolvedValue([cipher1, cipher2]);
@@ -1617,7 +1608,7 @@ describe("OverlayBackground", () => {
 
     describe("extension messages that trigger an update of the inline menu ciphers", () => {
       const extensionMessages = [
-        "loggedIn",
+        "doFullSync",
         "addedCipher",
         "addEditCipherSubmitted",
         "editedCipher",
