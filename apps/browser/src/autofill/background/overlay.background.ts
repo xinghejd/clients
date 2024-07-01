@@ -227,10 +227,6 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     }
 
     const currentTab = await BrowserApi.getTabFromCurrentWindowId();
-    if (!currentTab?.url) {
-      return;
-    }
-
     if (this.focusedFieldData && currentTab.id !== this.focusedFieldData.tabId) {
       void this.closeInlineMenuAfterCiphersUpdate();
     }
