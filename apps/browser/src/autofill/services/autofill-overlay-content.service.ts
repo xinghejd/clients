@@ -747,13 +747,6 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     }
 
     if (
-      this.inlineMenuFieldQualificationService.isFieldForLoginForm(autofillFieldData, pageDetails)
-    ) {
-      autofillFieldData.filledByCipherType = CipherType.Login;
-      return false;
-    }
-
-    if (
       this.inlineMenuFieldQualificationService.isFieldForCreditCardForm(
         autofillFieldData,
         pageDetails,
@@ -770,6 +763,13 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
       )
     ) {
       autofillFieldData.filledByCipherType = CipherType.Identity;
+      return false;
+    }
+
+    if (
+      this.inlineMenuFieldQualificationService.isFieldForLoginForm(autofillFieldData, pageDetails)
+    ) {
+      autofillFieldData.filledByCipherType = CipherType.Login;
       return false;
     }
 
