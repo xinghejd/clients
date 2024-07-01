@@ -211,9 +211,7 @@ export const Selectable: Story = {
       <bit-table [dataSource]="dataSource">
         <ng-container header>
           <tr>
-            <th bitCell>
-              <input type="checkbox" bitCheckbox [formControl]="dataSource.selection.allControl">
-            </th>
+            <th bitCell bitSelectAll></th>
             <th bitCell bitSortable="id" default>Id</th>
             <th bitCell bitSortable="name">Name</th>
             <th bitCell bitSortable="other" [fn]="sortFn">Other</th>
@@ -221,9 +219,7 @@ export const Selectable: Story = {
         </ng-container>
         <ng-template body let-rows$>
           <tr bitRow *ngFor="let r of rows$ | async">
-            <td bitCell>
-              <input type="checkbox" bitCheckbox [formControl]="dataSource.selection.getControl(r)">
-            </td>
+            <td bitCell [bitSelectRow]="r"></td>
             <td bitCell>{{ r.id }}</td>
             <td bitCell>{{ r.name }}</td>
             <td bitCell>{{ r.other }}</td>
