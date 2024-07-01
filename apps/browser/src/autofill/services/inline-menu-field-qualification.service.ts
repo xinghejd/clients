@@ -584,7 +584,10 @@ export class InlineMenuFieldQualificationService
    * @param autofillFieldData - The field data to search for keywords
    * @param returnStringValue - Indicates if the method should return a string value
    */
-  private getAutofillFieldDataKeywords(autofillFieldData: AutofillField, returnStringValue = true) {
+  private getAutofillFieldDataKeywords(
+    autofillFieldData: AutofillField,
+    returnStringValue: boolean,
+  ) {
     if (!this.autofillFieldKeywordsMap.has(autofillFieldData)) {
       const keywords = [
         autofillFieldData.htmlID,
