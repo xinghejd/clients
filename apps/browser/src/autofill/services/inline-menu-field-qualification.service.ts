@@ -99,18 +99,60 @@ export class InlineMenuFieldQualificationService
   /**
    * Validates the provided field as a field for a credit card form.
    *
-   * @param field
+   * @param field - The field to validate
+   * @param pageDetails - The details of the page that the field is on.
    */
-  isFieldForCreditCardForm(field: AutofillField): boolean {
+  isFieldForCreditCardForm(field: AutofillField, pageDetails: AutofillPageDetails): boolean {
+    // If the field contains any of the standardized autocomplete attribute values
+    // for credit card fields, we should assume that the field is part of a credit card form.
     if (this.fieldContainsAutocompleteValues(field, this.creditCardAutocompleteValues)) {
       return true;
     }
 
-    if (
-      this.fieldContainsAutocompleteValues(field, this.usernameAutocompleteValues) ||
-      this.fieldContainsAutocompleteValues(field, this.passwordAutoCompleteValues) ||
-      this.keywordsFoundInFieldData(field, [...this.newFieldKeywords])
-    ) {
+    // If the field contains any keywords indicating this is for a "new" or "changed" credit card
+    // field, we should assume that the field is not going to be autofilled.
+    if (this.keywordsFoundInFieldData(field, [...this.newFieldKeywords])) {
+      return false;
+    }
+
+    const parentForm = pageDetails.forms[field.form];
+
+    // If the field does not have a parent form
+    if (!parentForm) {
+      // If a credit card number field is not present on the page or there are multiple credit
+      // card number fields, this field is not part of a credit card form.
+      const numberFieldsInPageDetails = pageDetails.fields.filter(this.isFieldForCardNumber);
+      if (numberFieldsInPageDetails.length !== 1) {
+        return false;
+      }
+
+      // If a credit card CVV field is not present on the page or there are multiple credit card
+      // CVV fields, this field is not part of a credit card form.
+      const cvvFieldsInPageDetails = pageDetails.fields.filter(this.isFieldForCardCvv);
+      if (cvvFieldsInPageDetails.length !== 1) {
+        return false;
+      }
+
+      return (
+        !this.fieldContainsAutocompleteValues(field, this.autocompleteDisabledValues) &&
+        this.keywordsFoundInFieldData(field, [...this.creditCardFieldKeywords])
+      );
+    }
+
+    // If the field has a parent form, check the fields from that form exclusively
+    const fieldsFromSameForm = pageDetails.fields.filter((f) => f.form === field.form);
+
+    // If a credit card number field is not present on the page or there are multiple credit
+    // card number fields, this field is not part of a credit card form.
+    const numberFieldsInPageDetails = fieldsFromSameForm.filter(this.isFieldForCardNumber);
+    if (numberFieldsInPageDetails.length !== 1) {
+      return false;
+    }
+
+    // If a credit card CVV field is not present on the page or there are multiple credit card
+    // CVV fields, this field is not part of a credit card form.
+    const cvvFieldsInPageDetails = fieldsFromSameForm.filter(this.isFieldForCardCvv);
+    if (cvvFieldsInPageDetails.length !== 1) {
       return false;
     }
 
@@ -291,7 +333,7 @@ export class InlineMenuFieldQualificationService
    *
    * @param field - The field to validate
    */
-  isFieldForCardholderName(field: AutofillField): boolean {
+  isFieldForCardholderName = (field: AutofillField): boolean => {
     if (this.fieldContainsAutocompleteValues(field, this.creditCardNameAutocompleteValues)) {
       return true;
     }
@@ -300,14 +342,14 @@ export class InlineMenuFieldQualificationService
       !this.fieldContainsAutocompleteValues(field, this.autocompleteDisabledValues) &&
       this.keywordsFoundInFieldData(field, CreditCardAutoFillConstants.CardHolderFieldNames, false)
     );
-  }
+  };
 
   /**
    * Validates the provided field as a field for a credit card number field.
    *
    * @param field - The field to validate
    */
-  isFieldForCardNumber(field: AutofillField): boolean {
+  isFieldForCardNumber = (field: AutofillField): boolean => {
     if (this.fieldContainsAutocompleteValues(field, this.creditCardNumberAutocompleteValue)) {
       return true;
     }
@@ -316,14 +358,14 @@ export class InlineMenuFieldQualificationService
       !this.fieldContainsAutocompleteValues(field, this.autocompleteDisabledValues) &&
       this.keywordsFoundInFieldData(field, CreditCardAutoFillConstants.CardNumberFieldNames, false)
     );
-  }
+  };
 
   /**
    * Validates the provided field as a field for a credit card expiration date field.
    *
    * @param field - The field to validate
    */
-  isFieldForCardExpirationDate(field: AutofillField): boolean {
+  isFieldForCardExpirationDate = (field: AutofillField): boolean => {
     if (
       this.fieldContainsAutocompleteValues(field, this.creditCardExpirationDateAutocompleteValue)
     ) {
@@ -334,14 +376,14 @@ export class InlineMenuFieldQualificationService
       !this.fieldContainsAutocompleteValues(field, this.autocompleteDisabledValues) &&
       this.keywordsFoundInFieldData(field, CreditCardAutoFillConstants.CardExpiryFieldNames, false)
     );
-  }
+  };
 
   /**
    * Validates the provided field as a field for a credit card expiration month field.
    *
    * @param field - The field to validate
    */
-  isFieldForCardExpirationMonth(field: AutofillField): boolean {
+  isFieldForCardExpirationMonth = (field: AutofillField): boolean => {
     if (
       this.fieldContainsAutocompleteValues(field, this.creditCardExpirationMonthAutocompleteValue)
     ) {
@@ -352,14 +394,14 @@ export class InlineMenuFieldQualificationService
       !this.fieldContainsAutocompleteValues(field, this.autocompleteDisabledValues) &&
       this.keywordsFoundInFieldData(field, CreditCardAutoFillConstants.ExpiryMonthFieldNames, false)
     );
-  }
+  };
 
   /**
    * Validates the provided field as a field for a credit card expiration year field.
    *
    * @param field - The field to validate
    */
-  isFieldForCardExpirationYear(field: AutofillField): boolean {
+  isFieldForCardExpirationYear = (field: AutofillField): boolean => {
     if (
       this.fieldContainsAutocompleteValues(field, this.creditCardExpirationYearAutocompleteValue)
     ) {
@@ -370,14 +412,14 @@ export class InlineMenuFieldQualificationService
       !this.fieldContainsAutocompleteValues(field, this.autocompleteDisabledValues) &&
       this.keywordsFoundInFieldData(field, CreditCardAutoFillConstants.ExpiryYearFieldNames, false)
     );
-  }
+  };
 
   /**
    * Validates the provided field as a field for a credit card CVV field.
    *
    * @param field - The field to validate
    */
-  isFieldForCardCvv(field: AutofillField): boolean {
+  isFieldForCardCvv = (field: AutofillField): boolean => {
     if (this.fieldContainsAutocompleteValues(field, this.creditCardCvvAutocompleteValue)) {
       return true;
     }
@@ -386,7 +428,7 @@ export class InlineMenuFieldQualificationService
       !this.fieldContainsAutocompleteValues(field, this.autocompleteDisabledValues) &&
       this.keywordsFoundInFieldData(field, CreditCardAutoFillConstants.CVVFieldNames, false)
     );
-  }
+  };
 
   /**
    * Validates the provided field as a username field.
@@ -572,7 +614,7 @@ export class InlineMenuFieldQualificationService
   ) {
     const searchedValues = this.getAutofillFieldDataKeywords(autofillFieldData, fuzzyMatchKeywords);
     if (typeof searchedValues === "string") {
-      return keywords.some((keyword) => searchedValues.includes(keyword));
+      return keywords.some((keyword) => searchedValues.indexOf(keyword) > -1);
     }
 
     return keywords.some((keyword) => searchedValues.has(keyword));
@@ -631,7 +673,7 @@ export class InlineMenuFieldQualificationService
 
     const autocompleteValueParts = fieldAutocompleteValue.split(" ");
     if (typeof compareValues === "string") {
-      return autocompleteValueParts.includes(compareValues);
+      return autocompleteValueParts.indexOf(compareValues) > -1;
     }
 
     for (let index = 0; index < autocompleteValueParts.length; index++) {
