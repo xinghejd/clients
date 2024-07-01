@@ -1,14 +1,16 @@
 const child = require("child_process");
+const fse = require("fs-extra");
 
 const paths = {
-  build: "./build/",
-  dist: "./dist/",
-  node_modules: "./node_modules/",
+  extensionBuild: "./macos/build",
   macOsProject: "./macos/desktop.xcodeproj",
-  macOsBuild: "./build-macos",
 };
 
 async function buildMacOs(cb) {
+  if (fse.existsSync(paths.extensionBuild)) {
+    fse.removeSync(paths.extensionBuild);
+  }
+
   const proc = child.spawn("xcodebuild", [
     "-project",
     paths.macOsProject,
@@ -17,7 +19,16 @@ async function buildMacOs(cb) {
     "Release",
   ]);
   stdOutProc(proc);
-  await new Promise((resolve) => proc.on("close", resolve));
+  await new Promise((resolve, reject) =>
+    proc.on("close", (code) => {
+      if (code > 0) {
+        console.error("xcodebuild failed with code", code);
+        return reject(new Error(`xcodebuild failed with code ${code}`));
+      }
+      console.log("xcodebuild success");
+      resolve();
+    }),
+  );
 }
 
 function stdOutProc(proc) {
