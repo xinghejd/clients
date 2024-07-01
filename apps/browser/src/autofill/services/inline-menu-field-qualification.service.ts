@@ -14,7 +14,12 @@ export class InlineMenuFieldQualificationService
   private searchFieldNamesSet = new Set(AutoFillConstants.SearchFieldNames);
   private excludedAutofillLoginTypesSet = new Set(AutoFillConstants.ExcludedAutofillLoginTypes);
   private usernameFieldTypes = new Set(["text", "email", "number", "tel"]);
-  private usernameAutocompleteValues = new Set(["username", "email"]);
+  private usernameAutocompleteValue = "username";
+  private emailAutocompleteValue = "email";
+  private loginUsernameAutocompleteValues = new Set([
+    this.usernameAutocompleteValue,
+    this.emailAutocompleteValue,
+  ]);
   private fieldIgnoreListString = AutoFillConstants.FieldIgnoreList.join(",");
   private passwordFieldExcludeListString = AutoFillConstants.PasswordFieldExcludeList.join(",");
   private currentPasswordAutocompleteValue = "current-password";
@@ -62,6 +67,49 @@ export class InlineMenuFieldQualificationService
     this.creditCardNumberAutocompleteValue,
     this.creditCardCvvAutocompleteValue,
     this.creditCardTypeAutocompleteValue,
+  ]);
+  private identityHonorificPrefixAutocompleteValue = "honorific-prefix";
+  private identityFullNameAutocompleteValue = "name";
+  private identityFirstNameAutocompleteValue = "given-name";
+  private identityMiddleNameAutocompleteValue = "additional-name";
+  private identityLastNameAutocompleteValue = "family-name";
+  private identityNameAutocompleteValues = new Set([
+    this.identityFullNameAutocompleteValue,
+    this.identityHonorificPrefixAutocompleteValue,
+    this.identityFirstNameAutocompleteValue,
+    this.identityMiddleNameAutocompleteValue,
+    this.identityLastNameAutocompleteValue,
+    "honorific-suffix",
+    "nickname",
+  ]);
+  private identityOrganizationAutocompleteValue = "organization";
+  private identityStreetAddressAutocompleteValue = "street-address";
+  private identityAddressLine1AutocompleteValue = "address-line1";
+  private identityAddressLine2AutocompleteValue = "address-line2";
+  private identityAddressLine3AutocompleteValue = "address-line3";
+  private identityAddressCityAutocompleteValue = "address-level2";
+  private identityAddressStateAutocompleteValue = "address-level1";
+  private identityAddressAutoCompleteValues = new Set([
+    this.identityStreetAddressAutocompleteValue,
+    this.identityAddressLine1AutocompleteValue,
+    this.identityAddressLine2AutocompleteValue,
+    this.identityAddressLine3AutocompleteValue,
+    this.identityAddressCityAutocompleteValue,
+    this.identityAddressStateAutocompleteValue,
+    "shipping",
+    "billing",
+    "address-level4",
+    "address-level3",
+  ]);
+  private identityCountryAutocompleteValues = new Set(["country", "country-name"]);
+  private identityPostalCodeAutocompleteValue = "postal-code";
+  private identityAutocompleteValues = new Set([
+    ...this.identityNameAutocompleteValues,
+    ...this.loginUsernameAutocompleteValues,
+    ...this.identityOrganizationAutocompleteValue,
+    ...this.identityAddressAutoCompleteValues,
+    ...this.identityCountryAutocompleteValues,
+    this.identityPostalCodeAutocompleteValue,
   ]);
   private inlineMenuFieldQualificationFlagSet = false;
 
@@ -162,6 +210,11 @@ export class InlineMenuFieldQualificationService
     );
   }
 
+  isFieldForIdentityForm(field: AutofillField, pageDetails: AutofillPageDetails): boolean {
+    // TODO Implement logic here
+    return false;
+  }
+
   /**
    * Validates the provided field as a password field for a login form.
    *
@@ -245,7 +298,7 @@ export class InlineMenuFieldQualificationService
   ): boolean {
     // If the provided field is set with an autocomplete of "username", we should assume that
     // the page developer intends for this field to be interpreted as a username field.
-    if (this.fieldContainsAutocompleteValues(field, this.usernameAutocompleteValues)) {
+    if (this.fieldContainsAutocompleteValues(field, this.loginUsernameAutocompleteValues)) {
       const newPasswordFieldsInPageDetails = pageDetails.fields.filter(this.isNewPasswordField);
       return newPasswordFieldsInPageDetails.length === 0;
     }

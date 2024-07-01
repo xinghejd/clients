@@ -190,6 +190,10 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
       return this.getTranslation("newCard");
     }
 
+    if (this.filledByCipherType === CipherType.Identity) {
+      return this.getTranslation("newIdentity");
+    }
+
     return this.getTranslation("newItem");
   }
 
@@ -203,6 +207,10 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
 
     if (this.filledByCipherType === CipherType.Card) {
       return this.getTranslation("addNewCardItem");
+    }
+
+    if (this.filledByCipherType === CipherType.Identity) {
+      return this.getTranslation("addNewIdentityItem");
     }
 
     return this.getTranslation("addNewVaultItem");

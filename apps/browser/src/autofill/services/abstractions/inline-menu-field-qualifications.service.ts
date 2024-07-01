@@ -12,6 +12,7 @@ export type AutofillKeywordsMap = WeakMap<
 export interface InlineMenuFieldQualificationService {
   isFieldForLoginForm(field: AutofillField, pageDetails: AutofillPageDetails): boolean;
   isFieldForCreditCardForm(field: AutofillField, pageDetails: AutofillPageDetails): boolean;
+  isFieldForIdentityForm(field: AutofillField, pageDetails: AutofillPageDetails): boolean;
   isFieldForCardholderName(field: AutofillField): boolean;
   isFieldForCardNumber(field: AutofillField): boolean;
   isFieldForCardExpirationDate(field: AutofillField): boolean;
