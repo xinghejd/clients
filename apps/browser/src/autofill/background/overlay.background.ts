@@ -227,14 +227,14 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     }
 
     const currentTab = await BrowserApi.getTabFromCurrentWindowId();
-    if (this.focusedFieldData && currentTab.id !== this.focusedFieldData.tabId) {
+    if (this.focusedFieldData && currentTab?.id !== this.focusedFieldData.tabId) {
       void this.closeInlineMenuAfterCiphersUpdate();
     }
 
     this.inlineMenuCiphers = new Map();
-    const ciphersViews = (await this.cipherService.getAllDecryptedForUrl(currentTab.url)).sort(
-      (a, b) => this.cipherService.sortCiphersByLastUsedThenName(a, b),
-    );
+    const ciphersViews = (
+      await this.cipherService.getAllDecryptedForUrl(currentTab?.url || "")
+    ).sort((a, b) => this.cipherService.sortCiphersByLastUsedThenName(a, b));
     for (let cipherIndex = 0; cipherIndex < ciphersViews.length; cipherIndex++) {
       this.inlineMenuCiphers.set(`inline-menu-cipher-${cipherIndex}`, ciphersViews[cipherIndex]);
     }
