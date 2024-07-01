@@ -489,8 +489,8 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
       }
     }
 
-    const iconClasses = cipher.icon.icon.split(" ");
     if (cipher.icon?.icon) {
+      const iconClasses = cipher.icon.icon.split(" ");
       cipherIcon.classList.add("cipher-icon", "bwi", ...iconClasses);
       return cipherIcon;
     }
