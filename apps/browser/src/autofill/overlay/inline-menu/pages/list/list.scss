@@ -116,16 +116,18 @@ body {
   }
 }
 
+.inline-menu-list-actions {
+  padding: 0;
+  margin: 0;
+  max-height: 18rem;
+  overflow: scroll;
+}
+
 .inline-menu-list-container--with-new-item-button {
   .inline-menu-list-actions {
     max-height: 13.8rem;
     overflow: scroll;
   }
-}
-
-.inline-menu-list-actions {
-  padding: 0;
-  margin: 0;
 }
 
 .inline-menu-list-actions-item {

@@ -150,7 +150,7 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
     this.ciphersList = globalThis.document.createElement("ul");
     this.ciphersList.classList.add("inline-menu-list-actions");
     this.ciphersList.setAttribute("role", "list");
-    globalThis.addEventListener(EVENTS.SCROLL, this.handleCiphersListScrollEvent);
+    this.ciphersList.addEventListener(EVENTS.SCROLL, this.handleCiphersListScrollEvent);
 
     this.loadPageOfCiphers();
 
@@ -271,7 +271,7 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
     }
 
     if (this.currentCipherIndex >= this.ciphers.length) {
-      globalThis.removeEventListener(EVENTS.SCROLL, this.handleCiphersListScrollEvent);
+      this.ciphersList.removeEventListener(EVENTS.SCROLL, this.handleCiphersListScrollEvent);
     }
   }
 
@@ -301,7 +301,11 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
   private handleDebouncedScrollEvent = () => {
     this.cipherListScrollIsDebounced = false;
 
-    if (globalThis.scrollY + globalThis.innerHeight >= this.ciphersList.clientHeight - 300) {
+    const scrollPercentage =
+      (this.ciphersList.scrollTop /
+        (this.ciphersList.scrollHeight - this.ciphersList.offsetHeight)) *
+      100;
+    if (scrollPercentage >= 80) {
       this.loadPageOfCiphers();
     }
   };
