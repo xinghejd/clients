@@ -118,7 +118,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       this.triggerDestroyInlineMenuListeners(sender.tab, message.subFrameData.frameId),
     collectPageDetailsResponse: ({ message, sender }) => this.storePageDetails(message, sender),
     unlockCompleted: ({ message }) => this.unlockCompleted(message),
-    loggedIn: () => this.updateOverlayCiphers(),
+    doFullSync: () => this.updateOverlayCiphers(),
     addedCipher: () => this.updateOverlayCiphers(),
     addEditCipherSubmitted: () => this.updateOverlayCiphers(),
     editedCipher: () => this.updateOverlayCiphers(),
@@ -235,11 +235,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     }
 
     const currentTab = await BrowserApi.getTabFromCurrentWindowId();
-    if (!currentTab?.url) {
-      return;
-    }
-
-    if (this.focusedFieldData && currentTab.id !== this.focusedFieldData.tabId) {
+    if (this.focusedFieldData && currentTab?.id !== this.focusedFieldData.tabId) {
       void this.closeInlineMenuAfterCiphersUpdate();
     }
 
@@ -270,9 +266,9 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       return this.getAllCipherTypeViews(currentTab);
     }
 
-    const cipherViews = (await this.cipherService.getAllDecryptedForUrl(currentTab.url)).sort(
-      (a, b) => this.cipherService.sortCiphersByLastUsedThenName(a, b),
-    );
+    const cipherViews = (
+      await this.cipherService.getAllDecryptedForUrl(currentTab?.url || "")
+    ).sort((a, b) => this.cipherService.sortCiphersByLastUsedThenName(a, b));
 
     return cipherViews.concat(...this.cardAndIdentityCiphers);
   }
