@@ -116,6 +116,13 @@ body {
   }
 }
 
+.inline-menu-list-container--with-new-item-button {
+  .inline-menu-list-actions {
+    max-height: 13.8rem;
+    overflow: scroll;
+  }
+}
+
 .inline-menu-list-actions {
   padding: 0;
   margin: 0;
