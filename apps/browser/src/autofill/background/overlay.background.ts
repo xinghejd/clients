@@ -967,6 +967,8 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     { focusedFieldData }: OverlayBackgroundExtensionMessage,
     sender: chrome.runtime.MessageSender,
   ) {
+    void this.updateIdentityCiphersOnLoginField(focusedFieldData);
+
     if (this.focusedFieldData?.frameId && this.focusedFieldData.frameId !== sender.frameId) {
       void BrowserApi.tabSendMessage(
         sender.tab,
@@ -976,6 +978,24 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     }
 
     this.focusedFieldData = { ...focusedFieldData, tabId: sender.tab.id, frameId: sender.frameId };
+  }
+
+  private async updateIdentityCiphersOnLoginField(focusedFieldData: FocusedFieldData) {
+    if (!this.isInlineMenuButtonVisible) {
+      return;
+    }
+
+    const command = "updateIdentityCiphersOnLoginField";
+
+    if (this.focusedFieldData?.usernameFieldType && !focusedFieldData.usernameFieldType) {
+      this.inlineMenuListPort?.postMessage({ command, ciphers: [] });
+      return;
+    }
+
+    if (focusedFieldData.usernameFieldType) {
+      const ciphers = await this.getInlineMenuCipherData();
+      this.inlineMenuListPort?.postMessage({ command, ciphers });
+    }
   }
 
   /**
