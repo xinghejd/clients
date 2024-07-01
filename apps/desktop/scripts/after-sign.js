@@ -15,9 +15,22 @@ async function run(context) {
   const appName = context.packager.appInfo.productFilename;
   const appPath = `${context.appOutDir}/${appName}.app`;
   const macBuild = context.electronPlatformName === "darwin";
-  const copyPlugIn = ["darwin", "mas"].includes(context.electronPlatformName);
+  const copySafariExtension = ["darwin", "mas"].includes(context.electronPlatformName);
+  const copyAutofillExtension = ["mas"].includes(context.electronPlatformName);
 
-  if (copyPlugIn) {
+  let shouldResign = false;
+
+  // cannot use extraFiles instead
+  if (copyAutofillExtension) {
+    const extensionPath = path.join(__dirname, "../macos/build/Release/autofill-extension.appex");
+    if (fse.existsSync(extensionPath)) {
+      fse.mkdirSync(path.join(appPath, "Contents/PlugIns"));
+      fse.copySync(extensionPath, path.join(appPath, "Contents/PlugIns/autofill-extension.appex"));
+    }
+    shouldResign = true;
+  }
+
+  if (copySafariExtension) {
     // Copy Safari plugin to work-around https://github.com/electron-userland/electron-builder/issues/5552
     const plugIn = path.join(__dirname, "../PlugIns");
     if (fse.existsSync(plugIn)) {
@@ -26,25 +39,28 @@ async function run(context) {
         path.join(plugIn, "safari.appex"),
         path.join(appPath, "Contents/PlugIns/safari.appex"),
       );
+      shouldResign = true;
+    }
+  }
 
-      // Resign to sign safari extension
-      if (context.electronPlatformName === "mas") {
-        const masBuildOptions = deepAssign(
-          {},
-          context.packager.platformSpecificBuildOptions,
-          context.packager.config.mas,
-        );
-        if (context.targets.some((e) => e.name === "mas-dev")) {
-          deepAssign(masBuildOptions, {
-            type: "development",
-          });
-        }
-        if (context.packager.packagerOptions.prepackaged == null) {
-          await context.packager.sign(appPath, context.appOutDir, masBuildOptions, context.arch);
-        }
-      } else {
-        await context.packager.signApp(context, true);
+  if (shouldResign) {
+    // Resign to sign safari extension
+    if (context.electronPlatformName === "mas") {
+      const masBuildOptions = deepAssign(
+        {},
+        context.packager.platformSpecificBuildOptions,
+        context.packager.config.mas,
+      );
+      if (context.targets.some((e) => e.name === "mas-dev")) {
+        deepAssign(masBuildOptions, {
+          type: "development",
+        });
       }
+      if (context.packager.packagerOptions.prepackaged == null) {
+        await context.packager.sign(appPath, context.appOutDir, masBuildOptions, context.arch);
+      }
+    } else {
+      await context.packager.signApp(context, true);
     }
   }
 
