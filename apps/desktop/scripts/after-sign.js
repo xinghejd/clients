@@ -20,8 +20,9 @@ async function run(context) {
 
   let shouldResign = false;
 
-  // cannot use extraFiles instead
+  // cannot use extraFiles because it modifies the extensions .plist and makes it invalid
   if (copyAutofillExtension) {
+    console.log("### Copying autofill extension");
     const extensionPath = path.join(__dirname, "../macos/build/Release/autofill-extension.appex");
     if (fse.existsSync(extensionPath)) {
       fse.mkdirSync(path.join(appPath, "Contents/PlugIns"));
@@ -31,6 +32,7 @@ async function run(context) {
   }
 
   if (copySafariExtension) {
+    console.log("### Copying safari extension");
     // Copy Safari plugin to work-around https://github.com/electron-userland/electron-builder/issues/5552
     const plugIn = path.join(__dirname, "../PlugIns");
     if (fse.existsSync(plugIn)) {
