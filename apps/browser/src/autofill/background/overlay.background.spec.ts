@@ -1636,6 +1636,7 @@ describe("OverlayBackground", () => {
 
     describe("extension messages that trigger an update of the inline menu ciphers", () => {
       const extensionMessages = [
+        "loggedIn",
         "addedCipher",
         "addEditCipherSubmitted",
         "editedCipher",
