@@ -1,4 +1,3 @@
-use async_trait::async_trait;
 use anyhow::Result;
 
 #[cfg_attr(target_os = "linux", path = "unix.rs")]
@@ -18,7 +17,6 @@ pub struct OsDerivedKey {
     pub iv_b64: String,
 }
 
-#[async_trait]
 pub trait BiometricTrait {
     async fn prompt(hwnd: Vec<u8>, message: String) -> Result<bool>;
     async fn available() -> Result<bool>;

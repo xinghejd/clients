@@ -1,4 +1,3 @@
-use async_trait::async_trait;
 use anyhow::{bail, Result};
 
 use crate::biometric::{KeyMaterial, OsDerivedKey};
@@ -8,7 +7,6 @@ use zbus_polkit::policykit1::*;
 /// The Unix implementation of the biometric trait.
 pub struct Biometric {}
 
-#[async_trait]
 impl super::BiometricTrait for Biometric {
     async fn prompt(_hwnd: Vec<u8>, _message: String) -> Result<bool> {
         let connection = Connection::system().await?;
