@@ -87,16 +87,15 @@ export class CipherFormComponent implements AfterViewInit, OnInit, OnChanges, Ci
   @Output() cipherSaved = new EventEmitter<CipherView>();
 
   /**
+   * The original cipher being edited or cloned. Null for add mode.
+   */
+  originalCipherView: CipherView | null;
+
+  /**
    * The form group for the cipher. Starts empty and is populated by child components via the `registerChildForm` method.
    * @protected
    */
   protected cipherForm = this.formBuilder.group<CipherForm>({});
-
-  /**
-   * The original cipher being edited or cloned. Null for add mode.
-   * @protected
-   */
-  protected originalCipherView: CipherView | null;
 
   /**
    * The value of the updated cipher. Starts as a new cipher (or clone of originalCipher) and is updated
