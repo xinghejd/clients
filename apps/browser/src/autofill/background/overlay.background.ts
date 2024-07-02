@@ -315,7 +315,8 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     const inlineMenuCiphersArray = Array.from(this.inlineMenuCiphers);
     const inlineMenuCipherData: InlineMenuCipherData[] = [];
 
-    const showLoginAccountCreation = this.showLoginAccountCreation();
+    const showLoginAccountCreation =
+      this.focusedFieldData?.showLoginAccountCreation || this.showLoginAccountCreation();
 
     for (let cipherIndex = 0; cipherIndex < inlineMenuCiphersArray.length; cipherIndex++) {
       const [inlineMenuCipherId, cipher] = inlineMenuCiphersArray[cipherIndex];
