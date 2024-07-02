@@ -391,12 +391,20 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
 
     if (cipher.card) {
       const cardParts = cipher.card.split(", *");
-      const cardBrand = cardParts[0];
-      const lastFour = cardParts[1];
+      if (cardParts.length === 1) {
+        const cardDigits = cardParts[0].startsWith("*") ? cardParts[0].substring(1) : cardParts[0];
+        fillCipherElement.setAttribute(
+          "aria-description",
+          `${this.getTranslation("cardNumberEndsWith")} ${cardDigits}`,
+        );
+        return;
+      }
 
+      const cardBrand = cardParts[0];
+      const cardDigits = cardParts[1];
       fillCipherElement.setAttribute(
         "aria-description",
-        `${cardBrand}, ${this.getTranslation("cardNumberEndsWith")} ${lastFour}`,
+        `${cardBrand}, ${this.getTranslation("cardNumberEndsWith")} ${cardDigits}`,
       );
     }
   }
