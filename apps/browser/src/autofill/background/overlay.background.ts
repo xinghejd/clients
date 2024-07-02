@@ -372,16 +372,13 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       return { fullName };
     }
 
-    let username = "";
-    if (this.focusedFieldData.accountCreationFieldType !== "email" && cipher.identity.username) {
-      username = cipher.identity.username;
-    }
-
-    if (!username && cipher.identity.email) {
-      username = cipher.identity.email;
-    }
-
-    return { fullName, username };
+    return {
+      fullName,
+      username:
+        this.focusedFieldData.accountCreationFieldType === "email"
+          ? cipher.identity.email
+          : cipher.identity.username,
+    };
   }
 
   private showLoginAccountCreation(): boolean {
