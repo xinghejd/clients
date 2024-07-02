@@ -1,0 +1,40 @@
+use async_trait::async_trait;
+use anyhow::{bail, Result};
+
+use crate::biometric::{KeyMaterial, OsDerivedKey};
+
+/// The MacOS implementation of the biometric trait.
+pub struct Biometric {}
+
+#[async_trait]
+impl super::BiometricTrait for Biometric {
+    async fn prompt(_hwnd: Vec<u8>, _message: String) -> Result<bool> {
+        bail!("platform not supported");
+    }
+
+    async fn available() -> Result<bool> {
+        bail!("platform not supported");
+    }
+
+    fn derive_key_material(_iv_str: Option<&str>) -> Result<OsDerivedKey> {
+        bail!("platform not supported");
+    }
+
+    fn get_biometric_secret(
+        _service: &str,
+        _account: &str,
+        _key_material: Option<KeyMaterial>,
+    ) -> Result<String> {
+        bail!("platform not supported");
+    }
+
+    fn set_biometric_secret(
+        _service: &str,
+        _account: &str,
+        _secret: &str,
+        _key_material: Option<super::KeyMaterial>,
+        _iv_b64: &str,
+    ) -> Result<String> {
+        bail!("platform not supported");
+    }
+}

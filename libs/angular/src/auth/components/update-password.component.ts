@@ -18,9 +18,9 @@ import { MessagingService } from "@bitwarden/common/platform/abstractions/messag
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
-import { PasswordGenerationServiceAbstraction } from "@bitwarden/common/tools/generator/password";
 import { MasterKey, UserKey } from "@bitwarden/common/types/key";
 import { DialogService } from "@bitwarden/components";
+import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legacy";
 
 import { ChangePasswordComponent as BaseChangePasswordComponent } from "./change-password.component";
 
@@ -72,10 +72,7 @@ export class UpdatePasswordComponent extends BaseChangePasswordComponent {
   }
 
   async cancel() {
-    await this.stateService.setOrganizationInvitation(null);
-    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    this.router.navigate(["/vault"]);
+    await this.router.navigate(["/vault"]);
   }
 
   async setupSubmitActions(): Promise<boolean> {
