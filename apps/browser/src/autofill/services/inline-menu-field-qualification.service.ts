@@ -568,6 +568,17 @@ export class InlineMenuFieldQualificationService
     return this.keywordsFoundInFieldData(field, AutoFillConstants.UsernameFieldNames);
   };
 
+  isEmailField = (field: AutofillField): boolean => {
+    if (field.type === "email") {
+      return true;
+    }
+
+    return (
+      !this.isExcludedFieldType(field, this.excludedAutofillLoginTypesSet) &&
+      this.keywordsFoundInFieldData(field, AutoFillConstants.EmailFieldNames)
+    );
+  };
+
   /**
    * Validates the provided field as a current password field.
    *

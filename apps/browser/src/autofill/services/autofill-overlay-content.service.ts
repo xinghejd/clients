@@ -665,20 +665,25 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     const { width, height, top, left } =
       await this.getMostRecentlyFocusedFieldRects(formFieldElement);
     const autofillFieldData = this.formFieldElements.get(formFieldElement);
-    let isUsernameField = false;
+    let accountCreationFieldType = null;
     if (
-      autofillFieldData?.showInlineMenuAccountCreation ||
-      autofillFieldData?.filledByCipherType === CipherType.Login
+      (autofillFieldData?.showInlineMenuAccountCreation ||
+        autofillFieldData?.filledByCipherType === CipherType.Login) &&
+      this.inlineMenuFieldQualificationService.isUsernameField(autofillFieldData)
     ) {
-      isUsernameField = this.inlineMenuFieldQualificationService.isUsernameField(autofillFieldData);
+      accountCreationFieldType = this.inlineMenuFieldQualificationService.isEmailField(
+        autofillFieldData,
+      )
+        ? "email"
+        : autofillFieldData.type;
     }
 
     this.focusedFieldData = {
       focusedFieldStyles: { paddingRight, paddingLeft },
       focusedFieldRects: { width, height, top, left },
       filledByCipherType: autofillFieldData?.filledByCipherType,
-      accountCreationFieldType: isUsernameField ? autofillFieldData?.type : null,
       showLoginAccountCreation: autofillFieldData?.showInlineMenuAccountCreation,
+      accountCreationFieldType,
     };
 
     await this.sendExtensionMessage("updateFocusedFieldData", {
