@@ -14,17 +14,24 @@ impl super::BiometricTrait for Biometric {
         let connection = Connection::system().await?;
         let proxy = AuthorityProxy::new(&connection).await?;
         let subject = Subject::new_for_owner(std::process::id(), None, None)?;
-        let mut details = std::collections::HashMap::new();
-        details.insert("polkit.message", _message.as_str());
+        let details = std::collections::HashMap::new();
         let result = proxy.check_authorization(
             &subject,
             "com.bitwarden.Bitwarden.unlock",
             &details,
             CheckAuthorizationFlags::AllowUserInteraction.into(),
             "",
-        ).await?;
+        ).await;
 
-        return Ok(result.is_authorized);
+        match result {
+            Ok(result) => {
+                return Ok(result.is_authorized);
+            }
+            Err(e) => {
+                println!("polkit biometric error: {:?}", e);
+                return Ok(false);
+            }
+        }
     }
 
     async fn available() -> Result<bool> {
