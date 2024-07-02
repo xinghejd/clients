@@ -84,7 +84,7 @@ export class InlineMenuFieldQualificationService
     "honorific-suffix",
     "nickname",
   ]);
-  private identityOrganizationAutocompleteValue = "organization";
+  private identityCompanyAutocompleteValue = "organization";
   private identityStreetAddressAutocompleteValue = "street-address";
   private identityAddressLine1AutocompleteValue = "address-line1";
   private identityAddressLine2AutocompleteValue = "address-line2";
@@ -116,7 +116,7 @@ export class InlineMenuFieldQualificationService
   private identityAutocompleteValues = new Set([
     ...this.identityNameAutocompleteValues,
     ...this.loginUsernameAutocompleteValues,
-    ...this.identityOrganizationAutocompleteValue,
+    ...this.identityCompanyAutocompleteValue,
     ...this.identityAddressAutoCompleteValues,
     ...this.identityCountryAutocompleteValues,
     ...this.identityPhoneNumberAutocompleteValues,
@@ -553,63 +553,173 @@ export class InlineMenuFieldQualificationService
   };
 
   isFieldForIdentityTitle = (field: AutofillField): boolean => {
-    return false;
+    if (
+      this.fieldContainsAutocompleteValues(field, this.identityHonorificPrefixAutocompleteValue)
+    ) {
+      return true;
+    }
+
+    return (
+      !this.fieldContainsAutocompleteValues(field, this.autocompleteDisabledValues) &&
+      this.keywordsFoundInFieldData(field, IdentityAutoFillConstants.TitleFieldNames, false)
+    );
   };
 
   isFieldForIdentityFirstName = (field: AutofillField): boolean => {
-    return false;
+    if (this.fieldContainsAutocompleteValues(field, this.identityFirstNameAutocompleteValue)) {
+      return true;
+    }
+
+    return (
+      !this.fieldContainsAutocompleteValues(field, this.autocompleteDisabledValues) &&
+      this.keywordsFoundInFieldData(field, IdentityAutoFillConstants.FirstnameFieldNames, false)
+    );
   };
 
   isFieldForIdentityMiddleName = (field: AutofillField): boolean => {
-    return false;
+    if (this.fieldContainsAutocompleteValues(field, this.identityMiddleNameAutocompleteValue)) {
+      return true;
+    }
+
+    return (
+      !this.fieldContainsAutocompleteValues(field, this.autocompleteDisabledValues) &&
+      this.keywordsFoundInFieldData(field, IdentityAutoFillConstants.MiddlenameFieldNames, false)
+    );
   };
 
   isFieldForIdentityLastName = (field: AutofillField): boolean => {
-    return false;
+    if (this.fieldContainsAutocompleteValues(field, this.identityLastNameAutocompleteValue)) {
+      return true;
+    }
+
+    return (
+      !this.fieldContainsAutocompleteValues(field, this.autocompleteDisabledValues) &&
+      this.keywordsFoundInFieldData(field, IdentityAutoFillConstants.LastnameFieldNames, false)
+    );
   };
 
   isFieldForIdentityAddress1 = (field: AutofillField): boolean => {
-    return false;
+    if (this.fieldContainsAutocompleteValues(field, this.identityAddressLine1AutocompleteValue)) {
+      return true;
+    }
+
+    return (
+      !this.fieldContainsAutocompleteValues(field, this.autocompleteDisabledValues) &&
+      this.keywordsFoundInFieldData(field, IdentityAutoFillConstants.Address1FieldNames, false)
+    );
   };
 
   isFieldForIdentityAddress2 = (field: AutofillField): boolean => {
-    return false;
+    if (this.fieldContainsAutocompleteValues(field, this.identityAddressLine2AutocompleteValue)) {
+      return true;
+    }
+
+    return (
+      !this.fieldContainsAutocompleteValues(field, this.autocompleteDisabledValues) &&
+      this.keywordsFoundInFieldData(field, IdentityAutoFillConstants.Address2FieldNames, false)
+    );
   };
 
   isFieldForIdentityAddress3 = (field: AutofillField): boolean => {
-    return false;
+    if (this.fieldContainsAutocompleteValues(field, this.identityAddressLine3AutocompleteValue)) {
+      return true;
+    }
+
+    return (
+      !this.fieldContainsAutocompleteValues(field, this.autocompleteDisabledValues) &&
+      this.keywordsFoundInFieldData(field, IdentityAutoFillConstants.Address3FieldNames, false)
+    );
   };
 
   isFieldForIdentityCity = (field: AutofillField): boolean => {
-    return false;
+    if (this.fieldContainsAutocompleteValues(field, this.identityAddressCityAutocompleteValue)) {
+      return true;
+    }
+
+    return (
+      !this.fieldContainsAutocompleteValues(field, this.autocompleteDisabledValues) &&
+      this.keywordsFoundInFieldData(field, IdentityAutoFillConstants.CityFieldNames, false)
+    );
   };
 
   isFieldForIdentityState = (field: AutofillField): boolean => {
-    return false;
+    if (this.fieldContainsAutocompleteValues(field, this.identityAddressStateAutocompleteValue)) {
+      return true;
+    }
+
+    return (
+      !this.fieldContainsAutocompleteValues(field, this.autocompleteDisabledValues) &&
+      this.keywordsFoundInFieldData(field, IdentityAutoFillConstants.AddressFieldNames, false)
+    );
   };
 
   isFieldForIdentityPostalCode = (field: AutofillField): boolean => {
-    return false;
+    if (this.fieldContainsAutocompleteValues(field, this.identityPostalCodeAutocompleteValue)) {
+      return true;
+    }
+
+    return (
+      !this.fieldContainsAutocompleteValues(field, this.autocompleteDisabledValues) &&
+      this.keywordsFoundInFieldData(field, IdentityAutoFillConstants.PostalCodeFieldNames, false)
+    );
   };
 
   isFieldForIdentityCountry = (field: AutofillField): boolean => {
-    return false;
+    if (this.fieldContainsAutocompleteValues(field, this.identityCountryAutocompleteValues)) {
+      return true;
+    }
+
+    return (
+      !this.fieldContainsAutocompleteValues(field, this.autocompleteDisabledValues) &&
+      this.keywordsFoundInFieldData(field, IdentityAutoFillConstants.CountryFieldNames, false)
+    );
   };
 
   isFieldForIdentityCompany = (field: AutofillField): boolean => {
-    return false;
+    if (this.fieldContainsAutocompleteValues(field, this.identityCompanyAutocompleteValue)) {
+      return true;
+    }
+
+    return (
+      !this.fieldContainsAutocompleteValues(field, this.autocompleteDisabledValues) &&
+      this.keywordsFoundInFieldData(field, IdentityAutoFillConstants.CompanyFieldNames, false)
+    );
   };
 
   isFieldForIdentityPhone = (field: AutofillField): boolean => {
-    return false;
+    if (this.fieldContainsAutocompleteValues(field, this.identityPhoneAutocompleteValue)) {
+      return true;
+    }
+
+    return (
+      !this.fieldContainsAutocompleteValues(field, this.autocompleteDisabledValues) &&
+      this.keywordsFoundInFieldData(field, IdentityAutoFillConstants.PhoneFieldNames, false)
+    );
   };
 
   isFieldForIdentityEmail = (field: AutofillField): boolean => {
-    return false;
+    if (
+      this.fieldContainsAutocompleteValues(field, this.emailAutocompleteValue) ||
+      field.type === "email"
+    ) {
+      return true;
+    }
+
+    return (
+      !this.fieldContainsAutocompleteValues(field, this.autocompleteDisabledValues) &&
+      this.keywordsFoundInFieldData(field, IdentityAutoFillConstants.EmailFieldNames, false)
+    );
   };
 
   isFieldForIdentityUsername = (field: AutofillField): boolean => {
-    return false;
+    if (this.fieldContainsAutocompleteValues(field, this.usernameAutocompleteValue)) {
+      return true;
+    }
+
+    return (
+      !this.fieldContainsAutocompleteValues(field, this.autocompleteDisabledValues) &&
+      this.keywordsFoundInFieldData(field, IdentityAutoFillConstants.UserNameFieldNames, false)
+    );
   };
 
   /**
