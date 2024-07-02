@@ -678,7 +678,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
       focusedFieldRects: { width, height, top, left },
       filledByCipherType: autofillFieldData?.filledByCipherType,
       accountCreationFieldType: isUsernameField ? autofillFieldData?.type : null,
-      showLoginAccountCreation: !!autofillFieldData?.showInlineMenuAccountCreation,
+      showLoginAccountCreation: autofillFieldData?.showInlineMenuAccountCreation,
     };
 
     await this.sendExtensionMessage("updateFocusedFieldData", {

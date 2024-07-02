@@ -7,6 +7,7 @@ type AutofillInlineMenuListMessage = { command: string };
 
 export type UpdateAutofillInlineMenuListCiphersMessage = AutofillInlineMenuListMessage & {
   ciphers: InlineMenuCipherData[];
+  showLoginAccountCreation?: boolean;
 };
 
 export type InitAutofillInlineMenuListMessage = AutofillInlineMenuListMessage & {

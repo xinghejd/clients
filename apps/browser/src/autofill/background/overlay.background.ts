@@ -249,6 +249,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     this.inlineMenuListPort?.postMessage({
       command: "updateAutofillInlineMenuListCiphers",
       ciphers,
+      showLoginAccountCreation: this.showLoginAccountCreation(),
     });
   }
 
@@ -371,8 +372,8 @@ export class OverlayBackground implements OverlayBackgroundInterface {
   }
 
   private showLoginAccountCreation(): boolean {
-    if (this.focusedFieldData?.showLoginAccountCreation) {
-      return true;
+    if (typeof this.focusedFieldData?.showLoginAccountCreation !== "undefined") {
+      return this.focusedFieldData?.showLoginAccountCreation;
     }
 
     if (this.focusedFieldData?.filledByCipherType !== CipherType.Login) {
@@ -984,14 +985,15 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       );
     }
 
-    const previousFocusedFieldDataUsernameType = this.focusedFieldData?.accountCreationFieldType;
+    const previousFocusedFieldData = this.focusedFieldData;
     this.focusedFieldData = { ...focusedFieldData, tabId: sender.tab.id, frameId: sender.frameId };
 
-    void this.updateIdentityCiphersOnLoginField(previousFocusedFieldDataUsernameType);
+    void this.updateIdentityCiphersOnLoginField(previousFocusedFieldData);
   }
 
-  private async updateIdentityCiphersOnLoginField(previousFocusedFieldDataUsernameType: string) {
+  private async updateIdentityCiphersOnLoginField(previousFocusedFieldData: FocusedFieldData) {
     if (
+      !previousFocusedFieldData ||
       !this.isInlineMenuButtonVisible ||
       (await this.getAuthStatus()) !== AuthenticationStatus.Unlocked
     ) {
@@ -999,15 +1001,25 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     }
 
     const command = "updateAutofillInlineMenuListCiphers";
+    const showLoginAccountCreation = this.showLoginAccountCreation();
 
-    if (previousFocusedFieldDataUsernameType && !this.focusedFieldData?.accountCreationFieldType) {
-      this.inlineMenuListPort?.postMessage({ command, ciphers: [] });
+    if (
+      (previousFocusedFieldData.accountCreationFieldType &&
+        !this.focusedFieldData?.accountCreationFieldType) ||
+      (!previousFocusedFieldData.showLoginAccountCreation &&
+        this.focusedFieldData?.showLoginAccountCreation)
+    ) {
+      this.inlineMenuListPort?.postMessage({ command, ciphers: [], showLoginAccountCreation });
       return;
     }
 
-    if (this.focusedFieldData?.accountCreationFieldType) {
+    if (
+      this.focusedFieldData?.accountCreationFieldType ||
+      (previousFocusedFieldData.showLoginAccountCreation &&
+        !this.focusedFieldData?.showLoginAccountCreation)
+    ) {
       const ciphers = await this.getInlineMenuCipherData();
-      this.inlineMenuListPort?.postMessage({ command, ciphers });
+      this.inlineMenuListPort?.postMessage({ command, ciphers, showLoginAccountCreation });
     }
   }
 

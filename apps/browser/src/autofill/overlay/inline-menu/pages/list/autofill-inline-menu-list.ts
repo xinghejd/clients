@@ -30,7 +30,8 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
     {
       initAutofillInlineMenuList: ({ message }) => this.initAutofillInlineMenuList(message),
       checkAutofillInlineMenuListFocused: () => this.checkInlineMenuListFocused(),
-      updateAutofillInlineMenuListCiphers: ({ message }) => this.updateListItems(message.ciphers),
+      updateAutofillInlineMenuListCiphers: ({ message }) =>
+        this.updateListItems(message.ciphers, message.showLoginAccountCreation),
       focusAutofillInlineMenuList: () => this.focusInlineMenuList(),
     };
 
@@ -71,7 +72,6 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
     );
 
     this.filledByCipherType = filledByCipherType;
-    this.showLoginAccountCreation = showLoginAccountCreation;
 
     const themeClass = `theme_${theme}`;
     globalThis.document.documentElement.classList.add(themeClass);
@@ -83,7 +83,7 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
     this.shadowDom.append(linkElement, this.inlineMenuListContainer);
 
     if (authStatus === AuthenticationStatus.Unlocked) {
-      this.updateListItems(ciphers);
+      this.updateListItems(ciphers, showLoginAccountCreation);
       return;
     }
 
@@ -134,10 +134,12 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
    * If no ciphers are passed, the no results inline menu is built.
    *
    * @param ciphers - The ciphers to display in the inline menu list.
+   * @param showLoginAccountCreation - Whether identity ciphers are shown on login fields.
    */
-  private updateListItems(ciphers: InlineMenuCipherData[]) {
+  private updateListItems(ciphers: InlineMenuCipherData[], showLoginAccountCreation?: boolean) {
     this.ciphers = ciphers;
     this.currentCipherIndex = 0;
+    this.showLoginAccountCreation = showLoginAccountCreation;
     if (this.inlineMenuListContainer) {
       this.inlineMenuListContainer.innerHTML = "";
     }
@@ -165,7 +167,12 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
         "inline-menu-list-container--with-new-item-button",
       );
       this.newItemButtonElement.addEventListener(EVENTS.KEYUP, this.handleNewItemButtonKeyUpEvent);
+
+      return;
     }
+    this.inlineMenuListContainer.classList.remove(
+      "inline-menu-list-container--with-new-item-button",
+    );
   }
 
   /**
