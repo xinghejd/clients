@@ -34,6 +34,12 @@ pub mod passwords {
         desktop_core::password::delete_password(&service, &account)
             .map_err(|e| napi::Error::from_reason(e.to_string()))
     }
+
+    // Checks if the os secure storage is available
+    #[napi]
+    pub async fn is_available() -> napi::Result<bool> {
+        desktop_core::password::is_available().map_err(|e| napi::Error::from_reason(e.to_string()))
+    }
 }
 
 #[napi]
