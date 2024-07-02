@@ -1004,10 +1004,8 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     const showLoginAccountCreation = this.showLoginAccountCreation();
 
     if (
-      (previousFocusedFieldData.accountCreationFieldType &&
-        !this.focusedFieldData?.accountCreationFieldType) ||
-      (!previousFocusedFieldData.showLoginAccountCreation &&
-        this.focusedFieldData?.showLoginAccountCreation)
+      this.focusedFieldData?.showLoginAccountCreation &&
+      !this.focusedFieldData?.accountCreationFieldType
     ) {
       this.inlineMenuListPort?.postMessage({ command, ciphers: [], showLoginAccountCreation });
       return;
