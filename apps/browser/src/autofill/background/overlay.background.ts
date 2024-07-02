@@ -330,6 +330,15 @@ export class OverlayBackground implements OverlayBackgroundInterface {
         continue;
       }
 
+      const identity =
+        cipher.type === CipherType.Identity
+          ? this.getIdentityCipherData(cipher, showLoginAccountCreation)
+          : null;
+
+      if (showLoginAccountCreation && !identity?.username) {
+        continue;
+      }
+
       inlineMenuCipherData.push({
         id: inlineMenuCipherId,
         name: cipher.name,
@@ -340,10 +349,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
         accountCreationFieldType: this.focusedFieldData?.accountCreationFieldType,
         login: cipher.type === CipherType.Login ? { username: cipher.login.username } : null,
         card: cipher.type === CipherType.Card ? cipher.card.subTitle : null,
-        identity:
-          cipher.type === CipherType.Identity
-            ? this.getIdentityCipherData(cipher, showLoginAccountCreation)
-            : null,
+        identity,
       });
     }
 
