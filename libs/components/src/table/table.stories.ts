@@ -200,10 +200,19 @@ export const VariableCase: Story = {
   }),
 };
 
+const data5 = new TableDataSource<{ id: number; name: string; other: string }>();
+
+data5.data = [...Array(5).keys()].map((i) => ({
+  id: i,
+  name: `name-${i}`,
+  other: `other-${i}`,
+}));
+data5.selection.canSelect = (row: { id: number }) => row.id !== 2;
+
 export const Selectable: Story = {
   render: (args) => ({
     props: {
-      dataSource: data,
+      dataSource: data5,
       sortFn: (a: any, b: any) => a.id - b.id,
     },
     template: `

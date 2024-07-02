@@ -4,23 +4,34 @@ export class SelectionState<T> {
   private _selectMap: Map<T, boolean>;
 
   selectAll = false;
+  canSelect: (row: T) => boolean = () => true;
 
   set data(data: T[]) {
+    // TODO: handle null data
+
     const keyValuePairs: [T, boolean][] = data.map((row) => [row, false]);
     this._selectMap = new Map(keyValuePairs);
   }
 
   getValue(row: T) {
+    if (!this.canSelect(row)) {
+      return false;
+    }
+
     return this._selectMap.get(row);
   }
 
   setValue(data: T | T[], value: boolean) {
-    if (Array.isArray(data)) {
-      data = data.slice(0, MAX_SELECTION);
-      data.forEach((r) => this._selectMap.set(r, value));
-    } else {
-      this._selectMap.set(data, value);
+    if (!Array.isArray(data)) {
+      data = [data];
     }
+
+    data = data.filter((d) => this.canSelect(d)).slice(0, MAX_SELECTION);
+    if (!data.length) {
+      return;
+    }
+
+    data.forEach((r) => this._selectMap.set(r, value));
 
     if (!value) {
       // If the user has deselected a row, make sure the selectAll checkbox is no longer checked
@@ -30,11 +41,12 @@ export class SelectionState<T> {
 
   get selectedRows(): T[] {
     const selectedRows: T[] = [];
-    this._selectMap.forEach((value, row) => {
-      if (value) {
+
+    for (const row of this._selectMap.keys()) {
+      if (this.getValue(row)) {
         selectedRows.push(row);
       }
-    });
+    }
 
     return selectedRows;
   }

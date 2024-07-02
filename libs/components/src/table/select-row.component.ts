@@ -10,6 +10,7 @@ import { TableComponent } from "./table.component";
       bitCheckbox
       [checked]="table.dataSource.selection.getValue(row)"
       (change)="table.dataSource.selection.setValue(row, $any($event.target).checked)"
+      *ngIf="table.dataSource.selection.canSelect(row)"
     />
   `,
 })

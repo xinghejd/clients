@@ -138,7 +138,7 @@ dataSource.filter = TableDataSource.simpleStringFilter("search value");
 dataSource.filter = "search value";
 ```
 
-### Selectable rows
+### Selecting
 
 The table component supports selecting rows for bulk actions. This is enabled by using
 `bitSelectAll` in the header (for a "select all" header checkbox) and `[bitSelectRow]="row"` on each
@@ -177,6 +177,16 @@ submit = async () => {
   dataSource.selection.deselectAll();
 };
 ```
+
+In some data sets, not all rows are selectable - for example, if the user does not have permission
+to edit that item. `SelectionState.canSelect` defines a callback that is used to determine whether a
+row is selectable. By default, it always returns true (i.e. assumes that all items can be selected).
+
+```ts
+this.dataSource.selection.canSelect = (item) => item.canEdit;
+```
+
+This callback is frequently called and should not be computationally expensive.
 
 ### Virtual Scrolling
 
