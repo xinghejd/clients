@@ -366,7 +366,8 @@ export class OverlayBackground implements OverlayBackgroundInterface {
 
     if (
       !showLoginAccountCreation ||
-      this.focusedFieldData?.accountCreationFieldType === "password"
+      !this.focusedFieldData?.accountCreationFieldType ||
+      this.focusedFieldData.accountCreationFieldType === "password"
     ) {
       return { fullName };
     }
@@ -374,7 +375,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     return {
       fullName,
       username:
-        this.focusedFieldData?.accountCreationFieldType === "email"
+        this.focusedFieldData.accountCreationFieldType === "email"
           ? cipher.identity.email
           : cipher.identity.username,
     };
