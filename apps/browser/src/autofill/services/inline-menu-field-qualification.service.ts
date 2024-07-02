@@ -219,6 +219,14 @@ export class InlineMenuFieldQualificationService
     );
   }
 
+  isFieldForAccountCreationForm(field: AutofillField, pageDetails: AutofillPageDetails): boolean {
+    if (!this.isUsernameField(field) && !this.isPasswordField(field)) {
+      return false;
+    }
+
+    return this.fieldContainsAutocompleteValues(field, this.identityAutocompleteValues);
+  }
+
   isFieldForIdentityForm(field: AutofillField, pageDetails: AutofillPageDetails): boolean {
     if (this.fieldContainsAutocompleteValues(field, this.identityAutocompleteValues)) {
       return true;

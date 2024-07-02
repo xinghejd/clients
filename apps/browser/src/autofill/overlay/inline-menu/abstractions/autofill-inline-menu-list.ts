@@ -16,7 +16,7 @@ export type InitAutofillInlineMenuListMessage = AutofillInlineMenuListMessage & 
   translations: Record<string, string>;
   ciphers?: InlineMenuCipherData[];
   filledByCipherType?: CipherType;
-  showIdentityAccountCreation?: boolean;
+  showLoginAccountCreation?: boolean;
   portKey: string;
 };
 

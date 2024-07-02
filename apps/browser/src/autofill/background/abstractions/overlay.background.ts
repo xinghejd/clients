@@ -37,8 +37,8 @@ export type FocusedFieldData = {
   filledByCipherType?: CipherType;
   tabId?: number;
   frameId?: number;
-  usernameFieldType?: string;
-  showIdentityAccountCreation?: boolean;
+  accountCreationFieldType?: string;
+  showLoginAccountCreation?: boolean;
 };
 
 export type InlineMenuElementPosition = {
@@ -139,7 +139,7 @@ export type InlineMenuCipherData = {
   reprompt: CipherRepromptType;
   favorite: boolean;
   icon: WebsiteIconData;
-  usernameFieldType?: string;
+  accountCreationFieldType?: string;
   login?: { username: string };
   card?: string;
   identity?: {

@@ -312,20 +312,17 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     const inlineMenuCiphersArray = Array.from(this.inlineMenuCiphers);
     const inlineMenuCipherData: InlineMenuCipherData[] = [];
 
-    const showIdentityAccountCreation = this.showIdentityAccountCreation();
+    const showLoginAccountCreation = this.showLoginAccountCreation();
 
     for (let cipherIndex = 0; cipherIndex < inlineMenuCiphersArray.length; cipherIndex++) {
       const [inlineMenuCipherId, cipher] = inlineMenuCiphersArray[cipherIndex];
-      if (
-        !showIdentityAccountCreation &&
-        this.focusedFieldData?.filledByCipherType !== cipher.type
-      ) {
+      if (!showLoginAccountCreation && this.focusedFieldData?.filledByCipherType !== cipher.type) {
         continue;
       }
 
       if (
-        showIdentityAccountCreation &&
-        (cipher.type !== CipherType.Identity || !this.focusedFieldData?.usernameFieldType)
+        showLoginAccountCreation &&
+        (cipher.type !== CipherType.Identity || !this.focusedFieldData?.accountCreationFieldType)
       ) {
         continue;
       }
@@ -337,12 +334,12 @@ export class OverlayBackground implements OverlayBackgroundInterface {
         reprompt: cipher.reprompt,
         favorite: cipher.favorite,
         icon: buildCipherIcon(this.iconsServerUrl, cipher, showFavicons),
-        usernameFieldType: this.focusedFieldData?.usernameFieldType,
+        accountCreationFieldType: this.focusedFieldData?.accountCreationFieldType,
         login: cipher.type === CipherType.Login ? { username: cipher.login.username } : null,
         card: cipher.type === CipherType.Card ? cipher.card.subTitle : null,
         identity:
           cipher.type === CipherType.Identity
-            ? this.getIdentityCipherData(cipher, showIdentityAccountCreation)
+            ? this.getIdentityCipherData(cipher, showLoginAccountCreation)
             : null,
       });
     }
@@ -353,25 +350,28 @@ export class OverlayBackground implements OverlayBackgroundInterface {
 
   private getIdentityCipherData(
     cipher: CipherView,
-    showIdentityAccountCreation: boolean,
+    showLoginAccountCreation: boolean,
   ): { fullName: string; username?: string } {
     const fullName = `${cipher.identity.firstName} ${cipher.identity.lastName}`;
 
-    if (!showIdentityAccountCreation) {
+    if (
+      !showLoginAccountCreation ||
+      this.focusedFieldData?.accountCreationFieldType === "password"
+    ) {
       return { fullName };
     }
 
     return {
       fullName,
       username:
-        this.focusedFieldData?.usernameFieldType === "email"
+        this.focusedFieldData?.accountCreationFieldType === "email"
           ? cipher.identity.email
           : cipher.identity.username,
     };
   }
 
-  private showIdentityAccountCreation(): boolean {
-    if (this.focusedFieldData?.showIdentityAccountCreation) {
+  private showLoginAccountCreation(): boolean {
+    if (this.focusedFieldData?.showLoginAccountCreation) {
       return true;
     }
 
@@ -984,7 +984,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       );
     }
 
-    const previousFocusedFieldDataUsernameType = this.focusedFieldData?.usernameFieldType;
+    const previousFocusedFieldDataUsernameType = this.focusedFieldData?.accountCreationFieldType;
     this.focusedFieldData = { ...focusedFieldData, tabId: sender.tab.id, frameId: sender.frameId };
 
     void this.updateIdentityCiphersOnLoginField(previousFocusedFieldDataUsernameType);
@@ -1000,12 +1000,12 @@ export class OverlayBackground implements OverlayBackgroundInterface {
 
     const command = "updateAutofillInlineMenuListCiphers";
 
-    if (previousFocusedFieldDataUsernameType && !this.focusedFieldData?.usernameFieldType) {
+    if (previousFocusedFieldDataUsernameType && !this.focusedFieldData?.accountCreationFieldType) {
       this.inlineMenuListPort?.postMessage({ command, ciphers: [] });
       return;
     }
 
-    if (this.focusedFieldData?.usernameFieldType) {
+    if (this.focusedFieldData?.accountCreationFieldType) {
       const ciphers = await this.getInlineMenuCipherData();
       this.inlineMenuListPort?.postMessage({ command, ciphers });
     }
@@ -1682,7 +1682,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
         ? AutofillOverlayPort.ListMessageConnector
         : AutofillOverlayPort.ButtonMessageConnector,
       filledByCipherType: this.focusedFieldData?.filledByCipherType,
-      showIdentityAccountCreation: this.showIdentityAccountCreation(),
+      showLoginAccountCreation: this.showLoginAccountCreation(),
     });
     void this.updateInlineMenuPosition(
       {

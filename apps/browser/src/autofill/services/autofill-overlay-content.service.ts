@@ -666,7 +666,10 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
       await this.getMostRecentlyFocusedFieldRects(formFieldElement);
     const autofillFieldData = this.formFieldElements.get(formFieldElement);
     let isUsernameField = false;
-    if (autofillFieldData?.filledByCipherType === CipherType.Login) {
+    if (
+      autofillFieldData?.showInlineMenuAccountCreation ||
+      autofillFieldData?.filledByCipherType === CipherType.Login
+    ) {
       isUsernameField = this.inlineMenuFieldQualificationService.isUsernameField(autofillFieldData);
     }
 
@@ -674,7 +677,8 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
       focusedFieldStyles: { paddingRight, paddingLeft },
       focusedFieldRects: { width, height, top, left },
       filledByCipherType: autofillFieldData?.filledByCipherType,
-      usernameFieldType: isUsernameField ? autofillFieldData?.type : null,
+      accountCreationFieldType: isUsernameField ? autofillFieldData?.type : null,
+      showLoginAccountCreation: !!autofillFieldData?.showInlineMenuAccountCreation,
     };
 
     await this.sendExtensionMessage("updateFocusedFieldData", {
@@ -766,6 +770,17 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
       )
     ) {
       autofillFieldData.filledByCipherType = CipherType.Card;
+      return false;
+    }
+
+    if (
+      this.inlineMenuFieldQualificationService.isFieldForAccountCreationForm(
+        autofillFieldData,
+        pageDetails,
+      )
+    ) {
+      autofillFieldData.filledByCipherType = CipherType.Identity;
+      autofillFieldData.showInlineMenuAccountCreation = true;
       return false;
     }
 
