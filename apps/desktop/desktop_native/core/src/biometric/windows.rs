@@ -2,6 +2,7 @@ use std::str::FromStr;
 
 use anyhow::{anyhow, Result};
 use base64::{engine::general_purpose::STANDARD as base64_engine, Engine};
+use rand::RngCore;
 use retry::delay::Fixed;
 use sha2::{Digest, Sha256};
 use windows::{
