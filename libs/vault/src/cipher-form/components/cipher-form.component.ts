@@ -34,6 +34,7 @@ import { CipherFormConfig } from "../abstractions/cipher-form-config.service";
 import { CipherFormService } from "../abstractions/cipher-form.service";
 import { CipherForm, CipherFormContainer } from "../cipher-form-container";
 
+import { AdditionalOptionsSectionComponent } from "./additional-options/additional-options-section.component";
 import { ItemDetailsSectionComponent } from "./item-details/item-details-section.component";
 
 @Component({
@@ -57,6 +58,7 @@ import { ItemDetailsSectionComponent } from "./item-details/item-details-section
     SelectModule,
     ItemDetailsSectionComponent,
     NgIf,
+    AdditionalOptionsSectionComponent,
   ],
 })
 export class CipherFormComponent implements AfterViewInit, OnInit, OnChanges, CipherFormContainer {

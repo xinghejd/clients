@@ -71,6 +71,7 @@ const defaultConfig: CipherFormConfig = {
     folderId: "folder2",
     collectionIds: ["col1"],
     favorite: false,
+    notes: "Example notes",
   } as unknown as Cipher,
 };
 
