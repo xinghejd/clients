@@ -1,6 +1,8 @@
 import { spawn } from "child_process";
 
+import { CryptoFunctionService } from "@bitwarden/common/platform/abstractions/crypto-function.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { biometrics, passwords } from "@bitwarden/desktop-napi";
 
 import { WindowMain } from "../../../main/window.main";
@@ -31,23 +33,46 @@ export default class BiometricUnixMain implements OsBiometricService {
   constructor(
     private i18nservice: I18nService,
     private windowMain: WindowMain,
+    private cryptoFunctionService: CryptoFunctionService,
   ) {}
 
-  async setBiometricKey(service: string, key: string, value: string): Promise<void> {
-    return await passwords.setPassword(service, key, value);
+  async setBiometricKey(
+    service: string,
+    key: string,
+    value: string,
+    clientKeyPartB64: string | undefined,
+  ): Promise<void> {
+    const storageDetails = await this.getStorageDetails({ clientKeyHalfB64: clientKeyPartB64 });
+    await biometrics.setBiometricSecret(
+      service,
+      key,
+      value,
+      storageDetails.key_material,
+      storageDetails.ivB64,
+    );
   }
   async deleteBiometricKey(service: string, key: string): Promise<void> {
     await passwords.deletePassword(service, key);
   }
 
-  async getBiometricKey(service: string, key: string): Promise<string> {
+  async getBiometricKey(
+    service: string,
+    key: string,
+    clientKeyPartB64: string | undefined,
+  ): Promise<string> {
     const success = await this.authenticateBiometric();
 
     if (!success) {
       throw new Error("Biometric authentication failed");
     }
 
-    return await passwords.getPassword(service, key);
+    const storageDetails = await this.getStorageDetails({ clientKeyHalfB64: clientKeyPartB64 });
+    const storedValue = await biometrics.getBiometricSecret(
+      service,
+      key,
+      storageDetails.key_material,
+    );
+    return storedValue;
   }
 
   async authenticateBiometric(): Promise<boolean> {
@@ -107,5 +132,21 @@ export default class BiometricUnixMain implements OsBiometricService {
         }
       });
     });
+  }
+
+  private async getStorageDetails({
+    clientKeyHalfB64,
+  }: {
+    clientKeyHalfB64: string;
+  }): Promise<{ key_material: biometrics.KeyMaterial; ivB64: string }> {
+    const iv = (await this.cryptoFunctionService.randomBytes(16)).buffer;
+    const ivB64 = Utils.fromBufferToB64(iv);
+
+    return {
+      key_material: {
+        osKeyPartB64: clientKeyHalfB64,
+      },
+      ivB64: ivB64,
+    };
   }
 }

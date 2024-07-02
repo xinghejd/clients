@@ -1,8 +1,14 @@
+use std::str::FromStr;
+
 use anyhow::{bail, Result};
 
 use crate::biometric::{KeyMaterial, OsDerivedKey};
 use zbus::Connection;
 use zbus_polkit::policykit1::*;
+
+use super::{decrypt, encrypt};
+use anyhow::anyhow;
+use crate::crypto::CipherString;
 
 /// The Unix implementation of the biometric trait.
 pub struct Biometric {}
@@ -48,21 +54,43 @@ impl super::BiometricTrait for Biometric {
         bail!("derive_key_material not implemented");
     }
 
-    fn get_biometric_secret(
-        _service: &str,
-        _account: &str,
-        _key_material: Option<KeyMaterial>,
+    fn set_biometric_secret(
+        service: &str,
+        account: &str,
+        secret: &str,
+        key_material: Option<KeyMaterial>,
+        iv_b64: &str,
     ) -> Result<String> {
-        bail!("get_biometric_secret not implemented");
+        let key_material = key_material.ok_or(anyhow!(
+            "Key material is required for polkit protected keys"
+        ))?;
+
+        let encrypted_secret = encrypt(secret, &key_material, iv_b64)?;
+        crate::password::set_password(service, account, &encrypted_secret)?;
+        Ok(encrypted_secret)
     }
 
-    fn set_biometric_secret(
-        _service: &str,
-        _account: &str,
-        _secret: &str,
-        _key_material: Option<KeyMaterial>,
-        _iv_b64: &str,
+    fn get_biometric_secret(
+        service: &str,
+        account: &str,
+        key_material: Option<KeyMaterial>,
     ) -> Result<String> {
-        bail!("set_biometric_secret not implemented");
+        let key_material = key_material.ok_or(anyhow!(
+            "Key material is required for polkit protected keys"
+        ))?;
+
+        let encrypted_secret = crate::password::get_password(service, account)?;
+        match CipherString::from_str(&encrypted_secret) {
+            Ok(secret) => {
+                // If the secret is a CipherString, it is encrypted and we need to decrypt it.
+                let secret = decrypt(&secret, &key_material)?;
+                return Ok(secret);
+            }
+            Err(_) => {
+                // If the secret is not a CipherString, it is not encrypted and we can return it
+                //  directly.
+                return Ok(encrypted_secret);
+            }
+        }
     }
 }

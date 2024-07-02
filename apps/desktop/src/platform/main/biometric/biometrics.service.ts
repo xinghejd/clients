@@ -1,3 +1,4 @@
+import { CryptoFunctionService } from "@bitwarden/common/platform/abstractions/crypto-function.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
@@ -19,6 +20,7 @@ export class BiometricsService implements BiometricsServiceAbstraction {
     private messagingService: MessagingService,
     private platform: NodeJS.Platform,
     private biometricStateService: BiometricStateService,
+    private cryptoFunctionService: CryptoFunctionService,
   ) {
     this.loadPlatformSpecificService(this.platform);
   }
@@ -57,7 +59,7 @@ export class BiometricsService implements BiometricsServiceAbstraction {
     this.platformSpecificService = new BiometricUnixMain(
       this.i18nService,
       this.windowMain,
-      this.logService,
+      this.cryptoFunctionService,
     );
   }
 
