@@ -1001,20 +1001,17 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     }
 
     const command = "updateAutofillInlineMenuListCiphers";
-    const showLoginAccountCreation = this.showLoginAccountCreation();
+    const showLoginAccountCreation =
+      this.focusedFieldData?.showLoginAccountCreation || this.showLoginAccountCreation();
 
-    if (
-      (this.focusedFieldData?.showLoginAccountCreation || showLoginAccountCreation) &&
-      !this.focusedFieldData?.accountCreationFieldType
-    ) {
+    if (showLoginAccountCreation && !this.focusedFieldData?.accountCreationFieldType) {
       this.inlineMenuListPort?.postMessage({ command, ciphers: [], showLoginAccountCreation });
       return;
     }
 
     if (
       this.focusedFieldData?.accountCreationFieldType ||
-      (previousFocusedFieldData.showLoginAccountCreation &&
-        !(this.focusedFieldData?.showLoginAccountCreation || showLoginAccountCreation))
+      (previousFocusedFieldData.showLoginAccountCreation && !showLoginAccountCreation)
     ) {
       const ciphers = await this.getInlineMenuCipherData();
       this.inlineMenuListPort?.postMessage({ command, ciphers, showLoginAccountCreation });
