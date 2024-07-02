@@ -26,6 +26,7 @@ export interface InlineMenuFieldQualificationService {
   isFieldForIdentityFirstName(field: AutofillField): boolean;
   isFieldForIdentityMiddleName(field: AutofillField): boolean;
   isFieldForIdentityLastName(field: AutofillField): boolean;
+  isFieldForIdentityFullName(field: AutofillField): boolean;
   isFieldForIdentityAddress1(field: AutofillField): boolean;
   isFieldForIdentityAddress2(field: AutofillField): boolean;
   isFieldForIdentityAddress3(field: AutofillField): boolean;

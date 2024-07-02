@@ -1398,6 +1398,24 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     identityView.email = identity.email || "";
     identityView.username = identity.username || "";
 
+    if (identity.fullName && !identityView.firstName && !identityView.lastName) {
+      const fullNameParts = identity.fullName.split(" ");
+      if (fullNameParts.length === 3) {
+        identityView.firstName = fullNameParts[0] || "";
+        identityView.middleName = fullNameParts[1] || "";
+        identityView.lastName = fullNameParts[2] || "";
+      }
+
+      if (fullNameParts.length === 2) {
+        identityView.firstName = fullNameParts[0] || "";
+        identityView.lastName = fullNameParts[1] || "";
+      }
+
+      if (fullNameParts.length === 1) {
+        identityView.firstName = fullNameParts[0] || "";
+      }
+    }
+
     const cipherView = new CipherView();
     cipherView.name = "";
     cipherView.folderId = null;

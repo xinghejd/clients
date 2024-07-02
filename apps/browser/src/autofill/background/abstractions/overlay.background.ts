@@ -74,6 +74,7 @@ export type NewIdentityCipherData = {
   firstName: string;
   middleName: string;
   lastName: string;
+  fullName: string;
   address1: string;
   address2: string;
   address3: string;

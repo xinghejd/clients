@@ -598,6 +598,17 @@ export class InlineMenuFieldQualificationService
     );
   };
 
+  isFieldForIdentityFullName = (field: AutofillField): boolean => {
+    if (this.fieldContainsAutocompleteValues(field, this.identityFullNameAutocompleteValue)) {
+      return true;
+    }
+
+    return (
+      !this.fieldContainsAutocompleteValues(field, this.autocompleteDisabledValues) &&
+      this.keywordsFoundInFieldData(field, IdentityAutoFillConstants.FullNameFieldNames, false)
+    );
+  };
+
   isFieldForIdentityAddress1 = (field: AutofillField): boolean => {
     if (this.fieldContainsAutocompleteValues(field, this.identityAddressLine1AutocompleteValue)) {
       return true;

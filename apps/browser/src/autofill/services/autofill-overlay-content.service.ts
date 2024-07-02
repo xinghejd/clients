@@ -243,6 +243,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
       firstName: this.userFilledFields["identityFirstName"]?.value || "",
       middleName: this.userFilledFields["identityMiddleName"]?.value || "",
       lastName: this.userFilledFields["identityLastName"]?.value || "",
+      fullName: this.userFilledFields["identityFullName"]?.value || "",
       address1: this.userFilledFields["identityAddress1"]?.value || "",
       address2: this.userFilledFields["identityAddress2"]?.value || "",
       address3: this.userFilledFields["identityAddress3"]?.value || "",
@@ -576,6 +577,11 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
 
     if (this.inlineMenuFieldQualificationService.isFieldForIdentityLastName(autofillFieldData)) {
       this.userFilledFields.identityLastName = formFieldElement;
+      return;
+    }
+
+    if (this.inlineMenuFieldQualificationService.isFieldForIdentityFullName(autofillFieldData)) {
+      this.userFilledFields.identityFullName = formFieldElement;
       return;
     }
 
