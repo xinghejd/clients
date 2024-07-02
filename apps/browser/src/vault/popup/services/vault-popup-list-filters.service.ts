@@ -10,7 +10,6 @@ import {
   switchMap,
   tap,
 } from "rxjs";
-import { Jsonify } from "type-fest";
 
 import { DynamicTreeNode } from "@bitwarden/angular/vault/vault-filter/models/dynamic-tree-node.model";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
@@ -24,6 +23,7 @@ import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.servi
 import { CollectionService } from "@bitwarden/common/vault/abstractions/collection.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { CipherType } from "@bitwarden/common/vault/enums";
+import { Collection } from "@bitwarden/common/vault/models/domain/collection";
 import { ITreeNodeObject, TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { CollectionView } from "@bitwarden/common/vault/models/view/collection.view";
@@ -31,12 +31,10 @@ import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import { ServiceUtils } from "@bitwarden/common/vault/service-utils";
 import { ChipSelectOption } from "@bitwarden/components";
 
-import { cacheFormGroup } from "../../../platform/popup/view-cache/popup-view-cache.service";
-
 /** All available cipher filters */
 export type PopupListFilter = {
   organization: Organization | null;
-  collection: CollectionView | null;
+  collection: Collection | null;
   folder: FolderView | null;
   cipherType: CipherType | null;
 };
@@ -61,22 +59,13 @@ export class VaultPopupListFiltersService {
   /**
    * UI form for all filters
    */
-  filterForm = cacheFormGroup({
-    key: "vault-popup-list-filters-cache",
-    control: this.formBuilder.group(INITIAL_FILTERS),
-    deserializer: (jsonValue: Jsonify<PopupListFilter>): PopupListFilter => ({
-      organization: Organization.fromJSON(jsonValue?.organization),
-      collection: CollectionView.fromJSON(jsonValue?.collection),
-      folder: FolderView.fromJSON(jsonValue?.folder),
-      cipherType: jsonValue?.cipherType as CipherType,
-    }),
-  });
+  filterForm = this.formBuilder.group<PopupListFilter>(INITIAL_FILTERS);
 
   /**
    * Observable for `filterForm` value
    */
   filters$ = this.filterForm.valueChanges.pipe(
-    startWith(this.filterForm.value),
+    startWith(INITIAL_FILTERS),
   ) as Observable<PopupListFilter>;
 
   /**

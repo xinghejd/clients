@@ -110,10 +110,6 @@ export class CollectionView implements View, ITreeNodeObject {
   }
 
   static fromJSON(obj: Jsonify<CollectionView>) {
-    if (obj == null) {
-      return null;
-    }
-
     return Object.assign(new CollectionView(new Collection()), obj);
   }
 }
