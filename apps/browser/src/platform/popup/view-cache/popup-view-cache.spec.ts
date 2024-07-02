@@ -15,21 +15,21 @@ import {
   SAVE_VIEW_CACHE_COMMAND,
 } from "../../../platform/services/popup-view-cache-background.service";
 
-import { PopupViewCacheService, cachedFormGroup, cachedSignal } from "./popup-view-cache.service";
+import { PopupViewCacheService, cacheFormGroup, cacheSignal } from "./popup-view-cache.service";
 
 @Component({ template: "" })
 export class EmptyComponent {}
 
 @Component({ template: "" })
 export class TestComponent {
-  formGroup = cachedFormGroup({
+  formGroup = cacheFormGroup({
     key: "test-form-cache",
     control: new FormGroup({
       name: new FormControl("initial name"),
     }),
   });
 
-  signal = cachedSignal({
+  signal = cacheSignal({
     key: "test-signal",
     initialValue: "initial signal",
   });
@@ -76,7 +76,7 @@ describe("popup view cache", () => {
     await initServiceWithState({});
 
     const signal = TestBed.runInInjectionContext(() =>
-      cachedSignal({
+      cacheSignal({
         key: "foo-123",
         initialValue: "foo",
       }),
@@ -90,7 +90,7 @@ describe("popup view cache", () => {
 
     const injector = TestBed.inject(Injector);
 
-    const signal = cachedSignal({
+    const signal = cacheSignal({
       key: "foo-123",
       initialValue: "foo",
       injector,
@@ -104,7 +104,7 @@ describe("popup view cache", () => {
 
     const injector = TestBed.inject(Injector);
 
-    const signal = cachedSignal({
+    const signal = cacheSignal({
       key: "foo-123",
       initialValue: "foo",
       injector,
@@ -136,7 +136,7 @@ describe("popup view cache", () => {
 
     const injector = TestBed.inject(Injector);
 
-    const signal = cachedSignal({
+    const signal = cacheSignal({
       key: "foo-123",
       initialValue: "foo",
       injector,
@@ -151,7 +151,7 @@ describe("popup view cache", () => {
 
     const injector = TestBed.inject(Injector);
 
-    const signal = cachedSignal({
+    const signal = cacheSignal({
       key: "foo-123",
       initialValue: "foo",
       injector,

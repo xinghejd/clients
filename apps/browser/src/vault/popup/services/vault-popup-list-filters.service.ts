@@ -31,7 +31,7 @@ import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import { ServiceUtils } from "@bitwarden/common/vault/service-utils";
 import { ChipSelectOption } from "@bitwarden/components";
 
-import { cachedFormGroup } from "../../../platform/popup/view-cache/popup-view-cache.service";
+import { cacheFormGroup } from "../../../platform/popup/view-cache/popup-view-cache.service";
 
 /** All available cipher filters */
 export type PopupListFilter = {
@@ -61,7 +61,7 @@ export class VaultPopupListFiltersService {
   /**
    * UI form for all filters
    */
-  filterForm = cachedFormGroup({
+  filterForm = cacheFormGroup({
     key: "vault-popup-list-filters-cache",
     control: this.formBuilder.group(INITIAL_FILTERS),
     deserializer: (jsonValue: Jsonify<PopupListFilter>): PopupListFilter => ({

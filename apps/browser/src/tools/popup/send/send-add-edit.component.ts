@@ -18,7 +18,7 @@ import { SendService } from "@bitwarden/common/tools/send/services/send.service.
 import { DialogService, ToastService } from "@bitwarden/components";
 
 import BrowserPopupUtils from "../../../platform/popup/browser-popup-utils";
-import { cachedFormGroup } from "../../../platform/popup/view-cache/popup-view-cache.service";
+import { cacheFormGroup } from "../../../platform/popup/view-cache/popup-view-cache.service";
 import { BrowserStateService } from "../../../platform/services/abstractions/browser-state.service";
 import { FilePopoutUtilsService } from "../services/file-popout-utils.service";
 
@@ -101,7 +101,7 @@ export class SendAddEditComponent extends BaseAddEditComponent {
       }
       await super.ngOnInit();
 
-      cachedFormGroup({
+      cacheFormGroup({
         key: "my-form",
         control: this.formGroup,
         injector: this.injector,

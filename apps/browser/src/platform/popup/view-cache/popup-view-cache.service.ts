@@ -112,7 +112,7 @@ export class PopupViewCacheService {
  * })
  * ```
  */
-export const cachedSignal = <T>(options: TSignalCacheOptions<T>): WritableSignal<T> => {
+export const cacheSignal = <T>(options: TSignalCacheOptions<T>): WritableSignal<T> => {
   const {
     deserializer = (v: Jsonify<T>): T => v as T,
     key,
@@ -140,12 +140,12 @@ export const cachedSignal = <T>(options: TSignalCacheOptions<T>): WritableSignal
  *
  * The form is marked dirty if a cached value is restored.
  **/
-export const cachedFormGroup = <TFormGroup extends FormGroup>(
+export const cacheFormGroup = <TFormGroup extends FormGroup>(
   options: TFormCacheOptions<TFormGroup>,
 ) => {
   const { control, injector } = options;
 
-  const _signal = cachedSignal({
+  const _signal = cacheSignal({
     ...options,
     initialValue: control.getRawValue() as TFormValue<TFormGroup>,
   });
