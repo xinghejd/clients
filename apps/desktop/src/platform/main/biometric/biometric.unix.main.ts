@@ -1,7 +1,7 @@
 import { spawn } from "child_process";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { biometrics, passwords } from "@bitwarden/desktop-native";
+import { biometrics, passwords } from "@bitwarden/desktop-napi";
 
 import { WindowMain } from "../../../main/window.main";
 import { isFlatpak, isLinux, isSnapStore } from "../../../utils";
@@ -18,8 +18,8 @@ const polkitPolicy = `<?xml version="1.0" encoding="UTF-8"?>
       <description>Unlock Bitwarden</description>
       <message>Authenticate to unlock Bitwarden</message>
       <defaults>
-        <allow_any>auth_self</allow_any>
-        <allow_inactive>auth_self</allow_inactive>
+        <allow_any>no</allow_any>
+        <allow_inactive>no</allow_inactive>
         <allow_active>auth_self</allow_active>
       </defaults>
     </action>
