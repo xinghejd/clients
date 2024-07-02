@@ -115,7 +115,7 @@ export const POPUP_VIEW_MEMORY = new StateDefinition("popupView", "memory", {
   browser: "memory-large-object",
 });
 export const THEMING_DISK = new StateDefinition("theming", "disk", { web: "disk-local" });
-export const TRANSLATION_DISK = new StateDefinition("translation", "disk");
+export const TRANSLATION_DISK = new StateDefinition("translation", "disk", { web: "disk-local" });
 
 // Secrets Manager
 

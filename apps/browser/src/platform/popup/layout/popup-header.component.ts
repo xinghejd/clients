@@ -3,7 +3,12 @@ import { CommonModule } from "@angular/common";
 import { Component, Input, inject } from "@angular/core";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
-import { IconButtonModule, TypographyModule } from "@bitwarden/components";
+import {
+  AsyncActionsModule,
+  FunctionReturningAwaitable,
+  IconButtonModule,
+  TypographyModule,
+} from "@bitwarden/components";
 
 import { PopupRouterCacheService } from "../view-cache/popup-router-cache.service";
 
@@ -11,7 +16,7 @@ import { PopupRouterCacheService } from "../view-cache/popup-router-cache.servic
   selector: "popup-header",
   templateUrl: "popup-header.component.html",
   standalone: true,
-  imports: [TypographyModule, CommonModule, IconButtonModule, JslibModule],
+  imports: [TypographyModule, CommonModule, IconButtonModule, JslibModule, AsyncActionsModule],
 })
 export class PopupHeaderComponent {
   private popupRouterCacheService = inject(PopupRouterCacheService);
@@ -30,7 +35,15 @@ export class PopupHeaderComponent {
   /** Title string that will be inserted as an h1 */
   @Input({ required: true }) pageTitle: string;
 
-  async back() {
+  /**
+   * Async action that occurs when clicking the back button
+   *
+   * If unset, will call `location.back()`
+   **/
+  @Input()
+  backAction: FunctionReturningAwaitable = async () => {
     return this.popupRouterCacheService.back();
-  }
+  };
+
+  constructor(private location: Location) {}
 }
