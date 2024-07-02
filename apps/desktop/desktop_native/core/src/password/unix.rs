@@ -41,11 +41,14 @@ pub fn delete_password(service: &str, account: &str) -> Result<()> {
 }
 
 pub fn is_available() -> Result<bool> {
-    let availability_test_value = "com.bitwarden.availabilitytest";
-    set_password(availability_test_value, availability_test_value, availability_test_value)?;
-    let result = get_password(availability_test_value, availability_test_value)? == availability_test_value;
-    delete_password(availability_test_value, availability_test_value)?;
-    Ok(result)
+    let result = password_clear_sync(Some(&get_schema()), build_attributes("bitwardenSecretsAvailabilityTest", "test"), gio::Cancellable::NONE);
+    match result {
+        Ok(_) => Ok(true),
+        Err(_) => {
+            println!("secret-service unavailable: {:?}", result);
+            Ok(false)
+        }
+    }
 }
 
 fn get_schema() -> Schema {
