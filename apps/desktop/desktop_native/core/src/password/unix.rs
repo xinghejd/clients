@@ -5,7 +5,9 @@ use std::collections::HashMap;
 pub fn is_available() -> Result<bool> {
     let availability_test_value = "com.bitwarden.availabilitytest";
     set_password(availability_test_value, availability_test_value, availability_test_value)?;
-    return Ok(get_password(availability_test_value, availability_test_value)? == availability_test_value);
+    let result = get_password(availability_test_value, availability_test_value)? == availability_test_value;
+    delete_password(availability_test_value, availability_test_value)?;
+    Ok(result)
 }
 
 pub fn get_password(service: &str, account: &str) -> Result<String> {
