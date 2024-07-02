@@ -1,14 +1,12 @@
 const MAX_SELECTION = 500;
 
 export class SelectionState<T> {
-  private _selectMap: Map<T, boolean>;
+  private _selectMap: Map<T, boolean> = new Map();
 
   selectAll = false;
   canSelect: (row: T) => boolean = () => true;
 
   set data(data: T[]) {
-    // TODO: handle null data
-
     const keyValuePairs: [T, boolean][] = data.map((row) => [row, false]);
     this._selectMap = new Map(keyValuePairs);
   }
