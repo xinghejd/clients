@@ -784,8 +784,6 @@ export class SettingsComponent implements OnInit {
         return "additionalTouchIdSettings";
       case DeviceType.WindowsDesktop:
         return "additionalWindowsHelloSettings";
-      case DeviceType.LinuxDesktop:
-        return "additionalPolkitSettings";
       default:
         throw new Error("Unsupported platform");
     }
