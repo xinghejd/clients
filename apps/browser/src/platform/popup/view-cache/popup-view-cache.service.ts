@@ -151,7 +151,7 @@ export const cachedFormGroup = <TFormGroup extends FormGroup>(
   });
 
   const value = _signal();
-  if (value != null && value !== control.getRawValue()) {
+  if (value != null && JSON.stringify(value) !== JSON.stringify(control.getRawValue())) {
     control.setValue(value);
     control.markAsDirty();
   }
