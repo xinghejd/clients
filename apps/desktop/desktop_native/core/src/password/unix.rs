@@ -2,14 +2,6 @@ use anyhow::{anyhow, Result};
 use libsecret::{password_clear_sync, password_lookup_sync, password_store_sync, Schema};
 use std::collections::HashMap;
 
-pub fn is_available() -> Result<bool> {
-    let availability_test_value = "com.bitwarden.availabilitytest";
-    set_password(availability_test_value, availability_test_value, availability_test_value)?;
-    let result = get_password(availability_test_value, availability_test_value)? == availability_test_value;
-    delete_password(availability_test_value, availability_test_value)?;
-    Ok(result)
-}
-
 pub fn get_password(service: &str, account: &str) -> Result<String> {
     let res = password_lookup_sync(
         Some(&get_schema()),
@@ -45,6 +37,14 @@ pub fn delete_password(service: &str, account: &str) -> Result<()> {
         build_attributes(service, account),
         gio::Cancellable::NONE,
     )?;
+    Ok(result)
+}
+
+pub fn is_available() -> Result<bool> {
+    let availability_test_value = "com.bitwarden.availabilitytest";
+    set_password(availability_test_value, availability_test_value, availability_test_value)?;
+    let result = get_password(availability_test_value, availability_test_value)? == availability_test_value;
+    delete_password(availability_test_value, availability_test_value)?;
     Ok(result)
 }
 
