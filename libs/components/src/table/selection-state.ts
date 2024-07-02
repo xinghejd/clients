@@ -28,10 +28,6 @@ export class SelectionState<T> {
     }
   }
 
-  getControl(data: T) {
-    return this._selectMap.get(data);
-  }
-
   get selectedRows(): T[] {
     const selectedRows: T[] = [];
     this._selectMap.forEach((value, row) => {
