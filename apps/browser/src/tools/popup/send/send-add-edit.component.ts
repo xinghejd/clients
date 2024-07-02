@@ -18,10 +18,7 @@ import { SendService } from "@bitwarden/common/tools/send/services/send.service.
 import { DialogService, ToastService } from "@bitwarden/components";
 
 import BrowserPopupUtils from "../../../platform/popup/browser-popup-utils";
-import {
-  DirtyFormRef,
-  cacheForm,
-} from "../../../platform/popup/view-cache/popup-view-cache.service";
+import { cachedFormGroup } from "../../../platform/popup/view-cache/popup-view-cache.service";
 import { BrowserStateService } from "../../../platform/services/abstractions/browser-state.service";
 import { FilePopoutUtilsService } from "../services/file-popout-utils.service";
 
@@ -31,7 +28,6 @@ import { FilePopoutUtilsService } from "../services/file-popout-utils.service";
 })
 // eslint-disable-next-line rxjs-angular/prefer-takeuntil
 export class SendAddEditComponent extends BaseAddEditComponent {
-  private dirtyFormRef: DirtyFormRef;
   private injector = inject(Injector);
 
   // Options header
@@ -105,9 +101,9 @@ export class SendAddEditComponent extends BaseAddEditComponent {
       }
       await super.ngOnInit();
 
-      this.dirtyFormRef = cacheForm({
-        form: this.formGroup,
-        key: "browser-send-add-edit",
+      cachedFormGroup({
+        key: "my-form",
+        control: this.formGroup,
         injector: this.injector,
       });
     });
@@ -121,7 +117,6 @@ export class SendAddEditComponent extends BaseAddEditComponent {
 
   async submit(): Promise<boolean> {
     if (await super.submit()) {
-      this.dirtyFormRef.clear();
       this.cancel();
       return true;
     }
@@ -131,7 +126,6 @@ export class SendAddEditComponent extends BaseAddEditComponent {
 
   async delete(): Promise<boolean> {
     if (await super.delete()) {
-      this.dirtyFormRef.clear();
       this.cancel();
       return true;
     }

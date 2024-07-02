@@ -1,4 +1,4 @@
-import { switchMap, merge, delay, filter } from "rxjs";
+import { switchMap, merge, delay, filter, concatMap } from "rxjs";
 
 import { CommandDefinition, MessageListener } from "@bitwarden/common/platform/messaging";
 import {
@@ -12,7 +12,7 @@ import { fromChromeEvent } from "../browser/from-chrome-event";
 const popupClosedPortName = "new_popup";
 
 /** We cannot use `UserKeyDefinition` because we must be able to store state when there is no active user. */
-export const POPUP_VIEW_CACHE_KEY = KeyDefinition.record<unknown>(
+export const POPUP_VIEW_CACHE_KEY = KeyDefinition.record<string>(
   POPUP_VIEW_MEMORY,
   "popup-view-cache",
   {
@@ -22,7 +22,7 @@ export const POPUP_VIEW_CACHE_KEY = KeyDefinition.record<unknown>(
 
 export const POPUP_ROUTE_HISTORY_KEY = new KeyDefinition<string[]>(
   POPUP_VIEW_MEMORY,
-  "route-history",
+  "popup-route-history",
   {
     deserializer: (jsonValue) => jsonValue,
   },
@@ -32,6 +32,8 @@ export const SAVE_VIEW_CACHE_COMMAND = new CommandDefinition<{
   key: string;
   value: string;
 }>("save-view-cache");
+
+export const ClEAR_VIEW_CACHE_COMMAND = new CommandDefinition("clear-view-cache");
 
 export class PopupViewCacheBackgroundService {
   private popupViewCacheState = this.globalStateProvider.get(POPUP_VIEW_CACHE_KEY);
@@ -46,12 +48,21 @@ export class PopupViewCacheBackgroundService {
     this.messageListener
       .messages$(SAVE_VIEW_CACHE_COMMAND)
       .pipe(
-        switchMap(async ({ key, value }) =>
+        concatMap(async ({ key, value }) =>
           this.popupViewCacheState.update((state) => ({
             ...state,
             [key]: value,
           })),
         ),
+      )
+      .subscribe();
+
+    this.messageListener
+      .messages$(ClEAR_VIEW_CACHE_COMMAND)
+      .pipe(
+        concatMap(async () => {
+          return this.popupViewCacheState.update(() => ({}), { shouldUpdate: this.objNotEmpty });
+        }),
       )
       .subscribe();
 
@@ -73,9 +84,13 @@ export class PopupViewCacheBackgroundService {
 
   async clearState() {
     return Promise.all([
-      this.popupViewCacheState.update(() => ({})),
-      this.popupRouteHistoryState.update(() => []),
+      this.popupViewCacheState.update(() => ({}), { shouldUpdate: this.objNotEmpty }),
+      this.popupRouteHistoryState.update(() => [], { shouldUpdate: this.objNotEmpty }),
     ]);
+  }
+
+  private objNotEmpty(obj: object): boolean {
+    return Object.keys(obj ?? {}).length !== 0;
   }
 }
 

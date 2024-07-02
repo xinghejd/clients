@@ -7,7 +7,7 @@ import { Subscription, debounceTime, filter } from "rxjs";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { SearchModule } from "@bitwarden/components";
 
-import { cacheSignal } from "../../../../../platform/popup/view-cache/popup-view-cache.service";
+import { cachedSignal } from "../../../../../platform/popup/view-cache/popup-view-cache.service";
 import { VaultPopupItemsService } from "../../../services/vault-popup-items.service";
 
 const SearchTextDebounceInterval = 200;
@@ -19,8 +19,8 @@ const SearchTextDebounceInterval = 200;
   templateUrl: "vault-v2-search.component.html",
 })
 export class VaultV2SearchComponent {
-  searchText = cacheSignal({
-    key: "app-vault-search-cache",
+  protected searchText = cachedSignal({
+    key: "popup-vault-search-cache",
     initialValue: "",
   });
 
