@@ -38,6 +38,7 @@ export type FocusedFieldData = {
   tabId?: number;
   frameId?: number;
   usernameFieldType?: string;
+  showIdentityAccountCreation?: boolean;
 };
 
 export type InlineMenuElementPosition = {

@@ -312,19 +312,19 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     const inlineMenuCiphersArray = Array.from(this.inlineMenuCiphers);
     const inlineMenuCipherData: InlineMenuCipherData[] = [];
 
-    const isShowingIdentityCiphersOnLoginField = this.isShowingIdentityCiphersOnLoginField();
+    const showIdentityAccountCreation = this.showIdentityAccountCreation();
 
     for (let cipherIndex = 0; cipherIndex < inlineMenuCiphersArray.length; cipherIndex++) {
       const [inlineMenuCipherId, cipher] = inlineMenuCiphersArray[cipherIndex];
       if (
-        !isShowingIdentityCiphersOnLoginField &&
+        !showIdentityAccountCreation &&
         this.focusedFieldData?.filledByCipherType !== cipher.type
       ) {
         continue;
       }
 
       if (
-        isShowingIdentityCiphersOnLoginField &&
+        showIdentityAccountCreation &&
         (cipher.type !== CipherType.Identity || !this.focusedFieldData?.usernameFieldType)
       ) {
         continue;
@@ -342,7 +342,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
         card: cipher.type === CipherType.Card ? cipher.card.subTitle : null,
         identity:
           cipher.type === CipherType.Identity
-            ? this.getIdentityCipherData(cipher, isShowingIdentityCiphersOnLoginField)
+            ? this.getIdentityCipherData(cipher, showIdentityAccountCreation)
             : null,
       });
     }
@@ -353,11 +353,11 @@ export class OverlayBackground implements OverlayBackgroundInterface {
 
   private getIdentityCipherData(
     cipher: CipherView,
-    isShowingIdentityCiphersOnLoginField: boolean,
+    showIdentityAccountCreation: boolean,
   ): { fullName: string; username?: string } {
     const fullName = `${cipher.identity.firstName} ${cipher.identity.lastName}`;
 
-    if (!isShowingIdentityCiphersOnLoginField) {
+    if (!showIdentityAccountCreation) {
       return { fullName };
     }
 
@@ -370,11 +370,20 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     };
   }
 
-  private isShowingIdentityCiphersOnLoginField(): boolean {
-    return (
-      this.focusedFieldData?.filledByCipherType === CipherType.Login &&
-      this.inlineMenuCiphers.size === this.cardAndIdentityCiphers?.size
-    );
+  private showIdentityAccountCreation(): boolean {
+    if (this.focusedFieldData?.showIdentityAccountCreation) {
+      return true;
+    }
+
+    if (this.focusedFieldData?.filledByCipherType !== CipherType.Login) {
+      return false;
+    }
+
+    if (this.cardAndIdentityCiphers) {
+      return this.inlineMenuCiphers.size === this.cardAndIdentityCiphers.size;
+    }
+
+    return this.inlineMenuCiphers.size === 0;
   }
 
   /**
@@ -1673,7 +1682,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
         ? AutofillOverlayPort.ListMessageConnector
         : AutofillOverlayPort.ButtonMessageConnector,
       filledByCipherType: this.focusedFieldData?.filledByCipherType,
-      isShowingIdentityCiphersOnLoginField: this.isShowingIdentityCiphersOnLoginField(),
+      showIdentityAccountCreation: this.showIdentityAccountCreation(),
     });
     void this.updateInlineMenuPosition(
       {

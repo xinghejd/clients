@@ -23,7 +23,7 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
   private cipherListScrollDebounceTimeout: number | NodeJS.Timeout;
   private currentCipherIndex = 0;
   private filledByCipherType: CipherType;
-  private isShowingIdentityCiphersOnLoginField: boolean;
+  private showIdentityAccountCreation: boolean;
   private readonly showCiphersPerPage = 6;
   private newItemButtonElement: HTMLButtonElement;
   private readonly inlineMenuListWindowMessageHandlers: AutofillInlineMenuListWindowMessageHandlers =
@@ -51,7 +51,7 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
    * @param ciphers - The ciphers to display in the inline menu list.
    * @param portKey - Background generated key that allows the port to communicate with the background.
    * @param filledByCipherType - The type of cipher that fills the current field.
-   * @param isShowingIdentityCiphersOnLoginField - Whether identity ciphers are shown on login fields.
+   * @param showIdentityAccountCreation - Whether identity ciphers are shown on login fields.
    */
   private async initAutofillInlineMenuList({
     translations,
@@ -61,7 +61,7 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
     ciphers,
     portKey,
     filledByCipherType,
-    isShowingIdentityCiphersOnLoginField,
+    showIdentityAccountCreation,
   }: InitAutofillInlineMenuListMessage) {
     const linkElement = await this.initAutofillInlineMenuPage(
       "list",
@@ -71,7 +71,7 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
     );
 
     this.filledByCipherType = filledByCipherType;
-    this.isShowingIdentityCiphersOnLoginField = isShowingIdentityCiphersOnLoginField;
+    this.showIdentityAccountCreation = showIdentityAccountCreation;
 
     const themeClass = `theme_${theme}`;
     globalThis.document.documentElement.classList.add(themeClass);
@@ -158,7 +158,7 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
 
     this.inlineMenuListContainer.appendChild(this.ciphersList);
 
-    if (this.isShowingIdentityCiphersOnLoginField) {
+    if (this.showIdentityAccountCreation) {
       const addNewIdentityButtonContainer = this.buildNewItemButton();
       this.inlineMenuListContainer.appendChild(addNewIdentityButtonContainer);
       this.inlineMenuListContainer.classList.add(
