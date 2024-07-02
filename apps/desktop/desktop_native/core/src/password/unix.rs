@@ -2,6 +2,12 @@ use anyhow::{anyhow, Result};
 use libsecret::{password_clear_sync, password_lookup_sync, password_store_sync, Schema};
 use std::collections::HashMap;
 
+pub fn is_available() -> Result<bool> {
+    let availability_test_value = "com.bitwarden.availabilitytest";
+    set_password(availability_test_value, availability_test_value, availability_test_value)?;
+    return Ok(get_password(availability_test_value, availability_test_value)? == availability_test_value);
+}
+
 pub fn get_password(service: &str, account: &str) -> Result<String> {
     let res = password_lookup_sync(
         Some(&get_schema()),
