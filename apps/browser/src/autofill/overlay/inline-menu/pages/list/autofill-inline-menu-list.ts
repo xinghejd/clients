@@ -150,7 +150,9 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
     this.ciphersList = globalThis.document.createElement("ul");
     this.ciphersList.classList.add("inline-menu-list-actions");
     this.ciphersList.setAttribute("role", "list");
-    this.ciphersList.addEventListener(EVENTS.SCROLL, this.handleCiphersListScrollEvent);
+    this.ciphersList.addEventListener(EVENTS.SCROLL, this.handleCiphersListScrollEvent, {
+      passive: true,
+    });
 
     this.loadPageOfCiphers();
 
