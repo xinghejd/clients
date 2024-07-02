@@ -22,4 +22,19 @@ export interface InlineMenuFieldQualificationService {
   isFieldForCardExpirationMonth(field: AutofillField): boolean;
   isFieldForCardExpirationYear(field: AutofillField): boolean;
   isFieldForCardCvv(field: AutofillField): boolean;
+  isFieldForIdentityTitle(field: AutofillField): boolean;
+  isFieldForIdentityFirstName(field: AutofillField): boolean;
+  isFieldForIdentityMiddleName(field: AutofillField): boolean;
+  isFieldForIdentityLastName(field: AutofillField): boolean;
+  isFieldForIdentityAddress1(field: AutofillField): boolean;
+  isFieldForIdentityAddress2(field: AutofillField): boolean;
+  isFieldForIdentityAddress3(field: AutofillField): boolean;
+  isFieldForIdentityCity(field: AutofillField): boolean;
+  isFieldForIdentityState(field: AutofillField): boolean;
+  isFieldForIdentityPostalCode(field: AutofillField): boolean;
+  isFieldForIdentityCountry(field: AutofillField): boolean;
+  isFieldForIdentityCompany(field: AutofillField): boolean;
+  isFieldForIdentityPhone(field: AutofillField): boolean;
+  isFieldForIdentityEmail(field: AutofillField): boolean;
+  isFieldForIdentityUsername(field: AutofillField): boolean;
 }

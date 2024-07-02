@@ -119,8 +119,8 @@ export class InlineMenuFieldQualificationService
     ...this.identityOrganizationAutocompleteValue,
     ...this.identityAddressAutoCompleteValues,
     ...this.identityCountryAutocompleteValues,
-    this.identityPostalCodeAutocompleteValue,
     ...this.identityPhoneNumberAutocompleteValues,
+    this.identityPostalCodeAutocompleteValue,
   ]);
   private identityFieldKeywords = [
     ...new Set([
@@ -129,8 +129,6 @@ export class InlineMenuFieldQualificationService
       ...IdentityAutoFillConstants.FirstnameFieldNames,
       ...IdentityAutoFillConstants.MiddlenameFieldNames,
       ...IdentityAutoFillConstants.LastnameFieldNames,
-      ...IdentityAutoFillConstants.UserNameFieldNames,
-      ...IdentityAutoFillConstants.EmailFieldNames,
       ...IdentityAutoFillConstants.AddressFieldNames,
       ...IdentityAutoFillConstants.Address1FieldNames,
       ...IdentityAutoFillConstants.Address2FieldNames,
@@ -139,8 +137,10 @@ export class InlineMenuFieldQualificationService
       ...IdentityAutoFillConstants.CityFieldNames,
       ...IdentityAutoFillConstants.StateFieldNames,
       ...IdentityAutoFillConstants.CountryFieldNames,
-      ...IdentityAutoFillConstants.PhoneFieldNames,
       ...IdentityAutoFillConstants.CompanyFieldNames,
+      ...IdentityAutoFillConstants.PhoneFieldNames,
+      ...IdentityAutoFillConstants.EmailFieldNames,
+      ...IdentityAutoFillConstants.UserNameFieldNames,
     ]),
   ];
   private inlineMenuFieldQualificationFlagSet = false;
@@ -550,6 +550,66 @@ export class InlineMenuFieldQualificationService
       !this.fieldContainsAutocompleteValues(field, this.autocompleteDisabledValues) &&
       this.keywordsFoundInFieldData(field, CreditCardAutoFillConstants.CVVFieldNames, false)
     );
+  };
+
+  isFieldForIdentityTitle = (field: AutofillField): boolean => {
+    return false;
+  };
+
+  isFieldForIdentityFirstName = (field: AutofillField): boolean => {
+    return false;
+  };
+
+  isFieldForIdentityMiddleName = (field: AutofillField): boolean => {
+    return false;
+  };
+
+  isFieldForIdentityLastName = (field: AutofillField): boolean => {
+    return false;
+  };
+
+  isFieldForIdentityAddress1 = (field: AutofillField): boolean => {
+    return false;
+  };
+
+  isFieldForIdentityAddress2 = (field: AutofillField): boolean => {
+    return false;
+  };
+
+  isFieldForIdentityAddress3 = (field: AutofillField): boolean => {
+    return false;
+  };
+
+  isFieldForIdentityCity = (field: AutofillField): boolean => {
+    return false;
+  };
+
+  isFieldForIdentityState = (field: AutofillField): boolean => {
+    return false;
+  };
+
+  isFieldForIdentityPostalCode = (field: AutofillField): boolean => {
+    return false;
+  };
+
+  isFieldForIdentityCountry = (field: AutofillField): boolean => {
+    return false;
+  };
+
+  isFieldForIdentityCompany = (field: AutofillField): boolean => {
+    return false;
+  };
+
+  isFieldForIdentityPhone = (field: AutofillField): boolean => {
+    return false;
+  };
+
+  isFieldForIdentityEmail = (field: AutofillField): boolean => {
+    return false;
+  };
+
+  isFieldForIdentityUsername = (field: AutofillField): boolean => {
+    return false;
   };
 
   /**

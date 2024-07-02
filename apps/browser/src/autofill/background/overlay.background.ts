@@ -21,6 +21,7 @@ import { CipherType } from "@bitwarden/common/vault/enums";
 import { buildCipherIcon } from "@bitwarden/common/vault/icon/build-cipher-icon";
 import { CardView } from "@bitwarden/common/vault/models/view/card.view";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import { IdentityView } from "@bitwarden/common/vault/models/view/identity.view";
 import { LoginUriView } from "@bitwarden/common/vault/models/view/login-uri.view";
 import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
 
@@ -47,6 +48,7 @@ import {
   InlineMenuListPortMessageHandlers,
   InlineMenuPosition,
   NewCardCipherData,
+  NewIdentityCipherData,
   NewLoginCipherData,
   OverlayAddNewItemMessage,
   OverlayBackground as OverlayBackgroundInterface,
@@ -1275,10 +1277,11 @@ export class OverlayBackground implements OverlayBackgroundInterface {
    * @param addNewCipherType - The type of cipher to add
    * @param login - The login data captured from the extension message
    * @param card - The card data captured from the extension message
+   * @param identity - The identity data captured from the extension message
    * @param sender - The sender of the extension message
    */
   private async addNewVaultItem(
-    { addNewCipherType, login, card }: OverlayAddNewItemMessage,
+    { addNewCipherType, login, card, identity }: OverlayAddNewItemMessage,
     sender: chrome.runtime.MessageSender,
   ) {
     if (!addNewCipherType) {
@@ -1289,6 +1292,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       addNewCipherType,
       login,
       card,
+      identity,
     });
 
     if (cipherView) {
@@ -1309,14 +1313,24 @@ export class OverlayBackground implements OverlayBackgroundInterface {
    * @param addNewCipherType - The type of cipher to add
    * @param login - The login data captured from the extension message
    * @param card - The card data captured from the extension message
+   * @param identity - The identity data captured from the extension message
    */
-  private buildNewVaultItemCipherView({ addNewCipherType, login, card }: OverlayAddNewItemMessage) {
+  private buildNewVaultItemCipherView({
+    addNewCipherType,
+    login,
+    card,
+    identity,
+  }: OverlayAddNewItemMessage) {
     if (login && addNewCipherType === CipherType.Login) {
       return this.buildLoginCipherView(login);
     }
 
     if (card && addNewCipherType === CipherType.Card) {
       return this.buildCardCipherView(card);
+    }
+
+    if (identity && addNewCipherType === CipherType.Identity) {
+      return this.buildIdentityCipherView(identity);
     }
   }
 
@@ -1362,6 +1376,33 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     cipherView.folderId = null;
     cipherView.type = CipherType.Card;
     cipherView.card = cardView;
+
+    return cipherView;
+  }
+
+  private buildIdentityCipherView(identity: NewIdentityCipherData) {
+    const identityView = new IdentityView();
+    identityView.title = identity.title || "";
+    identityView.firstName = identity.firstName || "";
+    identityView.middleName = identity.middleName || "";
+    identityView.lastName = identity.lastName || "";
+    identityView.address1 = identity.address1 || "";
+    identityView.address2 = identity.address2 || "";
+    identityView.address3 = identity.address3 || "";
+    identityView.city = identity.city || "";
+    identityView.state = identity.state || "";
+    identityView.postalCode = identity.postalCode || "";
+    identityView.country = identity.country || "";
+    identityView.company = identity.company || "";
+    identityView.phone = identity.phone || "";
+    identityView.email = identity.email || "";
+    identityView.username = identity.username || "";
+
+    const cipherView = new CipherView();
+    cipherView.name = "";
+    cipherView.folderId = null;
+    cipherView.type = CipherType.Identity;
+    cipherView.identity = identityView;
 
     return cipherView;
   }

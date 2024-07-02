@@ -82,12 +82,9 @@ export type NewIdentityCipherData = {
   postalCode: string;
   country: string;
   company: string;
-  email: string;
   phone: string;
-  ssn: string;
+  email: string;
   username: string;
-  passportNumber: string;
-  licenseNumber: string;
 };
 
 export type OverlayAddNewItemMessage = {
