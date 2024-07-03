@@ -1,5 +1,6 @@
 import { Component, Input } from "@angular/core";
 
+import { SelectableTableDataSource } from "./selectable-table-data-source";
 import { TableComponent } from "./table.component";
 
 @Component({
@@ -8,9 +9,8 @@ import { TableComponent } from "./table.component";
     <input
       type="checkbox"
       bitCheckbox
-      [checked]="table.dataSource.selection.getValue(row)"
-      (change)="table.dataSource.selection.setValue(row, $any($event.target).checked)"
-      *ngIf="table.dataSource.selection.canSelect(row)"
+      [checked]="selectionModel.isSelected(row)"
+      (change)="selectionModel.toggle(row)"
     />
   `,
 })
@@ -19,6 +19,14 @@ export class SelectRowComponent<T> {
 
   @Input() set bitSelectRow(value: T) {
     this.row = value;
+  }
+
+  get selectionModel() {
+    if (!(this.table.dataSource instanceof SelectableTableDataSource)) {
+      throw new Error("You must use SelectableTableDataSource.");
+    }
+
+    return this.table.dataSource.selection;
   }
 
   constructor(protected table: TableComponent) {}

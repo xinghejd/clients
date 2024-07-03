@@ -4,6 +4,7 @@ import { Meta, moduleMetadata, StoryObj } from "@storybook/angular";
 import { CheckboxModule } from "../checkbox";
 import { countries } from "../form/countries";
 
+import { SelectableTableDataSource } from "./selectable-table-data-source";
 import { TableDataSource } from "./table-data-source";
 import { TableModule } from "./table.module";
 
@@ -200,14 +201,15 @@ export const VariableCase: Story = {
   }),
 };
 
-const data5 = new TableDataSource<{ id: number; name: string; other: string }>();
+const data5 = new SelectableTableDataSource<{ id: number; name: string; other: string }>();
 
 data5.data = [...Array(5).keys()].map((i) => ({
   id: i,
   name: `name-${i}`,
   other: `other-${i}`,
 }));
-data5.selection.canSelect = (row: { id: number }) => row.id !== 2;
+// TODO: reimplement this functionality
+// data5.selection.canSelect = (row: { id: number }) => row.id !== 2;
 
 export const Selectable: Story = {
   render: (args) => ({
@@ -236,7 +238,7 @@ export const Selectable: Story = {
       </bit-table>
 
       <ul>
-        <li *ngFor="let r of dataSource.selection.selectedRows">{{ r.id }} - {{ r.name }}</li>
+        <li *ngFor="let r of dataSource.selection.selected">{{ r.id }} - {{ r.name }}</li>
       </ul>
     `,
   }),
