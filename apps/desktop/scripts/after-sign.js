@@ -37,7 +37,9 @@ async function run(context) {
     console.log("### Copying safari extension");
     // Copy Safari plugin to work-around https://github.com/electron-userland/electron-builder/issues/5552
     const plugIn = path.join(__dirname, "../PlugIns");
-    if (fse.existsSync(plugIn)) {
+    if (!fse.existsSync(plugIn)) {
+      console.log("### Safari extension not found - skipping");
+    } else {
       fse.mkdirSync(path.join(appPath, "Contents/PlugIns"));
       fse.copySync(
         path.join(plugIn, "safari.appex"),
