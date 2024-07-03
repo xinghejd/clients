@@ -9,7 +9,11 @@ import { TableComponent } from "./table.component";
     <input
       type="checkbox"
       bitCheckbox
-      [checked]="selectAll"
+      [checked]="selectionModel.selected.length > 0"
+      [indeterminate]="
+        selectionModel.selected.length > 0 &&
+        selectionModel.selected.length < table.dataSource.data.length
+      "
       (change)="toggleSelectAll($any($event.target).checked)"
     />
   `,
