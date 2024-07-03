@@ -96,7 +96,8 @@ apps/desktop/src/services/native-messaging.service.ts @bitwarden/team-autofill-d
 ## Component Library ##
 .storybook @bitwarden/team-component-library
 libs/components @bitwarden/team-component-library
-apps/web/src/app/layouts/header
+apps/browser/src/platform/popup/layout @bitwarden/team-component-library
+apps/web/src/app/layouts @bitwarden/team-component-library
 
 ## Desktop native module ##
 apps/desktop/desktop_native @bitwarden/team-platform-dev
