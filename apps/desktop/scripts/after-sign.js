@@ -23,12 +23,14 @@ async function run(context) {
   // cannot use extraFiles because it modifies the extensions .plist and makes it invalid
   if (copyAutofillExtension) {
     console.log("### Copying autofill extension");
-    const extensionPath = path.join(__dirname, "../macos/build/Release/autofill-extension.appex");
-    if (fse.existsSync(extensionPath)) {
+    const extensionPath = path.join(__dirname, "../macos/dist/autofill-extension.appex");
+    if (!fse.existsSync(extensionPath)) {
+      console.log("### Autofill extension not found - skipping");
+    } else {
       fse.mkdirSync(path.join(appPath, "Contents/PlugIns"));
       fse.copySync(extensionPath, path.join(appPath, "Contents/PlugIns/autofill-extension.appex"));
+      shouldResign = true;
     }
-    shouldResign = true;
   }
 
   if (copySafariExtension) {

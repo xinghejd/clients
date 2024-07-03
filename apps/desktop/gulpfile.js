@@ -2,13 +2,20 @@ const child = require("child_process");
 const fse = require("fs-extra");
 
 const paths = {
-  extensionBuild: "./macos/build",
+  macosBuild: "./macos/build",
+  extensionBuild: "./macos/build/Release/autofill-extension.appex",
+  extensionDistDir: "./macos/dist",
+  extensionDist: "./macos/dist/autofill-extension.appex",
   macOsProject: "./macos/desktop.xcodeproj",
 };
 
 async function buildMacOs(cb) {
-  if (fse.existsSync(paths.extensionBuild)) {
-    fse.removeSync(paths.extensionBuild);
+  if (fse.existsSync(paths.macosBuild)) {
+    fse.removeSync(paths.macosBuild);
+  }
+
+  if (fse.existsSync(paths.extensionDistDir)) {
+    fse.removeSync(paths.extensionDistDir);
   }
 
   const proc = child.spawn("xcodebuild", [
@@ -29,6 +36,11 @@ async function buildMacOs(cb) {
       resolve();
     }),
   );
+
+  fse.mkdirSync(paths.extensionDistDir);
+  fse.copySync(paths.extensionBuild, paths.extensionDist);
+  // Delete the build dir, otherwise MacOS will load the extension from there instead of the Bitwarden.app bundle
+  fse.removeSync(paths.macosBuild);
 }
 
 function stdOutProc(proc) {
