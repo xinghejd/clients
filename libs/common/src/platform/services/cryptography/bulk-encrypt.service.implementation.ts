@@ -56,7 +56,7 @@ export class BulkEncryptServiceImplementation implements BulkEncryptService {
    * Sends items to a set of web workers to decrypt them. This utilizes multiple workers to decrypt items
    * faster without interrupting other operations (e.g. updating UI).
    */
-  async getDecryptedItemsFromWorkers<T extends InitializerMetadata>(
+  private async getDecryptedItemsFromWorkers<T extends InitializerMetadata>(
     items: Decryptable<T>[],
     key: SymmetricCryptoKey,
   ): Promise<T[]> {
