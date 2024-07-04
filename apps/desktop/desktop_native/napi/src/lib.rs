@@ -142,3 +142,12 @@ pub mod clipboards {
             .map_err(|e| napi::Error::from_reason(e.to_string()))
     }
 }
+
+#[napi]
+pub mod autofill {
+    #[napi]
+    pub async fn hello_world(value: String) -> napi::Result<String> {
+        desktop_core::autofill::hello_world(value)
+            .map_err(|e| napi::Error::from_reason(e.to_string()))
+    }
+}
