@@ -1,8 +1,11 @@
 use std::str::FromStr;
 
-use anyhow::{bail, Result};
+use anyhow::Result;
+use base64::Engine;
+use rand::RngCore;
+use sha2::{Digest, Sha256};
 
-use crate::biometric::{KeyMaterial, OsDerivedKey};
+use crate::biometric::{KeyMaterial, OsDerivedKey, base64_engine};
 use zbus::Connection;
 use zbus_polkit::policykit1::*;
 
@@ -50,8 +53,22 @@ impl super::BiometricTrait for Biometric {
         return Ok(false);
     }
 
-    fn derive_key_material(_iv_str: Option<&str>) -> Result<OsDerivedKey> {
-        bail!("derive_key_material not implemented");
+    fn derive_key_material(challenge_str: Option<&str>) -> Result<OsDerivedKey> {
+        let challenge: [u8; 16] = match challenge_str {
+            Some(challenge_str) => base64_engine
+                .decode(challenge_str)?
+                .try_into()
+                .map_err(|e: Vec<_>| anyhow!("Expect length {}, got {}", 16, e.len()))?,
+            None => random_challenge(),
+        };
+
+        // there is no windows hello like interactive bio protected secret at the moment on linux
+        // so we use a a key derived from the iv. this key is not intended to add any security
+        // but only a place-holder
+        let key = Sha256::digest(challenge);
+        let key_b64 = base64_engine.encode(&key);
+        let iv_b64 = base64_engine.encode(&challenge);
+        Ok(OsDerivedKey { key_b64, iv_b64 })
     }
 
     fn set_biometric_secret(
@@ -83,4 +100,10 @@ impl super::BiometricTrait for Biometric {
         let secret = CipherString::from_str(&encrypted_secret)?;
         return Ok(decrypt(&secret, &key_material)?);
     }
+}
+
+fn random_challenge() -> [u8; 16] {
+    let mut challenge = [0u8; 16];
+    rand::thread_rng().fill_bytes(&mut challenge);
+    challenge
 }

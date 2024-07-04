@@ -1,8 +1,7 @@
 import { spawn } from "child_process";
 
-import { CryptoFunctionService } from "@bitwarden/common/platform/abstractions/crypto-function.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
 import { biometrics, passwords } from "@bitwarden/desktop-napi";
 
 import { WindowMain } from "../../../main/window.main";
@@ -33,8 +32,10 @@ export default class BiometricUnixMain implements OsBiometricService {
   constructor(
     private i18nservice: I18nService,
     private windowMain: WindowMain,
-    private cryptoFunctionService: CryptoFunctionService,
   ) {}
+  private _iv: string | null = null;
+  // Use getKeyMaterial helper instead of direct access
+  private _osKeyHalf: string | null = null;
 
   async setBiometricKey(
     service: string,
@@ -57,22 +58,30 @@ export default class BiometricUnixMain implements OsBiometricService {
 
   async getBiometricKey(
     service: string,
-    key: string,
+    storageKey: string,
     clientKeyPartB64: string | undefined,
-  ): Promise<string> {
+  ): Promise<string | null> {
     const success = await this.authenticateBiometric();
 
     if (!success) {
       throw new Error("Biometric authentication failed");
     }
 
-    const storageDetails = await this.getStorageDetails({ clientKeyHalfB64: clientKeyPartB64 });
-    const storedValue = await biometrics.getBiometricSecret(
-      service,
-      key,
-      storageDetails.key_material,
-    );
-    return storedValue;
+    const value = await passwords.getPassword(service, storageKey);
+
+    if (value == null || value == "") {
+      return null;
+    } else {
+      const encValue = new EncString(value);
+      this.setIv(encValue.iv);
+      const storageDetails = await this.getStorageDetails({ clientKeyHalfB64: clientKeyPartB64 });
+      const storedValue = await biometrics.getBiometricSecret(
+        service,
+        storageKey,
+        storageDetails.key_material,
+      );
+      return storedValue;
+    }
   }
 
   async authenticateBiometric(): Promise<boolean> {
@@ -134,19 +143,31 @@ export default class BiometricUnixMain implements OsBiometricService {
     });
   }
 
+  // Nulls out key material in order to force a re-derive. This should only be used in getBiometricKey
+  // when we want to force a re-derive of the key material.
+  private setIv(iv: string) {
+    this._iv = iv;
+    this._osKeyHalf = null;
+  }
+
   private async getStorageDetails({
     clientKeyHalfB64,
   }: {
     clientKeyHalfB64: string;
   }): Promise<{ key_material: biometrics.KeyMaterial; ivB64: string }> {
-    const iv = (await this.cryptoFunctionService.randomBytes(16)).buffer;
-    const ivB64 = Utils.fromBufferToB64(iv);
+    if (this._osKeyHalf == null) {
+      const keyMaterial = await biometrics.deriveKeyMaterial(this._iv);
+      // osKeyHalf is based on the iv and in contrast to windows is not locked behind user verefication!
+      this._osKeyHalf = keyMaterial.keyB64;
+      this._iv = keyMaterial.ivB64;
+    }
 
     return {
       key_material: {
-        osKeyPartB64: clientKeyHalfB64,
+        osKeyPartB64: this._osKeyHalf,
+        clientKeyPartB64: clientKeyHalfB64,
       },
-      ivB64: ivB64,
+      ivB64: this._iv,
     };
   }
 }
