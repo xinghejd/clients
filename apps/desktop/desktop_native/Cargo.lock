@@ -304,6 +304,7 @@ dependencies = [
  "base64",
  "cbc",
  "core-foundation",
+ "desktop_objc",
  "gio",
  "keytar",
  "libsecret",
@@ -328,6 +329,15 @@ dependencies = [
  "napi",
  "napi-build",
  "napi-derive",
+]
+
+[[package]]
+name = "desktop_objc"
+version = "0.0.0"
+dependencies = [
+ "anyhow",
+ "core-foundation",
+ "thiserror",
 ]
 
 [[package]]
