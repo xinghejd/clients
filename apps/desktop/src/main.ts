@@ -42,6 +42,7 @@ import { ElectronStorageService } from "./platform/services/electron-storage.ser
 import { I18nMainService } from "./platform/services/i18n.main.service";
 import { ElectronMainMessagingService } from "./services/electron-main-messaging.service";
 import { isMacAppStore } from "./utils";
+import { NativeAutofillMain } from "./platform/main/autofill/native-autofill.main";
 
 export class Main {
   logService: ElectronLogMainService;
@@ -65,6 +66,7 @@ export class Main {
   biometricsService: BiometricsServiceAbstraction;
   nativeMessagingMain: NativeMessagingMain;
   clipboardMain: ClipboardMain;
+  nativeAutofillMain: NativeAutofillMain;
   desktopAutofillSettingsService: DesktopAutofillSettingsService;
 
   constructor() {
@@ -220,6 +222,9 @@ export class Main {
 
     this.clipboardMain = new ClipboardMain();
     this.clipboardMain.init();
+
+    this.nativeAutofillMain = new NativeAutofillMain();
+    this.nativeAutofillMain.init();
   }
 
   bootstrap() {
