@@ -80,17 +80,7 @@ impl super::BiometricTrait for Biometric {
         ))?;
 
         let encrypted_secret = crate::password::get_password(service, account)?;
-        match CipherString::from_str(&encrypted_secret) {
-            Ok(secret) => {
-                // If the secret is a CipherString, it is encrypted and we need to decrypt it.
-                let secret = decrypt(&secret, &key_material)?;
-                return Ok(secret);
-            }
-            Err(_) => {
-                // If the secret is not a CipherString, it is not encrypted and we can return it
-                //  directly.
-                return Ok(encrypted_secret);
-            }
-        }
+        let secret = CipherString::from_str(&encrypted_secret)?;
+        return Ok(decrypt(&secret, &key_material)?);
     }
 }
