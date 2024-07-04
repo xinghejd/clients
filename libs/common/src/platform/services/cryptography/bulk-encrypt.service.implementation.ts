@@ -66,7 +66,8 @@ export class BulkEncryptServiceImplementation implements BulkEncryptService {
 
     this.clearTimeout();
 
-    let numberOfWorkers = Math.min(navigator.hardwareConcurrency, maxWorkers);
+    const hardwareConcurrency = navigator.hardwareConcurrency || 1;
+    let numberOfWorkers = Math.min(hardwareConcurrency, maxWorkers);
     if (items.length < minNumberOfItemsForMultithreading) {
       numberOfWorkers = 1;
     }
