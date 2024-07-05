@@ -1947,6 +1947,30 @@
   "biometricsNotUnlockedDesc": {
     "message": "Please unlock this user in the desktop application and try again."
   },
+  "biometricsNoUserIdTitle": {
+    "message": "No user was provided"
+  },
+  "biometricsNoUserIdDesc": {
+    "message": "No user was provided in the communication to the desktop application. Please report this as a bug."
+  },  
+  "biometricsNoUserTitle": {
+    "message": "No user found in desktop app"
+  },
+  "biometricsNoUserDesc": {
+    "message": "The user you are trying to unlock in the browser extension is not signed in to the desktop application. Please sign in to the desktop application and try again."
+  },
+  "biometricsNoClientKeyHalfTitle": {
+    "message": "Password or PIN required"
+  },
+  "biometricsNoClientKeyHalfDesc": {
+    "message": "Unlocking with biometrics is unavailable until you unlock your vault with another method."
+  },
+  "biometricsBrokenIPCMessage": {
+    "message": "Communication failed"
+  },
+  "biometricsBrokenIPCMessageDesc": {
+    "message": "Communication with the desktop app encountered an unexpected message. Ensure your desktop app is up to date."
+  },
   "biometricsFailedTitle": {
     "message": "Biometrics failed"
   },
