@@ -90,11 +90,11 @@ export class BiometricsService implements BiometricsServiceAbstraction {
     return result;
   }
 
-  async getBiometricKey(service: string, storageKey: string): Promise<string | null> {
+  async getBiometricEncryptedData(service: string, storageKey: string): Promise<string | null> {
     return await this.interruptProcessReload(async () => {
       await this.enforceClientKeyHalf(service, storageKey);
 
-      return await this.platformSpecificService.getBiometricKey(
+      return await this.platformSpecificService.getBiometricEncryptedData(
         service,
         storageKey,
         this.getClientKeyHalf(service, storageKey),
@@ -102,10 +102,14 @@ export class BiometricsService implements BiometricsServiceAbstraction {
     });
   }
 
-  async setBiometricKey(service: string, storageKey: string, value: string): Promise<void> {
+  async setBiometricEncryptedData(
+    service: string,
+    storageKey: string,
+    value: string,
+  ): Promise<void> {
     await this.enforceClientKeyHalf(service, storageKey);
 
-    return await this.platformSpecificService.setBiometricKey(
+    return await this.platformSpecificService.setBiometricEncryptedData(
       service,
       storageKey,
       value,
@@ -113,26 +117,25 @@ export class BiometricsService implements BiometricsServiceAbstraction {
     );
   }
 
-  /** Registers the client-side encryption key half for the OS stored Biometric key. The other half is protected by the OS.*/
   async setEncryptionKeyHalf({
     service,
-    key,
+    storageKey,
     value,
   }: {
     service: string;
-    key: string;
+    storageKey: string;
     value: string;
   }): Promise<void> {
     if (value == null) {
-      this.clientKeyHalves.delete(this.clientKeyHalfKey(service, key));
+      this.clientKeyHalves.delete(this.clientKeyHalfKey(service, storageKey));
     } else {
-      this.clientKeyHalves.set(this.clientKeyHalfKey(service, key), value);
+      this.clientKeyHalves.set(this.clientKeyHalfKey(service, storageKey), value);
     }
   }
 
-  async deleteBiometricKey(service: string, storageKey: string): Promise<void> {
+  async deleteBiometricEncryptedData(service: string, storageKey: string): Promise<void> {
     this.clientKeyHalves.delete(this.clientKeyHalfKey(service, storageKey));
-    return await this.platformSpecificService.deleteBiometricKey(service, storageKey);
+    return await this.platformSpecificService.deleteBiometricEncryptedData(service, storageKey);
   }
 
   private async interruptProcessReload<T>(
