@@ -1969,7 +1969,7 @@
     "message": "Communication failed"
   },
   "biometricsBrokenIPCMessageDesc": {
-    "message": "Communication with the desktop app encountered an unexpected message. Ensure your desktop app is up to date."
+    "message": "Unexpected error while communicating with the desktop app. Ensure your desktop app is up to date."
   },
   "biometricsFailedTitle": {
     "message": "Biometrics failed"
