@@ -1948,7 +1948,7 @@
     "message": "Please unlock this user in the desktop application and try again."
   },
   "biometricsNoUserIdTitle": {
-    "message": "No user was provided"
+    "message": "Account not provided"
   },
   "biometricsNoUserIdDesc": {
     "message": "No user was provided in the communication to the desktop application. Please report this as a bug."
