@@ -1954,7 +1954,7 @@
     "message": "No user was provided in the communication to the desktop application. Please report this as a bug."
   },  
   "biometricsNoUserTitle": {
-    "message": "No user found in desktop app"
+    "message": "Account not found in desktop app"
   },
   "biometricsNoUserDesc": {
     "message": "The user you are trying to unlock in the browser extension is not signed in to the desktop application. Please sign in to the desktop application and try again."
