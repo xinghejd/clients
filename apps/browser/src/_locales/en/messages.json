@@ -1963,7 +1963,7 @@
     "message": "Password or PIN required"
   },
   "biometricsNoClientKeyHalfDesc": {
-    "message": "Unlocking with biometrics is unavailable until you unlock your vault with another method."
+    "message": "Unlock with biometrics is unavailable until you unlock your account with another method."
   },
   "biometricsBrokenIPCMessage": {
     "message": "Communication failed"
