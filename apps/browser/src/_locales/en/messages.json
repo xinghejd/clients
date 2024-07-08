@@ -1951,7 +1951,7 @@
     "message": "Account not provided"
   },
   "biometricsNoUserIdDesc": {
-    "message": "No user was provided in the communication to the desktop application. Please report this as a bug."
+    "message": "Account not provided in communication to the desktop app. Please report this as a bug."
   },  
   "biometricsNoUserTitle": {
     "message": "Account not found in desktop app"
