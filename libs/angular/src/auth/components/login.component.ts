@@ -14,7 +14,9 @@ import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/
 import { WebAuthnLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/webauthn/webauthn-login.service.abstraction";
 import { AuthResult } from "@bitwarden/common/auth/models/domain/auth-result";
 import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/force-set-password-reason";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { CryptoFunctionService } from "@bitwarden/common/platform/abstractions/crypto-function.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -22,7 +24,7 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { PasswordGenerationServiceAbstraction } from "@bitwarden/common/tools/generator/password";
+import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legacy";
 
 import {
   AllValidationErrors,
@@ -45,6 +47,10 @@ export class LoginComponent extends CaptchaProtectedComponent implements OnInit,
   validatedEmail = false;
   paramEmailSet = false;
 
+  get emailFormControl() {
+    return this.formGroup.controls.email;
+  }
+
   formGroup = this.formBuilder.group({
     email: ["", [Validators.required, Validators.email]],
     masterPassword: [
@@ -56,6 +62,8 @@ export class LoginComponent extends CaptchaProtectedComponent implements OnInit,
 
   protected twoFactorRoute = "2fa";
   protected successRoute = "vault";
+  // TODO: remove when email verification flag is removed
+  protected registerRoute = "/register";
   protected forcePasswordResetRoute = "update-temp-password";
 
   protected destroy$ = new Subject<void>();
@@ -83,11 +91,21 @@ export class LoginComponent extends CaptchaProtectedComponent implements OnInit,
     protected loginEmailService: LoginEmailServiceAbstraction,
     protected ssoLoginService: SsoLoginServiceAbstraction,
     protected webAuthnLoginService: WebAuthnLoginServiceAbstraction,
+    protected configService: ConfigService,
   ) {
     super(environmentService, i18nService, platformUtilsService);
   }
 
   async ngOnInit() {
+    // TODO: remove when email verification flag is removed
+    const emailVerification = await this.configService.getFeatureFlag(
+      FeatureFlag.EmailVerification,
+    );
+
+    if (emailVerification) {
+      this.registerRoute = "/signup";
+    }
+
     this.route?.queryParams.pipe(takeUntil(this.destroy$)).subscribe((params) => {
       if (!params) {
         return;
@@ -108,7 +126,7 @@ export class LoginComponent extends CaptchaProtectedComponent implements OnInit,
 
     let rememberEmail = this.loginEmailService.getRememberEmail();
 
-    if (rememberEmail == null) {
+    if (!rememberEmail) {
       rememberEmail = (await firstValueFrom(this.loginEmailService.storedEmail$)) != null;
     }
 
@@ -155,7 +173,7 @@ export class LoginComponent extends CaptchaProtectedComponent implements OnInit,
 
       if (this.handleCaptchaRequired(response)) {
         return;
-      } else if (this.handleMigrateEncryptionKey(response)) {
+      } else if (await this.handleMigrateEncryptionKey(response)) {
         return;
       } else if (response.requiresTwoFactor) {
         if (this.onSuccessfulLoginTwoFactorNavigate != null) {
@@ -218,9 +236,7 @@ export class LoginComponent extends CaptchaProtectedComponent implements OnInit,
     }
 
     this.setLoginEmailValues();
-    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    this.router.navigate(["/login-with-device"]);
+    await this.router.navigate(["/login-with-device"]);
   }
 
   async launchSsoBrowser(clientId: string, ssoRedirectUri: string) {
@@ -265,8 +281,8 @@ export class LoginComponent extends CaptchaProtectedComponent implements OnInit,
 
   async validateEmail() {
     this.formGroup.controls.email.markAsTouched();
-    const emailInvalid = this.formGroup.get("email").invalid;
-    if (!emailInvalid) {
+    const emailValid = this.formGroup.get("email").valid;
+    if (emailValid) {
       this.toggleValidateEmail(true);
       await this.getLoginWithDevice(this.loggedEmail);
     }
@@ -310,7 +326,7 @@ export class LoginComponent extends CaptchaProtectedComponent implements OnInit,
 
   // Legacy accounts used the master key to encrypt data. Migration is required
   // but only performed on web
-  protected handleMigrateEncryptionKey(result: AuthResult): boolean {
+  protected async handleMigrateEncryptionKey(result: AuthResult): Promise<boolean> {
     if (!result.requiresEncryptionKeyMigration) {
       return false;
     }

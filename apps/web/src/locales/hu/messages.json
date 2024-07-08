@@ -173,6 +173,10 @@
     "message": "Nincs mappa",
     "description": "This is the folder for uncategorized items"
   },
+  "selfOwnershipLabel": {
+    "message": "Saját magam",
+    "description": "Used as a label to indicate that the user is the owner of an item."
+  },
   "addFolder": {
     "message": "Mappa hozzáadása"
   },
@@ -401,6 +405,21 @@
   "item": {
     "message": "Elem"
   },
+  "itemDetails": {
+    "message": "Elem részletek"
+  },
+  "itemName": {
+    "message": "Elem neve"
+  },
+  "cannotRemoveViewOnlyCollections": {
+    "message": "Nem távolíthatók el a csak megtekintési engedéllyel bíró gyűjtemények: $COLLECTIONS$",
+    "placeholders": {
+      "collections": {
+        "content": "$1",
+        "example": "Work, Personal"
+      }
+    }
+  },
   "ex": {
     "message": "Példa:",
     "description": "Short abbreviation for 'example'."
@@ -581,8 +600,14 @@
   "accessLevel": {
     "message": "Hozzáférési szint"
   },
+  "accessing": {
+    "message": "Elérés"
+  },
   "loggedOut": {
     "message": "Megtörtént a kijelentkezés."
+  },
+  "loggedOutDesc": {
+    "message": "You have been logged out of your account."
   },
   "loginExpired": {
     "message": "A bejelentkezési munkamenet lejárt."
@@ -707,6 +732,12 @@
   "createAccount": {
     "message": "Fiók létrehozása"
   },
+  "setAStrongPassword": {
+    "message": "Erős jelszó beállítása"
+  },
+  "finishCreatingYourAccountBySettingAPassword": {
+    "message": "A fiók létrehozásának befejezése jelszó beállításával"
+  },
   "newAroundHere": {
     "message": "Új felhasználó vagyunk?"
   },
@@ -715,6 +746,9 @@
   },
   "logIn": {
     "message": "Bejelentkezés"
+  },
+  "verifyIdentity": {
+    "message": "Személyazonosság ellenőrzése"
   },
   "logInInitiated": {
     "message": "A bejelentkezés elindításra került."
@@ -751,6 +785,19 @@
   },
   "masterPassHintLabel": {
     "message": "Mesterjelszó emlékeztető"
+  },
+  "masterPassHintText": {
+    "message": "Ha elfelejtettük a jelszót, a jelszóra vonatkozó tippet elküldhetjük a saját email címre. $CURRENT$/$MAXIMUM$ maximum karakter.",
+    "placeholders": {
+      "current": {
+        "content": "$1",
+        "example": "0"
+      },
+      "maximum": {
+        "content": "$2",
+        "example": "50"
+      }
+    }
   },
   "settings": {
     "message": "Beállítások"
@@ -934,18 +981,18 @@
   "authenticatorAppTitle": {
     "message": "Hitelesítő alkalmazás"
   },
-  "authenticatorAppDesc": {
-    "message": "Hitelesítő alkalmazás használata (mint például az Authy vagy a Google Authenticator) idő alapú ellenőrzőkód generálásához.",
-    "description": "'Authy' and 'Google Authenticator' are product names and should not be translated."
+  "authenticatorAppDescV2": {
+    "message": "Adjunk meg egy hitelesítő alkalmazás, például a Bitwarden Authenticator által generált kódot.",
+    "description": "'Bitwarden Authenticator' is a product name and should not be translated."
   },
-  "yubiKeyTitle": {
-    "message": "YubiKey OTP egyszeri időalapú jelszó biztonsági kulcs"
+  "yubiKeyTitleV2": {
+    "message": "YubiKey OTP biztonsági kulcs"
   },
   "yubiKeyDesc": {
     "message": "YubiKey használata a fiók eléréséhez. Működik a YubiKey 4, 4 Nano, 4C, és NEO eszközökkel."
   },
-  "duoDesc": {
-    "message": "Ellenőrzés Duo Security-val, a Duo Mobile alkalmazás, SMS, telefonhívás vagy U2F biztonsági kulcs használatával.",
+  "duoDescV2": {
+    "message": "Adjuk meg a Duo Security által generált kódot.",
     "description": "'Duo Security' and 'Duo Mobile' are product names and should not be translated."
   },
   "duoOrganizationDesc": {
@@ -970,8 +1017,8 @@
   "emailTitle": {
     "message": "Email cím"
   },
-  "emailDesc": {
-    "message": "Az ellenőrző kódok emailben kerülnek elküldésre."
+  "emailDescV2": {
+    "message": "Adjuk meg az email címre elküldött kódot."
   },
   "continue": {
     "message": "Folytatás"
@@ -1046,6 +1093,12 @@
   },
   "copyUuid": {
     "message": "UUID másolása"
+  },
+  "errorRefreshingAccessToken": {
+    "message": "Access Token Refresh Error"
+  },
+  "errorRefreshingAccessTokenDesc": {
+    "message": "No refresh token or API keys found. Please try logging out and logging back in."
   },
   "warning": {
     "message": "Figyelmeztetés"
@@ -1341,6 +1394,9 @@
   "accountDeletedDesc": {
     "message": "A fiók bezárásra került és minden társított adat törölve lett."
   },
+  "deleteOrganizationWarning": {
+    "message": "A szervezet végleges törlése folyamatban van. A művelet nem vonható vissza."
+  },
   "myAccount": {
     "message": "Saját fiók"
   },
@@ -1602,35 +1658,44 @@
   "twoStepLoginAuthDesc": {
     "message": "A kétlépéses bejelentkezési beállítások módosításához meg kell adni a mesterjelszót."
   },
-  "twoStepAuthenticatorDesc": {
-    "message": "Kövesük a következő lépéseket a kétlépéses bejelentkezés beállításához egy hitelesítő alkalmazással:"
+  "twoStepAuthenticatorInstructionPrefix": {
+    "message": "Töltsünk le egy hitelesítő alkalmazást, mint például"
   },
-  "twoStepAuthenticatorDownloadApp": {
-    "message": "Kétlépéses hitelesítő alkalmazás letöltése"
+  "twoStepAuthenticatorInstructionInfix1": {
+    "message": ","
   },
-  "twoStepAuthenticatorNeedApp": {
-    "message": "Szükség van egy kétlépéses hitelesítő alkalmazásra? Töltsük le a következők egyikét."
+  "twoStepAuthenticatorInstructionInfix2": {
+    "message": "vagy"
   },
-  "iosDevices": {
-    "message": "iOS eszközök"
+  "twoStepAuthenticatorInstructionSuffix": {
+    "message": "."
   },
-  "androidDevices": {
-    "message": "Android eszközök"
+  "continueToExternalUrlTitle": {
+    "message": "Tovább: $URL$?",
+    "placeholders": {
+      "url": {
+        "content": "$1",
+        "example": "bitwarden.com"
+      }
+    }
   },
-  "windowsDevices": {
-    "message": "Windows eszközök"
+  "continueToExternalUrlDesc": {
+    "message": "Kilépümk a Bitwardenből és egy külső webhelyet indítunk el egy új ablakban."
   },
-  "twoStepAuthenticatorAppsRecommended": {
-    "message": "Ezek az alkalmazások ajánlottak, de más hitelesítő alkalmazások is működnek."
+  "twoStepContinueToBitwardenUrlTitle": {
+    "message": "Folytatás a bitwarden.com webhelyen?"
   },
-  "twoStepAuthenticatorScanCode": {
-    "message": "Ezt a kódot kell beolvasni a hitelesítő alkalmazással."
+  "twoStepContinueToBitwardenUrlDesc": {
+    "message": "A Bitwarden Authenticator lehetővé teszi hitelesítő kulcsok tárolását és TOTP kódok generálását a kétlépcsős ellenőrzési folyamatokhoz. Tudjunk meg többet a bitwarden.com webhelyen."
+  },
+  "twoStepAuthenticatorScanCodeV2": {
+    "message": "Olvassuk be az alábbi QR kódot a hitelesítő alkalmazással,vagy írjuk be a kulcsot."
   },
   "key": {
     "message": "Kulcs"
   },
-  "twoStepAuthenticatorEnterCode": {
-    "message": "Adjuk meg az alkalmazásból kapott 6 számjegyű ellenőrző kódot."
+  "twoStepAuthenticatorEnterCodeV2": {
+    "message": "Ellenőrző kód"
   },
   "twoStepAuthenticatorReaddDesc": {
     "message": "Ha ezt egy másik eszközhöz is hozzá kell adni, lentebb található a hitelesítő alkalmazás QR kódja (vagy kulcsa)."
@@ -1710,11 +1775,11 @@
   "twoFactorDuoDesc": {
     "message": "A Bitwarden alkalmazás információjának megadása a Duo Admin panelről."
   },
-  "twoFactorDuoIntegrationKey": {
-    "message": "Integrációs kulcs"
+  "twoFactorDuoClientId": {
+    "message": "Ügyfél azonosító"
   },
-  "twoFactorDuoSecretKey": {
-    "message": "Titkos kulcs"
+  "twoFactorDuoClientSecret": {
+    "message": "Ügyfél titkos kód"
   },
   "twoFactorDuoApiHostname": {
     "message": "API kiszolgálónév"
@@ -2749,9 +2814,6 @@
   "invited": {
     "message": "Meghívott"
   },
-  "accepted": {
-    "message": "Elfogadva"
-  },
   "confirmed": {
     "message": "Megerősítve"
   },
@@ -2778,12 +2840,6 @@
   },
   "userDesc": {
     "message": "Normál felhasználó a szervezeti gyűjtemények elérésével."
-  },
-  "manager": {
-    "message": "Menedzser"
-  },
-  "managerDesc": {
-    "message": "A menedzserek hozzáférhetnek a szervezet összes gyűjteményéhez, valamint kezelhetik azokat."
   },
   "all": {
     "message": "Összes"
@@ -3241,6 +3297,27 @@
   "device": {
     "message": "Eszköz"
   },
+  "creatingAccountOn": {
+    "message": "Fiók létrehozása:"
+  },
+  "checkYourEmail": {
+    "message": "Email cím postaláda ellenőrzése"
+  },
+  "followTheLinkInTheEmailSentTo": {
+    "message": "Kövessük a hivatkozást az elküldött emailben"
+  },
+  "andContinueCreatingYourAccount": {
+    "message": "és folytassuk a fiók létrehozását."
+  },
+  "noEmail": {
+    "message": "Nem érkezett email?"
+  },
+  "goBack": {
+    "message": "Vissza"
+  },
+  "toEditYourEmailAddress": {
+    "message": "az email cím szerkesztéséhez."
+  },
   "view": {
     "message": "Megtekintés"
   },
@@ -3387,6 +3464,9 @@
   },
   "deleteRecoverConfirmDesc": {
     "message": "A Bitwarden fiók törlését kértük. Kattintás a lenti gombra a megerősítéshez."
+  },
+  "deleteRecoverOrgConfirmDesc": {
+    "message": "A saját Bitwarden szervezet törlése lett kérve."
   },
   "myOrganization": {
     "message": "Saját szervezet"
@@ -3625,6 +3705,15 @@
       }
     }
   },
+  "subscriptionSeatMaxReached": {
+    "message": "$COUNT$ tagnál több nem hívható meg az előfizetői helyek növelése nélkül.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "50"
+      }
+    }
+  },
   "seatsToAdd": {
     "message": "Hozzáadandó helyek"
   },
@@ -3687,6 +3776,21 @@
   },
   "nothingSelected": {
     "message": "Nincs kiválasztva semmi."
+  },
+  "receiveMarketingEmails": {
+    "message": "Emaileket kaphatunk a Bitwardentől bejelentésekről, tanácsokról és kutatási lehetőségekről."
+  },
+  "unsubscribe": {
+    "message": "Leiratkozás"
+  },
+  "atAnyTime": {
+    "message": "bármikor."
+  },
+  "byContinuingYouAgreeToThe": {
+    "message": "A folytatással elfogadjuk"
+  },
+  "and": {
+    "message": "és"
   },
   "acceptPolicies": {
     "message": "A doboz bejelölésével elfogadjuk a következőket:"
@@ -4080,6 +4184,9 @@
   },
   "thisWindowWillCloseIn5Seconds": {
     "message": "Ez az ablak 5 másodpercen belül automatikusan bezárul."
+  },
+  "youMayCloseThisWindow": {
+    "message": "Most már bezárható ez az ablak."
   },
   "includeAllTeamsFeatures": {
     "message": "Összes Csapat funkció, továbbá:"
@@ -4537,12 +4644,6 @@
   "permission": {
     "message": "Jogosultság"
   },
-  "managerPermissions": {
-    "message": "Jogosultságok kezelése"
-  },
-  "adminPermissions": {
-    "message": "Adminisztrátori jogosultságok"
-  },
   "accessEventLogs": {
     "message": "Eseménynapló elérése"
   },
@@ -4566,9 +4667,6 @@
   },
   "deleteAnyCollection": {
     "message": "Bármely gyűjtemény törlése"
-  },
-  "manageAssignedCollections": {
-    "message": "Hozzárendelt gyűjtemények kezelése"
   },
   "editAssignedCollections": {
     "message": "Hozzárendelt gyűjtemények szerkesztése"
@@ -5555,6 +5653,39 @@
   },
   "rotateBillingSyncTokenTitle": {
     "message": "A Számlázási szinkron vezérjel gördülő váltása érvényteleníti ez előző vezérjelet."
+  },
+  "selfHostedServer": {
+    "message": "saját üzemeltetésű"
+  },
+  "customEnvironment": {
+    "message": "Egyedi környezet"
+  },
+  "selfHostedBaseUrlHint": {
+    "message": "Adjuk meg a helyileg tárolt Bitwarden telepítés alap webcímét. Példa: https://bitwarden.company.com"
+  },
+  "selfHostedCustomEnvHeader": {
+    "message": "Speciális konfigurációhoz külön-külön megadhatjuk az egyes szolgáltatások alap webcímét."
+  },
+  "selfHostedEnvFormInvalid": {
+    "message": "Hozzá kell adni az alapszerver webcímét vagy legalább egy egyedi környezetet."
+  },
+  "apiUrl": {
+    "message": "API szerver webcím"
+  },
+  "webVaultUrl": {
+    "message": "Webes széf szerver webcím"
+  },
+  "identityUrl": {
+    "message": "Személyazonosság szerver webcím"
+  },
+  "notificationsUrl": {
+    "message": "Értesítési szerver webcím"
+  },
+  "iconsUrl": {
+    "message": "Ikonok szerver webcím"
+  },
+  "environmentSaved": {
+    "message": "A környezeti webcímek mentésre kerültek."
   },
   "selfHostingTitle": {
     "message": "Saját kiszolgáló"
@@ -6597,12 +6728,6 @@
   "restrictedCollectionAssignmentDesc": {
     "message": "Csak a saját kezelésű gyűjteményeket lehet hozzárendelni."
   },
-  "accessAllCollectionsDesc": {
-    "message": "Hozzáférés kiosztása az összes jelenlegi és jövőbeli gyűjteményhez."
-  },
-  "accessAllCollectionsHelp": {
-    "message": "Bejelöllve lecseréli az összes gyűjtemény jogosultságot."
-  },
   "selectMembers": {
     "message": "Tagok kválasztása"
   },
@@ -6644,12 +6769,6 @@
   },
   "group": {
     "message": "Csoport"
-  },
-  "groupAccessAll": {
-    "message": "A csoport elérheti és módosíthatja az összes elemet."
-  },
-  "memberAccessAll": {
-    "message": "Ez a felhasználó minden elemhez hozzáférhet és módosíthatja az összes elemet."
   },
   "domainVerification": {
     "message": "Domain ellenőrzés"
@@ -7586,6 +7705,9 @@
   "alreadyHaveAccount": {
     "message": "Van már saját fiók?"
   },
+  "toggleSideNavigation": {
+    "message": "Toggle side navigation"
+  },
   "skipToContent": {
     "message": "Ugrás a tartalomra"
   },
@@ -7677,13 +7799,6 @@
     "message": "fitetési metódus hozzáadása",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'To maintain your subscription for $ORG$, add a payment method.'"
   },
-  "collectionEnhancementsDesc": {
-    "message": "Adjunk hozzá új beállításokat és jogosultságokat a nagyobb rugalmasság érdekében. Cseréljük le a Kezelő szerepet a \"kezelheti\" jogosultsággal és vezessünk be olyan opciókat, amelyek lehetővé teszik a felhasználók számára gyűjtemények létrehozását, valamint a gyűjtemények adminisztrátori hozzáférésének korlátozását.",
-    "description": "This describes new features and improvements for user roles and collections"
-  },
-  "collectionEnhancementsLearnMore": {
-    "message": "További információ a gyűjteménykezelésről"
-  },
   "organizationInformation": {
     "message": "Szervezeti információ"
   },
@@ -7695,12 +7810,6 @@
   },
   "smFreeTrialConfirmationEmail": {
     "message": "A megerősítő email elküldésre került az email címre:"
-  },
-  "confirmCollectionEnhancementsDialogTitle": {
-    "message": "Ez a művelet visszavonhatatlan."
-  },
-  "confirmCollectionEnhancementsDialogContent": {
-    "message": "Ezt a funkciót bekapcsolva a kezelői szerepkör elavul és az egy Kezelheti jogosultsággal kerül felváltásra. Ez eltart néhány pillanatig. Ne hajtsunk végre semmilyen szervezeti változtatást, amíg az be nem fejeződött. Biztosan folytatjuk?"
   },
   "sorryToSeeYouGo": {
     "message": "Sorry to see you go! Help improve Bitwarden by sharing why you're canceling.",
@@ -8124,11 +8233,17 @@
   "setUpGithubActions": {
     "message": "Set up Github Actions"
   },
+  "setUpKubernetes": {
+    "message": "Kubernetes beüzemelése"
+  },
   "setUpGitlabCICD": {
     "message": "Set up GitLab CI/CD"
   },
   "setUpAnsible": {
     "message": "Set up Ansible"
+  },
+  "rustSDKRepo": {
+    "message": "Rust tár megtekintése"
   },
   "cSharpSDKRepo": {
     "message": "View C# repository"
@@ -8193,6 +8308,40 @@
   "manageBillingFromProviderPortalMessage": {
     "message": "A számlázás kezelése a szolgáltatói portálon keresztül"
   },
+  "viewItemsIn": {
+    "message": "$NAME$ elemek megtekintése",
+    "description": "Button to view the contents of a folder or collection",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Work"
+      }
+    }
+  },
+  "backTo": {
+    "message": "Vissza: $NAME$",
+    "description": "Navigate back to a previous folder or collection",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Work"
+      }
+    }
+  },
+  "back": {
+    "message": "Vissza",
+    "description": "Button text to navigate back"
+  },
+  "removeItem": {
+    "message": "$NAME$ eltávolítása",
+    "description": "Remove a selected option, such as a folder or collection",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Work"
+      }
+    }
+  },
   "viewInfo": {
     "message": "Infó megtekintése"
   },
@@ -8223,6 +8372,12 @@
       }
     }
   },
+  "lowKDFIterationsBanner": {
+    "message": "Alacsony a KDF iterációk száma. Növeljük az iterációk számát a fiók biztonságának javítása érdekében."
+  },
+  "changeKDFSettings": {
+    "message": "KDF beállítások megváltoztatása"
+  },
   "secureYourInfrastructure": {
     "message": "Infrastruktúra biztosítása"
   },
@@ -8234,5 +8389,140 @@
   },
   "upgradeOrganizationCloseSecurityGapsDesc": {
     "message": "Stay ahead of security vulnerabilities by upgrading to a paid plan for enhanced monitoring."
+  },
+  "approveAllRequests": {
+    "message": "Összes kérelem jóváhagyása"
+  },
+  "allLoginRequestsApproved": {
+    "message": "At összes bejelentkezési kérés óváhagyásra került."
+  },
+  "payPal": {
+    "message": "PayPal"
+  },
+  "bitcoin": {
+    "message": "Bitcoin"
+  },
+  "updatedTaxInformation": {
+    "message": "Frissített adó információ"
+  },
+  "unverified": {
+    "message": "Nem ellenőrzött"
+  },
+  "verified": {
+    "message": "Ellenőrzött"
+  },
+  "viewSecret": {
+    "message": "Titkos kód megtekintése"
+  },
+  "noClients": {
+    "message": "Nincsenek listázandó ügyfelek."
+  },
+  "providerBillingEmailHint": {
+    "message": "Erre az email címre érkezik az ehhez a szolgáltatóhoz kapcsolódó összes számla.",
+    "description": "A hint that shows up on the Provider setup page to inform the admin the billing email will receive the provider's invoices."
+  },
+  "upgradeOrganizationEnterprise": {
+    "message": "A biztonsági kockázatok azonosítása a tagok hozzáférésének ellenőrzésével"
+  },
+  "onlyAvailableForEnterpriseOrganization": {
+    "message": "Vállalati tervre frissítéssel gyorsan megtekinthető a tagok hozzáférése a szervezetben."
+  },
+  "date": {
+    "message": "Dátum"
+  },
+  "exportClientReport": {
+    "message": "Ügyfél jelentés exportálás"
+  },
+  "memberAccessReport": {
+    "message": "Tagi hozzáférés"
+  },
+  "memberAccessReportDesc": {
+    "message": "Győződjünk meg arról, hogy a tagok hozzáférnek a megfelelő hitelesítő adatokhoz és fiókjaik biztonságosak. Ezzel a jelentéssel szerezhetjük be a tagok hozzáférését és a fiókkonfigurációkat tartalmazó CSV fájlt."
+  },
+  "higherKDFIterations": {
+    "message": "A magasabb szintű KDF iterációk segíthetnek megvédeni mesterjelszót a támadók erőszakossága ellen."
+  },
+  "incrementsOf100,000": {
+    "message": "100 000-es lépésekben"
+  },
+  "smallIncrements": {
+    "message": "kis lépésekben"
+  },
+  "kdfIterationRecommends": {
+    "message": "Célszerű 600 000 vagy nagyobb lépésben"
+  },
+  "kdfToHighWarningIncreaseInIncrements": {
+    "message": "Régebbi eszközökön a KDF túl magas beállítása teljesítmény problémákat okozhat. Növeljük az értéket $VALUE$ lépésbern és teszteljük az eszközöket.",
+    "placeholders": {
+      "value": {
+        "content": "$1",
+        "example": "increments of 100,000"
+      }
+    }
+  },
+  "providerReinstate": {
+    "message": " Lépjünk kapcsolatba az ügyfélszolgálattal az előfizetés visszaállításához."
+  },
+  "secretPeopleDescription": {
+    "message": "Adjunk hozzáférést csoportoknak vagy személyeknek ehhez a titkos kódhoz. A személyek számára beállított engedélyek felülírják a csoportok által beállított engedélyeket."
+  },
+  "secretPeopleEmptyMessage": {
+    "message": "Személyek vagy csoportok hozzáadása a hozzáférés megosztásához ennél a tiktos kódnál"
+  },
+  "secretMachineAccountsDescription": {
+    "message": "Gépi fiókok elérésének engedélyezése ehhez a titkos kódhoz."
+  },
+  "secretMachineAccountsEmptyMessage": {
+    "message": "Gépi fiókok hozzáadása a titkos kód hozzáféréséhez"
+  },
+  "smAccessRemovalWarningSecretTitle": {
+    "message": "Hozzáférés eltávolítása ennél a titkos kódnál"
+  },
+  "smAccessRemovalSecretMessage": {
+    "message": "Ez a művelet eltávolítja a hozzáférést ennél a titkos kódnál."
+  },
+  "invoice": {
+    "message": "Számla"
+  },
+  "unassignedSeatsAvailable": {
+    "message": "$SEATS$ kiosztatlan hely van.",
+    "placeholders": {
+      "seats": {
+        "content": "$1",
+        "example": "10"
+      }
+    },
+    "description": "A message showing how many unassigned seats are available for a provider."
+  },
+  "contactYourProviderForAdditionalSeats": {
+    "message": "További helyek vásárlásához forduljunk a szolgáltatóhoz."
+  },
+  "open": {
+    "message": "Megnyitás",
+    "description": "The status of an invoice."
+  },
+  "uncollectible": {
+    "message": "Begyűjthetetlen",
+    "description": "The status of an invoice."
+  },
+  "clientDetails": {
+    "message": "Ügyfél részletek"
+  },
+  "downloadCSV": {
+    "message": "CSV letöltése"
+  },
+  "monthlySubscriptionUserSeatsMessage": {
+    "message": "Az előfizetés módosítása a következő számlázási időszakban arányos költségeket eredményez a számlázási végösszegben."
+  },
+  "annualSubscriptionUserSeatsMessage": {
+    "message": "Az előfizetés módosítása a havi számlázási ciklusban arányos költségeket eredményez."
+  },
+  "billingHistoryDescription": {
+    "message": "Töltsük le a CSV fájlt, hogy minden számlázási dátumhoz megkapjuk az ügyfél részleteket. Az arányos költségeket a CSV nem tartalmazza és eltérhetnek a hivatkozott számlától. A legpontosabb számlázási részletekért tekintsük meg havi számlákat.",
+    "description": "A paragraph on the Billing History page of the Provider Portal letting users know they can download a CSV report for their invoices that does not include prorations."
+  },
+  "noInvoicesToList": {
+    "message": "Nincsenek listázandó számlák.",
+    "description": "A paragraph on the Billing History page of the Provider Portal letting users know they can download a CSV report for their invoices that does not include prorations."
   }
 }

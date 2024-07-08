@@ -9,18 +9,22 @@ import { OrganizationPlansComponent, TaxInfoComponent } from "@bitwarden/web-vau
 import { PaymentMethodWarningsModule } from "@bitwarden/web-vault/app/billing/shared";
 import { OssModule } from "@bitwarden/web-vault/app/oss.module";
 
-import { ProviderSubscriptionComponent } from "../../billing/providers";
 import {
-  CreateClientOrganizationComponent,
-  ManageClientOrganizationsComponent,
-  ManageClientOrganizationNameComponent,
-  ManageClientOrganizationSubscriptionComponent,
-} from "../../billing/providers/clients";
+  CreateClientDialogComponent,
+  NoClientsComponent,
+  ManageClientNameDialogComponent,
+  ManageClientsComponent,
+  ManageClientSubscriptionDialogComponent,
+  ProviderBillingHistoryComponent,
+  ProviderPaymentMethodComponent,
+  ProviderSelectPaymentMethodDialogComponent,
+  ProviderSubscriptionComponent,
+  ProviderSubscriptionStatusComponent,
+} from "../../billing/providers";
 
 import { AddOrganizationComponent } from "./clients/add-organization.component";
 import { ClientsComponent } from "./clients/clients.component";
 import { CreateOrganizationComponent } from "./clients/create-organization.component";
-import { ProviderPermissionsGuard } from "./guards/provider-permissions.guard";
 import { AcceptProviderComponent } from "./manage/accept-provider.component";
 import { BulkConfirmComponent } from "./manage/bulk/bulk-confirm.component";
 import { BulkRemoveComponent } from "./manage/bulk/bulk-remove.component";
@@ -61,12 +65,17 @@ import { SetupComponent } from "./setup/setup.component";
     SetupComponent,
     SetupProviderComponent,
     UserAddEditComponent,
-    CreateClientOrganizationComponent,
-    ManageClientOrganizationsComponent,
-    ManageClientOrganizationNameComponent,
-    ManageClientOrganizationSubscriptionComponent,
+    CreateClientDialogComponent,
+    NoClientsComponent,
+    ManageClientsComponent,
+    ManageClientNameDialogComponent,
+    ManageClientSubscriptionDialogComponent,
+    ProviderBillingHistoryComponent,
     ProviderSubscriptionComponent,
+    ProviderSelectPaymentMethodDialogComponent,
+    ProviderPaymentMethodComponent,
+    ProviderSubscriptionStatusComponent,
   ],
-  providers: [WebProviderService, ProviderPermissionsGuard],
+  providers: [WebProviderService],
 })
 export class ProvidersModule {}

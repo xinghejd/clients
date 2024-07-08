@@ -56,10 +56,10 @@ import { SystemService } from "@bitwarden/common/platform/services/system.servic
 import { GlobalStateProvider, StateProvider } from "@bitwarden/common/platform/state";
 // eslint-disable-next-line import/no-restricted-paths -- Implementation for memory storage
 import { MemoryStorageService as MemoryStorageServiceForStateProviders } from "@bitwarden/common/platform/state/storage/memory-storage.service";
-import { PasswordGenerationServiceAbstraction } from "@bitwarden/common/tools/generator/password";
 import { VaultTimeoutStringType } from "@bitwarden/common/types/vault-timeout.type";
 import { CipherService as CipherServiceAbstraction } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { DialogService } from "@bitwarden/components";
+import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legacy";
 
 import { PinServiceAbstraction } from "../../../../../libs/auth/src/common/abstractions";
 import { DesktopAutofillSettingsService } from "../../autofill/services/desktop-autofill-settings.service";
@@ -151,7 +151,7 @@ const safeProviders: SafeProvider[] = [
   }),
   safeProvider({
     provide: MessageSender,
-    useFactory: (subject: Subject<Message<object>>) =>
+    useFactory: (subject: Subject<Message<Record<string, unknown>>>) =>
       MessageSender.combine(
         new ElectronRendererMessageSender(), // Communication with main process
         new SubjectMessageSender(subject), // Communication with ourself
@@ -160,7 +160,7 @@ const safeProviders: SafeProvider[] = [
   }),
   safeProvider({
     provide: MessageListener,
-    useFactory: (subject: Subject<Message<object>>) =>
+    useFactory: (subject: Subject<Message<Record<string, unknown>>>) =>
       new MessageListener(
         merge(
           subject.asObservable(), // For messages from the same context

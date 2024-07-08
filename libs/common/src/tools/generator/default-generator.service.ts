@@ -1,4 +1,4 @@
-import { firstValueFrom, share, timer, ReplaySubject, Observable } from "rxjs";
+import { firstValueFrom, Observable } from "rxjs";
 
 // FIXME: use index.ts imports once policy abstractions and models
 // implement ADR-0002
@@ -52,13 +52,6 @@ export class DefaultGeneratorService<Options, Policy> implements GeneratorServic
     const evaluator$ = this.policy.getAll$(this.strategy.policy, userId).pipe(
       // create the evaluator from the policies
       this.strategy.toEvaluator(),
-
-      // cache evaluator in a replay subject to amortize creation cost
-      // and reduce GC pressure.
-      share({
-        connector: () => new ReplaySubject(1),
-        resetOnRefCountZero: () => timer(this.strategy.cache_ms),
-      }),
     );
 
     return evaluator$;
