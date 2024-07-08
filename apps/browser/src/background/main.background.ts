@@ -8,7 +8,6 @@ import {
   AuthRequestServiceAbstraction,
   AuthRequestService,
   LoginEmailServiceAbstraction,
-  LoginEmailService,
   LogoutReason,
 } from "@bitwarden/auth/common";
 import { ApiService as ApiServiceAbstraction } from "@bitwarden/common/abstractions/api.service";
@@ -148,12 +147,6 @@ import { NotificationsService } from "@bitwarden/common/services/notifications.s
 import { SearchService } from "@bitwarden/common/services/search.service";
 import { VaultTimeoutSettingsService } from "@bitwarden/common/services/vault-timeout/vault-timeout-settings.service";
 import {
-  legacyPasswordGenerationServiceFactory,
-  legacyUsernameGenerationServiceFactory,
-} from "@bitwarden/common/tools/generator";
-import { PasswordGenerationServiceAbstraction } from "@bitwarden/common/tools/generator/password";
-import { UsernameGenerationServiceAbstraction } from "@bitwarden/common/tools/generator/username";
-import {
   PasswordStrengthService,
   PasswordStrengthServiceAbstraction,
 } from "@bitwarden/common/tools/password-strength";
@@ -179,6 +172,12 @@ import { FolderApiService } from "@bitwarden/common/vault/services/folder/folder
 import { FolderService } from "@bitwarden/common/vault/services/folder/folder.service";
 import { TotpService } from "@bitwarden/common/vault/services/totp.service";
 import { VaultSettingsService } from "@bitwarden/common/vault/services/vault-settings/vault-settings.service";
+import {
+  legacyPasswordGenerationServiceFactory,
+  PasswordGenerationServiceAbstraction,
+  legacyUsernameGenerationServiceFactory,
+  UsernameGenerationServiceAbstraction,
+} from "@bitwarden/generator-legacy";
 import {
   ImportApiService,
   ImportApiServiceAbstraction,
@@ -267,8 +266,8 @@ export default class MainBackground {
   collectionService: CollectionServiceAbstraction;
   vaultTimeoutService: VaultTimeoutService;
   vaultTimeoutSettingsService: VaultTimeoutSettingsServiceAbstraction;
-  syncService: SyncService;
   passwordGenerationService: PasswordGenerationServiceAbstraction;
+  syncService: SyncService;
   passwordStrengthService: PasswordStrengthServiceAbstraction;
   totpService: TotpServiceAbstraction;
   autofillService: AutofillServiceAbstraction;
@@ -708,8 +707,6 @@ export default class MainBackground {
       this.stateProvider,
     );
 
-    this.loginEmailService = new LoginEmailService(this.stateProvider);
-
     this.ssoLoginService = new SsoLoginService(this.stateProvider);
 
     this.userVerificationApiService = new UserVerificationApiService(this.apiService);
@@ -869,6 +866,7 @@ export default class MainBackground {
       this.organizationService,
       this.eventUploadService,
       this.authService,
+      this.accountService,
     );
     this.totpService = new TotpService(this.cryptoFunctionService, this.logService);
 
@@ -1254,9 +1252,6 @@ export default class MainBackground {
       clearCaches();
 
       if (userId == null) {
-        this.loginEmailService.setRememberEmail(false);
-        await this.loginEmailService.saveEmailSettings();
-
         await this.refreshBadge();
         await this.refreshMenu();
         await this.overlayBackground?.updateOverlayCiphers(); // null in popup only contexts
