@@ -358,14 +358,6 @@ export class NativeMessagingBackground {
           break;
         } else if (message.response === "canceled") {
           break;
-        } else {
-          this.messagingService.send("showDialog", {
-            title: { key: "biometricsBrokenIPCMessage" },
-            content: { key: "biometricsBrokenIPCMessageDesc" },
-            acceptButtonText: { key: "ok" },
-            cancelButtonText: null,
-            type: "danger",
-          });
         }
 
         // Check for initial setup of biometric unlock
@@ -432,6 +424,13 @@ export class NativeMessagingBackground {
       }
       default:
         this.logService.error("NativeMessage, got unknown command: " + message.command);
+        this.messagingService.send("showDialog", {
+          title: { key: "biometricsBrokenIPCMessage" },
+          content: { key: "biometricsBrokenIPCMessageDesc" },
+          acceptButtonText: { key: "ok" },
+          cancelButtonText: null,
+          type: "danger",
+        });
         break;
     }
 

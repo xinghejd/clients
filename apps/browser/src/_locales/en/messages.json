@@ -1957,7 +1957,7 @@
     "message": "Account not found in desktop app"
   },
   "biometricsNoUserDesc": {
-    "message": "The user you are trying to unlock in the browser extension is not signed in to the desktop application. Please sign in to the desktop application and try again."
+    "message": "The account you are unlocking is not signed in on the desktop app. Please sign in to the desktop app and try again."
   },
   "biometricsNoClientKeyHalfTitle": {
     "message": "Password or PIN required"
