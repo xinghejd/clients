@@ -1,5 +1,6 @@
 const child = require("child_process");
 const fse = require("fs-extra");
+const { exit } = require("process");
 
 const paths = {
   macosBuild: "./macos/build",
@@ -9,7 +10,7 @@ const paths = {
   macOsProject: "./macos/desktop.xcodeproj",
 };
 
-async function buildMacOs(cb) {
+async function buildMacOs() {
   if (fse.existsSync(paths.macosBuild)) {
     fse.removeSync(paths.macosBuild);
   }
@@ -48,4 +49,9 @@ function stdOutProc(proc) {
   proc.stderr.on("data", (data) => console.error(data.toString()));
 }
 
-exports["build:macos"] = buildMacOs;
+buildMacOs()
+  .then(() => console.log("macOS build complete"))
+  .catch((err) => {
+    console.error("macOS build failed", err);
+    exit(-1);
+  });
