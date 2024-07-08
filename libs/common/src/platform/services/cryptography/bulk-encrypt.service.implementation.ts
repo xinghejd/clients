@@ -35,6 +35,10 @@ export class BulkEncryptServiceImplementation implements BulkEncryptService {
     items: Decryptable<T>[],
     key: SymmetricCryptoKey,
   ): Promise<T[]> {
+    if (key == null) {
+      throw new Error("No encryption key provided.");
+    }
+
     if (items == null || items.length < 1) {
       return [];
     }
