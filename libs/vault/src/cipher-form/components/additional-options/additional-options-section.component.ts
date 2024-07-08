@@ -1,6 +1,8 @@
+import { CommonModule } from "@angular/common";
 import { Component, OnInit } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, ReactiveFormsModule } from "@angular/forms";
+import { shareReplay } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { CipherRepromptType } from "@bitwarden/common/vault/enums";
@@ -13,6 +15,7 @@ import {
   TypographyModule,
 } from "@bitwarden/components";
 
+import { PasswordRepromptService } from "../../../services/password-reprompt.service";
 import { CipherFormContainer } from "../../cipher-form-container";
 
 @Component({
@@ -28,6 +31,7 @@ import { CipherFormContainer } from "../../cipher-form-container";
     FormFieldModule,
     ReactiveFormsModule,
     CheckboxModule,
+    CommonModule,
   ],
 })
 export class AdditionalOptionsSectionComponent implements OnInit {
@@ -36,9 +40,14 @@ export class AdditionalOptionsSectionComponent implements OnInit {
     reprompt: [false],
   });
 
+  passwordRepromptEnabled$ = this.passwordRepromptService.enabled$.pipe(
+    shareReplay({ refCount: false, bufferSize: 1 }),
+  );
+
   constructor(
     private cipherFormContainer: CipherFormContainer,
     private formBuilder: FormBuilder,
+    private passwordRepromptService: PasswordRepromptService,
   ) {
     this.cipherFormContainer.registerChildForm("additionalOptions", this.additionalOptionsForm);
 

@@ -1,9 +1,11 @@
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { mock, MockProxy } from "jest-mock-extended";
+import { BehaviorSubject } from "rxjs";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
+import { PasswordRepromptService } from "../../../services/password-reprompt.service";
 import { CipherFormContainer } from "../../cipher-form-container";
 
 import { AdditionalOptionsSectionComponent } from "./additional-options-section.component";
@@ -12,13 +14,21 @@ describe("AdditionalOptionsSectionComponent", () => {
   let component: AdditionalOptionsSectionComponent;
   let fixture: ComponentFixture<AdditionalOptionsSectionComponent>;
   let cipherFormProvider: MockProxy<CipherFormContainer>;
+  let passwordRepromptService: MockProxy<PasswordRepromptService>;
+  let passwordRepromptEnabled$: BehaviorSubject<boolean>;
 
   beforeEach(async () => {
     cipherFormProvider = mock<CipherFormContainer>();
+
+    passwordRepromptService = mock<PasswordRepromptService>();
+    passwordRepromptEnabled$ = new BehaviorSubject(true);
+    passwordRepromptService.enabled$ = passwordRepromptEnabled$;
+
     await TestBed.configureTestingModule({
       imports: [AdditionalOptionsSectionComponent],
       providers: [
         { provide: CipherFormContainer, useValue: cipherFormProvider },
+        { provide: PasswordRepromptService, useValue: passwordRepromptService },
         { provide: I18nService, useValue: mock<I18nService>() },
       ],
     }).compileComponents();
@@ -71,5 +81,19 @@ describe("AdditionalOptionsSectionComponent", () => {
       notes: "original notes",
       reprompt: true,
     });
+  });
+
+  it("hides password reprompt checkbox when disabled", () => {
+    passwordRepromptEnabled$.next(true);
+    fixture.detectChanges();
+
+    let checkbox = fixture.nativeElement.querySelector("input[formControlName='reprompt']");
+    expect(checkbox).not.toBeNull();
+
+    passwordRepromptEnabled$.next(false);
+    fixture.detectChanges();
+
+    checkbox = fixture.nativeElement.querySelector("input[formControlName='reprompt']");
+    expect(checkbox).toBeNull();
   });
 });
