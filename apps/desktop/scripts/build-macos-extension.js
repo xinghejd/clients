@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-var-requires, no-console */
 const child = require("child_process");
 const fse = require("fs-extra");
 const { exit } = require("process");
