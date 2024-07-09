@@ -1,5 +1,5 @@
 import { DatePipe, NgIf } from "@angular/common";
-import { Component, inject, OnInit } from "@angular/core";
+import { Component, inject, OnInit, Optional } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, ReactiveFormsModule } from "@angular/forms";
 import { map } from "rxjs";
@@ -15,10 +15,12 @@ import {
   PopoverModule,
   SectionComponent,
   SectionHeaderComponent,
+  ToastService,
   TypographyModule,
 } from "@bitwarden/components";
 import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legacy";
 
+import { TotpCaptureService } from "../../abstractions/totp-capture.service";
 import { CipherFormContainer } from "../../cipher-form-container";
 
 @Component({
@@ -47,11 +49,11 @@ export class LoginDetailsSectionComponent implements OnInit {
   });
 
   /**
-   * Whether the TOTP field can be captured from the current tab. Only available in the web extension.
+   * Whether the TOTP field can be captured from the current tab. Only available in the browser extension.
    * @protected
    */
   protected get canCaptureTotp() {
-    return false; //BrowserApi.isWebExtensionsApi && this.loginDetailsForm.controls.totp.enabled;
+    return this.totpCaptureService != null && this.loginDetailsForm.controls.totp.enabled;
   }
 
   private datePipe = inject(DatePipe);
@@ -83,6 +85,8 @@ export class LoginDetailsSectionComponent implements OnInit {
     private formBuilder: FormBuilder,
     private i18nService: I18nService,
     private generatorService: PasswordGenerationServiceAbstraction,
+    private toastService: ToastService,
+    @Optional() private totpCaptureService?: TotpCaptureService,
   ) {
     this.cipherFormContainer.registerChildForm("loginDetails", this.loginDetailsForm);
 
@@ -136,7 +140,28 @@ export class LoginDetailsSectionComponent implements OnInit {
     this.loginDetailsForm.controls.password.patchValue(await this.generateNewPassword());
   }
 
-  captureTotpFromTab = async () => {};
+  captureTotpFromTab = async () => {
+    if (!this.canCaptureTotp) {
+      return;
+    }
+    try {
+      const totp = await this.totpCaptureService.captureTotpSecret();
+      if (totp) {
+        this.loginDetailsForm.controls.totp.patchValue(totp);
+        this.toastService.showToast({
+          variant: "success",
+          title: null,
+          message: this.i18nService.t("totpCaptureSuccess"),
+        });
+      }
+    } catch {
+      this.toastService.showToast({
+        variant: "error",
+        title: this.i18nService.t("errorOccurred"),
+        message: this.i18nService.t("totpCaptureError"),
+      });
+    }
+  };
 
   removePasskey = async () => {
     // Fido2Credentials do not have a form control, so update directly
