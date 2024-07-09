@@ -1,0 +1,76 @@
+<bit-section [formGroup]="loginDetailsForm">
+  <bit-section-header>
+    <h2 bitTypography="h5">
+      {{ "loginCredentials" | i18n }}
+    </h2>
+  </bit-section-header>
+
+  <bit-card>
+    <bit-form-field>
+      <bit-label>{{ "username" | i18n }}</bit-label>
+      <input bitInput formControlName="username" />
+    </bit-form-field>
+
+    <bit-form-field>
+      <bit-label>{{ "password" | i18n }}</bit-label>
+      <input bitInput formControlName="password" type="password" #passwordInput />
+      <button
+        type="button"
+        bitIconButton
+        bitSuffix
+        *ngIf="viewHiddenFields"
+        data-testid="toggle-password-visibility"
+        bitPasswordInputToggle
+        [passwordInput]="passwordInput"
+      ></button>
+    </bit-form-field>
+
+    <bit-form-field *ngIf="hasPasskey">
+      <bit-label>{{ "typePasskey" | i18n }}</bit-label>
+      <input bitInput disabled [value]="fido2CredentialCreationDateValue" />
+      <button
+        type="button"
+        bitIconButton="bwi-minus-circle"
+        buttonType="danger"
+        bitSuffix
+        *ngIf="loginDetailsForm.enabled"
+        [bitAction]="removePasskey"
+        data-testid="remove-passkey-button"
+        [appA11yTitle]="'removePasskey' | i18n"
+      ></button>
+    </bit-form-field>
+
+    <bit-form-field>
+      <bit-label>
+        {{ "authenticatorKey" | i18n }}
+        <button
+          bitIconButton="bwi-question-circle"
+          type="button"
+          size="small"
+          [bitPopoverTriggerFor]="totpPopover"
+        ></button>
+        <bit-popover #totpPopover [title]="'totpHelperTitle' | i18n">
+          <p>{{ (canCaptureTotp ? "totpHelperWithCapture" : "totpHelper") | i18n }}</p>
+        </bit-popover>
+      </bit-label>
+      <input bitInput formControlName="totp" type="password" #totpInput />
+      <button
+        type="button"
+        bitIconButton
+        bitSuffix
+        *ngIf="viewHiddenFields"
+        data-testid="toggle-totp-visibility"
+        bitPasswordInputToggle
+        [passwordInput]="totpInput"
+      ></button>
+      <button
+        type="button"
+        bitIconButton="bwi-camera"
+        bitSuffix
+        *ngIf="canCaptureTotp"
+        [bitAction]="captureTotpFromTab"
+        [appA11yTitle]="'totpCapture' | i18n"
+      ></button>
+    </bit-form-field>
+  </bit-card>
+</bit-section>
