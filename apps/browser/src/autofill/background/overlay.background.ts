@@ -362,7 +362,17 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     cipher: CipherView,
     showLoginAccountCreation: boolean,
   ): { fullName: string; username?: string } {
-    const fullName = `${cipher.identity.firstName} ${cipher.identity.lastName}`;
+    const { firstName, lastName } = cipher.identity;
+
+    let fullName = "";
+    if (firstName) {
+      fullName += firstName;
+    }
+
+    if (lastName) {
+      fullName += ` ${lastName}`;
+      fullName = fullName.trim();
+    }
 
     if (
       !showLoginAccountCreation ||
