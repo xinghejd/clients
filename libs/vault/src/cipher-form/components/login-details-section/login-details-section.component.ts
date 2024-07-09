@@ -93,19 +93,20 @@ export class LoginDetailsSectionComponent implements OnInit {
         map(() => this.loginDetailsForm.getRawValue()),
       )
       .subscribe((value) => {
-        const patchedLogin = Object.assign(this.loginView, {
+        Object.assign(this.loginView, {
           username: value.username,
           password: value.password,
           totp: value.totp,
         } as LoginView);
 
         this.cipherFormContainer.patchCipher({
-          login: patchedLogin,
+          login: this.loginView,
         });
       });
   }
 
   async ngOnInit() {
+    this.loginView = new LoginView();
     if (this.cipherFormContainer.originalCipherView?.login) {
       this.initFromExistingCipher(this.cipherFormContainer.originalCipherView.login);
     } else {
@@ -118,7 +119,7 @@ export class LoginDetailsSectionComponent implements OnInit {
   }
 
   private initFromExistingCipher(existingLogin: LoginView) {
-    this.loginView = existingLogin;
+    Object.assign(this.loginView, existingLogin);
     this.loginDetailsForm.patchValue({
       username: this.loginView.username,
       password: this.loginView.password,
@@ -132,13 +133,18 @@ export class LoginDetailsSectionComponent implements OnInit {
   }
 
   private async initNewCipher() {
-    this.loginView = new LoginView();
-
     this.loginDetailsForm.controls.password.patchValue(await this.generateNewPassword());
   }
 
   captureTotpFromTab = async () => {};
-  removePasskey = async () => {};
+
+  removePasskey = async () => {
+    // Fido2Credentials do not have a form control, so update directly
+    this.loginView.fido2Credentials = null;
+    this.cipherFormContainer.patchCipher({
+      login: this.loginView,
+    });
+  };
 
   private async generateNewPassword() {
     const [options] = await this.generatorService.getOptions();
