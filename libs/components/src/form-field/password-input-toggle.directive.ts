@@ -30,6 +30,17 @@ export class BitPasswordInputToggleDirective implements AfterContentInit, OnChan
   @HostBinding("attr.aria-label") label = this.i18nService.t("toggleVisibility");
 
   /**
+   * Optional input control element to toggle the type of. If not provided, it will use the input element from the parent form field.
+   * Primarily used for scenarios where the toggle button is used with an *ngIf directive and the parent form field may be unavailable.
+   */
+  @Input()
+  passwordInput?: HTMLInputElement;
+
+  get formFieldInput() {
+    return this.passwordInput ?? this.formField.input;
+  }
+
+  /**
    * Click handler to toggle the state of the input type.
    */
   @HostListener("click") onClick() {
@@ -38,7 +49,7 @@ export class BitPasswordInputToggleDirective implements AfterContentInit, OnChan
 
     this.update();
 
-    this.formField.input?.focus();
+    this.formFieldInput?.focus();
   }
 
   constructor(
@@ -56,15 +67,15 @@ export class BitPasswordInputToggleDirective implements AfterContentInit, OnChan
   }
 
   ngAfterContentInit(): void {
-    this.toggled = this.formField.input.type !== "password";
+    this.toggled = this.formFieldInput?.type !== "password";
     this.button.icon = this.icon;
   }
 
   private update() {
     this.button.icon = this.icon;
-    if (this.formField.input?.type != null) {
-      this.formField.input.type = this.toggled ? "text" : "password";
-      this.formField.input.spellcheck = this.toggled ? false : undefined;
+    if (this.formFieldInput?.type != null) {
+      this.formFieldInput.type = this.toggled ? "text" : "password";
+      this.formFieldInput.spellcheck = this.toggled ? false : undefined;
     }
   }
 }
