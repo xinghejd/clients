@@ -46,7 +46,7 @@ export class ServiceAccountsListComponent implements OnDestroy {
 
   constructor(
     private i18nService: I18nService,
-    private platformUtilsService: PlatformUtilsService
+    private platformUtilsService: PlatformUtilsService,
   ) {
     this.selectionModel.changed
       .pipe(takeUntil(this.destroy$))
@@ -69,7 +69,7 @@ export class ServiceAccountsListComponent implements OnDestroy {
       this.platformUtilsService.showToast(
         "error",
         this.i18nService.t("errorOccurred"),
-        this.i18nService.t("nothingSelected")
+        this.i18nService.t("nothingSelected"),
       );
     }
   }

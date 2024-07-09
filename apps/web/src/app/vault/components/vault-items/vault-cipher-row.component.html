@@ -1,4 +1,14 @@
-<td bitCell [ngClass]="RowHeightClass" bit-row-selector appStopProp [disabled]="disabled"></td>
+<td bitCell [ngClass]="RowHeightClass" class="tw-min-w-fit">
+  <input
+    type="checkbox"
+    bitCheckbox
+    appStopProp
+    [disabled]="disabled"
+    [checked]="checked"
+    (change)="$event ? this.checkedToggled.next() : null"
+    [attr.aria-label]="'vaultItemSelect' | i18n"
+  />
+</td>
 <td bitCell [ngClass]="RowHeightClass" class="tw-min-w-fit">
   <app-vault-icon [cipher]="cipher"></app-vault-icon>
 </td>
@@ -11,8 +21,9 @@
       [routerLink]="[]"
       [queryParams]="{ itemId: cipher.id }"
       queryParamsHandling="merge"
-      title="{{ 'editItemWithName' | i18n : cipher.name }}"
+      title="{{ 'editItemWithName' | i18n: cipher.name }}"
       type="button"
+      appStopProp
     >
       {{ cipher.name }}
     </button>
@@ -38,11 +49,11 @@
   <br />
   <span class="tw-text-sm tw-text-muted" appStopProp>{{ cipher.subTitle }}</span>
 </td>
-<td bitCell [ngClass]="RowHeightClass" *ngIf="showOwner">
+<td bitCell [ngClass]="RowHeightClass" *ngIf="showOwner" class="tw-hidden lg:tw-table-cell">
   <app-org-badge
     [disabled]="disabled"
     [organizationId]="cipher.organizationId"
-    [organizationName]="cipher.organizationId | orgNameFromId : organizations"
+    [organizationName]="cipher.organizationId | orgNameFromId: organizations"
     appStopProp
   >
   </app-org-badge>
@@ -55,6 +66,7 @@
   ></app-collection-badge>
 </td>
 <td bitCell [ngClass]="RowHeightClass" *ngIf="showGroups"></td>
+<td bitCell [ngClass]="RowHeightClass" *ngIf="viewingOrgVault"></td>
 <td bitCell [ngClass]="RowHeightClass" class="tw-text-right">
   <button
     [disabled]="disabled"
@@ -85,11 +97,13 @@
         type="button"
         [href]="cipher.login.launchUri"
         target="_blank"
+        rel="noreferrer"
       >
         <i class="bwi bwi-fw bwi-share-square" aria-hidden="true"></i>
         {{ "launch" | i18n }}
       </a>
     </ng-container>
+
     <button bitMenuItem type="button" (click)="attachments()">
       <i class="bwi bwi-fw bwi-paperclip" aria-hidden="true"></i>
       {{ "attachments" | i18n }}

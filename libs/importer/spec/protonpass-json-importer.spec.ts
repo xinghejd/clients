@@ -1,9 +1,8 @@
 import { MockProxy } from "jest-mock-extended";
 
-import { FieldType } from "@bitwarden/common/enums";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { CipherType } from "@bitwarden/common/vault/enums/cipher-type";
+import { FieldType, CipherType } from "@bitwarden/common/vault/enums";
 
 import { ProtonPassJsonImporter } from "../src/importers";
 
@@ -32,9 +31,12 @@ describe("Protonpass Json Importer", () => {
     expect(uriView.uri).toEqual("https://example.com/");
     expect(cipher.notes).toEqual("My login secure note.");
 
-    expect(cipher.fields.at(2).name).toEqual("second 2fa secret");
-    expect(cipher.fields.at(2).value).toEqual("TOTPCODE");
-    expect(cipher.fields.at(2).type).toEqual(FieldType.Hidden);
+    expect(cipher.fields.at(0).name).toEqual("itemUsername");
+    expect(cipher.fields.at(0).value).toEqual("someOtherUsername");
+
+    expect(cipher.fields.at(3).name).toEqual("second 2fa secret");
+    expect(cipher.fields.at(3).value).toEqual("TOTPCODE");
+    expect(cipher.fields.at(3).type).toEqual(FieldType.Hidden);
   });
 
   it("should parse note data", async () => {

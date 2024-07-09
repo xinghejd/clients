@@ -18,6 +18,7 @@ export interface ServiceAccountOperation {
   organizationId: string;
   serviceAccountId?: string;
   operation: OperationType;
+  organizationEnabled: boolean;
 }
 
 @Component({
@@ -31,7 +32,7 @@ export class ServiceAccountDialogComponent {
         updateOn: "submit",
       }),
     },
-    {}
+    {},
   );
 
   protected loading = false;
@@ -41,12 +42,12 @@ export class ServiceAccountDialogComponent {
     @Inject(DIALOG_DATA) private data: ServiceAccountOperation,
     private serviceAccountService: ServiceAccountService,
     private i18nService: I18nService,
-    private platformUtilsService: PlatformUtilsService
+    private platformUtilsService: PlatformUtilsService,
   ) {}
 
   async ngOnInit() {
     if (this.data.operation == OperationType.Edit) {
-      this.loadData();
+      await this.loadData();
     }
   }
 
@@ -55,13 +56,22 @@ export class ServiceAccountDialogComponent {
     const serviceAccount: ServiceAccountView =
       await this.serviceAccountService.getByServiceAccountId(
         this.data.serviceAccountId,
-        this.data.organizationId
+        this.data.organizationId,
       );
     this.formGroup.patchValue({ name: serviceAccount.name });
     this.loading = false;
   }
 
   submit = async () => {
+    if (!this.data.organizationEnabled) {
+      this.platformUtilsService.showToast(
+        "error",
+        null,
+        this.i18nService.t("machineAccountsCannotCreate"),
+      );
+      return;
+    }
+
     this.formGroup.markAllAsTouched();
 
     if (this.formGroup.invalid) {
@@ -73,14 +83,14 @@ export class ServiceAccountDialogComponent {
 
     if (this.data.operation == OperationType.Add) {
       await this.serviceAccountService.create(this.data.organizationId, serviceAccountView);
-      serviceAccountMessage = this.i18nService.t("serviceAccountCreated");
+      serviceAccountMessage = this.i18nService.t("machineAccountCreated");
     } else {
       await this.serviceAccountService.update(
         this.data.serviceAccountId,
         this.data.organizationId,
-        serviceAccountView
+        serviceAccountView,
       );
-      serviceAccountMessage = this.i18nService.t("serviceAccountUpdated");
+      serviceAccountMessage = this.i18nService.t("machineAccountUpdated");
     }
 
     this.platformUtilsService.showToast("success", null, serviceAccountMessage);
@@ -95,6 +105,6 @@ export class ServiceAccountDialogComponent {
   }
 
   get title() {
-    return this.data.operation === OperationType.Add ? "newServiceAccount" : "editServiceAccount";
+    return this.data.operation === OperationType.Add ? "newMachineAccount" : "editMachineAccount";
   }
 }

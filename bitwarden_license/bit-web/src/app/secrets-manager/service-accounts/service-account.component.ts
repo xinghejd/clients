@@ -1,15 +1,6 @@
 import { Component, OnDestroy, OnInit } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
-import {
-  EMPTY,
-  Subject,
-  catchError,
-  combineLatest,
-  filter,
-  startWith,
-  switchMap,
-  takeUntil,
-} from "rxjs";
+import { Subject, combineLatest, filter, startWith, switchMap, takeUntil } from "rxjs";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -31,7 +22,7 @@ export class ServiceAccountComponent implements OnInit, OnDestroy {
 
   private onChange$ = this.serviceAccountService.serviceAccount$.pipe(
     filter((sa) => sa?.id === this.serviceAccountId),
-    startWith(null)
+    startWith(null),
   );
 
   private serviceAccountView: ServiceAccountView;
@@ -39,19 +30,9 @@ export class ServiceAccountComponent implements OnInit, OnDestroy {
     switchMap(([params, _]) =>
       this.serviceAccountService.getByServiceAccountId(
         params.serviceAccountId,
-        params.organizationId
-      )
+        params.organizationId,
+      ),
     ),
-    catchError(() => {
-      this.router.navigate(["/sm", this.organizationId, "service-accounts"]).then(() => {
-        this.platformUtilsService.showToast(
-          "error",
-          null,
-          this.i18nService.t("notFound", this.i18nService.t("serviceAccount"))
-        );
-      });
-      return EMPTY;
-    })
   );
 
   constructor(
@@ -60,7 +41,7 @@ export class ServiceAccountComponent implements OnInit, OnDestroy {
     private dialogService: DialogService,
     private router: Router,
     private platformUtilsService: PlatformUtilsService,
-    private i18nService: I18nService
+    private i18nService: I18nService,
   ) {}
 
   ngOnInit(): void {
@@ -77,7 +58,7 @@ export class ServiceAccountComponent implements OnInit, OnDestroy {
   protected openNewAccessTokenDialog() {
     AccessTokenCreateDialogComponent.openNewAccessTokenDialog(
       this.dialogService,
-      this.serviceAccountView
+      this.serviceAccountView,
     );
   }
 }

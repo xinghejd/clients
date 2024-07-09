@@ -1,9 +1,10 @@
 import { SelectionReadOnlyResponse } from "../../../admin-console/models/response/selection-read-only.response";
 import { BaseResponse } from "../../../models/response/base.response";
+import { CollectionId, OrganizationId } from "../../../types/guid";
 
 export class CollectionResponse extends BaseResponse {
-  id: string;
-  organizationId: string;
+  id: CollectionId;
+  organizationId: OrganizationId;
   name: string;
   externalId: string;
 
@@ -18,16 +19,8 @@ export class CollectionResponse extends BaseResponse {
 
 export class CollectionDetailsResponse extends CollectionResponse {
   readOnly: boolean;
-
-  constructor(response: any) {
-    super(response);
-    this.readOnly = this.getResponseProperty("ReadOnly") || false;
-  }
-}
-
-export class CollectionAccessDetailsResponse extends CollectionResponse {
-  groups: SelectionReadOnlyResponse[] = [];
-  users: SelectionReadOnlyResponse[] = [];
+  manage: boolean;
+  hidePasswords: boolean;
 
   /**
    * Flag indicating the user has been explicitly assigned to this Collection
@@ -36,7 +29,25 @@ export class CollectionAccessDetailsResponse extends CollectionResponse {
 
   constructor(response: any) {
     super(response);
+    this.readOnly = this.getResponseProperty("ReadOnly") || false;
+    this.manage = this.getResponseProperty("Manage") || false;
+    this.hidePasswords = this.getResponseProperty("HidePasswords") || false;
+
+    // Temporary until the API is updated to return this property in AC-2084
+    // For now, we can assume that if the object is 'collectionDetails' then the user is assigned
+    this.assigned = this.getResponseProperty("object") == "collectionDetails";
+  }
+}
+
+export class CollectionAccessDetailsResponse extends CollectionDetailsResponse {
+  groups: SelectionReadOnlyResponse[] = [];
+  users: SelectionReadOnlyResponse[] = [];
+  unmanaged: boolean;
+
+  constructor(response: any) {
+    super(response);
     this.assigned = this.getResponseProperty("Assigned") || false;
+    this.unmanaged = this.getResponseProperty("Unmanaged") || false;
 
     const groups = this.getResponseProperty("Groups");
     if (groups != null) {

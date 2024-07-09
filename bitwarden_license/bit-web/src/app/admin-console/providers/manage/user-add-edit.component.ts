@@ -18,8 +18,8 @@ export class UserAddEditComponent implements OnInit {
   @Input() name: string;
   @Input() providerUserId: string;
   @Input() providerId: string;
-  @Output() onSavedUser = new EventEmitter();
-  @Output() onDeletedUser = new EventEmitter();
+  @Output() savedUser = new EventEmitter();
+  @Output() deletedUser = new EventEmitter();
 
   loading = true;
   editMode = false;
@@ -38,7 +38,7 @@ export class UserAddEditComponent implements OnInit {
     private i18nService: I18nService,
     private platformUtilsService: PlatformUtilsService,
     private logService: LogService,
-    private dialogService: DialogService
+    private dialogService: DialogService,
   ) {}
 
   async ngOnInit() {
@@ -46,7 +46,7 @@ export class UserAddEditComponent implements OnInit {
 
     if (this.editMode) {
       this.editMode = true;
-      this.title = this.i18nService.t("editUser");
+      this.title = this.i18nService.t("editMember");
       try {
         const user = await this.apiService.getProviderUser(this.providerId, this.providerUserId);
         this.type = user.type;
@@ -54,7 +54,7 @@ export class UserAddEditComponent implements OnInit {
         this.logService.error(e);
       }
     } else {
-      this.title = this.i18nService.t("inviteUser");
+      this.title = this.i18nService.t("inviteMember");
     }
 
     this.loading = false;
@@ -68,7 +68,7 @@ export class UserAddEditComponent implements OnInit {
         this.formPromise = this.apiService.putProviderUser(
           this.providerId,
           this.providerUserId,
-          request
+          request,
         );
       } else {
         const request = new ProviderUserInviteRequest();
@@ -80,9 +80,9 @@ export class UserAddEditComponent implements OnInit {
       this.platformUtilsService.showToast(
         "success",
         null,
-        this.i18nService.t(this.editMode ? "editedUserId" : "invitedUsers", this.name)
+        this.i18nService.t(this.editMode ? "editedUserId" : "invitedUsers", this.name),
       );
-      this.onSavedUser.emit();
+      this.savedUser.emit();
     } catch (e) {
       this.logService.error(e);
     }
@@ -109,9 +109,9 @@ export class UserAddEditComponent implements OnInit {
       this.platformUtilsService.showToast(
         "success",
         null,
-        this.i18nService.t("removedUserId", this.name)
+        this.i18nService.t("removedUserId", this.name),
       );
-      this.onDeletedUser.emit();
+      this.deletedUser.emit();
     } catch (e) {
       this.logService.error(e);
     }

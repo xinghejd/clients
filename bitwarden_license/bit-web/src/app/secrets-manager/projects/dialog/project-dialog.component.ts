@@ -18,6 +18,7 @@ export enum OperationType {
 export interface ProjectOperation {
   organizationId: string;
   operation: OperationType;
+  organizationEnabled: boolean;
   projectId?: string;
 }
 
@@ -39,7 +40,7 @@ export class ProjectDialogComponent implements OnInit {
     private projectService: ProjectService,
     private i18nService: I18nService,
     private platformUtilsService: PlatformUtilsService,
-    private router: Router
+    private router: Router,
   ) {}
 
   async ngOnInit() {
@@ -63,6 +64,15 @@ export class ProjectDialogComponent implements OnInit {
   }
 
   submit = async () => {
+    if (!this.data.organizationEnabled) {
+      this.platformUtilsService.showToast(
+        "error",
+        null,
+        this.i18nService.t("projectsCannotCreate"),
+      );
+      return;
+    }
+
     this.formGroup.markAllAsTouched();
 
     if (this.formGroup.invalid) {
@@ -72,7 +82,7 @@ export class ProjectDialogComponent implements OnInit {
     const projectView = this.getProjectView();
     if (this.data.operation === OperationType.Add) {
       const newProject = await this.createProject(projectView);
-      this.router.navigate(["sm", this.data.organizationId, "projects", newProject.id]);
+      await this.router.navigate(["sm", this.data.organizationId, "projects", newProject.id]);
     } else {
       projectView.id = this.data.projectId;
       await this.updateProject(projectView);
