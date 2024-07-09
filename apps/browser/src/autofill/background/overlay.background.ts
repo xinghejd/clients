@@ -314,6 +314,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     const showFavicons = await firstValueFrom(this.domainSettingsService.showFavicons$);
     const inlineMenuCiphersArray = Array.from(this.inlineMenuCiphers);
     const inlineMenuCipherData: InlineMenuCipherData[] = [];
+    const accountCreationLoginCiphers: InlineMenuCipherData[] = [];
 
     const showLoginAccountCreation =
       this.focusedFieldData?.showLoginAccountCreation || this.showLoginAccountCreation();
@@ -321,6 +322,20 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     for (let cipherIndex = 0; cipherIndex < inlineMenuCiphersArray.length; cipherIndex++) {
       const [inlineMenuCipherId, cipher] = inlineMenuCiphersArray[cipherIndex];
       if (!showLoginAccountCreation && this.focusedFieldData?.filledByCipherType !== cipher.type) {
+        continue;
+      }
+
+      if (showLoginAccountCreation && cipher.type === CipherType.Login) {
+        accountCreationLoginCiphers.push({
+          id: inlineMenuCipherId,
+          name: cipher.name,
+          type: cipher.type,
+          reprompt: cipher.reprompt,
+          favorite: cipher.favorite,
+          icon: buildCipherIcon(this.iconsServerUrl, cipher, showFavicons),
+          accountCreationFieldType: this.focusedFieldData?.accountCreationFieldType,
+          login: { username: cipher.login.username },
+        });
         continue;
       }
 
@@ -352,6 +367,12 @@ export class OverlayBackground implements OverlayBackgroundInterface {
         card: cipher.type === CipherType.Card ? cipher.card.subTitle : null,
         identity,
       });
+    }
+
+    if (accountCreationLoginCiphers.length) {
+      const cipherData = accountCreationLoginCiphers.concat(inlineMenuCipherData);
+      this.currentInlineMenuCiphersCount = cipherData.length;
+      return cipherData;
     }
 
     this.currentInlineMenuCiphersCount = inlineMenuCipherData.length;
@@ -1023,19 +1044,9 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     const command = "updateAutofillInlineMenuListCiphers";
     const showLoginAccountCreation =
       this.focusedFieldData?.showLoginAccountCreation || this.showLoginAccountCreation();
+    const ciphers = await this.getInlineMenuCipherData();
 
-    if (showLoginAccountCreation && !this.focusedFieldData?.accountCreationFieldType) {
-      this.inlineMenuListPort?.postMessage({ command, ciphers: [], showLoginAccountCreation });
-      return;
-    }
-
-    if (
-      this.focusedFieldData?.accountCreationFieldType ||
-      (previousFocusedFieldData.showLoginAccountCreation && !showLoginAccountCreation)
-    ) {
-      const ciphers = await this.getInlineMenuCipherData();
-      this.inlineMenuListPort?.postMessage({ command, ciphers, showLoginAccountCreation });
-    }
+    this.inlineMenuListPort?.postMessage({ command, ciphers, showLoginAccountCreation });
   }
 
   /**
