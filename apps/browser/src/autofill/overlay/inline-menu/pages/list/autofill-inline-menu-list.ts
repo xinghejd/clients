@@ -189,6 +189,9 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
     this.inlineMenuListContainer.append(noItemsMessage, newItemButton);
   }
 
+  /**
+   * Builds a "New Item" button and returns the container of that button.
+   */
   private buildNewItemButton() {
     this.newItemButtonElement = globalThis.document.createElement("button");
     this.newItemButtonElement.tabIndex = -1;
@@ -455,6 +458,12 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
     this.focusViewCipherButton(currentListItem, event.target as HTMLElement);
   };
 
+  /**
+   * Handles the keyup event for the "New Item" button. Allows for keyboard navigation
+   * between ciphers elements if the other ciphers exist in the inline menu.
+   *
+   * @param event - The captured keyup event.
+   */
   private handleNewItemButtonKeyUpEvent = (event: KeyboardEvent) => {
     const listenedForKeys = new Set(["ArrowDown", "ArrowUp"]);
     if (!listenedForKeys.has(event.code) || !(event.target instanceof Element)) {
@@ -642,6 +651,11 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
     return cipherSubtitleElement;
   }
 
+  /**
+   * Gets the subtitle text for a given cipher.
+   *
+   * @param cipher - The cipher to get the subtitle text for.
+   */
   private getSubTitleText(cipher: InlineMenuCipherData): string {
     if (cipher.identity?.username) {
       return cipher.identity.username;

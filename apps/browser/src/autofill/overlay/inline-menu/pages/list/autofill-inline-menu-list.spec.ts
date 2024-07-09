@@ -148,10 +148,11 @@ describe("AutofillInlineMenuList", () => {
 
       it("loads ciphers on scroll one page at a time", () => {
         jest.useFakeTimers();
+        autofillInlineMenuList["ciphersList"].scrollTop = 10;
         const originalListOfElements =
           autofillInlineMenuList["inlineMenuListContainer"].querySelectorAll(".cipher-container");
 
-        window.dispatchEvent(new Event("scroll"));
+        autofillInlineMenuList["ciphersList"].dispatchEvent(new Event("scroll"));
         jest.runAllTimers();
 
         const updatedListOfElements =
@@ -163,17 +164,18 @@ describe("AutofillInlineMenuList", () => {
 
       it("debounces the ciphers scroll handler", () => {
         jest.useFakeTimers();
+        autofillInlineMenuList["ciphersList"].scrollTop = 10;
         autofillInlineMenuList["cipherListScrollDebounceTimeout"] = setTimeout(jest.fn, 0);
         const handleDebouncedScrollEventSpy = jest.spyOn(
           autofillInlineMenuList as any,
           "handleDebouncedScrollEvent",
         );
 
-        window.dispatchEvent(new Event("scroll"));
+        autofillInlineMenuList["ciphersList"].dispatchEvent(new Event("scroll"));
         jest.advanceTimersByTime(100);
-        window.dispatchEvent(new Event("scroll"));
+        autofillInlineMenuList["ciphersList"].dispatchEvent(new Event("scroll"));
         jest.advanceTimersByTime(100);
-        window.dispatchEvent(new Event("scroll"));
+        autofillInlineMenuList["ciphersList"].dispatchEvent(new Event("scroll"));
         jest.advanceTimersByTime(400);
 
         expect(handleDebouncedScrollEventSpy).toHaveBeenCalledTimes(1);
