@@ -2847,16 +2847,14 @@
   "all": {
     "message": "All"
   },
-<<<<<<< HEAD
   "toggleRow": {
     "message": "Toggle row"
-=======
+  },
   "addAccess": {
     "message": "Add Access"
   },
   "addAccessFilter": {
     "message": "Add Access Filter"
->>>>>>> main
   },
   "refresh": {
     "message": "Refresh"
