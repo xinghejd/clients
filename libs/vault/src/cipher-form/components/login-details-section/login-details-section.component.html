@@ -9,6 +9,12 @@
     <bit-form-field>
       <bit-label>{{ "username" | i18n }}</bit-label>
       <input bitInput formControlName="username" />
+      <a
+        bitIconButton="bwi-generate"
+        bitSuffix
+        *ngIf="loginDetailsForm.controls.username.enabled"
+
+      ></a>
     </bit-form-field>
 
     <bit-form-field>

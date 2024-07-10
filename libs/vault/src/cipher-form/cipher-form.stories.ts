@@ -15,11 +15,14 @@ import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { CollectionView } from "@bitwarden/common/vault/models/view/collection.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
+import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
 import { AsyncActionsModule, ButtonModule, ToastService } from "@bitwarden/components";
+import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legacy";
 import { CipherFormConfig, PasswordRepromptService } from "@bitwarden/vault";
 import { PreloadedEnglishI18nModule } from "@bitwarden/web-vault/src/app/core/tests";
 
 import { CipherFormService } from "./abstractions/cipher-form.service";
+import { TotpCaptureService } from "./abstractions/totp-capture.service";
 import { CipherFormModule } from "./cipher-form.module";
 import { CipherFormComponent } from "./components/cipher-form.component";
 
@@ -73,6 +76,17 @@ const defaultConfig: CipherFormConfig = {
     collectionIds: ["col1"],
     favorite: false,
     notes: "Example notes",
+    viewPassword: true,
+    login: Object.assign(new LoginView(), {
+      username: "testuser",
+      password: "testpassword",
+      fido2Credentials: [
+        {
+          creationDate: new Date(),
+        },
+      ],
+      totp: "123456",
+    }) as LoginView,
   } as unknown as Cipher,
 };
 
@@ -111,6 +125,19 @@ export default {
           provide: PasswordRepromptService,
           useValue: {
             enabled$: new BehaviorSubject(true),
+          },
+        },
+        {
+          provide: PasswordGenerationServiceAbstraction,
+          useValue: {
+            getOptions: () => Promise.resolve([{}, {}]),
+            generatePassword: () => Promise.resolve("random-password"),
+          },
+        },
+        {
+          provide: TotpCaptureService,
+          useValue: {
+            captureTotpFromTab: () => Promise.resolve("some-value"),
           },
         },
       ],
