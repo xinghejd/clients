@@ -328,6 +328,12 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     return inlineMenuCipherData;
   }
 
+  /**
+   * Builds the inline menu ciphers for a form field that is meant for account creation.
+   *
+   * @param inlineMenuCiphersArray - Array of inline menu ciphers
+   * @param showFavicons - Identifies whether favicons should be shown
+   */
   private buildInlineMenuAccountCreationCiphers(
     inlineMenuCiphersArray: [string, CipherView][],
     showFavicons: boolean,
@@ -366,6 +372,12 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     return inlineMenuCipherData;
   }
 
+  /**
+   * Builds the inline menu ciphers for a form field that is not meant for account creation.
+   *
+   * @param inlineMenuCiphersArray - Array of inline menu ciphers
+   * @param showFavicons - Identifies whether favicons should be shown
+   */
   private buildInlineMenuCiphers(
     inlineMenuCiphersArray: [string, CipherView][],
     showFavicons: boolean,
@@ -384,6 +396,15 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     return inlineMenuCipherData;
   }
 
+  /**
+   * Builds the cipher data for the inline menu list.
+   *
+   * @param inlineMenuCipherId - The ID of the inline menu cipher
+   * @param cipher - The cipher to build data for
+   * @param showFavicons - Identifies whether favicons should be shown
+   * @param showInlineMenuAccountCreation - Identifies whether the inline menu is for account creation
+   * @param identityData - Pre-created identity data
+   */
   private buildCipherData(
     inlineMenuCipherId: string,
     cipher: CipherView,
@@ -416,6 +437,12 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     return inlineMenuData;
   }
 
+  /**
+   * Gets the identity data for a cipher based on whether the inline menu is for account creation.
+   *
+   * @param cipher - The cipher to get the identity data for
+   * @param showInlineMenuAccountCreation - Identifies whether the inline menu is for account creation
+   */
   private getIdentityCipherData(
     cipher: CipherView,
     showInlineMenuAccountCreation: boolean = false,
@@ -449,6 +476,9 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     };
   }
 
+  /**
+   * Identifies whether the inline menu is being shown on an account creation field.
+   */
   private showInlineMenuAccountCreation(): boolean {
     if (typeof this.focusedFieldData?.showInlineMenuAccountCreation !== "undefined") {
       return this.focusedFieldData?.showInlineMenuAccountCreation;
