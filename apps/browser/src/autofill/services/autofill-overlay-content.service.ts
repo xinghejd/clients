@@ -18,6 +18,7 @@ import {
   SubFrameOffsetData,
 } from "../background/abstractions/overlay.background";
 import { AutofillExtensionMessage } from "../content/abstractions/autofill-init";
+import { AutofillFieldQualifier, AutofillFieldQualifierType } from "../enums/autofill-field.enums";
 import {
   AutofillOverlayElement,
   MAX_SUB_FRAME_DEPTH,
@@ -489,158 +490,174 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
       return;
     }
 
+    if (autofillFieldData.fieldQualifier) {
+      this.storeQualifiedUserFilledField(formFieldElement, autofillFieldData);
+      return;
+    }
+
     if (autofillFieldData.filledByCipherType === CipherType.Login) {
-      this.storeUserFilledLoginField(formFieldElement);
+      this.qualifyUserFilledLoginField(autofillFieldData);
     }
 
     if (autofillFieldData.filledByCipherType === CipherType.Card) {
-      this.storeUserFilledCardField(formFieldElement, autofillFieldData);
+      this.qualifyUserFilledCardField(autofillFieldData);
     }
 
     if (autofillFieldData.filledByCipherType === CipherType.Identity) {
-      this.storeUserFilledIdentityField(formFieldElement, autofillFieldData);
+      this.qualifyUserFilledIdentityField(autofillFieldData);
     }
+
+    this.storeQualifiedUserFilledField(formFieldElement, autofillFieldData);
   }
 
   /**
    * Handles storing the user field login field to be used when adding a new vault item.
    *
-   * @param formFieldElement - The form field element that triggered the input event.
+   * @param autofillFieldData - Autofill field data captured from the form field element.
    */
-  private storeUserFilledLoginField(formFieldElement: ElementWithOpId<FillableFormFieldElement>) {
-    if (formFieldElement.type === "password") {
-      this.userFilledFields.password = formFieldElement;
+  private qualifyUserFilledLoginField(autofillFieldData: AutofillField) {
+    if (autofillFieldData.type === "password") {
+      autofillFieldData.fieldQualifier = AutofillFieldQualifier.password;
       return;
     }
 
-    this.userFilledFields.username = formFieldElement;
+    autofillFieldData.fieldQualifier = AutofillFieldQualifier.username;
   }
 
   /**
    * Handles storing the user field card field to be used when adding a new vault item.
    *
-   * @param formFieldElement - The form field element that triggered the input event.
    * @param autofillFieldData - Autofill field data captured from the form field element.
    */
-  private storeUserFilledCardField(
-    formFieldElement: ElementWithOpId<FillableFormFieldElement>,
-    autofillFieldData: AutofillField,
-  ) {
+  private qualifyUserFilledCardField(autofillFieldData: AutofillField) {
     if (this.inlineMenuFieldQualificationService.isFieldForCardholderName(autofillFieldData)) {
-      this.userFilledFields.cardholderName = formFieldElement;
+      autofillFieldData.fieldQualifier = AutofillFieldQualifier.cardholderName;
       return;
     }
 
     if (this.inlineMenuFieldQualificationService.isFieldForCardNumber(autofillFieldData)) {
-      this.userFilledFields.cardNumber = formFieldElement;
+      autofillFieldData.fieldQualifier = AutofillFieldQualifier.cardNumber;
       return;
     }
 
     if (this.inlineMenuFieldQualificationService.isFieldForCardExpirationMonth(autofillFieldData)) {
-      this.userFilledFields.cardExpirationMonth = formFieldElement;
+      autofillFieldData.fieldQualifier = AutofillFieldQualifier.cardExpirationMonth;
       return;
     }
 
     if (this.inlineMenuFieldQualificationService.isFieldForCardExpirationYear(autofillFieldData)) {
-      this.userFilledFields.cardExpirationYear = formFieldElement;
+      autofillFieldData.fieldQualifier = AutofillFieldQualifier.cardExpirationYear;
       return;
     }
 
     if (this.inlineMenuFieldQualificationService.isFieldForCardExpirationDate(autofillFieldData)) {
-      this.userFilledFields.cardExpirationDate = formFieldElement;
+      autofillFieldData.fieldQualifier = AutofillFieldQualifier.cardExpirationDate;
       return;
     }
 
     if (this.inlineMenuFieldQualificationService.isFieldForCardCvv(autofillFieldData)) {
-      this.userFilledFields.cardCvv = formFieldElement;
+      autofillFieldData.fieldQualifier = AutofillFieldQualifier.cardCvv;
     }
   }
 
-  private storeUserFilledIdentityField(
-    formFieldElement: ElementWithOpId<FillableFormFieldElement>,
-    autofillFieldData: AutofillField,
-  ) {
+  private qualifyUserFilledIdentityField(autofillFieldData: AutofillField) {
     if (this.inlineMenuFieldQualificationService.isFieldForIdentityTitle(autofillFieldData)) {
-      this.userFilledFields.identityTitle = formFieldElement;
+      autofillFieldData.fieldQualifier = AutofillFieldQualifier.identityTitle;
       return;
     }
 
     if (this.inlineMenuFieldQualificationService.isFieldForIdentityFirstName(autofillFieldData)) {
-      this.userFilledFields.identityFirstName = formFieldElement;
+      autofillFieldData.fieldQualifier = AutofillFieldQualifier.identityFirstName;
       return;
     }
 
     if (this.inlineMenuFieldQualificationService.isFieldForIdentityMiddleName(autofillFieldData)) {
-      this.userFilledFields.identityMiddleName = formFieldElement;
+      autofillFieldData.fieldQualifier = AutofillFieldQualifier.identityMiddleName;
       return;
     }
 
     if (this.inlineMenuFieldQualificationService.isFieldForIdentityLastName(autofillFieldData)) {
-      this.userFilledFields.identityLastName = formFieldElement;
+      autofillFieldData.fieldQualifier = AutofillFieldQualifier.identityLastName;
       return;
     }
 
     if (this.inlineMenuFieldQualificationService.isFieldForIdentityFullName(autofillFieldData)) {
-      this.userFilledFields.identityFullName = formFieldElement;
+      autofillFieldData.fieldQualifier = AutofillFieldQualifier.identityFullName;
       return;
     }
 
     if (this.inlineMenuFieldQualificationService.isFieldForIdentityAddress1(autofillFieldData)) {
-      this.userFilledFields.identityAddress1 = formFieldElement;
+      autofillFieldData.fieldQualifier = AutofillFieldQualifier.identityAddress1;
       return;
     }
 
     if (this.inlineMenuFieldQualificationService.isFieldForIdentityAddress2(autofillFieldData)) {
-      this.userFilledFields.identityAddress2 = formFieldElement;
+      autofillFieldData.fieldQualifier = AutofillFieldQualifier.identityAddress2;
       return;
     }
 
     if (this.inlineMenuFieldQualificationService.isFieldForIdentityAddress3(autofillFieldData)) {
-      this.userFilledFields.identityAddress3 = formFieldElement;
+      autofillFieldData.fieldQualifier = AutofillFieldQualifier.identityAddress3;
       return;
     }
 
     if (this.inlineMenuFieldQualificationService.isFieldForIdentityCity(autofillFieldData)) {
-      this.userFilledFields.identityCity = formFieldElement;
+      autofillFieldData.fieldQualifier = AutofillFieldQualifier.identityCity;
       return;
     }
 
     if (this.inlineMenuFieldQualificationService.isFieldForIdentityState(autofillFieldData)) {
-      this.userFilledFields.identityState = formFieldElement;
+      autofillFieldData.fieldQualifier = AutofillFieldQualifier.identityState;
       return;
     }
 
     if (this.inlineMenuFieldQualificationService.isFieldForIdentityPostalCode(autofillFieldData)) {
-      this.userFilledFields.identityPostalCode = formFieldElement;
+      autofillFieldData.fieldQualifier = AutofillFieldQualifier.identityPostalCode;
       return;
     }
 
     if (this.inlineMenuFieldQualificationService.isFieldForIdentityCountry(autofillFieldData)) {
-      this.userFilledFields.identityCountry = formFieldElement;
+      autofillFieldData.fieldQualifier = AutofillFieldQualifier.identityCountry;
       return;
     }
 
     if (this.inlineMenuFieldQualificationService.isFieldForIdentityCompany(autofillFieldData)) {
-      this.userFilledFields.identityCompany = formFieldElement;
+      autofillFieldData.fieldQualifier = AutofillFieldQualifier.identityCompany;
       return;
     }
 
     if (this.inlineMenuFieldQualificationService.isFieldForIdentityPhone(autofillFieldData)) {
-      this.userFilledFields.identityPhone = formFieldElement;
+      autofillFieldData.fieldQualifier = AutofillFieldQualifier.identityPhone;
       return;
     }
 
     if (this.inlineMenuFieldQualificationService.isFieldForIdentityEmail(autofillFieldData)) {
-      this.userFilledFields.username = formFieldElement;
-      this.userFilledFields.identityEmail = formFieldElement;
+      autofillFieldData.fieldQualifier = AutofillFieldQualifier.identityEmail;
       return;
     }
 
     if (this.inlineMenuFieldQualificationService.isFieldForIdentityUsername(autofillFieldData)) {
-      this.userFilledFields.username = formFieldElement;
-      this.userFilledFields.identityUsername = formFieldElement;
+      autofillFieldData.fieldQualifier = AutofillFieldQualifier.identityUsername;
+    }
+  }
+
+  private storeQualifiedUserFilledField(
+    formFieldElement: ElementWithOpId<FillableFormFieldElement>,
+    autofillFieldData: AutofillField,
+  ) {
+    if (!autofillFieldData.fieldQualifier) {
       return;
     }
+
+    const identityLoginFields: AutofillFieldQualifierType[] = [
+      AutofillFieldQualifier.identityUsername,
+      AutofillFieldQualifier.identityEmail,
+    ];
+    if (identityLoginFields.includes(autofillFieldData.fieldQualifier)) {
+      this.userFilledFields[AutofillFieldQualifier.username] = formFieldElement;
+    }
+
+    this.userFilledFields[autofillFieldData.fieldQualifier] = formFieldElement;
   }
 
   /**
