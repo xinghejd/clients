@@ -145,6 +145,9 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
     this.showInlineMenuAccountCreation = showInlineMenuAccountCreation;
     if (this.inlineMenuListContainer) {
       this.inlineMenuListContainer.innerHTML = "";
+      this.inlineMenuListContainer.classList.remove(
+        "inline-menu-list-container--with-new-item-button",
+      );
     }
 
     if (!ciphers?.length) {
@@ -163,19 +166,14 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
 
     this.inlineMenuListContainer.appendChild(this.ciphersList);
 
-    if (this.showInlineMenuAccountCreation) {
-      const addNewLoginButtonContainer = this.buildNewItemButton();
-      this.inlineMenuListContainer.appendChild(addNewLoginButtonContainer);
-      this.inlineMenuListContainer.classList.add(
-        "inline-menu-list-container--with-new-item-button",
-      );
-      this.newItemButtonElement.addEventListener(EVENTS.KEYUP, this.handleNewItemButtonKeyUpEvent);
-
+    if (!this.showInlineMenuAccountCreation) {
       return;
     }
-    this.inlineMenuListContainer.classList.remove(
-      "inline-menu-list-container--with-new-item-button",
-    );
+
+    const addNewLoginButtonContainer = this.buildNewItemButton();
+    this.inlineMenuListContainer.appendChild(addNewLoginButtonContainer);
+    this.inlineMenuListContainer.classList.add("inline-menu-list-container--with-new-item-button");
+    this.newItemButtonElement.addEventListener(EVENTS.KEYUP, this.handleNewItemButtonKeyUpEvent);
   }
 
   /**
@@ -219,15 +217,15 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
    * Gets the new item text for the button based on the cipher type the focused field is filled by.
    */
   private getNewItemButtonText() {
-    if (this.filledByCipherType === CipherType.Login || this.showInlineMenuAccountCreation) {
+    if (this.isFilledByLoginCipher() || this.showInlineMenuAccountCreation) {
       return this.getTranslation("newLogin");
     }
 
-    if (this.filledByCipherType === CipherType.Card) {
+    if (this.isFilledByCardCipher()) {
       return this.getTranslation("newCard");
     }
 
-    if (this.filledByCipherType === CipherType.Identity) {
+    if (this.isFilledByIdentityCipher()) {
       return this.getTranslation("newIdentity");
     }
 
@@ -238,15 +236,15 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
    * Gets the aria label for the new item button based on the cipher type the focused field is filled by.
    */
   private getNewItemAriaLabel() {
-    if (this.filledByCipherType === CipherType.Login || this.showInlineMenuAccountCreation) {
+    if (this.isFilledByLoginCipher() || this.showInlineMenuAccountCreation) {
       return this.getTranslation("addNewLoginItem");
     }
 
-    if (this.filledByCipherType === CipherType.Card) {
+    if (this.isFilledByCardCipher()) {
       return this.getTranslation("addNewCardItem");
     }
 
-    if (this.filledByCipherType === CipherType.Identity) {
+    if (this.isFilledByIdentityCipher()) {
       return this.getTranslation("addNewIdentityItem");
     }
 
@@ -818,4 +816,16 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
     const nextSibling = currentButtonElement.nextElementSibling as HTMLElement;
     nextSibling?.focus();
   }
+
+  private isFilledByLoginCipher = () => {
+    return this.filledByCipherType === CipherType.Login;
+  };
+
+  private isFilledByCardCipher = () => {
+    return this.filledByCipherType === CipherType.Card;
+  };
+
+  private isFilledByIdentityCipher = () => {
+    return this.filledByCipherType === CipherType.Identity;
+  };
 }
