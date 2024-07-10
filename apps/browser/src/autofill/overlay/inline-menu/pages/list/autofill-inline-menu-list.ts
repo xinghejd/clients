@@ -251,6 +251,11 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
     return this.getTranslation("addNewVaultItem");
   }
 
+  /**
+   * Builds a container for a given element.
+   *
+   * @param element - The element to build the container for.
+   */
   private buildButtonContainer(element: Element) {
     const inlineMenuListButtonContainer = globalThis.document.createElement("div");
     inlineMenuListButtonContainer.classList.add("inline-menu-list-button-container");
@@ -817,14 +822,23 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
     nextSibling?.focus();
   }
 
+  /**
+   * Identifies if the current focused field is filled by a login cipher.
+   */
   private isFilledByLoginCipher = () => {
     return this.filledByCipherType === CipherType.Login;
   };
 
+  /**
+   * Identifies if the current focused field is filled by a card cipher.
+   */
   private isFilledByCardCipher = () => {
     return this.filledByCipherType === CipherType.Card;
   };
 
+  /**
+   * Identifies if the current focused field is filled by an identity cipher.
+   */
   private isFilledByIdentityCipher = () => {
     return this.filledByCipherType === CipherType.Identity;
   };
