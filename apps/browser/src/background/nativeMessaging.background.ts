@@ -295,7 +295,11 @@ export class NativeMessagingBackground {
       );
     }
 
-    if (Math.abs(message.timestamp - Date.now()) > MessageValidTimeout) {
+    // Check to prevent replay of old messages. This is disabled in dev mode
+    if (
+      Math.abs(message.timestamp - Date.now()) > MessageValidTimeout &&
+      !this.platformUtilsService.isDev()
+    ) {
       this.logService.error("NativeMessage is to old, ignoring.");
       return;
     }
