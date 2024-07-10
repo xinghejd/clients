@@ -185,6 +185,10 @@ export class CipherFormComponent implements AfterViewInit, OnInit, OnChanges, Ci
       );
 
       this.updatedCipherView = Object.assign(this.updatedCipherView, this.originalCipherView);
+
+      if (this.config.mode === "clone") {
+        this.updatedCipherView.id = null;
+      }
     } else {
       this.updatedCipherView.type = this.config.cipherType;
     }
