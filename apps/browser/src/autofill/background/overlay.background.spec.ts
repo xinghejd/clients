@@ -1171,6 +1171,95 @@ describe("OverlayBackground", () => {
         expect(sendMessageSpy).toHaveBeenCalledWith("inlineAutofillMenuRefreshAddEditCipher");
         expect(openAddEditVaultItemPopoutSpy).toHaveBeenCalled();
       });
+
+      describe("creating a new identity cipher", () => {
+        it("populates an identity cipher view and creates it", async () => {
+          sendMockExtensionMessage(
+            {
+              command: "autofillOverlayAddNewVaultItem",
+              addNewCipherType: CipherType.Identity,
+              identity: {
+                title: "title",
+                firstName: "firstName",
+                middleName: "middleName",
+                lastName: "lastName",
+                fullName: "fullName",
+                address1: "address1",
+                address2: "address2",
+                address3: "address3",
+                city: "city",
+                state: "state",
+                postalCode: "postalCode",
+                country: "country",
+                company: "company",
+                phone: "phone",
+                email: "email",
+                username: "username",
+              },
+            },
+            sender,
+          );
+          await flushPromises();
+
+          expect(cipherService.setAddEditCipherInfo).toHaveBeenCalled();
+          expect(sendMessageSpy).toHaveBeenCalledWith("inlineAutofillMenuRefreshAddEditCipher");
+          expect(openAddEditVaultItemPopoutSpy).toHaveBeenCalled();
+        });
+
+        it("saves the first name based on the full name value", async () => {
+          sendMockExtensionMessage(
+            {
+              command: "autofillOverlayAddNewVaultItem",
+              addNewCipherType: CipherType.Identity,
+              identity: {
+                firstName: "",
+                lastName: "",
+                fullName: "fullName",
+              },
+            },
+            sender,
+          );
+          await flushPromises();
+
+          expect(cipherService.setAddEditCipherInfo).toHaveBeenCalled();
+        });
+
+        it("saves the first and middle names based on the full name value", async () => {
+          sendMockExtensionMessage(
+            {
+              command: "autofillOverlayAddNewVaultItem",
+              addNewCipherType: CipherType.Identity,
+              identity: {
+                firstName: "",
+                lastName: "",
+                fullName: "firstName middleName",
+              },
+            },
+            sender,
+          );
+          await flushPromises();
+
+          expect(cipherService.setAddEditCipherInfo).toHaveBeenCalled();
+        });
+
+        it("saves the first, middle, and last names based on the full name value", async () => {
+          sendMockExtensionMessage(
+            {
+              command: "autofillOverlayAddNewVaultItem",
+              addNewCipherType: CipherType.Identity,
+              identity: {
+                firstName: "",
+                lastName: "",
+                fullName: "firstName middleName lastName",
+              },
+            },
+            sender,
+          );
+          await flushPromises();
+
+          expect(cipherService.setAddEditCipherInfo).toHaveBeenCalled();
+        });
+      });
     });
 
     describe("checkIsInlineMenuCiphersPopulated message handler", () => {

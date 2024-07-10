@@ -1486,6 +1486,11 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     return cipherView;
   }
 
+  /**
+   * Builds a new identity cipher view with the provided identity data.
+   *
+   * @param identity - The identity data captured from the extension message
+   */
   private buildIdentityCipherView(identity: NewIdentityCipherData) {
     const identityView = new IdentityView();
     identityView.title = identity.title || "";
@@ -1517,12 +1522,14 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     return cipherView;
   }
 
+  /**
+   * Splits the identity full name into first, middle, and last name parts.
+   *
+   * @param identity - The identity data captured from the extension message
+   * @param identityView - The identity view to update
+   */
   private buildIdentityNameParts(identity: NewIdentityCipherData, identityView: IdentityView) {
     const fullNameParts = identity.fullName.split(" ");
-    if (fullNameParts.length === 0) {
-      return;
-    }
-
     if (fullNameParts.length === 1) {
       identityView.firstName = fullNameParts[0] || "";
 
