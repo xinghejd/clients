@@ -490,21 +490,18 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
       return;
     }
 
-    if (autofillFieldData.fieldQualifier) {
-      this.storeQualifiedUserFilledField(formFieldElement, autofillFieldData);
-      return;
-    }
-
-    if (autofillFieldData.filledByCipherType === CipherType.Login) {
-      this.qualifyUserFilledLoginField(autofillFieldData);
-    }
-
-    if (autofillFieldData.filledByCipherType === CipherType.Card) {
-      this.qualifyUserFilledCardField(autofillFieldData);
-    }
-
-    if (autofillFieldData.filledByCipherType === CipherType.Identity) {
-      this.qualifyUserFilledIdentityField(autofillFieldData);
+    if (!autofillFieldData.fieldQualifier) {
+      switch (autofillFieldData.filledByCipherType) {
+        case CipherType.Login:
+          this.qualifyUserFilledLoginField(autofillFieldData);
+          break;
+        case CipherType.Card:
+          this.qualifyUserFilledCardField(autofillFieldData);
+          break;
+        case CipherType.Identity:
+          this.qualifyUserFilledIdentityField(autofillFieldData);
+          break;
+      }
     }
 
     this.storeQualifiedUserFilledField(formFieldElement, autofillFieldData);
