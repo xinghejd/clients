@@ -80,6 +80,53 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     setupRebuildSubFrameOffsetsListeners: () => this.setupRebuildSubFrameOffsetsListeners(),
     destroyAutofillInlineMenuListeners: () => this.destroy(),
   };
+  private readonly cardFieldQualifiers: Record<string, CallableFunction> = {
+    [AutofillFieldQualifier.cardholderName]:
+      this.inlineMenuFieldQualificationService.isFieldForCardholderName,
+    [AutofillFieldQualifier.cardNumber]:
+      this.inlineMenuFieldQualificationService.isFieldForCardNumber,
+    [AutofillFieldQualifier.cardExpirationMonth]:
+      this.inlineMenuFieldQualificationService.isFieldForCardExpirationMonth,
+    [AutofillFieldQualifier.cardExpirationYear]:
+      this.inlineMenuFieldQualificationService.isFieldForCardExpirationYear,
+    [AutofillFieldQualifier.cardExpirationDate]:
+      this.inlineMenuFieldQualificationService.isFieldForCardExpirationDate,
+    [AutofillFieldQualifier.cardCvv]: this.inlineMenuFieldQualificationService.isFieldForCardCvv,
+  };
+  private readonly identityFieldQualifiers: Record<string, CallableFunction> = {
+    [AutofillFieldQualifier.identityTitle]:
+      this.inlineMenuFieldQualificationService.isFieldForIdentityTitle,
+    [AutofillFieldQualifier.identityFirstName]:
+      this.inlineMenuFieldQualificationService.isFieldForIdentityFirstName,
+    [AutofillFieldQualifier.identityMiddleName]:
+      this.inlineMenuFieldQualificationService.isFieldForIdentityMiddleName,
+    [AutofillFieldQualifier.identityLastName]:
+      this.inlineMenuFieldQualificationService.isFieldForIdentityLastName,
+    [AutofillFieldQualifier.identityFullName]:
+      this.inlineMenuFieldQualificationService.isFieldForIdentityFullName,
+    [AutofillFieldQualifier.identityAddress1]:
+      this.inlineMenuFieldQualificationService.isFieldForIdentityAddress1,
+    [AutofillFieldQualifier.identityAddress2]:
+      this.inlineMenuFieldQualificationService.isFieldForIdentityAddress2,
+    [AutofillFieldQualifier.identityAddress3]:
+      this.inlineMenuFieldQualificationService.isFieldForIdentityAddress3,
+    [AutofillFieldQualifier.identityCity]:
+      this.inlineMenuFieldQualificationService.isFieldForIdentityCity,
+    [AutofillFieldQualifier.identityState]:
+      this.inlineMenuFieldQualificationService.isFieldForIdentityState,
+    [AutofillFieldQualifier.identityPostalCode]:
+      this.inlineMenuFieldQualificationService.isFieldForIdentityPostalCode,
+    [AutofillFieldQualifier.identityCountry]:
+      this.inlineMenuFieldQualificationService.isFieldForIdentityCountry,
+    [AutofillFieldQualifier.identityCompany]:
+      this.inlineMenuFieldQualificationService.isFieldForIdentityCompany,
+    [AutofillFieldQualifier.identityPhone]:
+      this.inlineMenuFieldQualificationService.isFieldForIdentityPhone,
+    [AutofillFieldQualifier.identityEmail]:
+      this.inlineMenuFieldQualificationService.isFieldForIdentityEmail,
+    [AutofillFieldQualifier.identityUsername]:
+      this.inlineMenuFieldQualificationService.isFieldForIdentityUsername,
+  };
 
   constructor(private inlineMenuFieldQualificationService: InlineMenuFieldQualificationService) {}
 
@@ -527,114 +574,24 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
    * @param autofillFieldData - Autofill field data captured from the form field element.
    */
   private qualifyUserFilledCardField(autofillFieldData: AutofillField) {
-    if (this.inlineMenuFieldQualificationService.isFieldForCardholderName(autofillFieldData)) {
-      autofillFieldData.fieldQualifier = AutofillFieldQualifier.cardholderName;
-      return;
-    }
-
-    if (this.inlineMenuFieldQualificationService.isFieldForCardNumber(autofillFieldData)) {
-      autofillFieldData.fieldQualifier = AutofillFieldQualifier.cardNumber;
-      return;
-    }
-
-    if (this.inlineMenuFieldQualificationService.isFieldForCardExpirationMonth(autofillFieldData)) {
-      autofillFieldData.fieldQualifier = AutofillFieldQualifier.cardExpirationMonth;
-      return;
-    }
-
-    if (this.inlineMenuFieldQualificationService.isFieldForCardExpirationYear(autofillFieldData)) {
-      autofillFieldData.fieldQualifier = AutofillFieldQualifier.cardExpirationYear;
-      return;
-    }
-
-    if (this.inlineMenuFieldQualificationService.isFieldForCardExpirationDate(autofillFieldData)) {
-      autofillFieldData.fieldQualifier = AutofillFieldQualifier.cardExpirationDate;
-      return;
-    }
-
-    if (this.inlineMenuFieldQualificationService.isFieldForCardCvv(autofillFieldData)) {
-      autofillFieldData.fieldQualifier = AutofillFieldQualifier.cardCvv;
+    for (const [fieldQualifier, fieldQualifierFunction] of Object.entries(
+      this.cardFieldQualifiers,
+    )) {
+      if (fieldQualifierFunction(autofillFieldData)) {
+        autofillFieldData.fieldQualifier = fieldQualifier as AutofillFieldQualifierType;
+        return;
+      }
     }
   }
 
   private qualifyUserFilledIdentityField(autofillFieldData: AutofillField) {
-    if (this.inlineMenuFieldQualificationService.isFieldForIdentityTitle(autofillFieldData)) {
-      autofillFieldData.fieldQualifier = AutofillFieldQualifier.identityTitle;
-      return;
-    }
-
-    if (this.inlineMenuFieldQualificationService.isFieldForIdentityFirstName(autofillFieldData)) {
-      autofillFieldData.fieldQualifier = AutofillFieldQualifier.identityFirstName;
-      return;
-    }
-
-    if (this.inlineMenuFieldQualificationService.isFieldForIdentityMiddleName(autofillFieldData)) {
-      autofillFieldData.fieldQualifier = AutofillFieldQualifier.identityMiddleName;
-      return;
-    }
-
-    if (this.inlineMenuFieldQualificationService.isFieldForIdentityLastName(autofillFieldData)) {
-      autofillFieldData.fieldQualifier = AutofillFieldQualifier.identityLastName;
-      return;
-    }
-
-    if (this.inlineMenuFieldQualificationService.isFieldForIdentityFullName(autofillFieldData)) {
-      autofillFieldData.fieldQualifier = AutofillFieldQualifier.identityFullName;
-      return;
-    }
-
-    if (this.inlineMenuFieldQualificationService.isFieldForIdentityAddress1(autofillFieldData)) {
-      autofillFieldData.fieldQualifier = AutofillFieldQualifier.identityAddress1;
-      return;
-    }
-
-    if (this.inlineMenuFieldQualificationService.isFieldForIdentityAddress2(autofillFieldData)) {
-      autofillFieldData.fieldQualifier = AutofillFieldQualifier.identityAddress2;
-      return;
-    }
-
-    if (this.inlineMenuFieldQualificationService.isFieldForIdentityAddress3(autofillFieldData)) {
-      autofillFieldData.fieldQualifier = AutofillFieldQualifier.identityAddress3;
-      return;
-    }
-
-    if (this.inlineMenuFieldQualificationService.isFieldForIdentityCity(autofillFieldData)) {
-      autofillFieldData.fieldQualifier = AutofillFieldQualifier.identityCity;
-      return;
-    }
-
-    if (this.inlineMenuFieldQualificationService.isFieldForIdentityState(autofillFieldData)) {
-      autofillFieldData.fieldQualifier = AutofillFieldQualifier.identityState;
-      return;
-    }
-
-    if (this.inlineMenuFieldQualificationService.isFieldForIdentityPostalCode(autofillFieldData)) {
-      autofillFieldData.fieldQualifier = AutofillFieldQualifier.identityPostalCode;
-      return;
-    }
-
-    if (this.inlineMenuFieldQualificationService.isFieldForIdentityCountry(autofillFieldData)) {
-      autofillFieldData.fieldQualifier = AutofillFieldQualifier.identityCountry;
-      return;
-    }
-
-    if (this.inlineMenuFieldQualificationService.isFieldForIdentityCompany(autofillFieldData)) {
-      autofillFieldData.fieldQualifier = AutofillFieldQualifier.identityCompany;
-      return;
-    }
-
-    if (this.inlineMenuFieldQualificationService.isFieldForIdentityPhone(autofillFieldData)) {
-      autofillFieldData.fieldQualifier = AutofillFieldQualifier.identityPhone;
-      return;
-    }
-
-    if (this.inlineMenuFieldQualificationService.isFieldForIdentityEmail(autofillFieldData)) {
-      autofillFieldData.fieldQualifier = AutofillFieldQualifier.identityEmail;
-      return;
-    }
-
-    if (this.inlineMenuFieldQualificationService.isFieldForIdentityUsername(autofillFieldData)) {
-      autofillFieldData.fieldQualifier = AutofillFieldQualifier.identityUsername;
+    for (const [fieldQualifier, fieldQualifierFunction] of Object.entries(
+      this.identityFieldQualifiers,
+    )) {
+      if (fieldQualifierFunction(autofillFieldData)) {
+        autofillFieldData.fieldQualifier = fieldQualifier as AutofillFieldQualifierType;
+        return;
+      }
     }
   }
 
