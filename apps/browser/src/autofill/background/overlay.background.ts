@@ -316,7 +316,10 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     let inlineMenuCipherData: InlineMenuCipherData[] = [];
 
     if (this.showInlineMenuAccountCreation()) {
-      inlineMenuCipherData = this.buildAccountCreationLoginCiphers(inlineMenuCiphersArray, true);
+      inlineMenuCipherData = this.buildInlineMenuAccountCreationCiphers(
+        inlineMenuCiphersArray,
+        true,
+      );
     } else {
       inlineMenuCipherData = this.buildInlineMenuCiphers(inlineMenuCiphersArray, showFavicons);
     }
@@ -325,7 +328,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     return inlineMenuCipherData;
   }
 
-  private buildAccountCreationLoginCiphers(
+  private buildInlineMenuAccountCreationCiphers(
     inlineMenuCiphersArray: [string, CipherView][],
     showFavicons: boolean,
   ) {
