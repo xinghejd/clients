@@ -17,9 +17,11 @@ import {
   RegistrationStartComponent,
   RegistrationStartSecondaryComponent,
   RegistrationStartSecondaryComponentData,
+  LockIcon,
 } from "@bitwarden/auth/angular";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 
+import { twofactorRefactorSwap } from "../../../../libs/angular/src/utils/two-factor-component-refactor-route-swap";
 import { flagEnabled, Flags } from "../utils/flags";
 
 import { VerifyRecoverDeleteOrgComponent } from "./admin-console/organizations/manage/verify-recover-delete-org.component";
@@ -46,6 +48,7 @@ import { EmergencyAccessViewComponent } from "./auth/settings/emergency-access/v
 import { SecurityRoutingModule } from "./auth/settings/security/security-routing.module";
 import { SsoComponent } from "./auth/sso.component";
 import { TrialInitiationComponent } from "./auth/trial-initiation/trial-initiation.component";
+import { TwoFactorAuthComponent } from "./auth/two-factor-auth.component";
 import { TwoFactorComponent } from "./auth/two-factor.component";
 import { UpdatePasswordComponent } from "./auth/update-password.component";
 import { UpdateTempPasswordComponent } from "./auth/update-temp-password.component";
@@ -110,11 +113,6 @@ const routes: Routes = [
         path: "set-password",
         component: SetPasswordComponent,
         data: { titleId: "setMasterPassword" } satisfies DataProperties,
-      },
-      {
-        path: "lock",
-        component: LockComponent,
-        canActivate: [deepLinkGuard(), lockGuard()],
       },
       { path: "verify-email", component: VerifyEmailTokenComponent },
       {
@@ -245,13 +243,27 @@ const routes: Routes = [
         },
       },
       {
-        path: "2fa",
-        canActivate: [unauthGuardFn()],
+        path: "lock",
+        canActivate: [deepLinkGuard(), lockGuard()],
         children: [
           {
             path: "",
-            component: TwoFactorComponent,
+            component: LockComponent,
           },
+        ],
+        data: {
+          pageTitle: "yourVaultIsLockedV2",
+          pageIcon: LockIcon,
+          showReadonlyHostname: true,
+        } satisfies AnonLayoutWrapperData,
+      },
+      {
+        path: "2fa",
+        canActivate: [unauthGuardFn()],
+        children: [
+          ...twofactorRefactorSwap(TwoFactorComponent, TwoFactorAuthComponent, {
+            path: "",
+          }),
           {
             path: "",
             component: EnvironmentSelectorComponent,

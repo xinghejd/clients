@@ -3,6 +3,7 @@ import { CipherFormConfig } from "@bitwarden/vault";
 
 import { AdditionalOptionsSectionComponent } from "./components/additional-options/additional-options-section.component";
 import { CardDetailsSectionComponent } from "./components/card-details-section/card-details-section.component";
+import { IdentitySectionComponent } from "./components/identity/identity.component";
 import { ItemDetailsSectionComponent } from "./components/item-details/item-details-section.component";
 
 /**
@@ -13,6 +14,7 @@ export type CipherForm = {
   itemDetails?: ItemDetailsSectionComponent["itemDetailsForm"];
   additionalOptions?: AdditionalOptionsSectionComponent["additionalOptionsForm"];
   cardDetails?: CardDetailsSectionComponent["cardDetailsForm"];
+  identityDetails?: IdentitySectionComponent["identityForm"];
 };
 
 /**

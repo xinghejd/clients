@@ -37,6 +37,7 @@ import { CipherForm, CipherFormContainer } from "../cipher-form-container";
 
 import { AdditionalOptionsSectionComponent } from "./additional-options/additional-options-section.component";
 import { CardDetailsSectionComponent } from "./card-details-section/card-details-section.component";
+import { IdentitySectionComponent } from "./identity/identity.component";
 import { ItemDetailsSectionComponent } from "./item-details/item-details-section.component";
 
 @Component({
@@ -60,6 +61,7 @@ import { ItemDetailsSectionComponent } from "./item-details/item-details-section
     SelectModule,
     ItemDetailsSectionComponent,
     CardDetailsSectionComponent,
+    IdentitySectionComponent,
     NgIf,
     AdditionalOptionsSectionComponent,
   ],
