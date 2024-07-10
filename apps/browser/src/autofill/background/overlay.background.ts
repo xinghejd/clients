@@ -1096,9 +1096,20 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     const previousFocusedFieldData = this.focusedFieldData;
     this.focusedFieldData = { ...focusedFieldData, tabId: sender.tab.id, frameId: sender.frameId };
 
-    void this.updateIdentityCiphersOnLoginField(previousFocusedFieldData);
+    const accountCreationFieldBlurred =
+      previousFocusedFieldData?.showInlineMenuAccountCreation &&
+      !this.focusedFieldData.showInlineMenuAccountCreation;
+
+    if (accountCreationFieldBlurred || this.showInlineMenuAccountCreation()) {
+      void this.updateIdentityCiphersOnLoginField(previousFocusedFieldData);
+    }
   }
 
+  /**
+   * Triggers an update of populated identity ciphers when a login field is focused.
+   *
+   * @param previousFocusedFieldData - The data set of the previously focused field
+   */
   private async updateIdentityCiphersOnLoginField(previousFocusedFieldData: FocusedFieldData) {
     if (
       !previousFocusedFieldData ||
@@ -1108,11 +1119,11 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       return;
     }
 
-    const command = "updateAutofillInlineMenuListCiphers";
-    const showInlineMenuAccountCreation = this.showInlineMenuAccountCreation();
-    const ciphers = await this.getInlineMenuCipherData();
-
-    this.inlineMenuListPort?.postMessage({ command, ciphers, showInlineMenuAccountCreation });
+    this.inlineMenuListPort?.postMessage({
+      command: "updateAutofillInlineMenuListCiphers",
+      ciphers: await this.getInlineMenuCipherData(),
+      showInlineMenuAccountCreation: this.showInlineMenuAccountCreation(),
+    });
   }
 
   /**
