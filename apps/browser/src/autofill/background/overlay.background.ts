@@ -251,7 +251,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     this.inlineMenuListPort?.postMessage({
       command: "updateAutofillInlineMenuListCiphers",
       ciphers,
-      showLoginAccountCreation: this.showLoginAccountCreation(),
+      showInlineMenuAccountCreation: this.showInlineMenuAccountCreation(),
     });
   }
 
@@ -314,9 +314,8 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     const showFavicons = await firstValueFrom(this.domainSettingsService.showFavicons$);
     const inlineMenuCiphersArray = Array.from(this.inlineMenuCiphers);
     let inlineMenuCipherData: InlineMenuCipherData[] = [];
-    const showLoginAccountCreation = this.showLoginAccountCreation();
 
-    if (showLoginAccountCreation) {
+    if (this.showInlineMenuAccountCreation()) {
       inlineMenuCipherData = this.buildAccountCreationLoginCiphers(inlineMenuCiphersArray, true);
     } else {
       inlineMenuCipherData = this.buildInlineMenuCiphers(inlineMenuCiphersArray, showFavicons);
@@ -386,10 +385,10 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     inlineMenuCipherId: string,
     cipher: CipherView,
     showFavicons: boolean,
-    showLoginAccountCreation: boolean = false,
+    showInlineMenuAccountCreation: boolean = false,
     identityData?: { fullName: string; username?: string },
   ): InlineMenuCipherData {
-    const inlineMenuData: Partial<InlineMenuCipherData> = {
+    const inlineMenuData: InlineMenuCipherData = {
       id: inlineMenuCipherId,
       name: cipher.name,
       type: cipher.type,
@@ -401,23 +400,22 @@ export class OverlayBackground implements OverlayBackgroundInterface {
 
     if (cipher.type === CipherType.Login) {
       inlineMenuData.login = { username: cipher.login.username };
+      return inlineMenuData;
     }
 
     if (cipher.type === CipherType.Card) {
       inlineMenuData.card = cipher.card.subTitle;
+      return inlineMenuData;
     }
 
-    if (cipher.type === CipherType.Identity) {
-      inlineMenuData.identity =
-        identityData || this.getIdentityCipherData(cipher, showLoginAccountCreation);
-    }
-
-    return inlineMenuData as InlineMenuCipherData;
+    inlineMenuData.identity =
+      identityData || this.getIdentityCipherData(cipher, showInlineMenuAccountCreation);
+    return inlineMenuData;
   }
 
   private getIdentityCipherData(
     cipher: CipherView,
-    showLoginAccountCreation: boolean = false,
+    showInlineMenuAccountCreation: boolean = false,
   ): { fullName: string; username?: string } {
     const { firstName, lastName } = cipher.identity;
 
@@ -432,7 +430,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     }
 
     if (
-      !showLoginAccountCreation ||
+      !showInlineMenuAccountCreation ||
       !this.focusedFieldData?.accountCreationFieldType ||
       this.focusedFieldData.accountCreationFieldType === "password"
     ) {
@@ -448,9 +446,9 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     };
   }
 
-  private showLoginAccountCreation(): boolean {
-    if (typeof this.focusedFieldData?.showLoginAccountCreation !== "undefined") {
-      return this.focusedFieldData?.showLoginAccountCreation;
+  private showInlineMenuAccountCreation(): boolean {
+    if (typeof this.focusedFieldData?.showInlineMenuAccountCreation !== "undefined") {
+      return this.focusedFieldData?.showInlineMenuAccountCreation;
     }
 
     if (this.focusedFieldData?.filledByCipherType !== CipherType.Login) {
@@ -1078,10 +1076,10 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     }
 
     const command = "updateAutofillInlineMenuListCiphers";
-    const showLoginAccountCreation = this.showLoginAccountCreation();
+    const showInlineMenuAccountCreation = this.showInlineMenuAccountCreation();
     const ciphers = await this.getInlineMenuCipherData();
 
-    this.inlineMenuListPort?.postMessage({ command, ciphers, showLoginAccountCreation });
+    this.inlineMenuListPort?.postMessage({ command, ciphers, showInlineMenuAccountCreation });
   }
 
   /**
@@ -1463,21 +1461,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     identityView.username = identity.username || "";
 
     if (identity.fullName && !identityView.firstName && !identityView.lastName) {
-      const fullNameParts = identity.fullName.split(" ");
-      if (fullNameParts.length === 3) {
-        identityView.firstName = fullNameParts[0] || "";
-        identityView.middleName = fullNameParts[1] || "";
-        identityView.lastName = fullNameParts[2] || "";
-      }
-
-      if (fullNameParts.length === 2) {
-        identityView.firstName = fullNameParts[0] || "";
-        identityView.lastName = fullNameParts[1] || "";
-      }
-
-      if (fullNameParts.length === 1) {
-        identityView.firstName = fullNameParts[0] || "";
-      }
+      this.buildIdentityNameParts(identity, identityView);
     }
 
     const cipherView = new CipherView();
@@ -1487,6 +1471,30 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     cipherView.identity = identityView;
 
     return cipherView;
+  }
+
+  private buildIdentityNameParts(identity: NewIdentityCipherData, identityView: IdentityView) {
+    const fullNameParts = identity.fullName.split(" ");
+    if (fullNameParts.length === 0) {
+      return;
+    }
+
+    if (fullNameParts.length === 1) {
+      identityView.firstName = fullNameParts[0] || "";
+
+      return;
+    }
+
+    if (fullNameParts.length === 2) {
+      identityView.firstName = fullNameParts[0] || "";
+      identityView.lastName = fullNameParts[1] || "";
+
+      return;
+    }
+
+    identityView.firstName = fullNameParts[0] || "";
+    identityView.middleName = fullNameParts[1] || "";
+    identityView.lastName = fullNameParts[2] || "";
   }
 
   /**
@@ -1812,7 +1820,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
         ? AutofillOverlayPort.ListMessageConnector
         : AutofillOverlayPort.ButtonMessageConnector,
       filledByCipherType: this.focusedFieldData?.filledByCipherType,
-      showLoginAccountCreation: this.showLoginAccountCreation(),
+      showInlineMenuAccountCreation: this.showInlineMenuAccountCreation(),
     });
     void this.updateInlineMenuPosition(
       {

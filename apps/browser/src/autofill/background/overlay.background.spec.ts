@@ -830,7 +830,7 @@ describe("OverlayBackground", () => {
 
       expect(overlayBackground["inlineMenuListPort"].postMessage).toHaveBeenCalledWith({
         command: "updateAutofillInlineMenuListCiphers",
-        showLoginAccountCreation: false,
+        showInlineMenuAccountCreation: false,
         ciphers: [
           {
             accountCreationFieldType: undefined,

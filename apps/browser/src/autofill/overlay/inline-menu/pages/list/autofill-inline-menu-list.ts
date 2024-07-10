@@ -23,7 +23,7 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
   private cipherListScrollDebounceTimeout: number | NodeJS.Timeout;
   private currentCipherIndex = 0;
   private filledByCipherType: CipherType;
-  private showLoginAccountCreation: boolean;
+  private showInlineMenuAccountCreation: boolean;
   private readonly showCiphersPerPage = 6;
   private newItemButtonElement: HTMLButtonElement;
   private readonly inlineMenuListWindowMessageHandlers: AutofillInlineMenuListWindowMessageHandlers =
@@ -31,7 +31,7 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
       initAutofillInlineMenuList: ({ message }) => this.initAutofillInlineMenuList(message),
       checkAutofillInlineMenuListFocused: () => this.checkInlineMenuListFocused(),
       updateAutofillInlineMenuListCiphers: ({ message }) =>
-        this.updateListItems(message.ciphers, message.showLoginAccountCreation),
+        this.updateListItems(message.ciphers, message.showInlineMenuAccountCreation),
       focusAutofillInlineMenuList: () => this.focusInlineMenuList(),
     };
 
@@ -52,7 +52,7 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
    * @param ciphers - The ciphers to display in the inline menu list.
    * @param portKey - Background generated key that allows the port to communicate with the background.
    * @param filledByCipherType - The type of cipher that fills the current field.
-   * @param showLoginAccountCreation - Whether identity ciphers are shown on login fields.
+   * @param showInlineMenuAccountCreation - Whether identity ciphers are shown on login fields.
    */
   private async initAutofillInlineMenuList({
     translations,
@@ -62,7 +62,7 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
     ciphers,
     portKey,
     filledByCipherType,
-    showLoginAccountCreation,
+    showInlineMenuAccountCreation,
   }: InitAutofillInlineMenuListMessage) {
     const linkElement = await this.initAutofillInlineMenuPage(
       "list",
@@ -83,7 +83,7 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
     this.shadowDom.append(linkElement, this.inlineMenuListContainer);
 
     if (authStatus === AuthenticationStatus.Unlocked) {
-      this.updateListItems(ciphers, showLoginAccountCreation);
+      this.updateListItems(ciphers, showInlineMenuAccountCreation);
       return;
     }
 
@@ -134,12 +134,15 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
    * If no ciphers are passed, the no results inline menu is built.
    *
    * @param ciphers - The ciphers to display in the inline menu list.
-   * @param showLoginAccountCreation - Whether identity ciphers are shown on login fields.
+   * @param showInlineMenuAccountCreation - Whether identity ciphers are shown on login fields.
    */
-  private updateListItems(ciphers: InlineMenuCipherData[], showLoginAccountCreation?: boolean) {
+  private updateListItems(
+    ciphers: InlineMenuCipherData[],
+    showInlineMenuAccountCreation?: boolean,
+  ) {
     this.ciphers = ciphers;
     this.currentCipherIndex = 0;
-    this.showLoginAccountCreation = showLoginAccountCreation;
+    this.showInlineMenuAccountCreation = showInlineMenuAccountCreation;
     if (this.inlineMenuListContainer) {
       this.inlineMenuListContainer.innerHTML = "";
     }
@@ -160,7 +163,7 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
 
     this.inlineMenuListContainer.appendChild(this.ciphersList);
 
-    if (this.showLoginAccountCreation) {
+    if (this.showInlineMenuAccountCreation) {
       const addNewLoginButtonContainer = this.buildNewItemButton();
       this.inlineMenuListContainer.appendChild(addNewLoginButtonContainer);
       this.inlineMenuListContainer.classList.add(
@@ -216,7 +219,7 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
    * Gets the new item text for the button based on the cipher type the focused field is filled by.
    */
   private getNewItemButtonText() {
-    if (this.filledByCipherType === CipherType.Login || this.showLoginAccountCreation) {
+    if (this.filledByCipherType === CipherType.Login || this.showInlineMenuAccountCreation) {
       return this.getTranslation("newLogin");
     }
 
@@ -235,7 +238,7 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
    * Gets the aria label for the new item button based on the cipher type the focused field is filled by.
    */
   private getNewItemAriaLabel() {
-    if (this.filledByCipherType === CipherType.Login || this.showLoginAccountCreation) {
+    if (this.filledByCipherType === CipherType.Login || this.showInlineMenuAccountCreation) {
       return this.getTranslation("addNewLoginItem");
     }
 
@@ -265,7 +268,7 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
   private handeNewItemButtonClick = () => {
     let addNewCipherType = this.filledByCipherType;
 
-    if (this.showLoginAccountCreation) {
+    if (this.showInlineMenuAccountCreation) {
       addNewCipherType = CipherType.Login;
     }
 

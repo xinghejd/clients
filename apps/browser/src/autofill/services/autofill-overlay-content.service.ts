@@ -803,7 +803,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
       focusedFieldStyles: { paddingRight, paddingLeft },
       focusedFieldRects: { width, height, top, left },
       filledByCipherType: autofillFieldData?.filledByCipherType,
-      showLoginAccountCreation: autofillFieldData?.showInlineMenuAccountCreation,
+      showInlineMenuAccountCreation: autofillFieldData?.showInlineMenuAccountCreation,
       accountCreationFieldType,
     };
 
