@@ -123,6 +123,8 @@ export class LoginDetailsSectionComponent implements OnInit {
   }
 
   private initFromExistingCipher(existingLogin: LoginView) {
+    // Note: this.loginView will still contain references to the existing login's Uri and Fido2Credential arrays.
+    // We may need to deep clone these in the future.
     Object.assign(this.loginView, existingLogin);
     this.loginDetailsForm.patchValue({
       username: this.loginView.username,
