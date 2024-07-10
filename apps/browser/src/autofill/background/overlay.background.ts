@@ -360,7 +360,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     }
 
     if (accountCreationLoginCiphers.length) {
-      return accountCreationLoginCiphers.concat(inlineMenuCipherData);
+      return inlineMenuCipherData.concat(accountCreationLoginCiphers);
     }
 
     return inlineMenuCipherData;
