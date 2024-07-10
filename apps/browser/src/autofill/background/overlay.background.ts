@@ -313,75 +313,111 @@ export class OverlayBackground implements OverlayBackgroundInterface {
   private async getInlineMenuCipherData(): Promise<InlineMenuCipherData[]> {
     const showFavicons = await firstValueFrom(this.domainSettingsService.showFavicons$);
     const inlineMenuCiphersArray = Array.from(this.inlineMenuCiphers);
-    const inlineMenuCipherData: InlineMenuCipherData[] = [];
-    const accountCreationLoginCiphers: InlineMenuCipherData[] = [];
+    let inlineMenuCipherData: InlineMenuCipherData[] = [];
+    const showLoginAccountCreation = this.showLoginAccountCreation();
 
-    const showLoginAccountCreation =
-      this.focusedFieldData?.showLoginAccountCreation || this.showLoginAccountCreation();
-
-    for (let cipherIndex = 0; cipherIndex < inlineMenuCiphersArray.length; cipherIndex++) {
-      const [inlineMenuCipherId, cipher] = inlineMenuCiphersArray[cipherIndex];
-      if (!showLoginAccountCreation && this.focusedFieldData?.filledByCipherType !== cipher.type) {
-        continue;
-      }
-
-      if (showLoginAccountCreation && cipher.type === CipherType.Login) {
-        accountCreationLoginCiphers.push({
-          id: inlineMenuCipherId,
-          name: cipher.name,
-          type: cipher.type,
-          reprompt: cipher.reprompt,
-          favorite: cipher.favorite,
-          icon: buildCipherIcon(this.iconsServerUrl, cipher, showFavicons),
-          accountCreationFieldType: this.focusedFieldData?.accountCreationFieldType,
-          login: { username: cipher.login.username },
-        });
-        continue;
-      }
-
-      if (
-        showLoginAccountCreation &&
-        (cipher.type !== CipherType.Identity || !this.focusedFieldData?.accountCreationFieldType)
-      ) {
-        continue;
-      }
-
-      const identity =
-        cipher.type === CipherType.Identity
-          ? this.getIdentityCipherData(cipher, showLoginAccountCreation)
-          : null;
-
-      if (showLoginAccountCreation && !identity?.username) {
-        continue;
-      }
-
-      inlineMenuCipherData.push({
-        id: inlineMenuCipherId,
-        name: cipher.name,
-        type: cipher.type,
-        reprompt: cipher.reprompt,
-        favorite: cipher.favorite,
-        icon: buildCipherIcon(this.iconsServerUrl, cipher, showFavicons),
-        accountCreationFieldType: this.focusedFieldData?.accountCreationFieldType,
-        login: cipher.type === CipherType.Login ? { username: cipher.login.username } : null,
-        card: cipher.type === CipherType.Card ? cipher.card.subTitle : null,
-        identity,
-      });
-    }
-
-    if (accountCreationLoginCiphers.length) {
-      const cipherData = accountCreationLoginCiphers.concat(inlineMenuCipherData);
-      this.currentInlineMenuCiphersCount = cipherData.length;
-      return cipherData;
+    if (showLoginAccountCreation) {
+      inlineMenuCipherData = this.buildAccountCreationLoginCiphers(inlineMenuCiphersArray, true);
+    } else {
+      inlineMenuCipherData = this.buildInlineMenuCiphers(inlineMenuCiphersArray, showFavicons);
     }
 
     this.currentInlineMenuCiphersCount = inlineMenuCipherData.length;
     return inlineMenuCipherData;
   }
 
+  private buildAccountCreationLoginCiphers(
+    inlineMenuCiphersArray: [string, CipherView][],
+    showFavicons: boolean,
+  ) {
+    const inlineMenuCipherData: InlineMenuCipherData[] = [];
+    const accountCreationLoginCiphers: InlineMenuCipherData[] = [];
+
+    for (let cipherIndex = 0; cipherIndex < inlineMenuCiphersArray.length; cipherIndex++) {
+      const [inlineMenuCipherId, cipher] = inlineMenuCiphersArray[cipherIndex];
+
+      if (cipher.type === CipherType.Login) {
+        accountCreationLoginCiphers.push(
+          this.buildCipherData(inlineMenuCipherId, cipher, showFavicons, true),
+        );
+        continue;
+      }
+
+      if (cipher.type !== CipherType.Identity || !this.focusedFieldData?.accountCreationFieldType) {
+        continue;
+      }
+
+      const identity = this.getIdentityCipherData(cipher, true);
+      if (!identity?.username) {
+        continue;
+      }
+
+      inlineMenuCipherData.push(
+        this.buildCipherData(inlineMenuCipherId, cipher, showFavicons, true, identity),
+      );
+    }
+
+    if (accountCreationLoginCiphers.length) {
+      return accountCreationLoginCiphers.concat(inlineMenuCipherData);
+    }
+
+    return inlineMenuCipherData;
+  }
+
+  private buildInlineMenuCiphers(
+    inlineMenuCiphersArray: [string, CipherView][],
+    showFavicons: boolean,
+  ) {
+    const inlineMenuCipherData: InlineMenuCipherData[] = [];
+
+    for (let cipherIndex = 0; cipherIndex < inlineMenuCiphersArray.length; cipherIndex++) {
+      const [inlineMenuCipherId, cipher] = inlineMenuCiphersArray[cipherIndex];
+      if (this.focusedFieldData?.filledByCipherType !== cipher.type) {
+        continue;
+      }
+
+      inlineMenuCipherData.push(this.buildCipherData(inlineMenuCipherId, cipher, showFavicons));
+    }
+
+    return inlineMenuCipherData;
+  }
+
+  private buildCipherData(
+    inlineMenuCipherId: string,
+    cipher: CipherView,
+    showFavicons: boolean,
+    showLoginAccountCreation: boolean = false,
+    identityData?: { fullName: string; username?: string },
+  ): InlineMenuCipherData {
+    const inlineMenuData: Partial<InlineMenuCipherData> = {
+      id: inlineMenuCipherId,
+      name: cipher.name,
+      type: cipher.type,
+      reprompt: cipher.reprompt,
+      favorite: cipher.favorite,
+      icon: buildCipherIcon(this.iconsServerUrl, cipher, showFavicons),
+      accountCreationFieldType: this.focusedFieldData?.accountCreationFieldType,
+    };
+
+    if (cipher.type === CipherType.Login) {
+      inlineMenuData.login = { username: cipher.login.username };
+    }
+
+    if (cipher.type === CipherType.Card) {
+      inlineMenuData.card = cipher.card.subTitle;
+    }
+
+    if (cipher.type === CipherType.Identity) {
+      inlineMenuData.identity =
+        identityData || this.getIdentityCipherData(cipher, showLoginAccountCreation);
+    }
+
+    return inlineMenuData as InlineMenuCipherData;
+  }
+
   private getIdentityCipherData(
     cipher: CipherView,
-    showLoginAccountCreation: boolean,
+    showLoginAccountCreation: boolean = false,
   ): { fullName: string; username?: string } {
     const { firstName, lastName } = cipher.identity;
 
@@ -1042,8 +1078,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     }
 
     const command = "updateAutofillInlineMenuListCiphers";
-    const showLoginAccountCreation =
-      this.focusedFieldData?.showLoginAccountCreation || this.showLoginAccountCreation();
+    const showLoginAccountCreation = this.showLoginAccountCreation();
     const ciphers = await this.getInlineMenuCipherData();
 
     this.inlineMenuListPort?.postMessage({ command, ciphers, showLoginAccountCreation });

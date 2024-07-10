@@ -834,8 +834,6 @@ describe("OverlayBackground", () => {
         ciphers: [
           {
             accountCreationFieldType: undefined,
-            card: null,
-            identity: null,
             favorite: cipher1.favorite,
             icon: {
               fallbackImage: "images/bwi-globe.png",
