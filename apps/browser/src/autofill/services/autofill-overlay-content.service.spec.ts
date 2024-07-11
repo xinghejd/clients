@@ -1354,6 +1354,67 @@ describe("AutofillOverlayContentService", () => {
           );
         });
       });
+
+      describe("setting up the form field listeners on account creation fields", () => {
+        const inputAccountFieldData = createAutofillFieldMock({
+          opid: "create-account-field",
+          form: "validFormId",
+          elementNumber: 3,
+          autoCompleteType: "username",
+          placeholder: "new username",
+          type: "text",
+          viewable: true,
+        });
+        const passwordAccountFieldData = createAutofillFieldMock({
+          opid: "create-account-password-field",
+          form: "validFormId",
+          elementNumber: 4,
+          autoCompleteType: "new-password",
+          placeholder: "new password",
+          type: "password",
+          viewable: true,
+        });
+
+        beforeEach(() => {
+          pageDetailsMock.fields = [inputAccountFieldData, passwordAccountFieldData];
+          jest
+            .spyOn(inlineMenuFieldQualificationService, "isFieldForLoginForm")
+            .mockReturnValue(false);
+        });
+
+        it("sets up the field listeners on the field", async () => {
+          await autofillOverlayContentService.setupInlineMenu(
+            autofillFieldElement,
+            inputAccountFieldData,
+            pageDetailsMock,
+          );
+          await flushPromises();
+
+          expect(autofillFieldElement.addEventListener).toHaveBeenCalledWith(
+            EVENTS.BLUR,
+            expect.any(Function),
+          );
+          expect(autofillFieldElement.addEventListener).toHaveBeenCalledWith(
+            EVENTS.KEYUP,
+            expect.any(Function),
+          );
+          expect(autofillFieldElement.addEventListener).toHaveBeenCalledWith(
+            EVENTS.INPUT,
+            expect.any(Function),
+          );
+          expect(autofillFieldElement.addEventListener).toHaveBeenCalledWith(
+            EVENTS.CLICK,
+            expect.any(Function),
+          );
+          expect(autofillFieldElement.addEventListener).toHaveBeenCalledWith(
+            EVENTS.FOCUS,
+            expect.any(Function),
+          );
+          expect(autofillFieldElement.removeEventListener).toHaveBeenCalled();
+          expect(inputAccountFieldData.filledByCipherType).toEqual(CipherType.Identity);
+          expect(inputAccountFieldData.showInlineMenuAccountCreation).toEqual(true);
+        });
+      });
     });
 
     it("skips triggering the form field focused handler if the document is not focused", async () => {
