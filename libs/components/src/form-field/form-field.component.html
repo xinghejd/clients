@@ -1,14 +1,54 @@
-<label class="tw-mb-1 tw-block tw-font-semibold tw-text-main" [attr.for]="input.labelForId">
-  <ng-content select="bit-label"></ng-content>
-  <span *ngIf="input.required" class="tw-text-xs tw-font-normal"> ({{ "required" | i18n }})</span>
-</label>
-<div class="tw-flex">
-  <div *ngIf="prefixChildren.length" class="tw-flex">
-    <ng-content select="[bitPrefix]"></ng-content>
+<div class="tw-w-full tw-relative tw-group/bit-form-field">
+  <div
+    class="tw-gap-1 tw-bg-background tw-rounded-lg tw-flex tw-min-h-11 [&:not(:has(button:enabled)):has(input:read-only)]:tw-bg-secondary-100 [&:not(:has(button:enabled)):has(textarea:read-only)]:tw-bg-secondary-100"
+  >
+    <div
+      #prefixSlot
+      [hidden]="prefixSlot.childElementCount === 0"
+      class="tw-flex tw-items-center tw-gap-1 tw-pl-3 tw-py-2"
+    >
+      <ng-content select="[bitPrefix]"></ng-content>
+    </div>
+    <div
+      class="tw-w-full tw-relative tw-py-2 has-[bit-select]:tw-p-0 has-[bit-multi-select]:tw-p-0 has-[input:read-only:not([hidden])]:tw-bg-secondary-100 has-[textarea:read-only:not([hidden])]:tw-bg-secondary-100"
+      [ngClass]="[
+        prefixSlot.childElementCount === 0 ? 'tw-rounded-l-lg tw-pl-3' : '',
+        suffixSlot.childElementCount === 0 ? 'tw-rounded-r-lg tw-pr-3' : ''
+      ]"
+    >
+      <ng-content></ng-content>
+    </div>
+    <div
+      #suffixSlot
+      [hidden]="suffixSlot.childElementCount === 0"
+      class="tw-flex tw-items-center tw-gap-1 tw-pr-3 tw-py-2"
+    >
+      <ng-content select="[bitSuffix]"></ng-content>
+    </div>
   </div>
-  <ng-content></ng-content>
-  <div *ngIf="suffixChildren.length" class="tw-flex">
-    <ng-content select="[bitSuffix]"></ng-content>
+  <div class="tw-absolute tw-w-full tw-h-full tw-top-0 tw-pointer-events-none">
+    <div class="tw-w-full tw-h-full tw-flex">
+      <div
+        class="tw-min-w-3 tw-border-r-0 group-focus-within/bit-form-field:tw-border-r-0 !tw-rounded-l-lg"
+        [ngClass]="inputBorderClasses"
+      ></div>
+      <div
+        class="tw-px-1 tw-shrink tw-min-w-0 tw-mt-px tw-border-x-0 tw-border-t-0 group-focus-within/bit-form-field:tw-border-x-0 group-focus-within/bit-form-field:tw-border-t-0 tw-hidden group-has-[bit-label]/bit-form-field:tw-block"
+        [ngClass]="inputBorderClasses"
+      >
+        <label
+          class="tw-flex tw-gap-1 tw-text-sm tw-text-muted -tw-translate-y-2.5 tw-mb-0 tw-max-w-full tw-pointer-events-auto"
+          [attr.for]="input.labelForId"
+        >
+          <ng-content select="bit-label"></ng-content>
+          <span *ngIf="input.required" class="tw-text-[0.625rem]"> ({{ "required" | i18n }})</span>
+        </label>
+      </div>
+      <div
+        class="tw-min-w-3 tw-grow tw-border-l-0 group-focus-within/bit-form-field:tw-border-l-0 !tw-rounded-r-lg"
+        [ngClass]="inputBorderClasses"
+      ></div>
+    </div>
   </div>
 </div>
 <ng-container [ngSwitch]="input.hasError">
