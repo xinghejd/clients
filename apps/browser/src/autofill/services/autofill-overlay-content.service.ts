@@ -282,30 +282,28 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
       return;
     }
 
-    if (addNewCipherType !== CipherType.Identity) {
-      return;
+    if (addNewCipherType === CipherType.Identity) {
+      const identity: NewIdentityCipherData = {
+        title: this.userFilledFields["identityTitle"]?.value || "",
+        firstName: this.userFilledFields["identityFirstName"]?.value || "",
+        middleName: this.userFilledFields["identityMiddleName"]?.value || "",
+        lastName: this.userFilledFields["identityLastName"]?.value || "",
+        fullName: this.userFilledFields["identityFullName"]?.value || "",
+        address1: this.userFilledFields["identityAddress1"]?.value || "",
+        address2: this.userFilledFields["identityAddress2"]?.value || "",
+        address3: this.userFilledFields["identityAddress3"]?.value || "",
+        city: this.userFilledFields["identityCity"]?.value || "",
+        state: this.userFilledFields["identityState"]?.value || "",
+        postalCode: this.userFilledFields["identityPostalCode"]?.value || "",
+        country: this.userFilledFields["identityCountry"]?.value || "",
+        company: this.userFilledFields["identityCompany"]?.value || "",
+        phone: this.userFilledFields["identityPhone"]?.value || "",
+        email: this.userFilledFields["identityEmail"]?.value || "",
+        username: this.userFilledFields["identityUsername"]?.value || "",
+      };
+
+      void this.sendExtensionMessage(command, { addNewCipherType, identity });
     }
-
-    const identity: NewIdentityCipherData = {
-      title: this.userFilledFields["identityTitle"]?.value || "",
-      firstName: this.userFilledFields["identityFirstName"]?.value || "",
-      middleName: this.userFilledFields["identityMiddleName"]?.value || "",
-      lastName: this.userFilledFields["identityLastName"]?.value || "",
-      fullName: this.userFilledFields["identityFullName"]?.value || "",
-      address1: this.userFilledFields["identityAddress1"]?.value || "",
-      address2: this.userFilledFields["identityAddress2"]?.value || "",
-      address3: this.userFilledFields["identityAddress3"]?.value || "",
-      city: this.userFilledFields["identityCity"]?.value || "",
-      state: this.userFilledFields["identityState"]?.value || "",
-      postalCode: this.userFilledFields["identityPostalCode"]?.value || "",
-      country: this.userFilledFields["identityCountry"]?.value || "",
-      company: this.userFilledFields["identityCompany"]?.value || "",
-      phone: this.userFilledFields["identityPhone"]?.value || "",
-      email: this.userFilledFields["identityEmail"]?.value || "",
-      username: this.userFilledFields["identityUsername"]?.value || "",
-    };
-
-    void this.sendExtensionMessage(command, { addNewCipherType, identity });
   }
 
   /**
@@ -555,7 +553,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
   }
 
   /**
-   * Handles storing the user field login field to be used when adding a new vault item.
+   * Handles qualifying the user field login field to be used when adding a new vault item.
    *
    * @param autofillFieldData - Autofill field data captured from the form field element.
    */
@@ -569,7 +567,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
   }
 
   /**
-   * Handles storing the user field card field to be used when adding a new vault item.
+   * Handles qualifying the user field card field to be used when adding a new vault item.
    *
    * @param autofillFieldData - Autofill field data captured from the form field element.
    */
@@ -584,6 +582,11 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     }
   }
 
+  /**
+   *  Handles qualifying the user field identity field to be used when adding a new vault item.
+   *
+   * @param autofillFieldData - Autofill field data captured from the form field element.
+   */
   private qualifyUserFilledIdentityField(autofillFieldData: AutofillField) {
     for (const [fieldQualifier, fieldQualifierFunction] of Object.entries(
       this.identityFieldQualifiers,
@@ -595,6 +598,12 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     }
   }
 
+  /**
+   * Stores the qualified user filled filed to allow for referencing its value when adding a new vault item.
+   *
+   * @param formFieldElement - The form field element that triggered the input event.
+   * @param autofillFieldData - Autofill field data captured from the form field element.
+   */
   private storeQualifiedUserFilledField(
     formFieldElement: ElementWithOpId<FillableFormFieldElement>,
     autofillFieldData: AutofillField,
