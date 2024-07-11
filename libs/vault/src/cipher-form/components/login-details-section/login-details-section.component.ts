@@ -5,6 +5,7 @@ import { FormBuilder, ReactiveFormsModule } from "@angular/forms";
 import { map } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
+import { AuditService } from "@bitwarden/common/abstractions/audit.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
 import {
@@ -18,7 +19,10 @@ import {
   ToastService,
   TypographyModule,
 } from "@bitwarden/components";
-import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legacy";
+import {
+  PasswordGenerationServiceAbstraction,
+  UsernameGenerationServiceAbstraction,
+} from "@bitwarden/generator-legacy";
 
 import { TotpCaptureService } from "../../abstractions/totp-capture.service";
 import { CipherFormContainer } from "../../cipher-form-container";
@@ -84,7 +88,9 @@ export class LoginDetailsSectionComponent implements OnInit {
     private cipherFormContainer: CipherFormContainer,
     private formBuilder: FormBuilder,
     private i18nService: I18nService,
-    private generatorService: PasswordGenerationServiceAbstraction,
+    private passwordGenerationService: PasswordGenerationServiceAbstraction,
+    private usernameGenerationService: UsernameGenerationServiceAbstraction,
+    private auditService: AuditService,
     private toastService: ToastService,
     @Optional() private totpCaptureService?: TotpCaptureService,
   ) {
@@ -142,7 +148,7 @@ export class LoginDetailsSectionComponent implements OnInit {
     this.loginDetailsForm.controls.password.patchValue(await this.generateNewPassword());
   }
 
-  captureTotpFromTab = async () => {
+  captureTotp = async () => {
     if (!this.canCaptureTotp) {
       return;
     }
@@ -173,8 +179,54 @@ export class LoginDetailsSectionComponent implements OnInit {
     });
   };
 
+  /**
+   * Generate a new password and update the form.
+   * TODO: Browser extension needs a means to cache the current form so values are not lost upon navigating to the generator.
+   */
+  generatePassword = async () => {
+    const newPassword = await this.generateNewPassword();
+    this.loginDetailsForm.controls.password.patchValue(newPassword);
+  };
+
+  /**
+   * Generate a new username and update the form.
+   * TODO: Browser extension needs a means to cache the current form so values are not lost upon navigating to the generator.
+   */
+  generateUsername = async () => {
+    const options = await this.usernameGenerationService.getOptions();
+    const newUsername = await this.usernameGenerationService.generateUsername(options);
+    this.loginDetailsForm.controls.username.patchValue(newUsername);
+  };
+
+  /**
+   * Checks if the password has been exposed in a data breach using the AuditService.
+   */
+  checkPassword = async () => {
+    const password = this.loginDetailsForm.controls.password.value;
+
+    if (password == null || password === "") {
+      return;
+    }
+
+    const matches = await this.auditService.passwordLeaked(password);
+
+    if (matches > 0) {
+      this.toastService.showToast({
+        variant: "warning",
+        title: null,
+        message: this.i18nService.t("passwordExposed", matches.toString()),
+      });
+    } else {
+      this.toastService.showToast({
+        variant: "success",
+        title: null,
+        message: this.i18nService.t("passwordSafe"),
+      });
+    }
+  };
+
   private async generateNewPassword() {
-    const [options] = await this.generatorService.getOptions();
-    return await this.generatorService.generatePassword(options);
+    const [options] = await this.passwordGenerationService.getOptions();
+    return await this.passwordGenerationService.generatePassword(options);
   }
 }

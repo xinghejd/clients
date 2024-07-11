@@ -9,6 +9,7 @@ import {
 } from "@storybook/angular";
 import { BehaviorSubject } from "rxjs";
 
+import { AuditService } from "@bitwarden/common/abstractions/audit.service";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
@@ -17,7 +18,10 @@ import { CollectionView } from "@bitwarden/common/vault/models/view/collection.v
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
 import { AsyncActionsModule, ButtonModule, ToastService } from "@bitwarden/components";
-import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legacy";
+import {
+  PasswordGenerationServiceAbstraction,
+  UsernameGenerationServiceAbstraction,
+} from "@bitwarden/generator-legacy";
 import { CipherFormConfig, PasswordRepromptService } from "@bitwarden/vault";
 import { PreloadedEnglishI18nModule } from "@bitwarden/web-vault/src/app/core/tests";
 
@@ -135,9 +139,22 @@ export default {
           },
         },
         {
+          provide: UsernameGenerationServiceAbstraction,
+          useValue: {
+            getOptions: () => Promise.resolve({}),
+            generateUsername: () => Promise.resolve("random-username"),
+          },
+        },
+        {
           provide: TotpCaptureService,
           useValue: {
             captureTotpFromTab: () => Promise.resolve("some-value"),
+          },
+        },
+        {
+          provide: AuditService,
+          useValue: {
+            passwordLeaked: () => Promise.resolve(0),
           },
         },
       ],
