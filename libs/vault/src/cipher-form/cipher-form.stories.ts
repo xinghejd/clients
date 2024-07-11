@@ -19,10 +19,10 @@ import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
 import { AsyncActionsModule, ButtonModule, ToastService } from "@bitwarden/components";
 import {
-  PasswordGenerationServiceAbstraction,
-  UsernameGenerationServiceAbstraction,
-} from "@bitwarden/generator-legacy";
-import { CipherFormConfig, PasswordRepromptService } from "@bitwarden/vault";
+  CipherFormConfig,
+  CipherFormGenerationService,
+  PasswordRepromptService,
+} from "@bitwarden/vault";
 import { PreloadedEnglishI18nModule } from "@bitwarden/web-vault/src/app/core/tests";
 
 import { CipherFormService } from "./abstractions/cipher-form.service";
@@ -132,23 +132,17 @@ export default {
           },
         },
         {
-          provide: PasswordGenerationServiceAbstraction,
+          provide: CipherFormGenerationService,
           useValue: {
-            getOptions: () => Promise.resolve([{}, {}]),
+            generateInitialPassword: () => Promise.resolve("initial-password"),
             generatePassword: () => Promise.resolve("random-password"),
-          },
-        },
-        {
-          provide: UsernameGenerationServiceAbstraction,
-          useValue: {
-            getOptions: () => Promise.resolve({}),
             generateUsername: () => Promise.resolve("random-username"),
           },
         },
         {
           provide: TotpCaptureService,
           useValue: {
-            captureTotpFromTab: () => Promise.resolve("some-value"),
+            captureTotpSecret: () => Promise.resolve("some-value"),
           },
         },
         {

@@ -19,11 +19,8 @@ import {
   ToastService,
   TypographyModule,
 } from "@bitwarden/components";
-import {
-  PasswordGenerationServiceAbstraction,
-  UsernameGenerationServiceAbstraction,
-} from "@bitwarden/generator-legacy";
 
+import { CipherFormGenerationService } from "../../abstractions/cipher-form-generation.service";
 import { TotpCaptureService } from "../../abstractions/totp-capture.service";
 import { CipherFormContainer } from "../../cipher-form-container";
 
@@ -88,8 +85,7 @@ export class LoginDetailsSectionComponent implements OnInit {
     private cipherFormContainer: CipherFormContainer,
     private formBuilder: FormBuilder,
     private i18nService: I18nService,
-    private passwordGenerationService: PasswordGenerationServiceAbstraction,
-    private usernameGenerationService: UsernameGenerationServiceAbstraction,
+    private generationService: CipherFormGenerationService,
     private auditService: AuditService,
     private toastService: ToastService,
     @Optional() private totpCaptureService?: TotpCaptureService,
@@ -145,7 +141,9 @@ export class LoginDetailsSectionComponent implements OnInit {
   }
 
   private async initNewCipher() {
-    this.loginDetailsForm.controls.password.patchValue(await this.generateNewPassword());
+    this.loginDetailsForm.controls.password.patchValue(
+      await this.generationService.generateInitialPassword(),
+    );
   }
 
   captureTotp = async () => {
@@ -184,8 +182,11 @@ export class LoginDetailsSectionComponent implements OnInit {
    * TODO: Browser extension needs a means to cache the current form so values are not lost upon navigating to the generator.
    */
   generatePassword = async () => {
-    const newPassword = await this.generateNewPassword();
-    this.loginDetailsForm.controls.password.patchValue(newPassword);
+    const newPassword = await this.generationService.generatePassword();
+
+    if (newPassword) {
+      this.loginDetailsForm.controls.password.patchValue(newPassword);
+    }
   };
 
   /**
@@ -193,9 +194,10 @@ export class LoginDetailsSectionComponent implements OnInit {
    * TODO: Browser extension needs a means to cache the current form so values are not lost upon navigating to the generator.
    */
   generateUsername = async () => {
-    const options = await this.usernameGenerationService.getOptions();
-    const newUsername = await this.usernameGenerationService.generateUsername(options);
-    this.loginDetailsForm.controls.username.patchValue(newUsername);
+    const newUsername = await this.generationService.generateUsername();
+    if (newUsername) {
+      this.loginDetailsForm.controls.username.patchValue(newUsername);
+    }
   };
 
   /**
@@ -224,9 +226,4 @@ export class LoginDetailsSectionComponent implements OnInit {
       });
     }
   };
-
-  private async generateNewPassword() {
-    const [options] = await this.passwordGenerationService.getOptions();
-    return await this.passwordGenerationService.generatePassword(options);
-  }
 }
