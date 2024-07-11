@@ -1,19 +1,29 @@
+import { animate, group, style, transition, trigger } from "@angular/animations";
+import { DialogRef } from "@angular/cdk/dialog";
+import { Overlay } from "@angular/cdk/overlay";
 import { CommonModule, Location } from "@angular/common";
-import { Component } from "@angular/core";
+import { Component, Injectable } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormsModule } from "@angular/forms";
 import { ActivatedRoute, Params } from "@angular/router";
-import { map, switchMap } from "rxjs";
+import { firstValueFrom, map, switchMap } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherId, CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
-import { AsyncActionsModule, ButtonModule, SearchModule } from "@bitwarden/components";
+import {
+  AsyncActionsModule,
+  ButtonModule,
+  DialogService,
+  FormFieldModule,
+  SearchModule,
+} from "@bitwarden/components";
 import {
   CipherFormConfig,
   CipherFormConfigService,
+  CipherFormGenerationService,
   CipherFormMode,
   CipherFormModule,
   DefaultCipherFormConfigService,
@@ -78,6 +88,89 @@ class QueryParams {
 
 export type AddEditQueryParams = Partial<Record<keyof QueryParams, string>>;
 
+const fadeIn = trigger("fadeIn", [
+  transition(":enter", [
+    style({ opacity: 0, transform: "translateX(100vw)" }),
+    group([
+      animate("0.15s linear", style({ opacity: 1 })),
+      animate("0.3s ease-out", style({ transform: "none" })),
+    ]),
+  ]),
+]);
+
+@Component({
+  selector: "app-custom-popup-dialog",
+  template: `
+    <popup-page @fadeIn>
+      <popup-header
+        pageTitle="I'm a Popup"
+        slot="header"
+        showBackButton
+        [backAction]="close"
+      ></popup-header>
+      <bit-form-field>
+        <bit-label>Generated Password</bit-label>
+        <input type="text" bitInput [(ngModel)]="generatedPassword" />
+      </bit-form-field>
+
+      <popup-footer slot="footer">
+        <button
+          type="button"
+          bitButton
+          buttonType="primary"
+          (click)="dialogRef.close(generatedPassword)"
+        >
+          Select
+        </button>
+      </popup-footer>
+    </popup-page>
+  `,
+  standalone: true,
+  imports: [
+    PopupPageComponent,
+    PopupHeaderComponent,
+    PopupFooterComponent,
+    FormFieldModule,
+    FormsModule,
+    ButtonModule,
+  ],
+  animations: [fadeIn],
+})
+class CustomPopupDialogComponent {
+  generatedPassword: string = "";
+
+  constructor(protected dialogRef: DialogRef<string | null>) {}
+
+  close = () => this.dialogRef.close();
+}
+
+@Injectable()
+class BrowserCipherFormGenerationService implements CipherFormGenerationService {
+  constructor(
+    private dialogService: DialogService,
+    private overlay: Overlay,
+  ) {}
+
+  async generatePassword(): Promise<string> {
+    const position = this.overlay.position().global().top("0").left("0");
+
+    const dialogRef = this.dialogService.open<string | null, any>(CustomPopupDialogComponent, {
+      positionStrategy: position,
+      height: "100vh",
+      width: "100vw",
+    });
+
+    const result = await firstValueFrom(dialogRef.closed);
+    return result || null;
+  }
+  generateUsername(): Promise<string> {
+    return Promise.resolve("Super secret username");
+  }
+  generateInitialPassword(): Promise<string> {
+    return Promise.resolve("Super secret first password");
+  }
+}
+
 @Component({
   selector: "app-add-edit-v2",
   templateUrl: "add-edit-v2.component.html",
@@ -85,6 +178,7 @@ export type AddEditQueryParams = Partial<Record<keyof QueryParams, string>>;
   providers: [
     { provide: CipherFormConfigService, useClass: DefaultCipherFormConfigService },
     { provide: TotpCaptureService, useClass: BrowserTotpCaptureService },
+    { provide: CipherFormGenerationService, useClass: BrowserCipherFormGenerationService },
   ],
   imports: [
     CommonModule,
