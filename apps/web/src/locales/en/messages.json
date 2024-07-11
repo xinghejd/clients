@@ -855,7 +855,7 @@
     "message": "Email address"
   },
   "yourVaultIsLockedV2": {
-    "message": "Your vault is locked."
+    "message": "Your vault is locked"
   },
   "uuid":{
     "message" : "UUID"
@@ -8544,5 +8544,8 @@
   },
   "sponsored": {
     "message": "Sponsored"
+  },
+  "licenseAndBillingManagementDesc": {
+    "message": "After making updates in the Bitwarden cloud server, upload your license file to apply the most recent changes."
   }
 }
