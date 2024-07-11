@@ -16,10 +16,13 @@ export enum FeatureFlag {
   ExtensionRefresh = "extension-refresh",
   RestrictProviderAccess = "restrict-provider-access",
   UseTreeWalkerApiForPageDetailsCollection = "use-tree-walker-api-for-page-details-collection",
-  BulkDeviceApproval = "bulk-device-approval",
   EmailVerification = "email-verification",
   InlineMenuFieldQualification = "inline-menu-field-qualification",
   MemberAccessReport = "ac-2059-member-access-report",
+  TwoFactorComponentRefactor = "two-factor-component-refactor",
+  EnableTimeThreshold = "PM-5864-dollar-threshold",
+  GroupsComponentRefactor = "groups-component-refactor",
+  ProviderClientVaultPrivacyBanner = "ac-2833-provider-client-vault-privacy-banner",
 }
 
 export type AllowedFeatureFlagTypes = boolean | number | string;
@@ -46,10 +49,13 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.ExtensionRefresh]: FALSE,
   [FeatureFlag.RestrictProviderAccess]: FALSE,
   [FeatureFlag.UseTreeWalkerApiForPageDetailsCollection]: FALSE,
-  [FeatureFlag.BulkDeviceApproval]: FALSE,
   [FeatureFlag.EmailVerification]: FALSE,
   [FeatureFlag.InlineMenuFieldQualification]: FALSE,
   [FeatureFlag.MemberAccessReport]: FALSE,
+  [FeatureFlag.TwoFactorComponentRefactor]: FALSE,
+  [FeatureFlag.EnableTimeThreshold]: FALSE,
+  [FeatureFlag.GroupsComponentRefactor]: FALSE,
+  [FeatureFlag.ProviderClientVaultPrivacyBanner]: FALSE,
 } satisfies Record<FeatureFlag, AllowedFeatureFlagTypes>;
 
 export type DefaultFeatureFlagValueType = typeof DefaultFeatureFlagValue;

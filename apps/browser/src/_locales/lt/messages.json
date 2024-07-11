@@ -50,7 +50,7 @@
     "message": "Pagrindinio slaptažodžio užuomina gali padėti Jums prisiminti slaptažodį, jei jį pamiršite."
   },
   "masterPassHintText": {
-    "message": "Jei pamiršote savo slaptažodį, slaptažodžio užuomina gali būti išsiūstas į jūsų el. pašto adresą. $CURRENT$/$MAXIMUM$ simbolių.",
+    "message": "Jei pamiršote slaptažodį, slaptažodžio užuomina gali būti išsiųsta į jūsų el. paštą. $CURRENT$ / $MAXIMUM$ didžiausias simbolių skaičius.",
     "placeholders": {
       "current": {
         "content": "$1",
@@ -1105,18 +1105,18 @@
   "authenticatorAppTitle": {
     "message": "Autentifikavimo programa"
   },
-  "authenticatorAppDesc": {
-    "message": "Naudok autentifikatoriaus programėlę (pvz., Authy arba Google Autentifikatorius), kad sugeneruotum laiko patikrinimo kodus.",
-    "description": "'Authy' and 'Google Authenticator' are product names and should not be translated."
+  "authenticatorAppDescV2": {
+    "message": "Įveskite autentifikatoriaus programėlės sugeneruotą kodą, pvz., „Bitwarden Authenticator“.",
+    "description": "'Bitwarden Authenticator' is a product name and should not be translated."
   },
-  "yubiKeyTitle": {
-    "message": "YubiKey OTP saugumo raktas"
+  "yubiKeyTitleV2": {
+    "message": "„Yubico“ OTP saugumo raktas"
   },
   "yubiKeyDesc": {
     "message": "Naudok YubiKey, kad prisijungtum prie savo paskyros. Veikia su YubiKey 4, 4 Nano, 4C ir NEO įrenginiais."
   },
-  "duoDesc": {
-    "message": "Patvirtink su Duo Security naudodami Duo Mobile programą, SMS žinutę, telefono skambutį arba U2F saugumo raktą.",
+  "duoDescV2": {
+    "message": "Įveskite „Duo Security“ sugeneruotą kodą.",
     "description": "'Duo Security' and 'Duo Mobile' are product names and should not be translated."
   },
   "duoOrganizationDesc": {
@@ -1132,8 +1132,8 @@
   "emailTitle": {
     "message": "El. paštas"
   },
-  "emailDesc": {
-    "message": "Patvirtinimo kodai bus atsiųsti el. paštu tau."
+  "emailDescV2": {
+    "message": "Įveskite į el. paštą atsiųstą kodą."
   },
   "selfHostedEnvironment": {
     "message": "Savarankiškai sukurta aplinka"
@@ -2890,7 +2890,7 @@
     "description": "Message appearing below the autofill on load message when master password reprompt is set for a vault item."
   },
   "toggleSideNavigation": {
-    "message": "Toggle side navigation"
+    "message": "Perjungti šoninę naršymą"
   },
   "skipToContent": {
     "message": "Pereiti prie turinio"
@@ -3106,6 +3106,9 @@
   },
   "confirmFilePassword": {
     "message": "Patvirtinti failo slaptažodį"
+  },
+  "exportSuccess": {
+    "message": "Eksportuoti saugyklos duomenys"
   },
   "typePasskey": {
     "message": "Prieigos raktas"
@@ -3489,13 +3492,83 @@
   "itemsWithNoFolder": {
     "message": "Items with no folder"
   },
+  "itemDetails": {
+    "message": "Item details"
+  },
+  "itemName": {
+    "message": "Item name"
+  },
+  "cannotRemoveViewOnlyCollections": {
+    "message": "You cannot remove collections with View only permissions: $COLLECTIONS$",
+    "placeholders": {
+      "collections": {
+        "content": "$1",
+        "example": "Work, Personal"
+      }
+    }
+  },
   "organizationIsDeactivated": {
     "message": "Organization is deactivated"
+  },
+  "owner": {
+    "message": "Owner"
+  },
+  "selfOwnershipLabel": {
+    "message": "You",
+    "description": "Used as a label to indicate that the user is the owner of an item."
   },
   "contactYourOrgAdmin": {
     "message": "Items in deactivated organizations cannot be accessed. Contact your organization owner for assistance."
   },
+  "upload": {
+    "message": "Įkelti"
+  },
+  "addAttachment": {
+    "message": "Pridėti priedą"
+  },
+  "maxFileSizeSansPunctuation": {
+    "message": "Didžiausias failo dydis – 500 MB"
+  },
+  "deleteAttachmentName": {
+    "message": "Ištrinti priedą $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Attachment Name"
+      }
+    }
+  },
+  "downloadAttachmentName": {
+    "message": "Atsisiųsti $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Attachment Name"
+      }
+    }
+  },
+  "permanentlyDeleteAttachmentConfirmation": {
+    "message": "Ar tikrai norite negrįžtamai ištrinti šį priedą?"
+  },
+  "premium": {
+    "message": "„Premium“"
+  },
+  "freeOrgsCannotUseAttachments": {
+    "message": "Nemokamos organizacijos negali naudoti priedų"
+  },
   "filters": {
     "message": "Filtrai"
+  },
+  "cardDetails": {
+    "message": "Card details"
+  },
+  "cardBrandDetails": {
+    "message": "$BRAND$ details",
+    "placeholders": {
+      "brand": {
+        "content": "$1",
+        "example": "Visa"
+      }
+    }
   }
 }

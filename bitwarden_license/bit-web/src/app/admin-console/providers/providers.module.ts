@@ -19,13 +19,12 @@ import {
   ProviderPaymentMethodComponent,
   ProviderSelectPaymentMethodDialogComponent,
   ProviderSubscriptionComponent,
+  ProviderSubscriptionStatusComponent,
 } from "../../billing/providers";
-import { SubscriptionStatusComponent } from "../../billing/providers/subscription/subscription-status.component";
 
 import { AddOrganizationComponent } from "./clients/add-organization.component";
 import { ClientsComponent } from "./clients/clients.component";
 import { CreateOrganizationComponent } from "./clients/create-organization.component";
-import { ProviderPermissionsGuard } from "./guards/provider-permissions.guard";
 import { AcceptProviderComponent } from "./manage/accept-provider.component";
 import { BulkConfirmComponent } from "./manage/bulk/bulk-confirm.component";
 import { BulkRemoveComponent } from "./manage/bulk/bulk-remove.component";
@@ -75,8 +74,8 @@ import { SetupComponent } from "./setup/setup.component";
     ProviderSubscriptionComponent,
     ProviderSelectPaymentMethodDialogComponent,
     ProviderPaymentMethodComponent,
-    SubscriptionStatusComponent,
+    ProviderSubscriptionStatusComponent,
   ],
-  providers: [WebProviderService, ProviderPermissionsGuard],
+  providers: [WebProviderService],
 })
 export class ProvidersModule {}
