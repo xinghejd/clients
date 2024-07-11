@@ -139,11 +139,20 @@ describe("AutofillInlineMenuList", () => {
                   icon: "bw-id-card card-visa",
                 },
               }),
+              createAutofillOverlayCipherDataMock(1, {
+                type: CipherType.Card,
+                card: "*2234",
+                login: null,
+                icon: {
+                  imageEnabled: true,
+                  icon: "bw-id-card card-visa",
+                },
+              }),
             ],
           }),
         );
 
-        expect(true).toBe(true);
+        expect(autofillInlineMenuList["inlineMenuListContainer"]).toMatchSnapshot();
       });
 
       it("loads ciphers on scroll one page at a time", () => {
