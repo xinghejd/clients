@@ -1369,9 +1369,6 @@
   "securityCode": {
     "message": "Security code"
   },
-  "ex": {
-    "message": "ex."
-  },
   "title": {
     "message": "Title"
   },
