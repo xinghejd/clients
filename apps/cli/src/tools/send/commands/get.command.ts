@@ -8,9 +8,9 @@ import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { SendView } from "@bitwarden/common/tools/send/models/view/send.view";
 import { SendService } from "@bitwarden/common/tools/send/services/send.service.abstraction";
 
-import { DownloadCommand } from "../../../commands/download.command";
-import { Response } from "../../../models/response";
-import { SendResponse } from "../models/send.response";
+import { DownloadCommand } from "../../../commands/download.command.js";
+import { Response } from "../../../models/response.js";
+import { SendResponse } from "../models/send.response.js";
 
 export class SendGetCommand extends DownloadCommand {
   constructor(

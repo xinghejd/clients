@@ -6,8 +6,8 @@ import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authenticatio
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 
-import { Response } from "../models/response";
-import { TemplateResponse } from "../models/response/template.response";
+import { TemplateResponse } from "../models/response/template.response.js";
+import { Response } from "../models/response.js";
 
 export class StatusCommand {
   constructor(

@@ -12,8 +12,8 @@ import {
   VaultExportServiceAbstraction,
 } from "@bitwarden/vault-export-core";
 
-import { Response } from "../models/response";
-import { CliUtils } from "../utils";
+import { Response } from "../models/response.js";
+import { CliUtils } from "../utils.js";
 
 export class ExportCommand {
   constructor(

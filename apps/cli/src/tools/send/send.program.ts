@@ -7,10 +7,10 @@ import { program, Command, OptionValues } from "commander";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { SendType } from "@bitwarden/common/tools/send/enums/send-type";
 
-import { BaseProgram } from "../../base-program";
-import { GetCommand } from "../../commands/get.command";
-import { Response } from "../../models/response";
-import { CliUtils } from "../../utils";
+import { BaseProgram } from "../../base-program.js";
+import { GetCommand } from "../../commands/get.command.js";
+import { Response } from "../../models/response.js";
+import { CliUtils } from "../../utils.js";
 
 import {
   SendCreateCommand,
@@ -20,10 +20,10 @@ import {
   SendListCommand,
   SendReceiveCommand,
   SendRemovePasswordCommand,
-} from "./commands";
-import { SendFileResponse } from "./models/send-file.response";
-import { SendTextResponse } from "./models/send-text.response";
-import { SendResponse } from "./models/send.response";
+} from "./commands/index.js";
+import { SendFileResponse } from "./models/send-file.response.js";
+import { SendTextResponse } from "./models/send-text.response.js";
+import { SendResponse } from "./models/send.response.js";
 
 const writeLn = CliUtils.writeLn;
 

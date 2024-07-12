@@ -2,8 +2,8 @@ import * as fetch from "node-fetch";
 
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 
-import { Response } from "../models/response";
-import { MessageResponse } from "../models/response/message.response";
+import { MessageResponse } from "../models/response/message.response.js";
+import { Response } from "../models/response.js";
 
 const CLIENTS_RELEASE_LIST_ENDPOINT = "https://api.github.com/repos/bitwarden/clients/releases";
 const DEFAULT_DOWNLOAD_URL = "https://github.com/bitwarden/clients/releases";

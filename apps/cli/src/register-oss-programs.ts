@@ -1,7 +1,7 @@
-import { Program } from "./program";
-import { ServiceContainer } from "./service-container";
-import { SendProgram } from "./tools/send/send.program";
-import { VaultProgram } from "./vault.program";
+import { Program } from "./program.js";
+import { ServiceContainer } from "./service-container.js";
+import { SendProgram } from "./tools/send/send.program.js";
+import { VaultProgram } from "./vault.program.js";
 
 /**
  * All OSS licensed programs should be registered here.

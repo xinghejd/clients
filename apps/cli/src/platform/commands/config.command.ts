@@ -7,9 +7,9 @@ import {
   Region,
 } from "@bitwarden/common/platform/abstractions/environment.service";
 
-import { Response } from "../../models/response";
-import { MessageResponse } from "../../models/response/message.response";
-import { StringResponse } from "../../models/response/string.response";
+import { MessageResponse } from "../../models/response/message.response.js";
+import { StringResponse } from "../../models/response/string.response.js";
+import { Response } from "../../models/response.js";
 
 export class ConfigCommand {
   constructor(

@@ -2,11 +2,11 @@ import { CipherWithIdExport } from "@bitwarden/common/models/export/cipher-with-
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
-import { BaseResponse } from "../../models/response/base.response";
-import { LoginResponse } from "../../models/response/login.response";
+import { BaseResponse } from "../../models/response/base.response.js";
+import { LoginResponse } from "../../models/response/login.response.js";
 
-import { AttachmentResponse } from "./attachment.response";
-import { PasswordHistoryResponse } from "./password-history.response";
+import { AttachmentResponse } from "./attachment.response.js";
+import { PasswordHistoryResponse } from "./password-history.response.js";
 
 export class CipherResponse extends CipherWithIdExport implements BaseResponse {
   object: string;

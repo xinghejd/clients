@@ -4,8 +4,8 @@ import { EnvironmentService } from "@bitwarden/common/platform/abstractions/envi
 import { SendService } from "@bitwarden/common/tools/send/services//send.service.abstraction";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
 
-import { Response } from "../../../models/response";
-import { SendResponse } from "../models/send.response";
+import { Response } from "../../../models/response.js";
+import { SendResponse } from "../models/send.response.js";
 
 export class SendRemovePasswordCommand {
   constructor(

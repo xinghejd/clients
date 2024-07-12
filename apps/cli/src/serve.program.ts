@@ -1,10 +1,10 @@
 import { program } from "commander";
 
-import { BaseProgram } from "./base-program";
-import { ServeCommand } from "./commands/serve.command";
-import { OssServeConfigurator } from "./oss-serve-configurator";
-import { ServiceContainer } from "./service-container";
-import { CliUtils } from "./utils";
+import { BaseProgram } from "./base-program.js";
+import { ServeCommand } from "./commands/serve.command.js";
+import { OssServeConfigurator } from "./oss-serve-configurator.js";
+import { ServiceContainer } from "./service-container.js";
+import { CliUtils } from "./utils.js";
 
 const writeLn = CliUtils.writeLn;
 

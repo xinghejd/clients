@@ -10,12 +10,12 @@ import { FolderApiServiceAbstraction } from "@bitwarden/common/vault/abstraction
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { CollectionRequest } from "@bitwarden/common/vault/models/request/collection.request";
 
-import { OrganizationCollectionRequest } from "../admin-console/models/request/organization-collection.request";
-import { OrganizationCollectionResponse } from "../admin-console/models/response/organization-collection.response";
-import { Response } from "../models/response";
-import { CliUtils } from "../utils";
-import { CipherResponse } from "../vault/models/cipher.response";
-import { FolderResponse } from "../vault/models/folder.response";
+import { OrganizationCollectionRequest } from "../admin-console/models/request/organization-collection.request.js";
+import { OrganizationCollectionResponse } from "../admin-console/models/response/organization-collection.response.js";
+import { Response } from "../models/response.js";
+import { CliUtils } from "../utils.js";
+import { CipherResponse } from "../vault/models/cipher.response.js";
+import { FolderResponse } from "../vault/models/folder.response.js";
 
 export class EditCommand {
   constructor(

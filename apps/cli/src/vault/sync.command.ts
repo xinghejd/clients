@@ -1,9 +1,9 @@
 import { SyncService } from "@bitwarden/common/platform/sync";
 
-import { Response } from "../models/response";
-import { MessageResponse } from "../models/response/message.response";
-import { StringResponse } from "../models/response/string.response";
-import { CliUtils } from "../utils";
+import { MessageResponse } from "../models/response/message.response.js";
+import { StringResponse } from "../models/response/string.response.js";
+import { Response } from "../models/response.js";
+import { CliUtils } from "../utils.js";
 
 export class SyncCommand {
   constructor(private syncService: SyncService) {}

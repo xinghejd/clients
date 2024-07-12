@@ -8,9 +8,9 @@ import {
   PasswordGenerationServiceAbstraction,
 } from "@bitwarden/generator-legacy";
 
-import { Response } from "../models/response";
-import { StringResponse } from "../models/response/string.response";
-import { CliUtils } from "../utils";
+import { StringResponse } from "../models/response/string.response.js";
+import { Response } from "../models/response.js";
+import { CliUtils } from "../utils.js";
 
 export class GenerateCommand {
   constructor(

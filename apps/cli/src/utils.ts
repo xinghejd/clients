@@ -11,8 +11,8 @@ import { CollectionView } from "@bitwarden/common/vault/models/view/collection.v
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import { NodeUtils } from "@bitwarden/node/node-utils";
 
-import { Response } from "./models/response";
-import { MessageResponse } from "./models/response/message.response";
+import { MessageResponse } from "./models/response/message.response.js";
+import { Response } from "./models/response.js";
 
 export class CliUtils {
   static writeLn(s: string, finalLine = false, error = false) {

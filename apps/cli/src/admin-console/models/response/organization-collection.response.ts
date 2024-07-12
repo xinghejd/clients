@@ -1,7 +1,7 @@
 import { CollectionView } from "@bitwarden/common/vault/models/view/collection.view";
 
-import { CollectionResponse } from "../../../vault/models/collection.response";
-import { SelectionReadOnly } from "../selection-read-only";
+import { CollectionResponse } from "../../../vault/models/collection.response.js";
+import { SelectionReadOnly } from "../selection-read-only.js";
 
 export class OrganizationCollectionResponse extends CollectionResponse {
   groups: SelectionReadOnly[];

@@ -40,8 +40,8 @@ import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.serv
 import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legacy";
 import { NodeUtils } from "@bitwarden/node/node-utils";
 
-import { Response } from "../../models/response";
-import { MessageResponse } from "../../models/response/message.response";
+import { MessageResponse } from "../../models/response/message.response.js";
+import { Response } from "../../models/response.js";
 
 export class LoginCommand {
   protected canInteract: boolean;

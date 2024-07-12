@@ -1,10 +1,10 @@
 import { SendType } from "@bitwarden/common/tools/send/enums/send-type";
 import { SendAccessView } from "@bitwarden/common/tools/send/models/view/send-access.view";
 
-import { BaseResponse } from "../../../models/response/base.response";
+import { BaseResponse } from "../../../models/response/base.response.js";
 
-import { SendFileResponse } from "./send-file.response";
-import { SendTextResponse } from "./send-text.response";
+import { SendFileResponse } from "./send-file.response.js";
+import { SendTextResponse } from "./send-text.response.js";
 
 export class SendAccessResponse implements BaseResponse {
   static template(): SendAccessResponse {

@@ -19,14 +19,14 @@ import {
 } from "@bitwarden/common/vault/models/response/collection.response";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
-import { OrganizationUserResponse } from "../admin-console/models/response/organization-user.response";
-import { OrganizationResponse } from "../admin-console/models/response/organization.response";
-import { Response } from "../models/response";
-import { ListResponse } from "../models/response/list.response";
-import { CliUtils } from "../utils";
-import { CipherResponse } from "../vault/models/cipher.response";
-import { CollectionResponse } from "../vault/models/collection.response";
-import { FolderResponse } from "../vault/models/folder.response";
+import { OrganizationUserResponse } from "../admin-console/models/response/organization-user.response.js";
+import { OrganizationResponse } from "../admin-console/models/response/organization.response.js";
+import { ListResponse } from "../models/response/list.response.js";
+import { Response } from "../models/response.js";
+import { CliUtils } from "../utils.js";
+import { CipherResponse } from "../vault/models/cipher.response.js";
+import { CollectionResponse } from "../vault/models/collection.response.js";
+import { FolderResponse } from "../vault/models/folder.response.js";
 
 export class ListCommand {
   constructor(

@@ -1,18 +1,18 @@
 import { program, Command } from "commander";
 
-import { ConfirmCommand } from "./admin-console/commands/confirm.command";
-import { ShareCommand } from "./admin-console/commands/share.command";
-import { BaseProgram } from "./base-program";
-import { EditCommand } from "./commands/edit.command";
-import { GetCommand } from "./commands/get.command";
-import { ListCommand } from "./commands/list.command";
-import { RestoreCommand } from "./commands/restore.command";
-import { Response } from "./models/response";
-import { ExportCommand } from "./tools/export.command";
-import { ImportCommand } from "./tools/import.command";
-import { CliUtils } from "./utils";
-import { CreateCommand } from "./vault/create.command";
-import { DeleteCommand } from "./vault/delete.command";
+import { ConfirmCommand } from "./admin-console/commands/confirm.command.js";
+import { ShareCommand } from "./admin-console/commands/share.command.js";
+import { BaseProgram } from "./base-program.js";
+import { EditCommand } from "./commands/edit.command.js";
+import { GetCommand } from "./commands/get.command.js";
+import { ListCommand } from "./commands/list.command.js";
+import { RestoreCommand } from "./commands/restore.command.js";
+import { Response } from "./models/response.js";
+import { ExportCommand } from "./tools/export.command.js";
+import { ImportCommand } from "./tools/import.command.js";
+import { CliUtils } from "./utils.js";
+import { CreateCommand } from "./vault/create.command.js";
+import { DeleteCommand } from "./vault/delete.command.js";
 
 const writeLn = CliUtils.writeLn;
 

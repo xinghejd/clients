@@ -1,4 +1,4 @@
-import { BaseResponse } from "./response/base.response";
+import { BaseResponse } from "./response/base.response.js";
 
 export class Response {
   static error(error: any, data?: any): Response {

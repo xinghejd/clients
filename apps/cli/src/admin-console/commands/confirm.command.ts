@@ -4,7 +4,7 @@ import { OrganizationUserConfirmRequest } from "@bitwarden/common/admin-console/
 import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 
-import { Response } from "../../models/response";
+import { Response } from "../../models/response.js";
 
 export class ConfirmCommand {
   constructor(

@@ -17,9 +17,9 @@ import { SendAccessView } from "@bitwarden/common/tools/send/models/view/send-ac
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
 import { NodeUtils } from "@bitwarden/node/node-utils";
 
-import { DownloadCommand } from "../../../commands/download.command";
-import { Response } from "../../../models/response";
-import { SendAccessResponse } from "../models/send-access.response";
+import { DownloadCommand } from "../../../commands/download.command.js";
+import { Response } from "../../../models/response.js";
+import { SendAccessResponse } from "../models/send-access.response.js";
 
 export class SendReceiveCommand extends DownloadCommand {
   private canInteract: boolean;

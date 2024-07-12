@@ -1,7 +1,7 @@
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
 import { SendService } from "@bitwarden/common/tools/send/services/send.service.abstraction";
 
-import { Response } from "../../../models/response";
+import { Response } from "../../../models/response.js";
 
 export class SendDeleteCommand {
   constructor(

@@ -4,21 +4,21 @@ import { firstValueFrom } from "rxjs";
 
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 
-import { LockCommand } from "./auth/commands/lock.command";
-import { LoginCommand } from "./auth/commands/login.command";
-import { LogoutCommand } from "./auth/commands/logout.command";
-import { UnlockCommand } from "./auth/commands/unlock.command";
-import { BaseProgram } from "./base-program";
-import { CompletionCommand } from "./commands/completion.command";
-import { EncodeCommand } from "./commands/encode.command";
-import { StatusCommand } from "./commands/status.command";
-import { UpdateCommand } from "./commands/update.command";
-import { Response } from "./models/response";
-import { MessageResponse } from "./models/response/message.response";
-import { ConfigCommand } from "./platform/commands/config.command";
-import { GenerateCommand } from "./tools/generate.command";
-import { CliUtils } from "./utils";
-import { SyncCommand } from "./vault/sync.command";
+import { LockCommand } from "./auth/commands/lock.command.js";
+import { LoginCommand } from "./auth/commands/login.command.js";
+import { LogoutCommand } from "./auth/commands/logout.command.js";
+import { UnlockCommand } from "./auth/commands/unlock.command.js";
+import { BaseProgram } from "./base-program.js";
+import { CompletionCommand } from "./commands/completion.command.js";
+import { EncodeCommand } from "./commands/encode.command.js";
+import { StatusCommand } from "./commands/status.command.js";
+import { UpdateCommand } from "./commands/update.command.js";
+import { MessageResponse } from "./models/response/message.response.js";
+import { Response } from "./models/response.js";
+import { ConfigCommand } from "./platform/commands/config.command.js";
+import { GenerateCommand } from "./tools/generate.command.js";
+import { CliUtils } from "./utils.js";
+import { SyncCommand } from "./vault/sync.command.js";
 
 const writeLn = CliUtils.writeLn;
 

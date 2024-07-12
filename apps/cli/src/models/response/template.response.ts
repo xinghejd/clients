@@ -1,4 +1,4 @@
-import { BaseResponse } from "./base.response";
+import { BaseResponse } from "./base.response.js";
 
 export class TemplateResponse implements BaseResponse {
   object: string;

@@ -10,10 +10,10 @@ import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.s
 import { SendService } from "@bitwarden/common/tools/send/services/send.service.abstraction";
 import { NodeUtils } from "@bitwarden/node/node-utils";
 
-import { Response } from "../../../models/response";
-import { CliUtils } from "../../../utils";
-import { SendTextResponse } from "../models/send-text.response";
-import { SendResponse } from "../models/send.response";
+import { Response } from "../../../models/response.js";
+import { CliUtils } from "../../../utils.js";
+import { SendTextResponse } from "../models/send-text.response.js";
+import { SendResponse } from "../models/send.response.js";
 
 export class SendCreateCommand {
   constructor(

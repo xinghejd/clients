@@ -15,10 +15,10 @@ import { ConsoleLogService } from "@bitwarden/common/platform/services/console-l
 import { MasterKey } from "@bitwarden/common/types/key";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 
-import { ConvertToKeyConnectorCommand } from "../../commands/convert-to-key-connector.command";
-import { Response } from "../../models/response";
-import { MessageResponse } from "../../models/response/message.response";
-import { CliUtils } from "../../utils";
+import { ConvertToKeyConnectorCommand } from "../../commands/convert-to-key-connector.command.js";
+import { MessageResponse } from "../../models/response/message.response.js";
+import { Response } from "../../models/response.js";
+import { CliUtils } from "../../utils.js";
 
 export class UnlockCommand {
   constructor(

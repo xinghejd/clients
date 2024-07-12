@@ -4,7 +4,7 @@ import {
 } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 
-import { BaseResponse } from "../../../models/response/base.response";
+import { BaseResponse } from "../../../models/response/base.response.js";
 
 export class OrganizationResponse implements BaseResponse {
   object: string;

@@ -1,7 +1,7 @@
 import { program, OptionValues, Command } from "commander";
 
-import { Response } from "../models/response";
-import { MessageResponse } from "../models/response/message.response";
+import { MessageResponse } from "../models/response/message.response.js";
+import { Response } from "../models/response.js";
 
 const validShells = ["zsh"];
 

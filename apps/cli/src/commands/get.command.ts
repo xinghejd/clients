@@ -33,20 +33,20 @@ import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { CollectionView } from "@bitwarden/common/vault/models/view/collection.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 
-import { OrganizationCollectionRequest } from "../admin-console/models/request/organization-collection.request";
-import { OrganizationCollectionResponse } from "../admin-console/models/response/organization-collection.response";
-import { OrganizationResponse } from "../admin-console/models/response/organization.response";
-import { SelectionReadOnly } from "../admin-console/models/selection-read-only";
-import { Response } from "../models/response";
-import { StringResponse } from "../models/response/string.response";
-import { TemplateResponse } from "../models/response/template.response";
-import { SendResponse } from "../tools/send/models/send.response";
-import { CliUtils } from "../utils";
-import { CipherResponse } from "../vault/models/cipher.response";
-import { CollectionResponse } from "../vault/models/collection.response";
-import { FolderResponse } from "../vault/models/folder.response";
+import { OrganizationCollectionRequest } from "../admin-console/models/request/organization-collection.request.js";
+import { OrganizationCollectionResponse } from "../admin-console/models/response/organization-collection.response.js";
+import { OrganizationResponse } from "../admin-console/models/response/organization.response.js";
+import { SelectionReadOnly } from "../admin-console/models/selection-read-only.js";
+import { StringResponse } from "../models/response/string.response.js";
+import { TemplateResponse } from "../models/response/template.response.js";
+import { Response } from "../models/response.js";
+import { SendResponse } from "../tools/send/models/send.response.js";
+import { CliUtils } from "../utils.js";
+import { CipherResponse } from "../vault/models/cipher.response.js";
+import { CollectionResponse } from "../vault/models/collection.response.js";
+import { FolderResponse } from "../vault/models/folder.response.js";
 
-import { DownloadCommand } from "./download.command";
+import { DownloadCommand } from "./download.command.js";
 
 export class GetCommand extends DownloadCommand {
   constructor(

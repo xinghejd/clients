@@ -1,8 +1,8 @@
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 
-import { Response } from "../../models/response";
-import { CliUtils } from "../../utils";
-import { CipherResponse } from "../../vault/models/cipher.response";
+import { Response } from "../../models/response.js";
+import { CliUtils } from "../../utils.js";
+import { CipherResponse } from "../../vault/models/cipher.response.js";
 
 export class ShareCommand {
   constructor(private cipherService: CipherService) {}

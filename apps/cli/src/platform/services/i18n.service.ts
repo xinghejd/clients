@@ -15,7 +15,7 @@ export class I18nService extends BaseI18nService {
       localesDirectory,
       (formattedLocale: string) => {
         const filePath = path.join(
-          __dirname,
+          `${process.platform === "win32" ? "" : "/"}${/file:\/{2,3}(.+)\/[^/]/.exec(import.meta.url)![1]}`,
           this.localesDirectory + "/" + formattedLocale + "/messages.json",
         );
         const localesJson = fs.readFileSync(filePath, "utf8");

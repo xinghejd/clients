@@ -4,9 +4,9 @@ import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.se
 import { EncArrayBuffer } from "@bitwarden/common/platform/models/domain/enc-array-buffer";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 
-import { Response } from "../models/response";
-import { FileResponse } from "../models/response/file.response";
-import { CliUtils } from "../utils";
+import { FileResponse } from "../models/response/file.response.js";
+import { Response } from "../models/response.js";
+import { CliUtils } from "../utils.js";
 
 export abstract class DownloadCommand {
   constructor(protected cryptoService: CryptoService) {}

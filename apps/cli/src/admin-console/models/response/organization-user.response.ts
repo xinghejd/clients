@@ -3,7 +3,7 @@ import {
   OrganizationUserType,
 } from "@bitwarden/common/admin-console/enums";
 
-import { BaseResponse } from "../../../models/response/base.response";
+import { BaseResponse } from "../../../models/response/base.response.js";
 
 export class OrganizationUserResponse implements BaseResponse {
   object: string;

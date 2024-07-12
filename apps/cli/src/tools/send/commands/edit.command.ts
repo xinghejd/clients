@@ -5,11 +5,11 @@ import { SendType } from "@bitwarden/common/tools/send/enums/send-type";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
 import { SendService } from "@bitwarden/common/tools/send/services/send.service.abstraction";
 
-import { Response } from "../../../models/response";
-import { CliUtils } from "../../../utils";
-import { SendResponse } from "../models/send.response";
+import { Response } from "../../../models/response.js";
+import { CliUtils } from "../../../utils.js";
+import { SendResponse } from "../models/send.response.js";
 
-import { SendGetCommand } from "./get.command";
+import { SendGetCommand } from "./get.command.js";
 
 export class SendEditCommand {
   constructor(

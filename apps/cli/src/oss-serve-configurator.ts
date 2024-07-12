@@ -2,19 +2,19 @@ import * as koaMulter from "@koa/multer";
 import * as koaRouter from "@koa/router";
 import * as koa from "koa";
 
-import { ConfirmCommand } from "./admin-console/commands/confirm.command";
-import { ShareCommand } from "./admin-console/commands/share.command";
-import { LockCommand } from "./auth/commands/lock.command";
-import { UnlockCommand } from "./auth/commands/unlock.command";
-import { EditCommand } from "./commands/edit.command";
-import { GetCommand } from "./commands/get.command";
-import { ListCommand } from "./commands/list.command";
-import { RestoreCommand } from "./commands/restore.command";
-import { StatusCommand } from "./commands/status.command";
-import { Response } from "./models/response";
-import { FileResponse } from "./models/response/file.response";
-import { ServiceContainer } from "./service-container";
-import { GenerateCommand } from "./tools/generate.command";
+import { ConfirmCommand } from "./admin-console/commands/confirm.command.js";
+import { ShareCommand } from "./admin-console/commands/share.command.js";
+import { LockCommand } from "./auth/commands/lock.command.js";
+import { UnlockCommand } from "./auth/commands/unlock.command.js";
+import { EditCommand } from "./commands/edit.command.js";
+import { GetCommand } from "./commands/get.command.js";
+import { ListCommand } from "./commands/list.command.js";
+import { RestoreCommand } from "./commands/restore.command.js";
+import { StatusCommand } from "./commands/status.command.js";
+import { FileResponse } from "./models/response/file.response.js";
+import { Response } from "./models/response.js";
+import { ServiceContainer } from "./service-container.js";
+import { GenerateCommand } from "./tools/generate.command.js";
 import {
   SendEditCommand,
   SendCreateCommand,
@@ -22,10 +22,10 @@ import {
   SendGetCommand,
   SendListCommand,
   SendRemovePasswordCommand,
-} from "./tools/send";
-import { CreateCommand } from "./vault/create.command";
-import { DeleteCommand } from "./vault/delete.command";
-import { SyncCommand } from "./vault/sync.command";
+} from "./tools/send/index.js";
+import { CreateCommand } from "./vault/create.command.js";
+import { DeleteCommand } from "./vault/delete.command.js";
+import { SyncCommand } from "./vault/sync.command.js";
 
 export class OssServeConfigurator {
   private listCommand: ListCommand;

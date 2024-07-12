@@ -4,14 +4,14 @@ import { firstValueFrom, map } from "rxjs";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 
-import { UnlockCommand } from "./auth/commands/unlock.command";
-import { Response } from "./models/response";
-import { ListResponse } from "./models/response/list.response";
-import { MessageResponse } from "./models/response/message.response";
-import { StringResponse } from "./models/response/string.response";
-import { TemplateResponse } from "./models/response/template.response";
-import { ServiceContainer } from "./service-container";
-import { CliUtils } from "./utils";
+import { UnlockCommand } from "./auth/commands/unlock.command.js";
+import { ListResponse } from "./models/response/list.response.js";
+import { MessageResponse } from "./models/response/message.response.js";
+import { StringResponse } from "./models/response/string.response.js";
+import { TemplateResponse } from "./models/response/template.response.js";
+import { Response } from "./models/response.js";
+import { ServiceContainer } from "./service-container.js";
+import { CliUtils } from "./utils.js";
 
 const writeLn = CliUtils.writeLn;
 

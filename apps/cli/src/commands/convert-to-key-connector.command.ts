@@ -9,8 +9,8 @@ import {
 } from "@bitwarden/common/platform/abstractions/environment.service";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 
-import { Response } from "../models/response";
-import { MessageResponse } from "../models/response/message.response";
+import { MessageResponse } from "../models/response/message.response.js";
+import { Response } from "../models/response.js";
 
 export class ConvertToKeyConnectorCommand {
   constructor(

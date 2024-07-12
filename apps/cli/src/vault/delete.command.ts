@@ -7,8 +7,8 @@ import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.servi
 import { FolderApiServiceAbstraction } from "@bitwarden/common/vault/abstractions/folder/folder-api.service.abstraction";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 
-import { Response } from "../models/response";
-import { CliUtils } from "../utils";
+import { Response } from "../models/response.js";
+import { CliUtils } from "../utils.js";
 
 export class DeleteCommand {
   constructor(

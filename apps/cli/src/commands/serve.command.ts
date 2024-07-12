@@ -6,8 +6,8 @@ import * as koaJson from "koa-json";
 
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 
-import { OssServeConfigurator } from "../oss-serve-configurator";
-import { ServiceContainer } from "../service-container";
+import { OssServeConfigurator } from "../oss-serve-configurator.js";
+import { ServiceContainer } from "../service-container.js";
 
 export class ServeCommand {
   constructor(

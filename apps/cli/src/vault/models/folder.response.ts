@@ -1,7 +1,7 @@
 import { FolderWithIdExport } from "@bitwarden/common/models/export";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 
-import { BaseResponse } from "../../models/response/base.response";
+import { BaseResponse } from "../../models/response/base.response.js";
 
 export class FolderResponse extends FolderWithIdExport implements BaseResponse {
   object: string;

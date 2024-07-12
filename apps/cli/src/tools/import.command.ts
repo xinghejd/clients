@@ -5,9 +5,9 @@ import { OrganizationService } from "@bitwarden/common/admin-console/abstraction
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { ImportServiceAbstraction, ImportType } from "@bitwarden/importer/core";
 
-import { Response } from "../models/response";
-import { MessageResponse } from "../models/response/message.response";
-import { CliUtils } from "../utils";
+import { MessageResponse } from "../models/response/message.response.js";
+import { Response } from "../models/response.js";
+import { CliUtils } from "../utils.js";
 
 export class ImportCommand {
   constructor(

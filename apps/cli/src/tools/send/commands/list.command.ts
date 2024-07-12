@@ -4,9 +4,9 @@ import { SearchService } from "@bitwarden/common/abstractions/search.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { SendService } from "@bitwarden/common/tools/send/services/send.service.abstraction";
 
-import { Response } from "../../../models/response";
-import { ListResponse } from "../../../models/response/list.response";
-import { SendResponse } from "../models/send.response";
+import { ListResponse } from "../../../models/response/list.response.js";
+import { Response } from "../../../models/response.js";
+import { SendResponse } from "../models/send.response.js";
 
 export class SendListCommand {
   constructor(

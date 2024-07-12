@@ -1,6 +1,6 @@
 import { interceptConsole, restoreConsole } from "@bitwarden/common/spec";
 
-import { ConsoleLogService } from "./console-log.service";
+import { ConsoleLogService } from "./console-log.service.js";
 
 describe("CLI Console log service", () => {
   const error = new Error("this is an error");
