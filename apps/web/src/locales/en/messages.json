@@ -420,10 +420,6 @@
       }
     }
   },
-  "ex": {
-    "message": "ex.",
-    "description": "Short abbreviation for 'example'."
-  },
   "other": {
     "message": "Other"
   },
