@@ -48,7 +48,13 @@ export default class CommandsBackground {
         await this.generatePasswordToClipboard();
         break;
       case "autofill_login":
-        await this.autoFillLogin(sender ? sender.tab : null);
+        await this.autoFillAction(sender ? sender.tab : null);
+        break;
+      case "autofill_card":
+        await this.autoFillAction(sender ? sender.tab : null, "autofill_card");
+        break;
+      case "autofill_identity":
+        await this.autoFillAction(sender ? sender.tab : null, "autofill_identity");
         break;
       case "open_popup":
         await this.openPopup();
@@ -68,7 +74,7 @@ export default class CommandsBackground {
     await this.passwordGenerationService.addHistory(password);
   }
 
-  private async autoFillLogin(tab?: chrome.tabs.Tab) {
+  private async autoFillAction(tab?: chrome.tabs.Tab, commandSender = "autofill_cmd") {
     if (!tab) {
       tab = await BrowserApi.getTabFromCurrentWindowId();
     }
@@ -80,7 +86,7 @@ export default class CommandsBackground {
     if ((await this.authService.getAuthStatus()) < AuthenticationStatus.Unlocked) {
       const retryMessage: LockedVaultPendingNotificationsData = {
         commandToRetry: {
-          message: { command: "autofill_login" },
+          message: { command: commandSender === "autofill_cmd" ? "autofill_login" : commandSender },
           sender: { tab: tab },
         },
         target: "commands.background",
@@ -95,7 +101,7 @@ export default class CommandsBackground {
       return;
     }
 
-    await this.main.collectPageDetailsForContentScript(tab, "autofill_cmd");
+    await this.main.collectPageDetailsForContentScript(tab, commandSender);
   }
 
   private async openPopup() {

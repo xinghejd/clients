@@ -146,7 +146,7 @@ export default class RuntimeBackground {
                   details: msg.details,
                 },
               ],
-              false,
+              true,
               CipherType.Card,
             );
             break;
@@ -160,7 +160,7 @@ export default class RuntimeBackground {
                   details: msg.details,
                 },
               ],
-              false,
+              true,
               CipherType.Identity,
             );
             break;
