@@ -1,18 +1,21 @@
-const path = require("path");
-const webpack = require("webpack");
-const CopyWebpackPlugin = require("copy-webpack-plugin");
-const nodeExternals = require("webpack-node-externals");
-const TsconfigPathsPlugin = require("tsconfig-paths-webpack-plugin");
-const config = require("./config/config");
+import path from "path";
+import webpack from "webpack";
+import CopyWebpackPlugin from "copy-webpack-plugin";
+import nodeExternals from "webpack-node-externals";
+import TsconfigPathsPlugin from "tsconfig-paths-webpack-plugin";
+import { load, log } from "./config/config.js";
+import { fileURLToPath } from "url";
 
 if (process.env.NODE_ENV == null) {
   process.env.NODE_ENV = "development";
 }
 const ENV = (process.env.ENV = process.env.NODE_ENV);
 
-const envConfig = config.load(ENV);
-config.log(envConfig);
+const envConfig = await load(ENV);
+log(envConfig);
 
+const __filename = fileURLToPath(import.meta.url); // get the resolved path to the file
+const __dirname = path.dirname(__filename); // get the name of the directory
 const moduleRules = [
   {
     test: /\.ts$/,
@@ -38,7 +41,7 @@ const plugins = [
   }),
   new webpack.EnvironmentPlugin({
     BWCLI_ENV: ENV,
-    FLAGS: envConfig.flags,
+    FLAGS: envConfig.default.flags,
   }),
   new webpack.IgnorePlugin({
     resourceRegExp: /canvas/,
@@ -81,4 +84,4 @@ const webpackConfig = {
   ],
 };
 
-module.exports = webpackConfig;
+export default webpackConfig;

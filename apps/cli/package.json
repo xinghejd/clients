@@ -16,6 +16,7 @@
     "url": "https://github.com/bitwarden/clients"
   },
   "license": "SEE LICENSE IN LICENSE.txt",
+  "type": "module",
   "scripts": {
     "clean": "rimraf dist",
     "build:oss": "webpack",
@@ -25,9 +26,9 @@
     "build:oss:prod:watch": "cross-env NODE_ENV=production webpack --watch",
     "debug": "node --inspect ./build/bw.js",
     "publish:npm": "npm run build:oss:prod && npm publish --access public",
-    "build:bit": "webpack -c ../../bitwarden_license/bit-cli/webpack.config.js",
+    "build:bit": "webpack -c ../../bitwarden_license/bit-cli/webpack.config.mjs",
     "build:bit:debug": "npm run build:bit && node --inspect ./build/bw.js",
-    "build:bit:watch": "webpack --watch -c ../../bitwarden_license/bit-cli/webpack.config.js",
+    "build:bit:watch": "webpack --watch -c ../../bitwarden_license/bit-cli/webpack.config.mjs",
     "build:bit:prod": "cross-env NODE_ENV=production npm run build:bit",
     "build:bit:prod:watch": "cross-env NODE_ENV=production npm run build:bit:watch",
     "dist:oss:win": "npm run build:oss:prod && npm run clean && npm run package:oss:win",
