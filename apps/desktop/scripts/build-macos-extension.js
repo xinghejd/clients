@@ -27,6 +27,7 @@ async function buildMacOs() {
     "-alltargets",
     "-configuration",
     "Release",
+    "-allowProvisioningUpdates",
     // 'CODE_SIGN_IDENTITY="3rd Party Mac Developer Application: Bitwarden Inc"',
     // 'PROVISIONING_PROFILE="3rd Party Mac Developer Application: Bitwarden Inc"',
   ]);
