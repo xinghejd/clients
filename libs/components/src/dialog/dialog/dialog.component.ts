@@ -45,21 +45,21 @@ export class DialogComponent {
   @Input() loading = false;
 
   @HostBinding("class") get classes() {
-    return ["tw-flex", "tw-flex-col", "tw-max-h-screen", "tw-w-screen", "tw-p-4"].concat(
-      this.width,
+    return ["tw-flex", "tw-flex-col", "tw-max-h-screen", "tw-w-screen"].concat(
+      this.width.split(" "),
     );
   }
 
   get width() {
     switch (this.dialogSize) {
       case "small": {
-        return "tw-max-w-sm";
+        return "tw-max-w-sm tw-p-4";
       }
       case "large": {
         return "tw-max-w-3xl";
       }
       default: {
-        return "tw-max-w-xl";
+        return "tw-max-w-xl tw-p-4";
       }
     }
   }
