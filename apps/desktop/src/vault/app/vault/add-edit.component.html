@@ -239,7 +239,6 @@
                 type="text"
                 name="Card.ExpYear"
                 [(ngModel)]="cipher.card.expYear"
-                placeholder="{{ 'ex' | i18n }} {{ currentDate | date: 'yyyy' }}"
                 [readonly]="!cipher.edit && editMode"
               />
             </div>
@@ -499,7 +498,6 @@
                   type="text"
                   name="Login.Uris[{{ i }}].Uri"
                   [(ngModel)]="u.uri"
-                  placeholder="{{ 'ex' | i18n }} https://google.com"
                   [readonly]="!cipher.edit && editMode"
                   appInputVerbatim
                 />
