@@ -1,17 +1,17 @@
+import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { Meta, StoryObj, moduleMetadata } from "@storybook/angular";
 
 import { ButtonModule } from "../../button";
-import { DialogTitleContainerDirective } from "../directives/dialog-title-container.directive";
+import { DialogModule } from "../dialog.module";
 
-import { IconDirective, SimpleDialogComponent } from "./simple-dialog.component";
+import { SimpleDialogComponent } from "./simple-dialog.component";
 
 export default {
   title: "Component Library/Dialogs/Simple Dialog",
   component: SimpleDialogComponent,
   decorators: [
     moduleMetadata({
-      imports: [ButtonModule],
-      declarations: [IconDirective, DialogTitleContainerDirective],
+      imports: [ButtonModule, NoopAnimationsModule, DialogModule],
     }),
   ],
   parameters: {
@@ -81,4 +81,20 @@ export const ScrollingContent: Story = {
   args: {
     useDefaultIcon: true,
   },
+};
+
+export const TextOverlow: Story = {
+  render: (args) => ({
+    props: args,
+    template: `
+      <bit-simple-dialog>
+        <span bitDialogTitle>Alert Dialogdialogdialogdialogdialogdialogdialogdialogdialogdialogdialogdialogdialog</span>
+        <span bitDialogContent>Message Contentcontentcontentcontentcontentcontentcontentcontentcontentcontentcontent</span>
+        <ng-container bitDialogFooter>
+          <button bitButton buttonType="primary">Yes</button>
+          <button bitButton buttonType="secondary">No</button>
+        </ng-container>
+      </bit-simple-dialog>
+    `,
+  }),
 };
