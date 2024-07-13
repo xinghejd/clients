@@ -72,7 +72,7 @@ export class DesktopCredentialStorageListener {
             }
             val = await this.biometricService.canAuthBiometric({
               service: serviceName,
-              key: message.key,
+              storageKey: message.key,
               userId: message.userId,
             });
             break;
