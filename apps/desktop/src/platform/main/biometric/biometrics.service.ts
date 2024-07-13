@@ -61,15 +61,15 @@ export class BiometricsService implements BiometricsServiceAbstraction {
 
   async canAuthBiometric({
     service,
-    key,
+    storageKey,
     userId,
   }: {
     service: string;
-    key: string;
+    storageKey: string;
     userId: UserId;
   }): Promise<boolean> {
     const requireClientKeyHalf = await this.biometricStateService.getRequirePasswordOnStart(userId);
-    const clientKeyHalfB64 = this.getClientKeyHalf(service, key);
+    const clientKeyHalfB64 = this.getClientKeyHalf(service, storageKey);
     const clientKeyHalfSatisfied = !requireClientKeyHalf || !!clientKeyHalfB64;
     return clientKeyHalfSatisfied && (await this.osSupportsBiometric());
   }
@@ -159,12 +159,12 @@ export class BiometricsService implements BiometricsServiceAbstraction {
     return response;
   }
 
-  private clientKeyHalfKey(service: string, key: string): string {
-    return `${service}:${key}`;
+  private clientKeyHalfKey(service: string, storageKey: string): string {
+    return `${service}:${storageKey}`;
   }
 
-  private getClientKeyHalf(service: string, key: string): string | undefined {
-    return this.clientKeyHalves.get(this.clientKeyHalfKey(service, key)) ?? undefined;
+  private getClientKeyHalf(service: string, storageKey: string): string | undefined {
+    return this.clientKeyHalves.get(this.clientKeyHalfKey(service, storageKey)) ?? undefined;
   }
 
   private async enforceClientKeyHalf(service: string, storageKey: string): Promise<void> {
