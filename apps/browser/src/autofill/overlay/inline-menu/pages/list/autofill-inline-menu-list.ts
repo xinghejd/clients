@@ -26,6 +26,8 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
   private showInlineMenuAccountCreation: boolean;
   private readonly showCiphersPerPage = 6;
   private newItemButtonElement: HTMLButtonElement;
+  private passkeysHeadingElement: HTMLLIElement;
+  private loginHeadingElement: HTMLLIElement;
   private readonly inlineMenuListWindowMessageHandlers: AutofillInlineMenuListWindowMessageHandlers =
     {
       initAutofillInlineMenuList: ({ message }) => this.initAutofillInlineMenuList(message),
@@ -340,6 +342,20 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
    * @param cipher - The cipher to build the list item for.
    */
   private buildInlineMenuListActionsItem(cipher: InlineMenuCipherData) {
+    if (cipher.login?.hasPasskey && !this.passkeysHeadingElement) {
+      this.passkeysHeadingElement = globalThis.document.createElement("li");
+      this.passkeysHeadingElement.classList.add("inline-menu-list-heading");
+      this.passkeysHeadingElement.textContent = "Passkeys";
+      this.ciphersList.appendChild(this.passkeysHeadingElement);
+    }
+
+    if (this.passkeysHeadingElement && !this.loginHeadingElement && !cipher.login?.hasPasskey) {
+      this.loginHeadingElement = globalThis.document.createElement("li");
+      this.loginHeadingElement.classList.add("inline-menu-list-heading");
+      this.loginHeadingElement.textContent = "Passwords";
+      this.ciphersList.appendChild(this.loginHeadingElement);
+    }
+
     const fillCipherElement = this.buildFillCipherElement(cipher);
     const viewCipherElement = this.buildViewCipherElement(cipher);
 
@@ -765,7 +781,11 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
    * @param currentListItem - The current list item.
    */
   private focusNextListItem(currentListItem: HTMLElement) {
-    const nextListItem = currentListItem.nextSibling as HTMLElement;
+    let nextListItem = currentListItem.nextSibling as HTMLElement;
+    if (nextListItem === this.passkeysHeadingElement || nextListItem === this.loginHeadingElement) {
+      nextListItem = nextListItem.nextSibling as HTMLElement;
+    }
+
     const nextSibling = nextListItem?.querySelector(".inline-menu-list-action") as HTMLElement;
     if (nextSibling) {
       nextSibling.focus();
@@ -777,7 +797,14 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
       return;
     }
 
-    const firstListItem = currentListItem.parentElement?.firstChild as HTMLElement;
+    let firstListItem = currentListItem.parentElement?.firstChild as HTMLElement;
+    if (
+      firstListItem === this.passkeysHeadingElement ||
+      firstListItem === this.loginHeadingElement
+    ) {
+      firstListItem = firstListItem.nextSibling as HTMLElement;
+    }
+
     const firstSibling = firstListItem?.querySelector(".inline-menu-list-action") as HTMLElement;
     firstSibling?.focus();
   }
@@ -789,7 +816,14 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
    * @param currentListItem - The current list item.
    */
   private focusPreviousListItem(currentListItem: HTMLElement) {
-    const previousListItem = currentListItem.previousSibling as HTMLElement;
+    let previousListItem = currentListItem.previousSibling as HTMLElement;
+    if (
+      previousListItem === this.passkeysHeadingElement ||
+      previousListItem === this.loginHeadingElement
+    ) {
+      previousListItem = previousListItem.previousSibling as HTMLElement;
+    }
+
     const previousSibling = previousListItem?.querySelector(
       ".inline-menu-list-action",
     ) as HTMLElement;
