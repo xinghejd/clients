@@ -106,6 +106,7 @@ import { clearCaches } from "@bitwarden/common/platform/misc/sequentialize";
 import { Account } from "@bitwarden/common/platform/models/domain/account";
 import { GlobalState } from "@bitwarden/common/platform/models/domain/global-state";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
+import { ScheduledTaskNames } from "@bitwarden/common/platform/scheduling";
 import { AppIdService } from "@bitwarden/common/platform/services/app-id.service";
 import { ConfigApiService } from "@bitwarden/common/platform/services/config/config-api.service";
 import { DefaultConfigService } from "@bitwarden/common/platform/services/config/default-config.service";
@@ -219,6 +220,7 @@ import { ChromeMessageSender } from "../platform/messaging/chrome-message.sender
 /* eslint-enable no-restricted-imports */
 import { OffscreenDocumentService } from "../platform/offscreen-document/abstractions/offscreen-document";
 import { DefaultOffscreenDocumentService } from "../platform/offscreen-document/offscreen-document.service";
+import { BrowserTaskSchedulerService } from "../platform/services/abstractions/browser-task-scheduler.service";
 import { BrowserCryptoService } from "../platform/services/browser-crypto.service";
 import { BrowserEnvironmentService } from "../platform/services/browser-environment.service";
 import BrowserLocalStorageService from "../platform/services/browser-local-storage.service";
@@ -228,6 +230,8 @@ import I18nService from "../platform/services/i18n.service";
 import { LocalBackedSessionStorageService } from "../platform/services/local-backed-session-storage.service";
 import { BackgroundPlatformUtilsService } from "../platform/services/platform-utils/background-platform-utils.service";
 import { BrowserPlatformUtilsService } from "../platform/services/platform-utils/browser-platform-utils.service";
+import { BackgroundTaskSchedulerService } from "../platform/services/task-scheduler/background-task-scheduler.service";
+import { ForegroundTaskSchedulerService } from "../platform/services/task-scheduler/foreground-task-scheduler.service";
 import { BackgroundMemoryStorageService } from "../platform/storage/background-memory-storage.service";
 import { BrowserStorageServiceProvider } from "../platform/storage/browser-storage-service.provider";
 import { ForegroundMemoryStorageService } from "../platform/storage/foreground-memory-storage.service";
@@ -325,6 +329,7 @@ export default class MainBackground {
   activeUserStateProvider: ActiveUserStateProvider;
   derivedStateProvider: DerivedStateProvider;
   stateProvider: StateProvider;
+  taskSchedulerService: BrowserTaskSchedulerService;
   fido2Background: Fido2BackgroundAbstraction;
   individualVaultExportService: IndividualVaultExportServiceAbstraction;
   organizationVaultExportService: OrganizationVaultExportServiceAbstraction;
@@ -514,6 +519,14 @@ export default class MainBackground {
       this.globalStateProvider,
       this.derivedStateProvider,
     );
+
+    this.taskSchedulerService = this.popupOnlyContext
+      ? new ForegroundTaskSchedulerService(this.logService, this.stateProvider)
+      : new BackgroundTaskSchedulerService(this.logService, this.stateProvider);
+    this.taskSchedulerService.registerTaskHandler(ScheduledTaskNames.scheduleNextSyncInterval, () =>
+      this.fullSync(),
+    );
+
     this.environmentService = new BrowserEnvironmentService(
       this.logService,
       this.stateProvider,
@@ -782,6 +795,8 @@ export default class MainBackground {
       this.authService,
       this.vaultTimeoutSettingsService,
       this.stateEventRunnerService,
+      this.taskSchedulerService,
+      this.logService,
       lockedCallback,
       logoutCallback,
     );
@@ -861,6 +876,7 @@ export default class MainBackground {
       this.stateProvider,
       this.logService,
       this.authService,
+      this.taskSchedulerService,
     );
     this.eventCollectionService = new EventCollectionService(
       this.cipherService,
@@ -939,6 +955,7 @@ export default class MainBackground {
       this.stateService,
       this.authService,
       this.messagingService,
+      this.taskSchedulerService,
     );
 
     this.fido2UserInterfaceService = new BrowserFido2UserInterfaceService(this.authService);
@@ -954,16 +971,17 @@ export default class MainBackground {
       this.authService,
       this.vaultSettingsService,
       this.domainSettingsService,
+      this.taskSchedulerService,
       this.logService,
     );
 
-    const systemUtilsServiceReloadCallback = () => {
+    const systemUtilsServiceReloadCallback = async () => {
       const forceWindowReload =
         this.platformUtilsService.isSafari() ||
         this.platformUtilsService.isFirefox() ||
         this.platformUtilsService.isOpera();
+      await this.taskSchedulerService.clearAllScheduledTasks();
       BrowserApi.reloadExtension(forceWindowReload ? self : null);
-      return Promise.resolve();
     };
 
     this.systemService = new SystemService(
@@ -975,6 +993,7 @@ export default class MainBackground {
       this.vaultTimeoutSettingsService,
       this.biometricStateService,
       this.accountService,
+      this.taskSchedulerService,
     );
 
     // Other fields
@@ -1212,7 +1231,12 @@ export default class MainBackground {
       setTimeout(async () => {
         await this.refreshBadge();
         await this.fullSync(true);
+        await this.taskSchedulerService.setInterval(
+          ScheduledTaskNames.scheduleNextSyncInterval,
+          5 * 60 * 1000, // check every 5 minutes
+        );
         setTimeout(() => this.notificationsService.init(), 2500);
+        await this.taskSchedulerService.verifyAlarmsState();
         resolve();
       }, 500);
     });
@@ -1481,17 +1505,6 @@ export default class MainBackground {
 
     if (override || lastSyncAgo >= syncInternal) {
       await this.syncService.fullSync(override);
-      this.scheduleNextSync();
-    } else {
-      this.scheduleNextSync();
     }
-  }
-
-  private scheduleNextSync() {
-    if (this.syncTimeout) {
-      clearTimeout(this.syncTimeout);
-    }
-
-    this.syncTimeout = setTimeout(async () => await this.fullSync(), 5 * 60 * 1000); // check every 5 minutes
   }
 }
