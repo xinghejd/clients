@@ -17,6 +17,7 @@ import {
   EnvironmentService,
   Region,
 } from "@bitwarden/common/platform/abstractions/environment.service";
+import { Fido2ClientService } from "@bitwarden/common/platform/abstractions/fido2/fido2-client.service.abstraction";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { ThemeType } from "@bitwarden/common/platform/enums";
@@ -85,6 +86,7 @@ describe("OverlayBackground", () => {
   let autofillSettingsService: MockProxy<AutofillSettingsService>;
   let i18nService: MockProxy<I18nService>;
   let platformUtilsService: MockProxy<BrowserPlatformUtilsService>;
+  let fido2ClientService: MockProxy<Fido2ClientService>;
   let selectedThemeMock$: BehaviorSubject<ThemeType>;
   let themeStateService: MockProxy<ThemeStateService>;
   let overlayBackground: OverlayBackground;
@@ -151,6 +153,7 @@ describe("OverlayBackground", () => {
     autofillSettingsService.inlineMenuVisibility$ = inlineMenuVisibilityMock$;
     i18nService = mock<I18nService>();
     platformUtilsService = mock<BrowserPlatformUtilsService>();
+    fido2ClientService = mock<Fido2ClientService>();
     selectedThemeMock$ = new BehaviorSubject(ThemeType.Light);
     themeStateService = mock<ThemeStateService>();
     themeStateService.selectedTheme$ = selectedThemeMock$;
@@ -164,6 +167,7 @@ describe("OverlayBackground", () => {
       autofillSettingsService,
       i18nService,
       platformUtilsService,
+      fido2ClientService,
       themeStateService,
     );
     portKeyForTabSpy = overlayBackground["portKeyForTab"];

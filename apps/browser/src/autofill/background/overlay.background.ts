@@ -1,5 +1,12 @@
-import { firstValueFrom, merge, Subject, throttleTime } from "rxjs";
-import { debounceTime, switchMap } from "rxjs/operators";
+import {
+  firstValueFrom,
+  merge,
+  ReplaySubject,
+  Subject,
+  throttleTime,
+  switchMap,
+  debounceTime,
+} from "rxjs";
 
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
@@ -11,6 +18,7 @@ import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/s
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
 import { InlineMenuVisibilitySetting } from "@bitwarden/common/autofill/types";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
+import { Fido2ClientService } from "@bitwarden/common/platform/abstractions/fido2/fido2-client.service.abstraction";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -21,6 +29,7 @@ import { CipherType } from "@bitwarden/common/vault/enums";
 import { buildCipherIcon } from "@bitwarden/common/vault/icon/build-cipher-icon";
 import { CardView } from "@bitwarden/common/vault/models/view/card.view";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import { Fido2CredentialView } from "@bitwarden/common/vault/models/view/fido2-credential.view";
 import { IdentityView } from "@bitwarden/common/vault/models/view/identity.view";
 import { LoginUriView } from "@bitwarden/common/vault/models/view/login-uri.view";
 import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
@@ -65,6 +74,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
   private readonly openUnlockPopout = openUnlockPopout;
   private readonly openViewVaultItemPopout = openViewVaultItemPopout;
   private readonly openAddEditVaultItemPopout = openAddEditVaultItemPopout;
+  private readonly currentTab$ = new ReplaySubject<number>(1);
   private pageDetailsForTab: PageDetailsForTab = {};
   private subFrameOffsetsForTab: SubFrameOffsetsForTab = {};
   private portKeyForTab: Record<number, string> = {};
@@ -72,6 +82,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
   private inlineMenuButtonPort: chrome.runtime.Port;
   private inlineMenuListPort: chrome.runtime.Port;
   private inlineMenuCiphers: Map<string, CipherView> = new Map();
+  private inlineMenuFido2Credentials: Fido2CredentialView[] = [];
   private inlineMenuPageTranslations: Record<string, string>;
   private inlineMenuPosition: InlineMenuPosition = {};
   private cardAndIdentityCiphers: Set<CipherView> | null = null;
@@ -156,6 +167,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     private autofillSettingsService: AutofillSettingsServiceAbstraction,
     private i18nService: I18nService,
     private platformUtilsService: PlatformUtilsService,
+    private fido2ClientService: Fido2ClientService,
     private themeStateService: ThemeStateService,
   ) {
     this.initOverlayEventObservables();
@@ -175,6 +187,9 @@ export class OverlayBackground implements OverlayBackgroundInterface {
    * Initializes event observables that handle events which affect the overlay's behavior.
    */
   private initOverlayEventObservables() {
+    this.currentTab$
+      .pipe(switchMap((tabId) => this.fido2ClientService.availableAutofillCredentials$(tabId)))
+      .subscribe((credentials) => (this.inlineMenuFido2Credentials = credentials));
     this.repositionInlineMenuSubject
       .pipe(
         debounceTime(1000),
@@ -240,6 +255,9 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     if (this.focusedFieldData && currentTab?.id !== this.focusedFieldData.tabId) {
       void this.closeInlineMenuAfterCiphersUpdate();
     }
+
+    this.inlineMenuFido2Credentials = [];
+    this.currentTab$.next(currentTab.id);
 
     this.inlineMenuCiphers = new Map();
     const ciphersViews = await this.getCipherViews(currentTab, updateAllCipherTypes);
@@ -423,7 +441,10 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     };
 
     if (cipher.type === CipherType.Login) {
-      inlineMenuData.login = { username: cipher.login.username, hasPasskey: false }; // TODO: Add passkey check
+      inlineMenuData.login = {
+        username: cipher.login.username,
+        hasPasskey: Boolean(cipher.login.fido2Credentials?.[0]?.credentialId),
+      };
       return inlineMenuData;
     }
 
@@ -736,6 +757,14 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     }
 
     const cipher = this.inlineMenuCiphers.get(inlineMenuCipherId);
+
+    if (cipher.login?.hasFido2Credentials) {
+      await this.fido2ClientService.autofillCredential(
+        sender.tab.id,
+        cipher.login.fido2Credentials[0].credentialId,
+      );
+      return;
+    }
 
     if (await this.autofillService.isPasswordRepromptRequired(cipher, sender.tab)) {
       return;
