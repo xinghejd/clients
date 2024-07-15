@@ -379,7 +379,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       }
 
       inlineMenuCipherData.push(
-        this.buildCipherData(inlineMenuCipherId, cipher, showFavicons, true, identity),
+        this.buildCipherData(inlineMenuCipherId, cipher, showFavicons, true, false, identity),
       );
     }
 
@@ -401,6 +401,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     showFavicons: boolean,
   ) {
     const inlineMenuCipherData: InlineMenuCipherData[] = [];
+    const passkeyCipherData: InlineMenuCipherData[] = [];
 
     for (let cipherIndex = 0; cipherIndex < inlineMenuCiphersArray.length; cipherIndex++) {
       const [inlineMenuCipherId, cipher] = inlineMenuCiphersArray[cipherIndex];
@@ -408,7 +409,20 @@ export class OverlayBackground implements OverlayBackgroundInterface {
         continue;
       }
 
+      if (
+        cipher.type === CipherType.Login &&
+        Boolean(cipher.login.fido2Credentials?.[0]?.credentialId)
+      ) {
+        passkeyCipherData.push(
+          this.buildCipherData(inlineMenuCipherId, cipher, showFavicons, false, true),
+        );
+      }
+
       inlineMenuCipherData.push(this.buildCipherData(inlineMenuCipherId, cipher, showFavicons));
+    }
+
+    if (passkeyCipherData.length) {
+      return passkeyCipherData.concat(inlineMenuCipherData);
     }
 
     return inlineMenuCipherData;
@@ -421,13 +435,15 @@ export class OverlayBackground implements OverlayBackgroundInterface {
    * @param cipher - The cipher to build data for
    * @param showFavicons - Identifies whether favicons should be shown
    * @param showInlineMenuAccountCreation - Identifies whether the inline menu is for account creation
+   * @param hasPasskey - Identifies whether the cipher has a FIDO2 credential
    * @param identityData - Pre-created identity data
    */
   private buildCipherData(
     inlineMenuCipherId: string,
     cipher: CipherView,
-    showFavicons: boolean,
+    showFavicons: boolean, // TODO: These options need to be passed in as a single object.
     showInlineMenuAccountCreation: boolean = false,
+    hasPasskey: boolean = false,
     identityData?: { fullName: string; username?: string },
   ): InlineMenuCipherData {
     const inlineMenuData: InlineMenuCipherData = {
@@ -443,7 +459,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     if (cipher.type === CipherType.Login) {
       inlineMenuData.login = {
         username: cipher.login.username,
-        hasPasskey: Boolean(cipher.login.fido2Credentials?.[0]?.credentialId),
+        hasPasskey,
       };
       return inlineMenuData;
     }
