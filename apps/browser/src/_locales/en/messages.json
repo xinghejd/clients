@@ -3652,5 +3652,8 @@
   },
   "addAccount": {
     "message": "Add account"
+  },
+  "loading": {
+    "message": "Loading"
   }
 }
