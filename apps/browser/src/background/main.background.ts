@@ -719,6 +719,7 @@ export default class MainBackground {
       this.environmentService,
       this.logService,
       this.stateProvider,
+      this.authService,
     );
 
     this.cipherService = new CipherService(
