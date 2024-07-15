@@ -138,7 +138,7 @@ export type InlineMenuCipherData = {
   favorite: boolean;
   icon: WebsiteIconData;
   accountCreationFieldType?: string;
-  login?: { username: string };
+  login?: { username: string; hasPasskey: boolean };
   card?: string;
   identity?: {
     fullName: string;

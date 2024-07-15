@@ -423,7 +423,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     };
 
     if (cipher.type === CipherType.Login) {
-      inlineMenuData.login = { username: cipher.login.username };
+      inlineMenuData.login = { username: cipher.login.username, hasPasskey: false }; // TODO: Add passkey check
       return inlineMenuData;
     }
 
