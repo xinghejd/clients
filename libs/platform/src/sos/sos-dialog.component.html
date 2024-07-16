@@ -1,9 +1,13 @@
-<bit-dialog title="SOS: {{ state.title }}" dialogSize="large">
+<bit-dialog title="SOS: {{ title }}" dialogSize="large">
   <ng-container bitDialogContent>
     <bit-sos-page-first *ngIf="state.page == 'first'"></bit-sos-page-first>
+    <bit-sos-page-issue
+      *ngIf="state.page == 'issue'"
+      (selected)="goto($event)"
+    ></bit-sos-page-issue>
   </ng-container>
   <ng-container bitDialogFooter>
-    <button bitButton type="button" buttonType="primary">Next</button>
+    <button bitButton type="button" buttonType="primary" (click)="next()">Next</button>
     <button bitButton type="button" buttonType="secondary">Cancel</button>
   </ng-container>
 </bit-dialog>
