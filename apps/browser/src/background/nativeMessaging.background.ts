@@ -300,7 +300,7 @@ export class NativeMessagingBackground {
       Math.abs(message.timestamp - Date.now()) > MessageValidTimeout &&
       !this.platformUtilsService.isDev()
     ) {
-      this.logService.error("NativeMessage is to old, ignoring.");
+      this.logService.error("NativeMessage is too old, ignoring.");
       return;
     }
 
