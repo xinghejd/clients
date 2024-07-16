@@ -1,4 +1,8 @@
+import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { Meta, StoryObj, moduleMetadata } from "@storybook/angular";
+
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { I18nMockService } from "@bitwarden/components";
 
 import { SosDialogComponent } from "./sos-dialog.component";
 
@@ -8,7 +12,17 @@ export default {
   decorators: [
     moduleMetadata({
       declarations: [],
-      imports: [SosDialogComponent],
+      imports: [SosDialogComponent, NoopAnimationsModule],
+      providers: [
+        {
+          provide: I18nService,
+          useFactory: () => {
+            return new I18nMockService({
+              close: "Close",
+            });
+          },
+        },
+      ],
     }),
   ],
 } as Meta;
