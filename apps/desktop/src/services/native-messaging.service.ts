@@ -136,7 +136,7 @@ export class NativeMessagingService {
       Math.abs(message.timestamp - Date.now()) > MessageValidTimeout &&
       !this.platformUtilService.isDev()
     ) {
-      this.logService.error("NativeMessage is to old, ignoring.");
+      this.logService.error("NativeMessage is too old, ignoring.");
       return;
     }
 
