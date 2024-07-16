@@ -3,16 +3,16 @@ import { Component, EventEmitter, Output } from "@angular/core";
 import { ItemModule, TypographyModule } from "@bitwarden/components";
 
 @Component({
-  selector: "bit-sos-page-issue",
-  templateUrl: "./issue.component.html",
+  selector: "bit-sos-page-external-site-select",
+  templateUrl: "./external-site-select.component.html",
   standalone: true,
   imports: [TypographyModule, ItemModule],
 })
-export class IssuePageComponent {
+export class ExternalSiteSelectPageComponent {
   @Output()
   selected = new EventEmitter();
 
-  select(page: string) {
-    this.selected.emit({ page });
+  select() {
+    this.selected.emit();
   }
 }

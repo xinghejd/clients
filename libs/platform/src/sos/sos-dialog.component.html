@@ -5,6 +5,16 @@
       *ngIf="state.page == 'issue'"
       (selected)="goto($event)"
     ></bit-sos-page-issue>
+    <bit-sos-page-external-site-select
+      (selected)="loadAndGotoPage('analysis')"
+      *ngIf="state.page == 'external-site-select'"
+    ></bit-sos-page-external-site-select>
+    <ng-container *ngIf="state.page == 'loading'">
+      <div class="">
+        <i class="bwi bwi-spinner bwi-lg bwi-spin" aria-hidden="true"></i>
+      </div>
+    </ng-container>
+    <bit-sos-page-analysis *ngIf="state.page == 'analysis'"></bit-sos-page-analysis>
   </ng-container>
   <ng-container bitDialogFooter>
     <button bitButton type="button" buttonType="primary" (click)="next()">Next</button>
