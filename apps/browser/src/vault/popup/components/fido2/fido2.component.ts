@@ -214,7 +214,11 @@ export class Fido2Component implements OnInit, OnDestroy {
     if (data?.type === "PickCredentialRequest") {
       // TODO: Revert to use fido2 user verification service once user verification for passkeys is approved for production.
       // PM-4577 - https://github.com/bitwarden/clients/pull/8746
-      const userVerified = await this.handleUserVerification(data.userVerification, this.cipher);
+      const userVerified = await this.fido2UserVerificationService.handleUserVerification(
+        data.userVerification,
+        this.cipher,
+        false,
+      );
 
       this.send({
         sessionId: this.sessionId,
@@ -237,7 +241,11 @@ export class Fido2Component implements OnInit, OnDestroy {
 
       // TODO: Revert to use fido2 user verification service once user verification for passkeys is approved for production.
       // PM-4577 - https://github.com/bitwarden/clients/pull/8746
-      const userVerified = await this.handleUserVerification(data.userVerification, this.cipher);
+      const userVerified = await this.fido2UserVerificationService.handleUserVerification(
+        data.userVerification,
+        this.cipher,
+        false,
+      );
 
       this.send({
         sessionId: this.sessionId,
