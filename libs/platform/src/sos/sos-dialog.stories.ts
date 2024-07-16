@@ -9,6 +9,11 @@ import { SosDialogComponent } from "./sos-dialog.component";
 export default {
   title: "Platform/Sos Dialog",
   component: SosDialogComponent,
+  parameters: {
+    controls: {
+      include: [],
+    },
+  },
   decorators: [
     moduleMetadata({
       declarations: [],
