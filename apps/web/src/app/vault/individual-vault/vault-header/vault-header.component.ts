@@ -22,12 +22,15 @@ import {
   Unassigned,
 } from "../vault-filter/shared/models/routed-vault-filter.model";
 
+import { StarOfLifeIcon } from "./asterisk.icon";
+
 @Component({
   selector: "app-vault-header",
   templateUrl: "./vault-header.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class VaultHeaderComponent implements OnInit {
+  protected StarOfLifeIcon = StarOfLifeIcon;
   protected Unassigned = Unassigned;
   protected All = All;
   protected CollectionDialogTabType = CollectionDialogTabType;
