@@ -1,5 +1,9 @@
 <form [bitSubmit]="submitForm" [formGroup]="formGroup" autocomplete="off">
   <div class="tw-min-w-96">
+    <app-two-factor-auth-email
+      (token)="token = $event"
+      *ngIf="selectedProviderType === providerType.Email"
+    />
     <app-two-factor-auth-authenticator
       (token)="token = $event"
       *ngIf="selectedProviderType === providerType.Authenticator"
@@ -7,6 +11,10 @@
     <app-two-factor-auth-yubikey
       (token)="token = $event"
       *ngIf="selectedProviderType === providerType.Yubikey"
+    />
+    <app-two-factor-auth-webauthn
+      (token)="token = $event; submitForm()"
+      *ngIf="selectedProviderType === providerType.WebAuthn"
     />
     <bit-form-control *ngIf="selectedProviderType != null">
       <bit-label>{{ "rememberMe" | i18n }}</bit-label>
@@ -27,7 +35,7 @@
         buttonType="primary"
         bitButton
         bitFormButton
-        *ngIf="selectedProviderType != null"
+        *ngIf="selectedProviderType != null && selectedProviderType !== providerType.WebAuthn"
       >
         <span> <i class="bwi bwi-sign-in" aria-hidden="true"></i> {{ actionButtonText }} </span>
       </button>

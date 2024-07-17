@@ -5546,6 +5546,9 @@
   "verificationCodeRequired": {
     "message": "Verification code is required."
   },
+  "webauthnCancelOrTimeout": {
+    "message": "The authentication was cancelled or took too long. Please try again."
+  },
   "invalidVerificationCode": {
     "message": "Invalid verification code"
   },
@@ -6236,6 +6239,9 @@
         "example": "4"
       }
     }
+  },
+  "duoHealthCheckResultsInNullAuthUrlError": {
+    "message": "Error connecting with the Duo service. Use a different two-step login method or contact Duo for assistance."
   },
   "launchDuoAndFollowStepsToFinishLoggingIn": {
     "message": "Launch Duo and follow the steps to finish logging in."
@@ -8588,6 +8594,9 @@
         "example": "Organization name"
       }
     }
+  },
+  "purchasedSeatsRemoved": {
+    "message": "purchased seats removed"
   },
   "upgradeDiscount": {
     "message": "Save $AMOUNT$%",
