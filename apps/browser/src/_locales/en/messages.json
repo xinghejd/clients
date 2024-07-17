@@ -611,6 +611,9 @@
   "verificationCodeRequired": {
     "message": "Verification code is required."
   },
+  "webauthnCancelOrTimeout": {
+    "message": "The authentication was cancelled or took too long. Please try again."
+  },
   "invalidVerificationCode": {
     "message": "Invalid verification code"
   },
@@ -2761,6 +2764,14 @@
   },
   "deviceTrusted": {
     "message": "Device trusted"
+  },
+  "sendsNoItemsTitle": {
+    "message": "No active Sends",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendsNoItemsMessage": {
+    "message": "Use Send to securely share encrypted information with anyone.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "inputRequired": {
     "message": "Input is required."
