@@ -6,7 +6,13 @@ import { CipherType } from "@bitwarden/common/vault/enums";
 
 import { InlineMenuCipherData } from "../../../../background/abstractions/overlay.background";
 import { buildSvgDomElement } from "../../../../utils";
-import { globeIcon, lockIcon, plusIcon, viewCipherIcon } from "../../../../utils/svg-icons";
+import {
+  globeIcon,
+  lockIcon,
+  plusIcon,
+  viewCipherIcon,
+  passkeyIcon,
+} from "../../../../utils/svg-icons";
 import {
   AutofillInlineMenuListWindowMessageHandlers,
   InitAutofillInlineMenuListMessage,
@@ -441,13 +447,15 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
    * @param cipher - The cipher to fill.
    */
   private handleFillCipherClickEvent = (cipher: InlineMenuCipherData) => {
+    const usePasskey = !!cipher.login?.passkey;
     return this.useEventHandlersMemo(
       () =>
         this.postMessageToParent({
           command: "fillAutofillInlineMenuCipher",
           inlineMenuCipherId: cipher.id,
+          usePasskey,
         }),
-      `${cipher.id}-fill-cipher-button-click-handler`,
+      `${cipher.id}-fill-cipher-button-click-handler-${usePasskey ? "passkey" : ""}`,
     );
   };
 
@@ -621,14 +629,20 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
    * @param cipher - The cipher to build the details for.
    */
   private buildCipherDetailsElement(cipher: InlineMenuCipherData) {
-    const cipherNameElement = this.buildCipherNameElement(cipher);
-    const cipherSubtitleElement = this.buildCipherSubtitleElement(cipher);
-
     const cipherDetailsElement = globalThis.document.createElement("span");
     cipherDetailsElement.classList.add("cipher-details");
+
+    const cipherNameElement = this.buildCipherNameElement(cipher);
     if (cipherNameElement) {
       cipherDetailsElement.appendChild(cipherNameElement);
     }
+
+    if (cipher.login?.passkey) {
+      return this.buildPasskeysCipherDetailsElement(cipher, cipherDetailsElement);
+    }
+
+    const subTitleText = this.getSubTitleText(cipher);
+    const cipherSubtitleElement = this.buildCipherSubtitleElement(subTitleText);
     if (cipherSubtitleElement) {
       cipherDetailsElement.appendChild(cipherSubtitleElement);
     }
@@ -657,10 +671,9 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
   /**
    * Builds the subtitle element for a given cipher.
    *
-   * @param cipher - The cipher to build the username login element for.
+   * @param subTitleText - The subtitle text to display.
    */
-  private buildCipherSubtitleElement(cipher: InlineMenuCipherData): HTMLSpanElement | null {
-    const subTitleText = this.getSubTitleText(cipher);
+  private buildCipherSubtitleElement(subTitleText: string): HTMLSpanElement | null {
     if (!subTitleText) {
       return null;
     }
@@ -671,6 +684,46 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
     cipherSubtitleElement.setAttribute("title", subTitleText);
 
     return cipherSubtitleElement;
+  }
+
+  private buildPasskeysCipherDetailsElement(
+    cipher: InlineMenuCipherData,
+    cipherDetailsElement: HTMLSpanElement,
+  ): HTMLSpanElement {
+    let rpNameSubtitle: HTMLSpanElement;
+
+    if (cipher.name !== cipher.login.passkey.rpName) {
+      rpNameSubtitle = this.buildCipherSubtitleElement(cipher.login.passkey.rpName);
+      if (rpNameSubtitle) {
+        rpNameSubtitle.prepend(buildSvgDomElement(passkeyIcon));
+        rpNameSubtitle.classList.add("cipher-subtitle--passkey");
+        cipherDetailsElement.appendChild(rpNameSubtitle);
+      }
+    }
+
+    if (cipher.login.username) {
+      const usernameSubtitle = this.buildCipherSubtitleElement(cipher.login.username);
+      if (usernameSubtitle) {
+        if (!rpNameSubtitle) {
+          usernameSubtitle.prepend(buildSvgDomElement(passkeyIcon));
+          usernameSubtitle.classList.add("cipher-subtitle--passkey");
+        }
+        cipherDetailsElement.appendChild(usernameSubtitle);
+      }
+
+      return cipherDetailsElement;
+    }
+
+    const passkeySubtitle = this.buildCipherSubtitleElement(cipher.login.passkey.userName);
+    if (passkeySubtitle) {
+      if (!rpNameSubtitle) {
+        passkeySubtitle.prepend(buildSvgDomElement(passkeyIcon));
+        passkeySubtitle.classList.add("cipher-subtitle--passkey");
+      }
+      cipherDetailsElement.appendChild(passkeySubtitle);
+    }
+
+    return cipherDetailsElement;
   }
 
   /**

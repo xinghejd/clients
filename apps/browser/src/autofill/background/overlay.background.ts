@@ -766,10 +766,11 @@ export class OverlayBackground implements OverlayBackgroundInterface {
    * the selected cipher at the top of the list of ciphers.
    *
    * @param inlineMenuCipherId - Cipher ID corresponding to the inlineMenuCiphers map. Does not correspond to the actual cipher's ID.
+   * @param usePasskey - Identifies whether the cipher has a FIDO2 credential
    * @param sender - The sender of the port message
    */
   private async fillInlineMenuCipher(
-    { inlineMenuCipherId }: OverlayPortMessage,
+    { inlineMenuCipherId, usePasskey }: OverlayPortMessage,
     { sender }: chrome.runtime.Port,
   ) {
     const pageDetails = this.pageDetailsForTab[sender.tab.id];
@@ -779,7 +780,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
 
     const cipher = this.inlineMenuCiphers.get(inlineMenuCipherId);
 
-    if (cipher.login?.hasFido2Credentials) {
+    if (usePasskey && cipher.login?.hasFido2Credentials) {
       await this.fido2ClientService.autofillCredential(
         sender.tab.id,
         cipher.login.fido2Credentials[0].credentialId,

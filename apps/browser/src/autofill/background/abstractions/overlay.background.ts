@@ -128,6 +128,7 @@ export type OverlayPortMessage = {
   direction?: string;
   inlineMenuCipherId?: string;
   addNewCipherType?: CipherType;
+  usePasskey?: boolean;
 };
 
 export type InlineMenuCipherData = {

@@ -350,5 +350,22 @@ body {
     @include themify($themes) {
       color: themed("mutedTextColor");
     }
+
+    &--passkey {
+      display: flex;
+      align-content: center;
+      align-items: center;
+      justify-content: flex-start;
+
+      svg {
+        width: 1.6rem;
+        height: 1.6rem;
+        margin-right: 0.2rem;
+
+        @include themify($themes) {
+          fill: themed("mutedTextColor") !important;
+        }
+      }
+    }
   }
 }
