@@ -459,7 +459,12 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     if (cipher.type === CipherType.Login) {
       inlineMenuData.login = {
         username: cipher.login.username,
-        hasPasskey,
+        passkey: hasPasskey
+          ? {
+              rpName: cipher.login.fido2Credentials[0].rpName,
+              userName: cipher.login.fido2Credentials[0].userName,
+            }
+          : null,
       };
       return inlineMenuData;
     }

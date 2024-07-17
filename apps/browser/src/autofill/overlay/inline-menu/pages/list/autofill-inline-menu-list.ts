@@ -24,10 +24,10 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
   private currentCipherIndex = 0;
   private filledByCipherType: CipherType;
   private showInlineMenuAccountCreation: boolean;
-  private readonly showCiphersPerPage = 6;
   private newItemButtonElement: HTMLButtonElement;
   private passkeysHeadingElement: HTMLLIElement;
   private loginHeadingElement: HTMLLIElement;
+  private readonly showCiphersPerPage = 6;
   private readonly inlineMenuListWindowMessageHandlers: AutofillInlineMenuListWindowMessageHandlers =
     {
       initAutofillInlineMenuList: ({ message }) => this.initAutofillInlineMenuList(message),
@@ -342,14 +342,14 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
    * @param cipher - The cipher to build the list item for.
    */
   private buildInlineMenuListActionsItem(cipher: InlineMenuCipherData) {
-    if (cipher.login?.hasPasskey && !this.passkeysHeadingElement) {
+    if (cipher.login?.passkey && !this.passkeysHeadingElement) {
       this.passkeysHeadingElement = globalThis.document.createElement("li");
       this.passkeysHeadingElement.classList.add("inline-menu-list-heading");
       this.passkeysHeadingElement.textContent = "Passkeys";
       this.ciphersList.appendChild(this.passkeysHeadingElement);
     }
 
-    if (this.passkeysHeadingElement && !this.loginHeadingElement && !cipher.login?.hasPasskey) {
+    if (this.passkeysHeadingElement && !this.loginHeadingElement && !cipher.login?.passkey) {
       this.loginHeadingElement = globalThis.document.createElement("li");
       this.loginHeadingElement.classList.add("inline-menu-list-heading");
       this.loginHeadingElement.textContent = "Passwords";
