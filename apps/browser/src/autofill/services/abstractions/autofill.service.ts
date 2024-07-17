@@ -28,6 +28,7 @@ export interface AutoFillOptions {
   skipLastUsed?: boolean;
   allowUntrustedIframe?: boolean;
   allowTotpAutofill?: boolean;
+  autoSubmitLogin?: boolean;
 }
 
 export interface FormData {
@@ -75,6 +76,7 @@ export abstract class AutofillService {
     pageDetails: PageDetail[],
     tab: chrome.tabs.Tab,
     fromCommand: boolean,
+    autoSubmitLogin?: boolean,
   ) => Promise<string | null>;
   doAutoFillActiveTab: (
     pageDetails: PageDetail[],

@@ -23,6 +23,14 @@ interface CollectAutofillContentService {
     isObservingShadowRoot?: boolean,
   ): T[];
   destroy(): void;
+  // CG POC - Auto-submit form fields
+  getAutofillFormElements: AutofillFormElements;
+  queryAllTreeWalkerNodes(
+    rootNode: Node,
+    filterCallback: CallableFunction,
+    isObservingShadowRoot?: boolean,
+  ): Node[];
+  // END CG POC
 }
 
 export {
