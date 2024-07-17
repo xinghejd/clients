@@ -99,6 +99,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
   private isFieldCurrentlyFilling: boolean = false;
   private isInlineMenuButtonVisible: boolean = false;
   private isInlineMenuListVisible: boolean = false;
+  private showPasskeysLabelsWithinInlineMenu: boolean = false;
   private iconsServerUrl: string;
   private readonly extensionMessageHandlers: OverlayBackgroundExtensionMessageHandlers = {
     autofillOverlayElementClosed: ({ message, sender }) =>
@@ -270,6 +271,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       command: "updateAutofillInlineMenuListCiphers",
       ciphers,
       showInlineMenuAccountCreation: this.showInlineMenuAccountCreation(),
+      showPasskeysLabels: this.showPasskeysLabelsWithinInlineMenu,
     });
   }
 
@@ -332,6 +334,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     const showFavicons = await firstValueFrom(this.domainSettingsService.showFavicons$);
     const inlineMenuCiphersArray = Array.from(this.inlineMenuCiphers);
     let inlineMenuCipherData: InlineMenuCipherData[] = [];
+    this.showPasskeysLabelsWithinInlineMenu = false;
 
     if (this.showInlineMenuAccountCreation()) {
       inlineMenuCipherData = this.buildInlineMenuAccountCreationCiphers(
@@ -422,6 +425,8 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     }
 
     if (passkeyCipherData.length) {
+      this.showPasskeysLabelsWithinInlineMenu =
+        passkeyCipherData.length > 0 && inlineMenuCipherData.length > 0;
       return passkeyCipherData.concat(inlineMenuCipherData);
     }
 
@@ -1174,6 +1179,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       command: "updateAutofillInlineMenuListCiphers",
       ciphers: await this.getInlineMenuCipherData(),
       showInlineMenuAccountCreation: this.showInlineMenuAccountCreation(),
+      showPasskeysLabels: this.showPasskeysLabelsWithinInlineMenu,
     });
   }
 
@@ -1926,6 +1932,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
         : AutofillOverlayPort.ButtonMessageConnector,
       filledByCipherType: this.focusedFieldData?.filledByCipherType,
       showInlineMenuAccountCreation: this.showInlineMenuAccountCreation(),
+      showPasskeysLabels: this.showPasskeysLabelsWithinInlineMenu,
     });
     void this.updateInlineMenuPosition(
       {

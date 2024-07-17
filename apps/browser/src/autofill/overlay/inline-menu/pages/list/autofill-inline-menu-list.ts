@@ -5,7 +5,7 @@ import { EVENTS } from "@bitwarden/common/autofill/constants";
 import { CipherType } from "@bitwarden/common/vault/enums";
 
 import { InlineMenuCipherData } from "../../../../background/abstractions/overlay.background";
-import { buildSvgDomElement } from "../../../../utils";
+import { buildSvgDomElement, throttle } from "../../../../utils";
 import {
   globeIcon,
   lockIcon,
@@ -30,9 +30,12 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
   private currentCipherIndex = 0;
   private filledByCipherType: CipherType;
   private showInlineMenuAccountCreation: boolean;
+  private showPasskeysLabels: boolean;
   private newItemButtonElement: HTMLButtonElement;
   private passkeysHeadingElement: HTMLLIElement;
   private loginHeadingElement: HTMLLIElement;
+  private lastPasskeysListItem: HTMLLIElement;
+  private passkeysHeadingHeight: number;
   private readonly showCiphersPerPage = 6;
   private readonly inlineMenuListWindowMessageHandlers: AutofillInlineMenuListWindowMessageHandlers =
     {
@@ -61,6 +64,7 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
    * @param portKey - Background generated key that allows the port to communicate with the background.
    * @param filledByCipherType - The type of cipher that fills the current field.
    * @param showInlineMenuAccountCreation - Whether identity ciphers are shown on login fields.
+   * @param showPasskeysLabels - Whether passkeys labels are shown in the inline menu list.
    */
   private async initAutofillInlineMenuList({
     translations,
@@ -71,6 +75,7 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
     portKey,
     filledByCipherType,
     showInlineMenuAccountCreation,
+    showPasskeysLabels,
   }: InitAutofillInlineMenuListMessage) {
     const linkElement = await this.initAutofillInlineMenuPage(
       "list",
@@ -80,6 +85,7 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
     );
 
     this.filledByCipherType = filledByCipherType;
+    this.showPasskeysLabels = showPasskeysLabels;
 
     const themeClass = `theme_${theme}`;
     globalThis.document.documentElement.classList.add(themeClass);
@@ -166,9 +172,21 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
     this.ciphersList = globalThis.document.createElement("ul");
     this.ciphersList.classList.add("inline-menu-list-actions");
     this.ciphersList.setAttribute("role", "list");
-    this.ciphersList.addEventListener(EVENTS.SCROLL, this.handleCiphersListScrollEvent, {
+    this.ciphersList.addEventListener(EVENTS.SCROLL, this.updateCiphersListOnScroll, {
       passive: true,
     });
+    if (this.showPasskeysLabels) {
+      this.ciphersList.addEventListener(
+        EVENTS.SCROLL,
+        this.useEventHandlersMemo(
+          throttle(this.updatePasskeysHeadingsOnScroll, 25),
+          "update-passkeys-headings-on-scroll",
+        ),
+        {
+          passive: true,
+        },
+      );
+    }
 
     this.loadPageOfCiphers();
 
@@ -301,17 +319,13 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
       this.ciphersList.appendChild(this.buildInlineMenuListActionsItem(this.ciphers[cipherIndex]));
       this.currentCipherIndex++;
     }
-
-    if (this.currentCipherIndex >= this.ciphers.length) {
-      this.ciphersList.removeEventListener(EVENTS.SCROLL, this.handleCiphersListScrollEvent);
-    }
   }
 
   /**
    * Handles updating the list of ciphers when the
    * user scrolls to the bottom of the list.
    */
-  private handleCiphersListScrollEvent = () => {
+  private updateCiphersListOnScroll = () => {
     if (this.cipherListScrollIsDebounced) {
       return;
     }
@@ -332,13 +346,68 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
    */
   private handleDebouncedScrollEvent = () => {
     this.cipherListScrollIsDebounced = false;
+    const cipherListScrollTop = this.ciphersList.scrollTop;
 
+    if (this.passkeysHeadingElement && cipherListScrollTop < 1) {
+      this.passkeysHeadingElement.classList.remove("inline-menu-list-heading--bordered");
+    }
+
+    const lastPasskeyOffset =
+      this.lastPasskeysListItem.offsetTop + this.lastPasskeysListItem.offsetHeight;
+
+    if (this.loginHeadingElement && cipherListScrollTop < lastPasskeyOffset) {
+      this.loginHeadingElement.classList.remove("inline-menu-list-heading--bordered");
+    }
+
+    if (cipherListScrollTop >= this.lastPasskeysListItem.offsetTop - this.passkeysHeadingHeight) {
+      this.passkeysHeadingElement.classList.add("inline-menu-list-heading--anchored");
+      this.passkeysHeadingElement.style.top = `${this.lastPasskeysListItem.offsetTop - this.passkeysHeadingHeight}px`;
+    }
+
+    if (cipherListScrollTop < this.lastPasskeysListItem.offsetTop - this.passkeysHeadingHeight) {
+      this.passkeysHeadingElement.classList.remove("inline-menu-list-heading--anchored");
+      this.passkeysHeadingElement.setAttribute("style", "");
+    }
+
+    if (cipherListScrollTop >= lastPasskeyOffset) {
+      this.loginHeadingElement.classList.add("inline-menu-list-heading--bordered");
+    }
+
+    if (this.currentCipherIndex >= this.ciphers.length) {
+      return;
+    }
     const scrollPercentage =
-      (this.ciphersList.scrollTop /
-        (this.ciphersList.scrollHeight - this.ciphersList.offsetHeight)) *
-      100;
+      (cipherListScrollTop / (this.ciphersList.scrollHeight - this.ciphersList.offsetHeight)) * 100;
     if (scrollPercentage >= 80) {
       this.loadPageOfCiphers();
+    }
+  };
+
+  private updatePasskeysHeadingsOnScroll = () => {
+    if (!this.passkeysHeadingHeight) {
+      this.passkeysHeadingHeight = this.passkeysHeadingElement.getBoundingClientRect().height;
+    }
+
+    const cipherListScrollTop = this.ciphersList.scrollTop;
+    if (cipherListScrollTop > 0) {
+      this.passkeysHeadingElement.classList.add("inline-menu-list-heading--bordered");
+    }
+
+    if (cipherListScrollTop >= this.lastPasskeysListItem.offsetTop - this.passkeysHeadingHeight) {
+      this.passkeysHeadingElement.classList.add("inline-menu-list-heading--anchored");
+      this.passkeysHeadingElement.style.top = `${this.lastPasskeysListItem.offsetTop - this.passkeysHeadingHeight}px`;
+    }
+
+    if (cipherListScrollTop < this.lastPasskeysListItem.offsetTop - this.passkeysHeadingHeight) {
+      this.passkeysHeadingElement.classList.remove("inline-menu-list-heading--anchored");
+      this.passkeysHeadingElement.setAttribute("style", "");
+    }
+
+    if (
+      cipherListScrollTop >=
+      this.lastPasskeysListItem.offsetTop + this.lastPasskeysListItem.offsetHeight
+    ) {
+      this.loginHeadingElement.classList.add("inline-menu-list-heading--bordered");
     }
   };
 
@@ -348,14 +417,19 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
    * @param cipher - The cipher to build the list item for.
    */
   private buildInlineMenuListActionsItem(cipher: InlineMenuCipherData) {
-    if (cipher.login?.passkey && !this.passkeysHeadingElement) {
+    if (this.showPasskeysLabels && cipher.login?.passkey && !this.passkeysHeadingElement) {
       this.passkeysHeadingElement = globalThis.document.createElement("li");
       this.passkeysHeadingElement.classList.add("inline-menu-list-heading");
       this.passkeysHeadingElement.textContent = this.getTranslation("passkeys");
       this.ciphersList.appendChild(this.passkeysHeadingElement);
     }
 
-    if (this.passkeysHeadingElement && !this.loginHeadingElement && !cipher.login?.passkey) {
+    if (
+      this.showPasskeysLabels &&
+      this.passkeysHeadingElement &&
+      !this.loginHeadingElement &&
+      !cipher.login?.passkey
+    ) {
       this.loginHeadingElement = globalThis.document.createElement("li");
       this.loginHeadingElement.classList.add("inline-menu-list-heading");
       this.loginHeadingElement.textContent = this.getTranslation("passwords");
@@ -373,6 +447,10 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
     inlineMenuListActionsItem.setAttribute("role", "listitem");
     inlineMenuListActionsItem.classList.add("inline-menu-list-actions-item");
     inlineMenuListActionsItem.appendChild(cipherContainerElement);
+
+    if (this.showPasskeysLabels && cipher.login?.passkey) {
+      this.lastPasskeysListItem = inlineMenuListActionsItem;
+    }
 
     return inlineMenuListActionsItem;
   }

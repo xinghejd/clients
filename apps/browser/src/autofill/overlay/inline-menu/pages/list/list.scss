@@ -169,10 +169,23 @@ body {
   width: 100%;
   padding: 0.6rem 0.8rem;
   will-change: transform;
+  border-bottom: 0.1rem solid;
+  transition: border-bottom-color 0.15s ease;
 
   @include themify($themes) {
     color: themed("textColor");
     background-color: themed("backgroundColor");
+    border-bottom-color: themed("backgroundColor");
+  }
+
+  &--bordered {
+    @include themify($themes) {
+      border-bottom-color: themed("borderColor");
+    }
+  }
+
+  &--anchored {
+    position: relative;
   }
 }
 
