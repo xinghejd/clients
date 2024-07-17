@@ -351,14 +351,14 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
     if (cipher.login?.passkey && !this.passkeysHeadingElement) {
       this.passkeysHeadingElement = globalThis.document.createElement("li");
       this.passkeysHeadingElement.classList.add("inline-menu-list-heading");
-      this.passkeysHeadingElement.textContent = "Passkeys";
+      this.passkeysHeadingElement.textContent = this.getTranslation("passkeys");
       this.ciphersList.appendChild(this.passkeysHeadingElement);
     }
 
     if (this.passkeysHeadingElement && !this.loginHeadingElement && !cipher.login?.passkey) {
       this.loginHeadingElement = globalThis.document.createElement("li");
       this.loginHeadingElement.classList.add("inline-menu-list-heading");
-      this.loginHeadingElement.textContent = "Passwords";
+      this.loginHeadingElement.textContent = this.getTranslation("passwords");
       this.ciphersList.appendChild(this.loginHeadingElement);
     }
 
@@ -392,8 +392,13 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
     fillCipherElement.classList.add("fill-cipher-button", "inline-menu-list-action");
     fillCipherElement.setAttribute(
       "aria-label",
-      `${this.getTranslation("fillCredentialsFor")} ${cipher.name}`,
+      `${
+        cipher.login?.passkey
+          ? this.getTranslation("logInWithPasskey")
+          : this.getTranslation("fillCredentialsFor")
+      } ${cipher.name}`,
     );
+
     this.addFillCipherElementAriaDescription(fillCipherElement, cipher);
     fillCipherElement.append(cipherIcon, cipherDetailsElement);
     fillCipherElement.addEventListener(EVENTS.CLICK, this.handleFillCipherClickEvent(cipher));
@@ -413,10 +418,14 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
     cipher: InlineMenuCipherData,
   ) {
     if (cipher.login) {
-      fillCipherElement.setAttribute(
-        "aria-description",
-        `${this.getTranslation("username")}, ${cipher.login.username}`,
-      );
+      const passkeyUserName = cipher.login.passkey?.userName || "";
+      const username = cipher.login.username || passkeyUserName;
+      if (username) {
+        fillCipherElement.setAttribute(
+          "aria-description",
+          `${this.getTranslation("username")}, ${username}`,
+        );
+      }
       return;
     }
 
