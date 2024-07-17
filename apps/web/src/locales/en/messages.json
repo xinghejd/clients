@@ -2535,11 +2535,29 @@
       }
     }
   },
+  "includesXMembers": {
+    "message": "for $COUNT$ member",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
   "additionalUsers": {
     "message": "Additional users"
   },
   "costPerUser": {
     "message": "$COST$ per user",
+    "placeholders": {
+      "cost": {
+        "content": "$1",
+        "example": "$3"
+      }
+    }
+  },
+  "costPerMember": {
+    "message": "$COST$",
     "placeholders": {
       "cost": {
         "content": "$1",
@@ -2591,6 +2609,9 @@
   },
   "onPremHostingOptional": {
     "message": "On-premises hosting (optional)"
+  },
+  "optionalOnPremHosting": {
+    "message": "Optional on-premises hosting"
   },
   "usersGetPremium": {
     "message": "Users get access to Premium features"
@@ -3765,8 +3786,8 @@
   "upgrade": {
     "message": "Upgrade"
   },
-  "upgradeOrganization": {
-    "message": "Upgrade organization"
+  "upgradeFreeOrganization": {
+    "message": "Upgrade your Free organization "
   },
   "upgradeOrganizationDesc": {
     "message": "This feature is not available for free organizations. Switch to a paid plan to unlock more features."
@@ -4214,6 +4235,9 @@
   },
   "includeSsoAuthentication": {
     "message": "SSO Authentication via SAML2.0 and OpenID Connect"
+  },
+  "includeSsoAuthenticationMessage": {
+    "message": "SSO Authentication"
   },
   "includeEnterprisePolicies": {
     "message": "Enterprise policies"
@@ -5085,6 +5109,9 @@
   },
   "newClientOrganizationDesc": {
     "message": "Create a new client organization that will be associated with you as the Provider. You will be able to access and manage this organization."
+  },
+  "upgradeOrganization": {
+    "message": "New client organization"
   },
   "newClient": {
     "message": "New client"
@@ -8261,6 +8288,9 @@
   "createNewClientToManageAsProvider": {
     "message": "Create a new client organization to manage as a Provider. Additional seats will be reflected in the next billing cycle."
   },
+  "upgradePlan": {
+    "message": "Upgrade your plan to invite more members and gain access to additional Bitwarden features"
+  },
   "selectAPlan": {
     "message": "Select a plan"
   },
@@ -8558,5 +8588,35 @@
         "example": "Organization name"
       }
     }
+  },
+  "upgradeDiscount": {
+    "message": "Save $AMOUNT$%",
+    "placeholders": {
+      "amount": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "upgradeEnterpriseMessage": {
+    "message": "Advanced capabilities for larger businesses"
+  },
+  "upgradeTeamsMessage": {
+    "message": "Businesses looking for powerful security"
+  },
+  "teamsInviteMessage": {
+    "message": "Invite unlimited members"
+  },
+  "accessToCreateGroups": {
+    "message": "Access to create groups"
+  },
+  "syncGroupsAndUsersFromDirectory": {
+    "message": "Sync groups and users from a directory"
+  },
+  "upgradeFamilyMessage": {
+    "message": "Share with families and friends"
+  },
+  "accessToPremiumFeatures": {
+    "message": "Access to Premium features"
   }
 }

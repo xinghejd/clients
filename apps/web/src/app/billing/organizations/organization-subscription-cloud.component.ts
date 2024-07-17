@@ -28,6 +28,7 @@ import {
 } from "../shared/offboarding-survey.component";
 
 import { BillingSyncApiKeyComponent } from "./billing-sync-api-key.component";
+import { ChangePlanDialogResultType, openChangePlanDialog } from "./change-plan-dialog.component";
 import { DownloadLicenceDialogComponent } from "./download-license.component";
 import { ManageBilling } from "./icons/manage-billing.icon";
 import { SecretsManagerSubscriptionOptions } from "./sm-adjust-subscription.component";
@@ -375,7 +376,18 @@ export class OrganizationSubscriptionCloudComponent implements OnInit, OnDestroy
   };
 
   async changePlan() {
-    this.showChangePlan = !this.showChangePlan;
+    const reference = openChangePlanDialog(this.dialogService, {
+      data: {
+        organizationId: this.organizationId,
+        currentPlan: this.sub.plan,
+      },
+    });
+
+    const result = await lastValueFrom(reference.closed);
+
+    if (result === ChangePlanDialogResultType.Submitted) {
+      await this.load();
+    }
   }
 
   closeChangePlan() {
