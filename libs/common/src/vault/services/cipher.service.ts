@@ -1200,11 +1200,16 @@ export class CipherService implements CipherServiceAbstraction {
     let encryptedCiphers: CipherWithIdRequest[] = [];
 
     const ciphers = await this.getAllDecrypted();
-    if (!ciphers || ciphers.length === 0) {
+    if (!ciphers) {
+      return encryptedCiphers;
+    }
+
+    const userCiphers = ciphers.filter((c) => c.organizationId == null);
+    if (userCiphers.length === 0) {
       return encryptedCiphers;
     }
     encryptedCiphers = await Promise.all(
-      ciphers.map(async (cipher) => {
+      userCiphers.map(async (cipher) => {
         const encryptedCipher = await this.encrypt(cipher, newUserKey, originalUserKey);
         return new CipherWithIdRequest(encryptedCipher);
       }),
@@ -1390,7 +1395,7 @@ export class CipherService implements CipherServiceAbstraction {
 
         if (model.login.uris != null) {
           cipher.login.uris = [];
-          model.login.uris = model.login.uris.filter((u) => u.uri != null);
+          model.login.uris = model.login.uris.filter((u) => u.uri != null && u.uri !== "");
           for (let i = 0; i < model.login.uris.length; i++) {
             const loginUri = new LoginUri();
             loginUri.match = model.login.uris[i].match;
