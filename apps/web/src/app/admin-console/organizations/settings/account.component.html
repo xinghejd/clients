@@ -34,6 +34,26 @@
       {{ "save" | i18n }}
     </button>
   </form>
+  <h1 bitTypography="h1" class="tw-mt-16 tw-pb-2.5">Identity Provider</h1>
+  <p bitTypography="body1">
+    Configure information about your identity provider.
+    <a bitLink href="https://docs.bitwarden.com" target="_blank" rel="noreferrer">
+      {{ "learnMore" | i18n }}
+    </a>
+  </p>
+  <form *ngIf="org && !loading" [bitSubmit]="submitIdp" [formGroup]="formGroupIdp">
+    <div class="tw-grid tw-grid-cols-2 tw-gap-5">
+      <div>
+        <bit-form-field>
+          <bit-label>Identity Provider Host</bit-label>
+          <input bitInput id="idpHost" type="text" formControlName="idpHost" />
+        </bit-form-field>
+      </div>
+    </div>
+    <button type="submit" bitButton bitFormButton buttonType="primary">
+      {{ "save" | i18n }}
+    </button>
+  </form>
   <ng-container *ngIf="canUseApi">
     <h1 bitTypography="h1" class="tw-mt-16 tw-pb-2.5">{{ "apiKey" | i18n }}</h1>
     <p bitTypography="body1">

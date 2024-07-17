@@ -1,6 +1,7 @@
 import { BillingHistoryResponse } from "@bitwarden/common/billing/models/response/billing-history.response";
 
 import { OrganizationApiKeyRequest } from "../../../admin-console/models/request/organization-api-key.request";
+import { OrganizationIdpRequest } from "../../../auth/models/request/organization-idp.request";
 import { OrganizationSsoRequest } from "../../../auth/models/request/organization-sso.request";
 import { SecretVerificationRequest } from "../../../auth/models/request/secret-verification.request";
 import { ApiKeyResponse } from "../../../auth/models/response/api-key.response";
@@ -76,6 +77,7 @@ export class OrganizationApiServiceAbstraction {
   updateKeys: (id: string, request: OrganizationKeysRequest) => Promise<OrganizationKeysResponse>;
   getSso: (id: string) => Promise<OrganizationSsoResponse>;
   updateSso: (id: string, request: OrganizationSsoRequest) => Promise<OrganizationSsoResponse>;
+  updateIdp: (id: string, request: OrganizationIdpRequest) => Promise<OrganizationResponse>;
   selfHostedSyncLicense: (id: string) => Promise<void>;
   subscribeToSecretsManager: (
     id: string,

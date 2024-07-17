@@ -35,6 +35,7 @@ export class OrganizationResponse extends BaseResponse {
   limitCollectionCreationDeletion: boolean;
   allowAdminAccessToAllCollectionItems: boolean;
   flexibleCollections: boolean;
+  idpHost: string;
 
   constructor(response: any) {
     super(response);
@@ -77,5 +78,6 @@ export class OrganizationResponse extends BaseResponse {
       "AllowAdminAccessToAllCollectionItems",
     );
     this.flexibleCollections = this.getResponseProperty("FlexibleCollections");
+    this.idpHost = this.getResponseProperty("IdpHost");
   }
 }

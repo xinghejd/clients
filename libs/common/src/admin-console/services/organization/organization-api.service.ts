@@ -2,6 +2,7 @@ import { BillingHistoryResponse } from "@bitwarden/common/billing/models/respons
 
 import { ApiService } from "../../../abstractions/api.service";
 import { OrganizationApiKeyRequest } from "../../../admin-console/models/request/organization-api-key.request";
+import { OrganizationIdpRequest } from "../../../auth/models/request/organization-idp.request";
 import { OrganizationSsoRequest } from "../../../auth/models/request/organization-sso.request";
 import { SecretVerificationRequest } from "../../../auth/models/request/secret-verification.request";
 import { ApiKeyResponse } from "../../../auth/models/response/api-key.response";
@@ -324,6 +325,17 @@ export class OrganizationApiService implements OrganizationApiServiceAbstraction
     );
     // Not broadcasting anything because data on this response doesn't correspond to `Organization`
     return new OrganizationSsoResponse(r);
+  }
+
+  async updateIdp(id: string, request: OrganizationIdpRequest): Promise<OrganizationResponse> {
+    const r = await this.apiService.send(
+      "PUT",
+      "/organizations/" + id + "/idp",
+      request,
+      true,
+      true,
+    );
+    return new OrganizationResponse(r);
   }
 
   async selfHostedSyncLicense(id: string) {

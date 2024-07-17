@@ -10,6 +10,7 @@ import { OrganizationCollectionManagementUpdateRequest } from "@bitwarden/common
 import { OrganizationKeysRequest } from "@bitwarden/common/admin-console/models/request/organization-keys.request";
 import { OrganizationUpdateRequest } from "@bitwarden/common/admin-console/models/request/organization-update.request";
 import { OrganizationResponse } from "@bitwarden/common/admin-console/models/response/organization.response";
+import { OrganizationIdpRequest } from "@bitwarden/common/auth/models/request/organization-idp.request";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
@@ -56,6 +57,17 @@ export class AccountComponent implements OnInit, OnDestroy {
     billingEmail: this.formBuilder.control(
       { value: "", disabled: true },
       { validators: [Validators.required, Validators.email, Validators.maxLength(256)] },
+    ),
+  });
+
+  // FormGroup validators taken from server Organization domain object
+  protected formGroupIdp = this.formBuilder.group({
+    idpHost: this.formBuilder.control(
+      { value: "", disabled: true },
+      {
+        validators: [Validators.maxLength(50)],
+        updateOn: "change",
+      },
     ),
   });
 
@@ -114,6 +126,7 @@ export class AccountComponent implements OnInit, OnDestroy {
           this.formGroup.get("orgName").enable();
           this.collectionManagementFormGroup.get("limitCollectionCreationDeletion").enable();
           this.collectionManagementFormGroup.get("allowAdminAccessToAllCollectionItems").enable();
+          this.formGroupIdp.get("idpHost").enable();
         }
 
         if (!this.selfHosted && this.canEditSubscription) {
@@ -134,6 +147,9 @@ export class AccountComponent implements OnInit, OnDestroy {
         this.collectionManagementFormGroup.patchValue({
           limitCollectionCreationDeletion: this.org.limitCollectionCreationDeletion,
           allowAdminAccessToAllCollectionItems: this.org.allowAdminAccessToAllCollectionItems,
+        });
+        this.formGroupIdp.patchValue({
+          idpHost: this.org.idpHost,
         });
 
         this.loading = false;
@@ -173,6 +189,27 @@ export class AccountComponent implements OnInit, OnDestroy {
     }
 
     await this.organizationApiService.save(this.organizationId, request);
+
+    this.platformUtilsService.showToast("success", null, this.i18nService.t("organizationUpdated"));
+  };
+
+  submitIdp = async () => {
+    this.formGroupIdp.markAllAsTouched();
+    if (this.formGroupIdp.invalid) {
+      return;
+    }
+
+    const request = new OrganizationIdpRequest();
+
+    /*
+     * When you disable a FormControl, it is removed from formGroupIdp.values, so we have to use
+     * the original value.
+     * */
+    request.idpHost = this.formGroupIdp.get("idpHost").disabled
+      ? this.org.idpHost
+      : this.formGroupIdp.value.idpHost;
+
+    await this.organizationApiService.updateIdp(this.organizationId, request);
 
     this.platformUtilsService.showToast("success", null, this.i18nService.t("organizationUpdated"));
   };
