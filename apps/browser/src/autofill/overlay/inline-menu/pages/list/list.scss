@@ -358,12 +358,18 @@ body {
       justify-content: flex-start;
 
       svg {
-        width: 1.6rem;
-        height: 1.6rem;
+        width: 1.5rem;
+        height: 1.5rem;
         margin-right: 0.2rem;
 
         @include themify($themes) {
           fill: themed("mutedTextColor") !important;
+        }
+
+        path {
+          @include themify($themes) {
+            fill: themed("mutedTextColor") !important;
+          }
         }
       }
     }
