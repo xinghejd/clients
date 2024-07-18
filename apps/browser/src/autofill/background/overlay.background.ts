@@ -74,7 +74,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
   private readonly openUnlockPopout = openUnlockPopout;
   private readonly openViewVaultItemPopout = openViewVaultItemPopout;
   private readonly openAddEditVaultItemPopout = openAddEditVaultItemPopout;
-  private readonly currentTab$ = new ReplaySubject<number>(1);
+  private readonly storeInlineMenuFido2CredentialsSubject = new ReplaySubject<number>(1);
   private pageDetailsForTab: PageDetailsForTab = {};
   private subFrameOffsetsForTab: SubFrameOffsetsForTab = {};
   private portKeyForTab: Record<number, string> = {};
@@ -82,7 +82,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
   private inlineMenuButtonPort: chrome.runtime.Port;
   private inlineMenuListPort: chrome.runtime.Port;
   private inlineMenuCiphers: Map<string, CipherView> = new Map();
-  private inlineMenuFido2Credentials: Fido2CredentialView[] = [];
+  private inlineMenuFido2Credentials: Set<string> = new Set();
   private inlineMenuPageTranslations: Record<string, string>;
   private inlineMenuPosition: InlineMenuPosition = {};
   private cardAndIdentityCiphers: Set<CipherView> | null = null;
@@ -188,9 +188,9 @@ export class OverlayBackground implements OverlayBackgroundInterface {
    * Initializes event observables that handle events which affect the overlay's behavior.
    */
   private initOverlayEventObservables() {
-    this.currentTab$
+    this.storeInlineMenuFido2CredentialsSubject
       .pipe(switchMap((tabId) => this.fido2ClientService.availableAutofillCredentials$(tabId)))
-      .subscribe((credentials) => (this.inlineMenuFido2Credentials = credentials));
+      .subscribe((credentials) => this.storeInlineMenuFido2Credentials(credentials));
     this.repositionInlineMenuSubject
       .pipe(
         debounceTime(1000),
@@ -257,8 +257,8 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       void this.closeInlineMenuAfterCiphersUpdate();
     }
 
-    this.inlineMenuFido2Credentials = [];
-    this.currentTab$.next(currentTab.id);
+    this.inlineMenuFido2Credentials.clear();
+    this.storeInlineMenuFido2CredentialsSubject.next(currentTab.id);
 
     this.inlineMenuCiphers = new Map();
     const ciphersViews = await this.getCipherViews(currentTab, updateAllCipherTypes);
@@ -414,7 +414,8 @@ export class OverlayBackground implements OverlayBackgroundInterface {
 
       if (
         cipher.type === CipherType.Login &&
-        Boolean(cipher.login.fido2Credentials?.[0]?.credentialId)
+        Boolean(cipher.login.fido2Credentials?.[0]?.credentialId) &&
+        this.inlineMenuFido2Credentials.has(cipher.login.fido2Credentials[0].credentialId)
       ) {
         passkeyCipherData.push(
           this.buildCipherData(inlineMenuCipherId, cipher, showFavicons, false, true),
@@ -540,6 +541,12 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     }
 
     return this.inlineMenuCiphers.size === 0;
+  }
+
+  private storeInlineMenuFido2Credentials(credentials: Fido2CredentialView[]) {
+    credentials
+      .map((credential) => credential.credentialId)
+      .forEach((credentialId) => this.inlineMenuFido2Credentials.add(credentialId));
   }
 
   /**
