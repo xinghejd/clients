@@ -819,6 +819,8 @@ export class OverlayBackground implements OverlayBackgroundInterface {
         sender.tab.id,
         cipher.login.fido2Credentials[0].credentialId,
       );
+      this.updateLastUsedInlineMenuCipher(inlineMenuCipherId, cipher);
+
       return;
     }
 
@@ -837,6 +839,16 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       this.platformUtilsService.copyToClipboard(totpCode);
     }
 
+    this.updateLastUsedInlineMenuCipher(inlineMenuCipherId, cipher);
+  }
+
+  /**
+   * Sets the most recently used cipher at the top of the list of ciphers.
+   *
+   * @param inlineMenuCipherId - The ID of the inline menu cipher
+   * @param cipher - The cipher to set as the most recently used
+   */
+  private updateLastUsedInlineMenuCipher(inlineMenuCipherId: string, cipher: CipherView) {
     this.inlineMenuCiphers = new Map([[inlineMenuCipherId, cipher], ...this.inlineMenuCiphers]);
   }
 

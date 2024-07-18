@@ -1,7 +1,7 @@
 import "@webcomponents/custom-elements";
 import "lit/polyfill-support.js";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
-import { EVENTS } from "@bitwarden/common/autofill/constants";
+import { EVENTS, UPDATE_PASSKEYS_HEADINGS_ON_SCROLL } from "@bitwarden/common/autofill/constants";
 import { CipherType } from "@bitwarden/common/vault/enums";
 
 import { InlineMenuCipherData } from "../../../../background/abstractions/overlay.background";
@@ -36,6 +36,8 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
   private loginHeadingElement: HTMLLIElement;
   private lastPasskeysListItem: HTMLLIElement;
   private passkeysHeadingHeight: number;
+  private lastPasskeysListItemHeight: number;
+  private ciphersListHeight: number;
   private readonly showCiphersPerPage = 6;
   private readonly headingBorderClass = "inline-menu-list-heading--bordered";
   private readonly inlineMenuListWindowMessageHandlers: AutofillInlineMenuListWindowMessageHandlers =
@@ -173,21 +175,7 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
     this.ciphersList = globalThis.document.createElement("ul");
     this.ciphersList.classList.add("inline-menu-list-actions");
     this.ciphersList.setAttribute("role", "list");
-    this.ciphersList.addEventListener(EVENTS.SCROLL, this.updateCiphersListOnScroll, {
-      passive: true,
-    });
-    if (this.showPasskeysLabels) {
-      this.ciphersList.addEventListener(
-        EVENTS.SCROLL,
-        this.useEventHandlersMemo(
-          throttle(this.handleThrottledScrollEvent, 50),
-          "update-passkeys-headings-on-scroll",
-        ),
-        {
-          passive: true,
-        },
-      );
-    }
+    this.setupCipherListScrollListeners();
 
     this.loadPageOfCiphers();
 
@@ -321,8 +309,35 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
       this.currentCipherIndex++;
     }
 
-    if (!this.showPasskeysLabels && this.currentCipherIndex >= this.ciphers.length) {
+    if (!this.showPasskeysLabels && this.allCiphersLoaded()) {
       this.ciphersList.removeEventListener(EVENTS.SCROLL, this.updateCiphersListOnScroll);
+    }
+  }
+
+  /**
+   * Validates whether the list of ciphers has been fully loaded.
+   */
+  private allCiphersLoaded() {
+    return this.currentCipherIndex >= this.ciphers.length;
+  }
+
+  /**
+   * Sets up the scroll listeners for the ciphers list. These are used to trigger an update of
+   * the list of ciphers when the user scrolls to the bottom of the list. Also sets up the
+   * scroll listeners that reposition the passkeys and login headings when the user scrolls.
+   */
+  private setupCipherListScrollListeners() {
+    const options = { passive: true };
+    this.ciphersList.addEventListener(EVENTS.SCROLL, this.updateCiphersListOnScroll, options);
+    if (this.showPasskeysLabels) {
+      this.ciphersList.addEventListener(
+        EVENTS.SCROLL,
+        this.useEventHandlersMemo(
+          throttle(() => this.updatePasskeysHeadingsOnScroll(this.ciphersList.scrollTop), 50),
+          UPDATE_PASSKEYS_HEADINGS_ON_SCROLL,
+        ),
+        options,
+      );
     }
   }
 
@@ -355,20 +370,26 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
 
     this.updatePasskeysHeadingsOnScroll(cipherListScrollTop);
 
-    if (this.currentCipherIndex >= this.ciphers.length) {
+    if (this.allCiphersLoaded()) {
       return;
     }
+
+    if (!this.ciphersListHeight) {
+      this.ciphersListHeight = this.ciphersList.offsetHeight;
+    }
+
     const scrollPercentage =
-      (cipherListScrollTop / (this.ciphersList.scrollHeight - this.ciphersList.offsetHeight)) * 100;
+      (cipherListScrollTop / (this.ciphersList.scrollHeight - this.ciphersListHeight)) * 100;
     if (scrollPercentage >= 80) {
       this.loadPageOfCiphers();
     }
   };
 
-  private handleThrottledScrollEvent = () => {
-    this.updatePasskeysHeadingsOnScroll(this.ciphersList.scrollTop);
-  };
-
+  /**
+   * Updates the passkeys and login headings when the user scrolls the ciphers list.
+   *
+   * @param cipherListScrollTop - The current scroll top position of the ciphers list.
+   */
   private updatePasskeysHeadingsOnScroll = (cipherListScrollTop: number) => {
     if (!this.showPasskeysLabels) {
       return;
@@ -385,7 +406,7 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
     }
 
     if (!this.passkeysHeadingHeight) {
-      this.passkeysHeadingHeight = this.passkeysHeadingElement.getBoundingClientRect().height;
+      this.passkeysHeadingHeight = this.passkeysHeadingElement.offsetHeight;
     }
 
     const passkeysHeadingOffset = this.lastPasskeysListItem.offsetTop - this.passkeysHeadingHeight;
@@ -417,8 +438,11 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
       return;
     }
 
-    const lastPasskeyOffset =
-      this.lastPasskeysListItem.offsetTop + this.lastPasskeysListItem.offsetHeight;
+    if (!this.lastPasskeysListItemHeight) {
+      this.lastPasskeysListItemHeight = this.lastPasskeysListItem.offsetHeight;
+    }
+
+    const lastPasskeyOffset = this.lastPasskeysListItem.offsetTop + this.lastPasskeysListItemHeight;
     if (cipherListScrollTop < lastPasskeyOffset) {
       this.loginHeadingElement.classList.remove(this.headingBorderClass);
       return;
