@@ -52,7 +52,7 @@
                 <h3 class="tw-text-lg tw-font-bold tw-uppercase">
                   {{ selectableProduct.nameLocalizationKey | i18n }}
                 </h3>
-                <span *ngIf="selectableProduct.productTier != productTypes.Free" class="">
+                <span *ngIf="selectableProduct.productTier != productTypes.Free">
                   <ng-container
                     *ngIf="selectableProduct.PasswordManager.basePrice && !acceptingSponsorship"
                   >
@@ -87,7 +87,6 @@
                     !selectableProduct.PasswordManager.basePrice &&
                     selectableProduct.PasswordManager.hasAdditionalSeatsOption
                   "
-                  class=""
                 >
                   <b class="tw-text-lg tw-font-semibold"
                     >{{
@@ -102,7 +101,7 @@
                   </b>
                   <b class="tw-text-sm tw-font-semibold"> /{{ "monthPerMember" | i18n }}</b>
                 </span>
-                <span *ngIf="selectableProduct.productTier == productTypes.Free" class=""
+                <span *ngIf="selectableProduct.productTier == productTypes.Free"
                   >{{ "freeForever" | i18n }}
                 </span>
               </div>
@@ -124,10 +123,6 @@
                   {{ "includeSsoAuthenticationMessage" | i18n }}
                 </li>
                 <li *ngIf="selectableProduct.hasSelfHost">{{ "optionalOnPremHosting" | i18n }}</li>
-
-                <li *ngIf="selectableProduct.trialPeriodDays && createOrganization">
-                  {{ "xDayFreeTrial" | i18n: selectableProduct.trialPeriodDays }}
-                </li>
               </ul>
             </ng-container>
             <ng-template #nonEnterprisePlans>
@@ -142,9 +137,6 @@
                   <li>{{ "includeAllTeamsStarterFeatures" | i18n }}</li>
                   <li>{{ "chooseMonthlyOrAnnualBilling" | i18n }}</li>
                   <li>{{ "abilityToAddMoreThanNMembers" | i18n: 10 }}</li>
-                  <li *ngIf="selectableProduct.trialPeriodDays && createOrganization">
-                    {{ "xDayFreeTrial" | i18n: selectableProduct.trialPeriodDays }}
-                  </li>
                 </ul>
               </ng-container>
               <ng-template #fullFeatureList>
@@ -173,19 +165,12 @@
                         | i18n: selectableProduct.PasswordManager.maxCollections
                     }}
                   </li>
-                  <li *ngIf="selectableProduct.PasswordManager.maxAdditionalSeats">
-                    {{
-                      "addShareLimitedUsers"
-                        | i18n: selectableProduct.PasswordManager.maxAdditionalSeats
-                    }}
-                  </li>
                   <li *ngIf="!selectableProduct.PasswordManager.maxCollections">
                     {{ "createUnlimitedCollections" | i18n }}
                   </li>
                   <li *ngIf="selectableProduct.hasGroups">
                     {{ "accessToCreateGroups" | i18n }}
                   </li>
-                  <li *ngIf="selectableProduct.hasApi">{{ "trackAuditLogs" | i18n }}</li>
                   <li *ngIf="selectableProduct.hasDirectory">
                     {{ "syncGroupsAndUsersFromDirectory" | i18n }}
                   </li>
@@ -208,10 +193,7 @@
       <!-- Payment info -->
       <bit-section *ngIf="formGroup.value.productTier !== productTypes.Free">
         <h2 bitTypography="h4">{{ "paymentMethod" | i18n }}</h2>
-        <app-payment
-          *ngIf="createOrganization || upgradeRequiresPaymentMethod"
-          [hideCredit]="true"
-        ></app-payment>
+        <app-payment *ngIf="upgradeRequiresPaymentMethod" [hideCredit]="true"></app-payment>
         <app-tax-info (onCountryChanged)="changedCountry()"></app-tax-info>
         <div id="price" class="tw-my-4">
           <p class="tw-text-lg">

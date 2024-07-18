@@ -8,13 +8,10 @@ import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
-import { ProviderApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/provider/provider-api.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
-import { OrganizationCreateRequest } from "@bitwarden/common/admin-console/models/request/organization-create.request";
 import { OrganizationKeysRequest } from "@bitwarden/common/admin-console/models/request/organization-keys.request";
 import { OrganizationUpgradeRequest } from "@bitwarden/common/admin-console/models/request/organization-upgrade.request";
-import { ProviderOrganizationCreateRequest } from "@bitwarden/common/admin-console/models/request/provider/provider-organization-create.request";
 import { ProviderResponse } from "@bitwarden/common/admin-console/models/response/provider/provider.response";
 import {
   PaymentMethodType,
@@ -29,12 +26,8 @@ import { PlanResponse } from "@bitwarden/common/billing/models/response/plan.res
 import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
-import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
-import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
-import { OrgKey } from "@bitwarden/common/types/key";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
-import { DialogService } from "@bitwarden/components";
+import { DialogService, ToastService } from "@bitwarden/components";
 
 import { PaymentComponent } from "../shared/payment.component";
 import { TaxInfoComponent } from "../shared/tax-info.component";
@@ -43,13 +36,6 @@ type ChangePlanDialogParams = {
   organizationId: string;
   currentPlan: PlanResponse;
 };
-
-const Allowed2020PlansForLegacyProviders = [
-  PlanType.TeamsMonthly2020,
-  PlanType.TeamsAnnually2020,
-  PlanType.EnterpriseAnnually2020,
-  PlanType.EnterpriseMonthly2020,
-];
 
 export enum ChangePlanDialogResultType {
   Closed = "closed",
@@ -164,9 +150,9 @@ export class ChangePlanDialogComponent implements OnInit {
   constructor(
     @Inject(DIALOG_DATA) private dialogParams: ChangePlanDialogParams,
     private dialogRef: DialogRef<ChangePlanDialogResultType>,
+    private toastService: ToastService,
     private apiService: ApiService,
     private i18nService: I18nService,
-    private platformUtilsService: PlatformUtilsService,
     private cryptoService: CryptoService,
     private router: Router,
     private syncService: SyncService,
@@ -175,10 +161,7 @@ export class ChangePlanDialogComponent implements OnInit {
     private messagingService: MessagingService,
     private formBuilder: FormBuilder,
     private organizationApiService: OrganizationApiServiceAbstraction,
-    private providerApiService: ProviderApiServiceAbstraction,
-  ) {
-    this.selfHosted = platformUtilsService.isSelfHost();
-  }
+  ) {}
 
   async ngOnInit(): Promise<void> {
     this.organizationId = this.dialogParams.organizationId;
@@ -212,24 +195,7 @@ export class ChangePlanDialogComponent implements OnInit {
       this.plan = upgradedPlan.type;
       this.productTier = upgradedPlan.productTier;
     }
-
-    if (this.hasProvider) {
-      this.formGroup.controls.businessOwned.setValue(true);
-      this.changedOwnedBusiness();
-      this.provider = await this.providerApiService.getProvider(this.providerId);
-      const providerDefaultPlan = this.passwordManagerPlans.find(
-        (plan) => plan.type === PlanType.TeamsAnnually,
-      );
-      this.plan = providerDefaultPlan.type;
-      this.productTier = providerDefaultPlan.productTier;
-    }
-
-    if (!this.createOrganization) {
-      this.upgradeFlowPrefillForm();
-    } else {
-      this.formGroup.controls.name.addValidators([Validators.required, Validators.maxLength(50)]);
-      this.formGroup.controls.billingEmail.addValidators(Validators.required);
-    }
+    this.upgradeFlowPrefillForm();
 
     this.policyService
       .policyAppliesToActiveUser$(PolicyType.SingleOrg)
@@ -355,14 +321,6 @@ export class ChangePlanDialogComponent implements OnInit {
     this.destroy$.complete();
   }
 
-  get singleOrgPolicyBlock() {
-    return this.singleOrgPolicyAppliesToActiveUser && !this.hasProvider;
-  }
-
-  get createOrganization() {
-    return this.organizationId == null;
-  }
-
   get upgradeRequiresPaymentMethod() {
     return (
       this.organization?.productTierType === ProductTierType.Free &&
@@ -373,17 +331,6 @@ export class ChangePlanDialogComponent implements OnInit {
 
   get selectedPlanInterval() {
     return this.selectedPlan.isAnnual ? "year" : "month";
-  }
-
-  isProviderQualifiedFor2020Plan() {
-    const targetDate = new Date("2023-11-06");
-
-    if (!this.provider || !this.provider.creationDate) {
-      return false;
-    }
-
-    const creationDate = new Date(this.provider.creationDate);
-    return creationDate < targetDate;
   }
 
   get selectableProducts() {
@@ -407,10 +354,7 @@ export class ChangePlanDialogComponent implements OnInit {
           (this.selectedInterval === PlanInterval.Annually && plan.isAnnual) ||
           (this.selectedInterval === PlanInterval.Monthly && !plan.isAnnual)) &&
         (!this.currentPlan || this.currentPlan.upgradeSortOrder < plan.upgradeSortOrder) &&
-        (!this.hasProvider || plan.productTier !== ProductTierType.TeamsStarter) &&
-        ((!this.isProviderQualifiedFor2020Plan() && this.planIsEnabled(plan)) ||
-          (this.isProviderQualifiedFor2020Plan() &&
-            Allowed2020PlansForLegacyProviders.includes(plan.type))),
+        this.planIsEnabled(plan),
     );
 
     result.sort((planA, planB) => planA.displaySortOrder - planB.displaySortOrder);
@@ -422,19 +366,11 @@ export class ChangePlanDialogComponent implements OnInit {
     const selectedProductTierType = this.formGroup.controls.productTier.value;
     const result =
       this.passwordManagerPlans?.filter(
-        (plan) =>
-          plan.productTier === selectedProductTierType &&
-          ((!this.isProviderQualifiedFor2020Plan() && this.planIsEnabled(plan)) ||
-            (this.isProviderQualifiedFor2020Plan() &&
-              Allowed2020PlansForLegacyProviders.includes(plan.type))),
+        (plan) => plan.productTier === selectedProductTierType && this.planIsEnabled(plan),
       ) || [];
 
     result.sort((planA, planB) => planA.displaySortOrder - planB.displaySortOrder);
     return result;
-  }
-
-  get hasProvider() {
-    return this.providerId != null;
   }
 
   seatPriceMonthly(selectedPlan: PlanResponse) {
@@ -489,7 +425,7 @@ export class ChangePlanDialogComponent implements OnInit {
   get paymentDesc() {
     if (this.acceptingSponsorship) {
       return this.i18nService.t("paymentSponsored");
-    } else if (this.freeTrial && this.createOrganization) {
+    } else if (this.freeTrial) {
       return this.i18nService.t("paymentChargedWithTrial");
     } else {
       return this.i18nService.t("paymentCharged", this.i18nService.t(this.selectedPlanInterval));
@@ -535,20 +471,6 @@ export class ChangePlanDialogComponent implements OnInit {
     this.formGroup.controls.additionalSeats.setValue(1);
   }
 
-  changedOwnedBusiness() {
-    if (!this.formGroup.controls.businessOwned.value || this.selectedPlan.canBeUsedByBusiness) {
-      return;
-    }
-    if (this.teamsStarterPlanIsAvailable) {
-      this.formGroup.controls.productTier.setValue(ProductTierType.TeamsStarter);
-      this.formGroup.controls.plan.setValue(PlanType.TeamsStarter);
-    } else {
-      this.formGroup.controls.productTier.setValue(ProductTierType.Teams);
-      this.formGroup.controls.plan.setValue(PlanType.TeamsAnnually);
-    }
-    this.changedProduct();
-  }
-
   changedCountry() {
     if (this.paymentComponent) {
       this.paymentComponent!.hideBank = this.taxComponent.taxFormGroup?.value.country !== "US";
@@ -563,55 +485,20 @@ export class ChangePlanDialogComponent implements OnInit {
     }
   }
 
-  cancel() {
-    this.onCanceled.emit();
-  }
-
-  setSelectedFile(event: Event) {
-    const fileInputEl = <HTMLInputElement>event.target;
-    this.selectedFile = fileInputEl.files.length > 0 ? fileInputEl.files[0] : null;
-  }
-
   submit = async () => {
     if (!this.taxComponent?.taxFormGroup.valid && this.taxComponent?.taxFormGroup.touched) {
       this.taxComponent?.taxFormGroup.markAllAsTouched();
       return;
     }
 
-    if (this.singleOrgPolicyBlock) {
-      return;
-    }
     const doSubmit = async (): Promise<string> => {
       let orgId: string = null;
-      if (this.createOrganization) {
-        const orgKey = await this.cryptoService.makeOrgKey<OrgKey>();
-        const key = orgKey[0].encryptedString;
-        const collection = await this.cryptoService.encrypt(
-          this.i18nService.t("defaultCollection"),
-          orgKey[1],
-        );
-        const collectionCt = collection.encryptedString;
-        const orgKeys = await this.cryptoService.makeKeyPair(orgKey[1]);
-
-        if (this.selfHosted) {
-          orgId = await this.createSelfHosted(key, collectionCt, orgKeys);
-        } else {
-          orgId = await this.createCloudHosted(key, collectionCt, orgKeys, orgKey[1]);
-        }
-
-        this.platformUtilsService.showToast(
-          "success",
-          this.i18nService.t("organizationCreated"),
-          this.i18nService.t("organizationReadyToGo"),
-        );
-      } else {
-        orgId = await this.updateOrganization(orgId);
-        this.platformUtilsService.showToast(
-          "success",
-          null,
-          this.i18nService.t("organizationUpgraded"),
-        );
-      }
+      orgId = await this.updateOrganization(orgId);
+      this.toastService.showToast({
+        variant: "success",
+        title: null,
+        message: this.i18nService.t("organizationUpgraded"),
+      });
 
       await this.apiService.refreshIdentityToken();
       await this.syncService.fullSync(true);
@@ -672,83 +559,6 @@ export class ChangePlanDialogComponent implements OnInit {
       await this.paymentComponent.handleStripeCardPayment(result.paymentIntentClientSecret, null);
     }
     return this.organizationId;
-  }
-
-  private async createCloudHosted(
-    key: string,
-    collectionCt: string,
-    orgKeys: [string, EncString],
-    orgKey: SymmetricCryptoKey,
-  ) {
-    const request = new OrganizationCreateRequest();
-    request.key = key;
-    request.collectionName = collectionCt;
-    request.name = this.formGroup.controls.name.value;
-    request.billingEmail = this.formGroup.controls.billingEmail.value;
-    request.initiationPath = "New organization creation in-product";
-    request.keys = new OrganizationKeysRequest(orgKeys[0], orgKeys[1].encryptedString);
-
-    if (this.selectedPlan.type === PlanType.Free) {
-      request.planType = PlanType.Free;
-    } else {
-      const tokenResult = await this.paymentComponent.createPaymentToken();
-
-      request.paymentToken = tokenResult[0];
-      request.paymentMethodType = tokenResult[1];
-      request.additionalSeats = this.formGroup.controls.additionalSeats.value;
-      request.premiumAccessAddon =
-        this.selectedPlan.PasswordManager.hasPremiumAccessOption &&
-        this.formGroup.controls.premiumAccessAddon.value;
-      request.planType = this.selectedPlan.type;
-      request.billingAddressPostalCode = this.taxComponent.taxFormGroup?.value.postalCode;
-      request.billingAddressCountry = this.taxComponent.taxFormGroup?.value.country;
-      if (this.taxComponent.taxFormGroup?.value.includeTaxId) {
-        request.taxIdNumber = this.taxComponent.taxFormGroup?.value.taxId;
-        request.billingAddressLine1 = this.taxComponent.taxFormGroup?.value.line1;
-        request.billingAddressLine2 = this.taxComponent.taxFormGroup?.value.line2;
-        request.billingAddressCity = this.taxComponent.taxFormGroup?.value.city;
-        request.billingAddressState = this.taxComponent.taxFormGroup?.value.state;
-      }
-    }
-
-    if (this.hasProvider) {
-      const providerRequest = new ProviderOrganizationCreateRequest(
-        this.formGroup.controls.clientOwnerEmail.value,
-        request,
-      );
-      const providerKey = await this.cryptoService.getProviderKey(this.providerId);
-      providerRequest.organizationCreateRequest.key = (
-        await this.cryptoService.encrypt(orgKey.key, providerKey)
-      ).encryptedString;
-      const orgId = (
-        await this.apiService.postProviderCreateOrganization(this.providerId, providerRequest)
-      ).organizationId;
-
-      return orgId;
-    } else {
-      return (await this.organizationApiService.create(request)).id;
-    }
-  }
-
-  private async createSelfHosted(key: string, collectionCt: string, orgKeys: [string, EncString]) {
-    if (!this.selectedFile) {
-      throw new Error(this.i18nService.t("selectFile"));
-    }
-
-    const fd = new FormData();
-    fd.append("license", this.selectedFile);
-    fd.append("key", key);
-    fd.append("collectionName", collectionCt);
-    const response = await this.organizationApiService.createLicense(fd);
-    const orgId = response.id;
-
-    await this.apiService.refreshIdentityToken();
-
-    // Org Keys live outside of the OrganizationLicense - add the keys to the org here
-    const request = new OrganizationKeysRequest(orgKeys[0], orgKeys[1].encryptedString);
-    await this.organizationApiService.updateKeys(orgId, request);
-
-    return orgId;
   }
 
   private billingSubLabelText(): string {
