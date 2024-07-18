@@ -65,7 +65,7 @@ export class AccountComponent implements OnInit, OnDestroy {
     idpHost: this.formBuilder.control(
       { value: "", disabled: true },
       {
-        validators: [Validators.maxLength(50)],
+        validators: [Validators.maxLength(100)],
         updateOn: "change",
       },
     ),
