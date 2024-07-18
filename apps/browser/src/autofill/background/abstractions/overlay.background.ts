@@ -153,6 +153,13 @@ export type InlineMenuCipherData = {
   };
 };
 
+export type BuildCipherDataParams = {
+  showFavicons?: boolean;
+  showInlineMenuAccountCreation?: boolean;
+  hasPasskey?: boolean;
+  identityData?: { fullName: string; username?: string };
+};
+
 export type BackgroundMessageParam = {
   message: OverlayBackgroundExtensionMessage;
 };

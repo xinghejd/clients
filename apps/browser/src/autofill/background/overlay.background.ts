@@ -50,6 +50,7 @@ import { generateRandomChars } from "../utils";
 
 import { LockedVaultPendingNotificationsData } from "./abstractions/notification.background";
 import {
+  BuildCipherDataParams,
   CloseInlineMenuMessage,
   FocusedFieldData,
   InlineMenuButtonPortMessageHandlers,
@@ -367,7 +368,10 @@ export class OverlayBackground implements OverlayBackgroundInterface {
 
       if (cipher.type === CipherType.Login) {
         accountCreationLoginCiphers.push(
-          this.buildCipherData(inlineMenuCipherId, cipher, showFavicons, true),
+          this.buildCipherData(inlineMenuCipherId, cipher, {
+            showFavicons,
+            showInlineMenuAccountCreation: true,
+          }),
         );
         continue;
       }
@@ -382,7 +386,11 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       }
 
       inlineMenuCipherData.push(
-        this.buildCipherData(inlineMenuCipherId, cipher, showFavicons, true, false, identity),
+        this.buildCipherData(inlineMenuCipherId, cipher, {
+          showFavicons,
+          showInlineMenuAccountCreation: true,
+          identityData: identity,
+        }),
       );
     }
 
@@ -418,11 +426,14 @@ export class OverlayBackground implements OverlayBackgroundInterface {
         this.inlineMenuFido2Credentials.has(cipher.login.fido2Credentials[0].credentialId)
       ) {
         passkeyCipherData.push(
-          this.buildCipherData(inlineMenuCipherId, cipher, showFavicons, false, true),
+          this.buildCipherData(inlineMenuCipherId, cipher, {
+            showFavicons,
+            hasPasskey: true,
+          }),
         );
       }
 
-      inlineMenuCipherData.push(this.buildCipherData(inlineMenuCipherId, cipher, showFavicons));
+      inlineMenuCipherData.push(this.buildCipherData(inlineMenuCipherId, cipher, { showFavicons }));
     }
 
     if (passkeyCipherData.length) {
@@ -447,10 +458,12 @@ export class OverlayBackground implements OverlayBackgroundInterface {
   private buildCipherData(
     inlineMenuCipherId: string,
     cipher: CipherView,
-    showFavicons: boolean, // TODO: These options need to be passed in as a single object.
-    showInlineMenuAccountCreation: boolean = false,
-    hasPasskey: boolean = false,
-    identityData?: { fullName: string; username?: string },
+    {
+      showFavicons,
+      showInlineMenuAccountCreation,
+      hasPasskey,
+      identityData,
+    }: BuildCipherDataParams,
   ): InlineMenuCipherData {
     const inlineMenuData: InlineMenuCipherData = {
       id: inlineMenuCipherId,
