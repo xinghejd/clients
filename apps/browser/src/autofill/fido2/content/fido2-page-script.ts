@@ -161,6 +161,12 @@ import { Messenger } from "./messaging/messenger";
       abortSignal.removeEventListener("abort", abortListener);
       internalAbortControllers.forEach((controller) => controller.abort());
 
+      // If we're in a conditional UI flow, and the request was aborted, we do another call to
+      // navigator.credentials.get to ensure that we can re-trigger the passkeys UI flow.
+      if (!response) {
+        return navigator.credentials.get(options);
+      }
+
       return response;
     }
 
