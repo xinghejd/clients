@@ -197,8 +197,22 @@
       <!-- Payment info -->
       <bit-section *ngIf="formGroup.value.productTier !== productTypes.Free">
         <h2 bitTypography="h4">{{ "paymentMethod" | i18n }}</h2>
-        <app-payment *ngIf="upgradeRequiresPaymentMethod" [hideCredit]="true"></app-payment>
-        <app-tax-info (onCountryChanged)="changedCountry()"></app-tax-info>
+        <p *ngIf="!showPayment && billing.paymentSource">
+          <i class="bwi bwi-fw" [ngClass]="paymentSourceClasses"></i>
+          {{ billing.paymentSource.description }}
+          <span class="ml-2 tw-text-primary-600 tw-cursor-pointer" (click)="toggleShowPayment()">{{
+            "changePaymentMethod" | i18n
+          }}</span>
+          <a></a>
+        </p>
+        <app-payment
+          *ngIf="upgradeRequiresPaymentMethod || showPayment"
+          [hideCredit]="true"
+        ></app-payment>
+        <app-tax-info
+          *ngIf="showPayment || upgradeRequiresPaymentMethod"
+          (onCountryChanged)="changedCountry()"
+        ></app-tax-info>
         <div id="price" class="tw-my-4">
           <p class="tw-text-lg">
             <span class="tw-font-semibold"

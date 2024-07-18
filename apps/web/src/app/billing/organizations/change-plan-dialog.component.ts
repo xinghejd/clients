@@ -143,6 +143,7 @@ export class ChangePlanDialogComponent implements OnInit {
   sub: OrganizationSubscriptionResponse;
   billing: BillingResponse;
   currentPlanName: string;
+  showPayment: boolean = false;
 
   private destroy$ = new Subject<void>();
 
@@ -560,7 +561,7 @@ export class ChangePlanDialogComponent implements OnInit {
     request.billingAddressCountry = this.taxComponent.taxFormGroup?.value.country;
     request.billingAddressPostalCode = this.taxComponent.taxFormGroup?.value.postalCode;
 
-    if (this.upgradeRequiresPaymentMethod) {
+    if (this.upgradeRequiresPaymentMethod || this.showPayment) {
       const tokenResult = await this.paymentComponent.createPaymentToken();
       const paymentRequest = new PaymentRequest();
       paymentRequest.paymentToken = tokenResult[0];
@@ -632,5 +633,27 @@ export class ChangePlanDialogComponent implements OnInit {
 
   private planIsEnabled(plan: PlanResponse) {
     return !plan.disabled && !plan.legacyYear;
+  }
+
+  toggleShowPayment() {
+    this.showPayment = true;
+  }
+
+  get paymentSourceClasses() {
+    if (this.billing.paymentSource == null) {
+      return [];
+    }
+    switch (this.billing.paymentSource.type) {
+      case PaymentMethodType.Card:
+        return ["bwi-credit-card"];
+      case PaymentMethodType.BankAccount:
+        return ["bwi-bank"];
+      case PaymentMethodType.Check:
+        return ["bwi-money"];
+      case PaymentMethodType.PayPal:
+        return ["bwi-paypal text-primary"];
+      default:
+        return [];
+    }
   }
 }
