@@ -368,7 +368,9 @@ export class OverlayBackground implements OverlayBackgroundInterface {
 
       if (cipher.type === CipherType.Login) {
         accountCreationLoginCiphers.push(
-          this.buildCipherData(inlineMenuCipherId, cipher, {
+          this.buildCipherData({
+            inlineMenuCipherId,
+            cipher,
             showFavicons,
             showInlineMenuAccountCreation: true,
           }),
@@ -386,7 +388,9 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       }
 
       inlineMenuCipherData.push(
-        this.buildCipherData(inlineMenuCipherId, cipher, {
+        this.buildCipherData({
+          inlineMenuCipherId,
+          cipher,
           showFavicons,
           showInlineMenuAccountCreation: true,
           identityData: identity,
@@ -426,14 +430,16 @@ export class OverlayBackground implements OverlayBackgroundInterface {
         this.inlineMenuFido2Credentials.has(cipher.login.fido2Credentials[0].credentialId)
       ) {
         passkeyCipherData.push(
-          this.buildCipherData(inlineMenuCipherId, cipher, {
+          this.buildCipherData({
+            inlineMenuCipherId,
+            cipher,
             showFavicons,
             hasPasskey: true,
           }),
         );
       }
 
-      inlineMenuCipherData.push(this.buildCipherData(inlineMenuCipherId, cipher, { showFavicons }));
+      inlineMenuCipherData.push(this.buildCipherData({ inlineMenuCipherId, cipher, showFavicons }));
     }
 
     if (passkeyCipherData.length) {
@@ -455,16 +461,14 @@ export class OverlayBackground implements OverlayBackgroundInterface {
    * @param hasPasskey - Identifies whether the cipher has a FIDO2 credential
    * @param identityData - Pre-created identity data
    */
-  private buildCipherData(
-    inlineMenuCipherId: string,
-    cipher: CipherView,
-    {
-      showFavicons,
-      showInlineMenuAccountCreation,
-      hasPasskey,
-      identityData,
-    }: BuildCipherDataParams,
-  ): InlineMenuCipherData {
+  private buildCipherData({
+    inlineMenuCipherId,
+    cipher,
+    showFavicons,
+    showInlineMenuAccountCreation,
+    hasPasskey,
+    identityData,
+  }: BuildCipherDataParams): InlineMenuCipherData {
     const inlineMenuData: InlineMenuCipherData = {
       id: inlineMenuCipherId,
       name: cipher.name,
