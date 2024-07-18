@@ -320,6 +320,10 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
       this.ciphersList.appendChild(this.buildInlineMenuListActionsItem(this.ciphers[cipherIndex]));
       this.currentCipherIndex++;
     }
+
+    if (!this.showPasskeysLabels && this.currentCipherIndex >= this.ciphers.length) {
+      this.ciphersList.removeEventListener(EVENTS.SCROLL, this.updateCiphersListOnScroll);
+    }
   }
 
   /**
