@@ -543,6 +543,11 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     return this.inlineMenuCiphers.size === 0;
   }
 
+  /**
+   * Stores the credential ids associated with a FIDO2 conditional mediated ui request.
+   *
+   * @param credentials - The FIDO2 credentials to store
+   */
   private storeInlineMenuFido2Credentials(credentials: Fido2CredentialView[]) {
     credentials
       .map((credential) => credential.credentialId)

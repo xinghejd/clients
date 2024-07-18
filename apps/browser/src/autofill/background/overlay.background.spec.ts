@@ -33,6 +33,7 @@ import { UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherRepromptType, CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import { Fido2CredentialView } from "@bitwarden/common/vault/models/view/fido2-credential.view";
 
 import { BrowserApi } from "../../platform/browser/browser-api";
 import { BrowserPlatformUtilsService } from "../../platform/services/platform-utils/browser-platform-utils.service";
@@ -86,6 +87,7 @@ describe("OverlayBackground", () => {
   let autofillSettingsService: MockProxy<AutofillSettingsService>;
   let i18nService: MockProxy<I18nService>;
   let platformUtilsService: MockProxy<BrowserPlatformUtilsService>;
+  let availableAutofillCredentialsMock$: BehaviorSubject<Fido2CredentialView[]>;
   let fido2ClientService: MockProxy<Fido2ClientService>;
   let selectedThemeMock$: BehaviorSubject<ThemeType>;
   let themeStateService: MockProxy<ThemeStateService>;
@@ -153,7 +155,10 @@ describe("OverlayBackground", () => {
     autofillSettingsService.inlineMenuVisibility$ = inlineMenuVisibilityMock$;
     i18nService = mock<I18nService>();
     platformUtilsService = mock<BrowserPlatformUtilsService>();
-    fido2ClientService = mock<Fido2ClientService>();
+    availableAutofillCredentialsMock$ = new BehaviorSubject([]);
+    fido2ClientService = mock<Fido2ClientService>({
+      availableAutofillCredentials$: (_tabId) => availableAutofillCredentialsMock$,
+    });
     selectedThemeMock$ = new BehaviorSubject(ThemeType.Light);
     themeStateService = mock<ThemeStateService>();
     themeStateService.selectedTheme$ = selectedThemeMock$;
@@ -848,6 +853,7 @@ describe("OverlayBackground", () => {
       expect(listPortSpy.postMessage).toHaveBeenCalledWith({
         command: "updateAutofillInlineMenuListCiphers",
         showInlineMenuAccountCreation: false,
+        showPasskeysLabels: false,
         ciphers: [
           {
             accountCreationFieldType: undefined,
@@ -861,6 +867,7 @@ describe("OverlayBackground", () => {
             id: "inline-menu-cipher-1",
             login: {
               username: "username-1",
+              passkey: null,
             },
             name: "name-1",
             reprompt: cipher1.reprompt,
@@ -884,6 +891,7 @@ describe("OverlayBackground", () => {
       expect(listPortSpy.postMessage).toHaveBeenCalledWith({
         command: "updateAutofillInlineMenuListCiphers",
         showInlineMenuAccountCreation: false,
+        showPasskeysLabels: false,
         ciphers: [
           {
             accountCreationFieldType: undefined,
@@ -920,6 +928,7 @@ describe("OverlayBackground", () => {
         expect(listPortSpy.postMessage).toHaveBeenCalledWith({
           command: "updateAutofillInlineMenuListCiphers",
           showInlineMenuAccountCreation: true,
+          showPasskeysLabels: false,
           ciphers: [
             {
               accountCreationFieldType: "text",
@@ -958,6 +967,7 @@ describe("OverlayBackground", () => {
         expect(listPortSpy.postMessage).toHaveBeenCalledWith({
           command: "updateAutofillInlineMenuListCiphers",
           showInlineMenuAccountCreation: true,
+          showPasskeysLabels: false,
           ciphers: [
             {
               accountCreationFieldType: "text",
@@ -989,6 +999,7 @@ describe("OverlayBackground", () => {
               id: "inline-menu-cipher-1",
               login: {
                 username: cipher1.login.username,
+                passkey: null,
               },
               name: cipher1.name,
               reprompt: cipher1.reprompt,
@@ -1026,6 +1037,7 @@ describe("OverlayBackground", () => {
         expect(listPortSpy.postMessage).toHaveBeenCalledWith({
           command: "updateAutofillInlineMenuListCiphers",
           showInlineMenuAccountCreation: true,
+          showPasskeysLabels: false,
           ciphers: [
             {
               accountCreationFieldType: "email",
@@ -1064,6 +1076,7 @@ describe("OverlayBackground", () => {
         expect(listPortSpy.postMessage).toHaveBeenCalledWith({
           command: "updateAutofillInlineMenuListCiphers",
           showInlineMenuAccountCreation: true,
+          showPasskeysLabels: false,
           ciphers: [],
         });
       });
@@ -1362,6 +1375,7 @@ describe("OverlayBackground", () => {
           command: "updateAutofillInlineMenuListCiphers",
           ciphers: [],
           showInlineMenuAccountCreation: true,
+          showPasskeysLabels: false,
         });
       });
     });
