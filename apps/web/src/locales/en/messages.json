@@ -3787,7 +3787,13 @@
     "message": "Upgrade"
   },
   "upgradeFreeOrganization": {
-    "message": "Upgrade your Free organization "
+    "message": "Upgrade your $NAME$ organization ",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Teams"
+      }
+    }
   },
   "upgradeOrganizationDesc": {
     "message": "This feature is not available for free organizations. Switch to a paid plan to unlock more features."

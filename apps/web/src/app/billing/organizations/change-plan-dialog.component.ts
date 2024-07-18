@@ -12,7 +12,6 @@ import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { OrganizationKeysRequest } from "@bitwarden/common/admin-console/models/request/organization-keys.request";
 import { OrganizationUpgradeRequest } from "@bitwarden/common/admin-console/models/request/organization-upgrade.request";
-import { ProviderResponse } from "@bitwarden/common/admin-console/models/response/provider/provider.response";
 import {
   PaymentMethodType,
   PlanType,
@@ -143,7 +142,7 @@ export class ChangePlanDialogComponent implements OnInit {
   organization: Organization;
   sub: OrganizationSubscriptionResponse;
   billing: BillingResponse;
-  provider: ProviderResponse;
+  currentPlanName: string;
 
   private destroy$ = new Subject<void>();
 
@@ -166,6 +165,7 @@ export class ChangePlanDialogComponent implements OnInit {
   async ngOnInit(): Promise<void> {
     this.organizationId = this.dialogParams.organizationId;
     this.currentPlan = this.dialogParams.currentPlan;
+    this.currentPlanName = this.i18nService.t(this.currentPlan.nameLocalizationKey);
     this.selectedPlan = this.dialogParams.currentPlan;
     if (this.dialogParams.organizationId) {
       this.organization = await this.organizationService.get(this.organizationId);

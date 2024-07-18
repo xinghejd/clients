@@ -1,7 +1,7 @@
 <form [formGroup]="formGroup" [bitSubmit]="submit">
   <bit-dialog dialogSize="large" [loading]="loading">
     <span bitDialogTitle class="tw-font-semibold">
-      {{ "upgradeFreeOrganization" | i18n }}
+      {{ "upgradeFreeOrganization" | i18n: currentPlanName }}
     </span>
     <div bitDialogContent>
       <p>{{ "upgradePlan" | i18n }}</p>
