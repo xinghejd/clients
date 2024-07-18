@@ -138,7 +138,7 @@ export class ChangePlanDialogComponent implements OnInit {
   planType: string;
   selectedPlan: PlanResponse;
   selectedInterval: number = 1;
-  planInterval = PlanInterval;
+  planIntervals = PlanInterval;
   passwordManagerPlans: PlanResponse[];
   organization: Organization;
   sub: OrganizationSubscriptionResponse;
