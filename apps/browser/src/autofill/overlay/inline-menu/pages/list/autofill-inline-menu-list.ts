@@ -37,6 +37,7 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
   private lastPasskeysListItem: HTMLLIElement;
   private passkeysHeadingHeight: number;
   private readonly showCiphersPerPage = 6;
+  private readonly headingBorderClass = "inline-menu-list-heading--bordered";
   private readonly inlineMenuListWindowMessageHandlers: AutofillInlineMenuListWindowMessageHandlers =
     {
       initAutofillInlineMenuList: ({ message }) => this.initAutofillInlineMenuList(message),
@@ -179,7 +180,7 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
       this.ciphersList.addEventListener(
         EVENTS.SCROLL,
         this.useEventHandlersMemo(
-          throttle(this.updatePasskeysHeadingsOnScroll, 25),
+          throttle(this.handleThrottledScrollEvent, 50),
           "update-passkeys-headings-on-scroll",
         ),
         {
@@ -348,30 +349,7 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
     this.cipherListScrollIsDebounced = false;
     const cipherListScrollTop = this.ciphersList.scrollTop;
 
-    if (this.passkeysHeadingElement && cipherListScrollTop < 1) {
-      this.passkeysHeadingElement.classList.remove("inline-menu-list-heading--bordered");
-    }
-
-    const lastPasskeyOffset =
-      this.lastPasskeysListItem.offsetTop + this.lastPasskeysListItem.offsetHeight;
-
-    if (this.loginHeadingElement && cipherListScrollTop < lastPasskeyOffset) {
-      this.loginHeadingElement.classList.remove("inline-menu-list-heading--bordered");
-    }
-
-    if (cipherListScrollTop >= this.lastPasskeysListItem.offsetTop - this.passkeysHeadingHeight) {
-      this.passkeysHeadingElement.classList.add("inline-menu-list-heading--anchored");
-      this.passkeysHeadingElement.style.top = `${this.lastPasskeysListItem.offsetTop - this.passkeysHeadingHeight}px`;
-    }
-
-    if (cipherListScrollTop < this.lastPasskeysListItem.offsetTop - this.passkeysHeadingHeight) {
-      this.passkeysHeadingElement.classList.remove("inline-menu-list-heading--anchored");
-      this.passkeysHeadingElement.setAttribute("style", "");
-    }
-
-    if (cipherListScrollTop >= lastPasskeyOffset) {
-      this.loginHeadingElement.classList.add("inline-menu-list-heading--bordered");
-    }
+    this.updatePasskeysHeadingsOnScroll(cipherListScrollTop);
 
     if (this.currentCipherIndex >= this.ciphers.length) {
       return;
@@ -383,33 +361,67 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
     }
   };
 
-  private updatePasskeysHeadingsOnScroll = () => {
+  private handleThrottledScrollEvent = () => {
+    this.updatePasskeysHeadingsOnScroll(this.ciphersList.scrollTop);
+  };
+
+  private updatePasskeysHeadingsOnScroll = (cipherListScrollTop: number) => {
+    if (!this.showPasskeysLabels) {
+      return;
+    }
+
+    this.togglePasskeysHeadingAnchored(cipherListScrollTop);
+    this.togglePasskeysHeadingBorder(cipherListScrollTop);
+    this.toggleLoginHeadingBorder(cipherListScrollTop);
+  };
+
+  private togglePasskeysHeadingAnchored(cipherListScrollTop: number) {
+    if (!this.passkeysHeadingElement) {
+      return;
+    }
+
     if (!this.passkeysHeadingHeight) {
       this.passkeysHeadingHeight = this.passkeysHeadingElement.getBoundingClientRect().height;
     }
 
-    const cipherListScrollTop = this.ciphersList.scrollTop;
-    if (cipherListScrollTop > 0) {
-      this.passkeysHeadingElement.classList.add("inline-menu-list-heading--bordered");
+    const passkeysHeadingOffset = this.lastPasskeysListItem.offsetTop - this.passkeysHeadingHeight;
+    if (cipherListScrollTop >= passkeysHeadingOffset) {
+      this.passkeysHeadingElement.style.position = "relative";
+      this.passkeysHeadingElement.style.top = `${passkeysHeadingOffset}px`;
+
+      return;
     }
 
-    if (cipherListScrollTop >= this.lastPasskeysListItem.offsetTop - this.passkeysHeadingHeight) {
-      this.passkeysHeadingElement.classList.add("inline-menu-list-heading--anchored");
-      this.passkeysHeadingElement.style.top = `${this.lastPasskeysListItem.offsetTop - this.passkeysHeadingHeight}px`;
+    this.passkeysHeadingElement.setAttribute("style", "");
+  }
+
+  private togglePasskeysHeadingBorder(cipherListScrollTop: number) {
+    if (!this.passkeysHeadingElement) {
+      return;
     }
 
-    if (cipherListScrollTop < this.lastPasskeysListItem.offsetTop - this.passkeysHeadingHeight) {
-      this.passkeysHeadingElement.classList.remove("inline-menu-list-heading--anchored");
-      this.passkeysHeadingElement.setAttribute("style", "");
+    if (cipherListScrollTop < 1) {
+      this.passkeysHeadingElement.classList.remove(this.headingBorderClass);
+      return;
     }
 
-    if (
-      cipherListScrollTop >=
-      this.lastPasskeysListItem.offsetTop + this.lastPasskeysListItem.offsetHeight
-    ) {
-      this.loginHeadingElement.classList.add("inline-menu-list-heading--bordered");
+    this.passkeysHeadingElement.classList.add(this.headingBorderClass);
+  }
+
+  private toggleLoginHeadingBorder(cipherListScrollTop: number) {
+    if (!this.loginHeadingElement) {
+      return;
     }
-  };
+
+    const lastPasskeyOffset =
+      this.lastPasskeysListItem.offsetTop + this.lastPasskeysListItem.offsetHeight;
+    if (cipherListScrollTop < lastPasskeyOffset) {
+      this.loginHeadingElement.classList.remove(this.headingBorderClass);
+      return;
+    }
+
+    this.loginHeadingElement.classList.add(this.headingBorderClass);
+  }
 
   /**
    * Builds the list item for a given cipher.
