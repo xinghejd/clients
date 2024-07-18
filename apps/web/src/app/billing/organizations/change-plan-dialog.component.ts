@@ -228,7 +228,36 @@ export class ChangePlanDialogComponent implements OnInit {
       this.sub != null && this.sub.customerDiscount != null
         ? this.sub.customerDiscount.percentOff
         : this.discountPercentage;
+
+    this.setInitialPlanSelection();
     this.loading = false;
+  }
+
+  setInitialPlanSelection() {
+    if (
+      this.currentPlan.productTier === ProductTierType.Free ||
+      this.currentPlan.productTier === ProductTierType.Families
+    ) {
+      this.selectPlan(this.getPlanByType(ProductTierType.Teams));
+    } else if (this.currentPlan.productTier === ProductTierType.Teams) {
+      this.selectPlan(this.getPlanByType(ProductTierType.Enterprise));
+    }
+  }
+
+  getPlanByType(productTier: ProductTierType) {
+    return this.selectableProducts.find((product) => product.productTier === productTier);
+  }
+
+  planTypeChanged() {
+    const selectedProductTier = this.formGroup.value.productTier;
+    if (
+      this.selectedInterval === PlanInterval.Monthly &&
+      selectedProductTier === ProductTierType.Families
+    ) {
+      this.selectPlan(this.getPlanByType(ProductTierType.Teams));
+    } else {
+      this.selectPlan(this.getPlanByType(selectedProductTier));
+    }
   }
 
   protected getPlanIntervals() {
@@ -306,14 +335,8 @@ export class ChangePlanDialogComponent implements OnInit {
   }
 
   protected selectPlan(plan: PlanResponse) {
-    if (
-      this.selectedInterval === PlanInterval.Monthly &&
-      plan.productTier == ProductTierType.Families
-    ) {
-      return;
-    }
-
     this.selectedPlan = plan;
+    this.formGroup.patchValue({ productTier: plan.productTier });
   }
 
   ngOnDestroy() {

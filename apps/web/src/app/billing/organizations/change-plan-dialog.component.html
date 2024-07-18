@@ -7,7 +7,11 @@
       <p>{{ "upgradePlan" | i18n }}</p>
       <div class="tw-mb-3">
         <span class="tw-text-lg tw-pr-1 tw-font-bold">{{ "selectAPlan" | i18n }}</span>
-        <bit-radio-group formControlName="planInterval" class="tw-flex tw-items-start tw-gap-5">
+        <bit-radio-group
+          formControlName="planInterval"
+          class="tw-flex tw-items-start tw-gap-5"
+          (change)="planTypeChanged()"
+        >
           <bit-radio-button
             class="tw-inline-block"
             *ngFor="let planInterval of getPlanIntervals()"
