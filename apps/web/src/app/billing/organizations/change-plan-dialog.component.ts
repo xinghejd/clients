@@ -138,12 +138,14 @@ export class ChangePlanDialogComponent implements OnInit {
   planType: string;
   selectedPlan: PlanResponse;
   selectedInterval: number = 1;
+  planInterval = PlanInterval;
   passwordManagerPlans: PlanResponse[];
   organization: Organization;
   sub: OrganizationSubscriptionResponse;
   billing: BillingResponse;
   currentPlanName: string;
   showPayment: boolean = false;
+  totalOpened: boolean = false;
 
   private destroy$ = new Subject<void>();
 
@@ -637,6 +639,10 @@ export class ChangePlanDialogComponent implements OnInit {
 
   toggleShowPayment() {
     this.showPayment = true;
+  }
+
+  toggleTotalOpened() {
+    this.totalOpened = !this.totalOpened;
   }
 
   get paymentSourceClasses() {

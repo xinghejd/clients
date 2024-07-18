@@ -8633,5 +8633,8 @@
   },
   "accessToPremiumFeatures": {
     "message": "Access to Premium features"
+  },
+  "additionalStorageGbMessage": {
+    "message": "GB additional storage"
   }
 }
