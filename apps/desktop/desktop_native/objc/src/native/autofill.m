@@ -10,19 +10,24 @@ void hello_world(char* value, char* output, int output_size)
   NSString *outputString = @"Hello, World from objc!";
   [outputString getCString:output maxLength:output_size encoding:NSUTF8StringEncoding];
 
-  if (@available(macos 11, *)) {
-    NSLog(@"[BW] macOS 11 or later");
+  if (@available(macos 14, *))
+  {
+    NSLog(@"[BW] macOS 14 or later - full autofill support including passkeys");
 
     ASCredentialIdentityStore *store = [ASCredentialIdentityStore sharedStore];
     [store getCredentialIdentityStoreStateWithCompletion:^(ASCredentialIdentityStoreState * _Nonnull state) {
-        NSLog(@"[BW] state: %@", state);
-        if (state.enabled) {
-          NSLog(@"[BW] ASCredentialIdentityStore enabled");
-        } else {
-          NSLog(@"[BW] ASCredentialIdentityStore disabled");
-        }
+      if (!state.enabled)
+      {
+        NSLog(@"[BW] Autofill is disabled - doing nothing");
+      }
+
     }];
-  } else {
-      NSLog(@"[BW] earlier than macOS 11");
+  }
+  else if (@available(macos 11, *))
+  {
+    NSLog(@"[BW] macOS 11 or later - password based autofill support only");
+  }
+  else {
+    NSLog(@"[BW] macOS 10 or earlier - no autofill support");
   }
 }
