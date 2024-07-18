@@ -457,24 +457,7 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
    * @param cipher - The cipher to build the list item for.
    */
   private buildInlineMenuListActionsItem(cipher: InlineMenuCipherData) {
-    if (this.showPasskeysLabels && cipher.login?.passkey && !this.passkeysHeadingElement) {
-      this.passkeysHeadingElement = globalThis.document.createElement("li");
-      this.passkeysHeadingElement.classList.add("inline-menu-list-heading");
-      this.passkeysHeadingElement.textContent = this.getTranslation("passkeys");
-      this.ciphersList.appendChild(this.passkeysHeadingElement);
-    }
-
-    if (
-      this.showPasskeysLabels &&
-      this.passkeysHeadingElement &&
-      !this.loginHeadingElement &&
-      !cipher.login?.passkey
-    ) {
-      this.loginHeadingElement = globalThis.document.createElement("li");
-      this.loginHeadingElement.classList.add("inline-menu-list-heading");
-      this.loginHeadingElement.textContent = this.getTranslation("passwords");
-      this.ciphersList.appendChild(this.loginHeadingElement);
-    }
+    this.buildPasskeysHeadingElements(cipher);
 
     const fillCipherElement = this.buildFillCipherElement(cipher);
     const viewCipherElement = this.buildViewCipherElement(cipher);
@@ -493,6 +476,36 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
     }
 
     return inlineMenuListActionsItem;
+  }
+
+  /**
+   * Builds the passkeys and login headings for the list of cipher items.
+   *
+   * @param cipher - The cipher that will follow the heading.
+   */
+  private buildPasskeysHeadingElements(cipher: InlineMenuCipherData) {
+    if (!this.showPasskeysLabels || (this.passkeysHeadingElement && this.loginHeadingElement)) {
+      return;
+    }
+
+    const passkeyData = cipher.login?.passkey;
+    if (!this.passkeysHeadingElement && passkeyData) {
+      this.passkeysHeadingElement = globalThis.document.createElement("li");
+      this.passkeysHeadingElement.classList.add("inline-menu-list-heading");
+      this.passkeysHeadingElement.textContent = this.getTranslation("passkeys");
+      this.ciphersList.appendChild(this.passkeysHeadingElement);
+
+      return;
+    }
+
+    if (!this.passkeysHeadingElement || this.loginHeadingElement || passkeyData) {
+      return;
+    }
+
+    this.loginHeadingElement = globalThis.document.createElement("li");
+    this.loginHeadingElement.classList.add("inline-menu-list-heading");
+    this.loginHeadingElement.textContent = this.getTranslation("passwords");
+    this.ciphersList.appendChild(this.loginHeadingElement);
   }
 
   /**

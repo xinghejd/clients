@@ -424,11 +424,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
         continue;
       }
 
-      if (
-        cipher.type === CipherType.Login &&
-        Boolean(cipher.login.fido2Credentials?.[0]?.credentialId) &&
-        this.inlineMenuFido2Credentials.has(cipher.login.fido2Credentials[0].credentialId)
-      ) {
+      if (this.showCipherAsPasskey(cipher)) {
         passkeyCipherData.push(
           this.buildCipherData({
             inlineMenuCipherId,
@@ -449,6 +445,26 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     }
 
     return inlineMenuCipherData;
+  }
+
+  /**
+   * Identifies whether we should show the cipher as a passkey in the inline menu list.
+   *
+   * @param cipher - The cipher to check
+   */
+  private showCipherAsPasskey(cipher: CipherView): boolean {
+    if (cipher.type !== CipherType.Login) {
+      return false;
+    }
+
+    if (!cipher.login.fido2Credentials?.[0]?.credentialId) {
+      return false;
+    }
+
+    return (
+      this.inlineMenuFido2Credentials.size === 0 ||
+      this.inlineMenuFido2Credentials.has(cipher.login.fido2Credentials[0].credentialId)
+    );
   }
 
   /**
