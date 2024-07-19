@@ -164,7 +164,9 @@ export class SetPasswordComponent extends BaseChangePasswordComponent {
       // We don't want to re-create the user key pair if the user already has one (TDE user case)
 
       // in case we have a local private key, and are not sure whether it has been posted to the server, we post the local private key instead of generating a new one
-      const existingUserPrivateKey = await this.cryptoService.getPrivateKey();
+      const existingUserPrivateKey = (await firstValueFrom(
+        this.cryptoService.userPrivateKey$(this.userId),
+      )) as Uint8Array;
       const existingUserPublicKey = await firstValueFrom(
         this.cryptoService.userPublicKey$(this.userId),
       );
