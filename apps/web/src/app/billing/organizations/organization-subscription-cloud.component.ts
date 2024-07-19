@@ -66,6 +66,10 @@ export class OrganizationSubscriptionCloudComponent implements OnInit, OnDestroy
     FeatureFlag.EnableTimeThreshold,
   );
 
+  protected EnableUpgradePasswordManagerSub$ = this.configService.getFeatureFlag$(
+    FeatureFlag.EnableUpgradePasswordManagerSub,
+  );
+
   constructor(
     private apiService: ApiService,
     private platformUtilsService: PlatformUtilsService,
@@ -376,17 +380,24 @@ export class OrganizationSubscriptionCloudComponent implements OnInit, OnDestroy
   };
 
   async changePlan() {
-    const reference = openChangePlanDialog(this.dialogService, {
-      data: {
-        organizationId: this.organizationId,
-        currentPlan: this.sub.plan,
-      },
-    });
+    const EnableUpgradePasswordManagerSub = await firstValueFrom(
+      this.EnableUpgradePasswordManagerSub$,
+    );
+    if (EnableUpgradePasswordManagerSub) {
+      const reference = openChangePlanDialog(this.dialogService, {
+        data: {
+          organizationId: this.organizationId,
+          currentPlan: this.sub.plan,
+        },
+      });
 
-    const result = await lastValueFrom(reference.closed);
+      const result = await lastValueFrom(reference.closed);
 
-    if (result === ChangePlanDialogResultType.Submitted) {
-      await this.load();
+      if (result === ChangePlanDialogResultType.Submitted) {
+        await this.load();
+      }
+    } else {
+      this.showChangePlan = !this.showChangePlan;
     }
   }
 

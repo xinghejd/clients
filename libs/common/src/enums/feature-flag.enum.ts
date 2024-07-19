@@ -26,6 +26,7 @@ export enum FeatureFlag {
   ProviderClientVaultPrivacyBanner = "ac-2833-provider-client-vault-privacy-banner",
   VaultBulkManagementAction = "vault-bulk-management-action",
   AC2828_ProviderPortalMembersPage = "AC-2828_provider-portal-members-page",
+  EnableUpgradePasswordManagerSub = "AC-2708-upgrade-password-manager-sub",
 }
 
 export type AllowedFeatureFlagTypes = boolean | number | string;
@@ -62,6 +63,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.ProviderClientVaultPrivacyBanner]: FALSE,
   [FeatureFlag.VaultBulkManagementAction]: FALSE,
   [FeatureFlag.AC2828_ProviderPortalMembersPage]: FALSE,
+  [FeatureFlag.EnableUpgradePasswordManagerSub]: FALSE,
 } satisfies Record<FeatureFlag, AllowedFeatureFlagTypes>;
 
 export type DefaultFeatureFlagValueType = typeof DefaultFeatureFlagValue;
