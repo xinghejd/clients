@@ -2,17 +2,6 @@
 #import <AuthenticationServices/ASCredentialIdentityStore.h>
 #import <AuthenticationServices/ASCredentialIdentityStoreState.h>
 
-// Struct MAC String {
-//  char* value;
-//  int length;
-// }
-
-// void free MAC String(MAC String* string) {
-//  free(string->value);
-// }
-
-// check https://barhamon.com/post/rust_and_nsstring.html
-
 /// Simple struct to hold a C-string and its length
 /// This is used to return strings created in Objective-C to Rust
 /// so that Rust can free the memory when it's done with the string
