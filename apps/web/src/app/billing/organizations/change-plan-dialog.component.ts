@@ -558,8 +558,10 @@ export class ChangePlanDialogComponent implements OnInit {
       this.selectedPlan.PasswordManager.hasPremiumAccessOption &&
       this.formGroup.controls.premiumAccessAddon.value;
     request.planType = this.selectedPlan.type;
-    request.billingAddressCountry = this.taxComponent.taxFormGroup?.value.country;
-    request.billingAddressPostalCode = this.taxComponent.taxFormGroup?.value.postalCode;
+    if (this.showPayment) {
+      request.billingAddressCountry = this.taxComponent.taxFormGroup?.value.country;
+      request.billingAddressPostalCode = this.taxComponent.taxFormGroup?.value.postalCode;
+    }
 
     if (this.upgradeRequiresPaymentMethod || this.showPayment) {
       const tokenResult = await this.paymentComponent.createPaymentToken();
