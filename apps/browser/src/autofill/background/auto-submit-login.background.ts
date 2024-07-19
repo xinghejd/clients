@@ -62,19 +62,37 @@ export class AutoSubmitLoginBackground {
           }
         })
         .catch((error) => this.logService.error(error));
+      chrome.tabs.onActivated.addListener(async (activeInfo) => {
+        const tab = await BrowserApi.getTab(activeInfo.tabId);
+        if (this.isValidIdpHost(tab.url)) {
+          this.mostRecentIdpHost = {
+            url: tab.url,
+            tabId: activeInfo.tabId,
+          };
+        }
+      });
+      chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
+        if (changeInfo.url && this.isValidIdpHost(changeInfo.url)) {
+          this.mostRecentIdpHost = {
+            url: changeInfo.url,
+            tabId: tabId,
+          };
+        }
+      });
       chrome.webNavigation.onCompleted.addListener((details) => {
         if (details.frameId !== 0) {
           return;
         }
 
-        if (this.mostRecentIdpHost.tabId && this.mostRecentIdpHost.tabId !== details.tabId) {
-          return;
-        }
-
-        if (this.mostRecentIdpHost.url && this.mostRecentIdpHost.url !== details.url) {
-          this.mostRecentIdpHost = {};
-          return;
-        }
+        // if (this.mostRecentIdpHost.tabId && this.mostRecentIdpHost.tabId !== details.tabId) {
+        //   this.mostRecentIdpHost = {};
+        //   return;
+        // }
+        //
+        // if (this.mostRecentIdpHost.url && this.mostRecentIdpHost.url !== details.url) {
+        //   this.mostRecentIdpHost = {};
+        //   return;
+        // }
 
         if (this.isValidIdpHost(details.url)) {
           this.validAutoSubmitHosts.clear();
@@ -92,8 +110,6 @@ export class AutoSubmitLoginBackground {
               const urlObj = new URL(details.redirectUrl);
               if (urlObj.search.indexOf("autofill=1") !== -1) {
                 this.validAutoSubmitHosts.add(this.getUrlHost(details.redirectUrl));
-
-                // This should be a different set, validRedirectHosts potentially.
                 this.validAutoSubmitHosts.add(this.getUrlHost(details.url));
               }
             } catch {
@@ -280,7 +296,9 @@ export class AutoSubmitLoginBackground {
         const urlObj = new URL(details.url);
         return (
           urlObj.search.indexOf("autofill=1") !== -1 ||
-          (this.platformUtilsService.isSafari() && this.isValidAutoSubmitHost(details.url))
+          (this.platformUtilsService.isSafari() &&
+            (this.isValidAutoSubmitHost(details.url) ||
+              this.validAutoSubmitHosts.has(this.getUrlHost(details.url))))
         );
       } catch {
         return false;
