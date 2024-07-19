@@ -108,6 +108,7 @@ export class ChangePlanDialogComponent implements OnInit {
   @Output() onTrialBillingSuccess = new EventEmitter();
 
   protected discountPercentage: number = 20;
+  protected discountPercentageFromSub: number;
   protected loading = true;
   protected planCards: PlanCard[];
   protected ResultType = ChangePlanDialogResultType;
@@ -227,10 +228,7 @@ export class ChangePlanDialogComponent implements OnInit {
       .valueChanges.pipe(takeUntil(this.destroy$))
       .subscribe((value: number) => (this.selectedInterval = value));
 
-    this.discountPercentage =
-      this.sub != null && this.sub.customerDiscount != null
-        ? this.sub.customerDiscount.percentOff
-        : this.discountPercentage;
+    this.discountPercentageFromSub = this.sub?.customerDiscount?.percentOff;
 
     this.setInitialPlanSelection();
     this.loading = false;

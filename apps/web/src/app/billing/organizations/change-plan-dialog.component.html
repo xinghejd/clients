@@ -21,11 +21,20 @@
             <bit-label>
               <i class="bwi" aria-hidden="true"></i>
               {{ planInterval.name }}&nbsp;<span
-                span
-                *ngIf="this.discountPercentage && planInterval.value === 1"
+                *ngIf="
+                  this.discountPercentageFromSub > 0
+                    ? discountPercentageFromSub
+                    : this.discountPercentage && planInterval.value === 1
+                "
                 bitBadge
                 variant="success"
-                >{{ "upgradeDiscount" | i18n: this.discountPercentage }}</span
+                >{{
+                  "upgradeDiscount"
+                    | i18n
+                      : (this.discountPercentageFromSub > 0
+                          ? discountPercentageFromSub
+                          : this.discountPercentage)
+                }}</span
               ></bit-label
             >
           </bit-radio-button>
