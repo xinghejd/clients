@@ -2,6 +2,17 @@
 #import <AuthenticationServices/ASCredentialIdentityStore.h>
 #import <AuthenticationServices/ASCredentialIdentityStoreState.h>
 
+// Struct MAC String {
+//  char* value;
+//  int length;
+// }
+
+// void free MAC String(MAC String* string) {
+//  free(string->value);
+// }
+
+// check https://barhamon.com/post/rust_and_nsstring.html
+
 void hello_world(char* value, char* output, int output_size)
 {
   NSString *string = [[NSString alloc] initWithUTF8String:value];

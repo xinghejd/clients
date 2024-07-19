@@ -18,7 +18,7 @@ pub fn obj_hello_world(value: String) -> Result<String> {
     };
 
     println!(
-        "[OBJC] Hello, world! Result of calling objc: {}",
+        "[BW][rust][objc-crate] Hello, world! Result of calling objc: {}",
         objc_result
     );
     Ok(objc_result)
