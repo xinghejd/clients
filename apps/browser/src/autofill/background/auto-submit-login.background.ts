@@ -48,6 +48,20 @@ export class AutoSubmitLoginBackground {
     BrowserApi.addListener(chrome.runtime.onMessage, this.handleExtensionMessage);
 
     if (this.platformUtilsService.isSafari()) {
+      BrowserApi.getTabFromCurrentWindow()
+        .then((tab) => {
+          if (!tab) {
+            return;
+          }
+
+          if (this.validIdpHosts.has(this.getUrlHost(tab.url))) {
+            this.mostRecentIdpHost = {
+              url: tab.url,
+              tabId: tab.id,
+            };
+          }
+        })
+        .catch((error) => this.logService.error(error));
       chrome.webNavigation.onCompleted.addListener((details) => {
         if (details.frameId !== 0) {
           return;
@@ -62,7 +76,8 @@ export class AutoSubmitLoginBackground {
           return;
         }
 
-        if (this.isValidInitiator(details.url)) {
+        if (this.isValidIdpHost(details.url)) {
+          this.validAutoSubmitHosts.clear();
           this.mostRecentIdpHost = {
             url: details.url,
             tabId: details.tabId,
