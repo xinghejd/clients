@@ -40,7 +40,7 @@ import { elementIsInputElement, nodeIsFormElement, sendExtensionMessage } from "
     const pageDetails: AutofillPageDetails = await collectAutofillContentService.getPageDetails();
     if (!pageDetails?.fields?.length) {
       clearAutoSubmitLoginFlowTimeout();
-      await updateIsFieldCurrentlyFilling(false);
+      updateIsFieldCurrentlyFilling(false);
       return;
     }
 
@@ -137,8 +137,8 @@ import { elementIsInputElement, nodeIsFormElement, sendExtensionMessage } from "
       if (genericSubmitElement[0]) {
         if (currentElementIsPassword) {
           clearAutoSubmitLoginFlowTimeout();
-          void sendMultiStepAutoSubmitLoginComplete();
-          void updateIsFieldCurrentlyFilling(false);
+          sendMultiStepAutoSubmitLoginComplete();
+          updateIsFieldCurrentlyFilling(false);
         }
         genericSubmitElement[0].click();
         return;
@@ -152,8 +152,8 @@ import { elementIsInputElement, nodeIsFormElement, sendExtensionMessage } from "
         if (isLoginButton(buttons[i])) {
           if (currentElementIsPassword) {
             clearAutoSubmitLoginFlowTimeout();
-            void sendMultiStepAutoSubmitLoginComplete();
-            void updateIsFieldCurrentlyFilling(false);
+            sendMultiStepAutoSubmitLoginComplete();
+            updateIsFieldCurrentlyFilling(false);
           }
           buttons[i].click();
           return;
@@ -226,12 +226,12 @@ import { elementIsInputElement, nodeIsFormElement, sendExtensionMessage } from "
     }
   }
 
-  async function sendMultiStepAutoSubmitLoginComplete() {
-    await sendExtensionMessage("multiStepAutoSubmitLoginComplete");
+  function sendMultiStepAutoSubmitLoginComplete() {
+    void sendExtensionMessage("multiStepAutoSubmitLoginComplete");
   }
 
-  async function updateIsFieldCurrentlyFilling(isFieldCurrentlyFilling: boolean) {
-    await sendExtensionMessage("updateIsFieldCurrentlyFilling", { isFieldCurrentlyFilling });
+  function updateIsFieldCurrentlyFilling(isFieldCurrentlyFilling: boolean) {
+    void sendExtensionMessage("updateIsFieldCurrentlyFilling", { isFieldCurrentlyFilling });
   }
 
   init();

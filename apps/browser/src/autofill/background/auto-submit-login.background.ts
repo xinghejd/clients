@@ -70,6 +70,27 @@ export class AutoSubmitLoginBackground {
           chrome.tabs.onRemoved.addListener(this.handleTabOnRemoved);
         }
       });
+      chrome.webRequest.onBeforeRedirect.addListener(
+        (details) => {
+          if (this.isRequestInMainFrame(details)) {
+            try {
+              const urlObj = new URL(details.redirectUrl);
+              if (urlObj.search.indexOf("autofill=1") !== -1) {
+                this.validAutoSubmitHosts.add(this.getUrlHost(details.redirectUrl));
+
+                // This should be a different set, validRedirectHosts potentially.
+                this.validAutoSubmitHosts.add(this.getUrlHost(details.url));
+              }
+            } catch {
+              // do nothing
+            }
+          }
+        },
+        {
+          urls: ["<all_urls>"],
+          types: ["main_frame", "sub_frame"],
+        },
+      );
     }
   }
 
@@ -100,8 +121,7 @@ export class AutoSubmitLoginBackground {
           tabId: details.tabId,
         };
       }
-      const urlOrigin = this.getUrlHost(details.url);
-      this.validAutoSubmitHosts.add(urlOrigin);
+      this.validAutoSubmitHosts.add(this.getUrlHost(details.url));
       chrome.webRequest.onCompleted.addListener(this.handleWebRequestOnCompleted, {
         tabId: details.tabId,
         urls: ["<all_urls>"],
@@ -243,7 +263,10 @@ export class AutoSubmitLoginBackground {
     if (this.isRequestInMainFrame(details)) {
       try {
         const urlObj = new URL(details.url);
-        return urlObj.search.indexOf("autofill=1") !== -1;
+        return (
+          urlObj.search.indexOf("autofill=1") !== -1 ||
+          (this.platformUtilsService.isSafari() && this.isValidAutoSubmitHost(details.url))
+        );
       } catch {
         return false;
       }
@@ -262,11 +285,19 @@ export class AutoSubmitLoginBackground {
   };
 
   private getRequestInitiator = (details: chrome.webRequest.ResourceRequest) => {
-    if (this.platformUtilsService.isSafari()) {
+    if (!this.platformUtilsService.isSafari()) {
+      return details.initiator || (details as browser.webRequest._OnBeforeRequestDetails).originUrl;
+    }
+
+    if (this.isRequestInMainFrame(details)) {
       return this.mostRecentIdpHost.url;
     }
 
-    return details.initiator || (details as browser.webRequest._OnBeforeRequestDetails).originUrl;
+    if (!this.mostRecentIdpHost.url) {
+      return "";
+    }
+
+    return details.url;
   };
 
   private isRequestInMainFrame = (details: chrome.webRequest.ResourceRequest) => {
