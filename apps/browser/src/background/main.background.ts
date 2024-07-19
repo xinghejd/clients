@@ -1078,6 +1078,7 @@ export default class MainBackground {
         this.scriptInjectorService,
         this.authService,
         this.configService,
+        this.platformUtilsService,
       );
 
       const contextMenuClickedHandler = new ContextMenuClickedHandler(
