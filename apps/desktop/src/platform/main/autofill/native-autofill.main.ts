@@ -11,7 +11,7 @@ export class NativeAutofillMain {
 
   async init() {
     ipcMain.handle("autofill.sync", async (_event: any, _message: AutofillSyncMessage) => {
-      void this.runCommand("String from Electron");
+      await this.runCommand("String from Electron");
     });
   }
 

@@ -40,11 +40,17 @@ void free_objc_string(struct ObjCString *value) {
 }
 
 struct ObjCString run_command(char* input_json) {
-  NSString *inputString = c_string_to_nsstring(input_json);
-  NSLog(@"[BW] Objc from rust, run_command: %@", inputString);
+  @try {
+    NSString *inputString = c_string_to_nsstring(input_json);
+    NSLog(@"[BW] Objc from rust, run_command: %@", inputString);
 
-  NSString *outputString = @"Hello, World from objc!";
-  return nsstring_to_obj_c_string(outputString);
+    NSString *outputString = @"Hello, World from objc!";
+    return nsstring_to_obj_c_string(outputString);
+  } @catch (NSException *e) {
+    NSLog(@"[BW] Error occurred while running Objective-C command: %@", e);
+    NSString *outputString = [NSString stringWithFormat:@"Error occurred while running Objective-C command: %@", e];
+    return nsstring_to_obj_c_string(outputString);
+  }
 }
 
 // // void hello_world(char* value, char* output, int output_size)
