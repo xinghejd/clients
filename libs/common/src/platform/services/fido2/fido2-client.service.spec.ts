@@ -42,8 +42,8 @@ describe("FidoAuthenticatorService", () => {
   let vaultSettingsService: MockProxy<VaultSettingsService>;
   let domainSettingsService: MockProxy<DomainSettingsService>;
   let taskSchedulerService: MockProxy<TaskSchedulerService>;
-  let activeRequest: MockProxy<ActiveRequest>;
-  let requestManager: MockProxy<Fido2ActiveRequestManager>;
+  let activeRequest!: MockProxy<ActiveRequest>;
+  let requestManager!: MockProxy<Fido2ActiveRequestManager>;
   let client!: Fido2ClientService;
   let tab!: chrome.tabs.Tab;
   let isValidRpId!: jest.SpyInstance;
