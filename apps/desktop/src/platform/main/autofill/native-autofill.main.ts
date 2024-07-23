@@ -11,15 +11,15 @@ export class NativeAutofillMain {
 
   async init() {
     ipcMain.handle("autofill.sync", async (_event: any, _message: AutofillSyncMessage) => {
-      void this.helloWorld("String from Electron");
+      void this.runCommand("String from Electron");
     });
   }
 
-  async helloWorld(value: string): Promise<void> {
+  private async runCommand(command: string): Promise<any> {
     this.logService.info("[BW][Main] =====================================");
     this.logService.info("[BW][Main] Testing autofill native module");
     try {
-      const result = await autofill.helloWorld(value);
+      const result = await autofill.runCommand(command);
       this.logService.info("[BW][Main] Result from helloWorld: ", result);
     } catch (e) {
       this.logService.error("[BW][Main] Error running helloWorld: ", e);

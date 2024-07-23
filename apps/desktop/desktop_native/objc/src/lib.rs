@@ -1,6 +1,6 @@
 use std::ffi::{c_char, CStr, CString};
 
-use anyhow::Result;
+use anyhow::{Context, Result};
 
 #[repr(C)]
 pub struct ObjCString {
@@ -8,40 +8,50 @@ pub struct ObjCString {
     size: usize,
 }
 
-impl From<ObjCString> for String {
-    fn from(value: ObjCString) -> Self {
-        unsafe {
-            CStr::from_ptr(value.value)
-                .to_str()
-                .expect("CStr::from_ptr failed")
-                .to_owned()
-        }
+impl TryFrom<ObjCString> for String {
+    type Error = anyhow::Error;
+
+    fn try_from(value: ObjCString) -> Result<Self> {
+        let c_str = unsafe { CStr::from_ptr(value.value) };
+        let str = c_str
+            .to_str()
+            .context("Failed to convert ObjC output string to &str for use in Rust")?;
+
+        Ok(str.to_owned())
     }
 }
 
 impl Drop for ObjCString {
     fn drop(&mut self) {
         unsafe {
-            free_objc_string(self);
+            objc::free_objc_string(self);
         }
     }
 }
 
-extern "C" {
-    fn hello_world(value: *const c_char) -> ObjCString;
-    fn free_objc_string(value: &ObjCString);
+mod objc {
+    use super::*;
+
+    extern "C" {
+        pub fn run_command(value: *const c_char) -> ObjCString;
+        pub fn free_objc_string(value: &ObjCString);
+    }
 }
 
-pub fn obj_hello_world(value: String) -> Result<String> {
-    let c_value = CString::new(value).expect("CString::new failed");
-    let objc_result = unsafe {
-        let output = hello_world(c_value.as_ptr());
-        output.into()
-    };
+pub fn run_command(input: String) -> Result<String> {
+    // Convert input to type that can be passed to ObjC code
+    let c_input = CString::new(input)
+        .context("Failed to convert Rust input string to a CString for use in call to ObjC code")?;
+
+    // Call ObjC code
+    let output = unsafe { objc::run_command(c_input.as_ptr()) };
+
+    // Convert output from ObjC code to Rust string
+    let objc_output = output.try_into()?;
 
     println!(
         "[BW][rust][objc-crate] Hello, world! Result of calling objc: {}",
-        objc_result
+        objc_output
     );
-    Ok(objc_result)
+    Ok(objc_output)
 }

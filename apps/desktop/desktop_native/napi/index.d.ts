@@ -42,5 +42,5 @@ export namespace clipboards {
   export function write(text: string, password: boolean): Promise<void>
 }
 export namespace autofill {
-  export function helloWorld(value: string): Promise<string>
+  export function runCommand(value: string): Promise<string>
 }
