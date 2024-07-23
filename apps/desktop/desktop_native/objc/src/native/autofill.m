@@ -2,6 +2,12 @@
 #import <AuthenticationServices/ASCredentialIdentityStore.h>
 #import <AuthenticationServices/ASCredentialIdentityStoreState.h>
 
+// Tips for developing Objective-C code:
+// - Use the `NSLog` function to log messages to the system log
+//   - Example:
+//     NSLog(@"An example log: %@", someVariable);
+// - Use the `@try` and `@catch` directives to catch exceptions
+
 #if !__has_feature(objc_arc)
   // Auto Reference Counting makes memory management easier for Objective-C objects
   // Regular C objects still need to be managed manually
@@ -42,12 +48,11 @@ void free_objc_string(struct ObjCString *value) {
 struct ObjCString run_command(char* input_json) {
   @try {
     NSString *inputString = c_string_to_nsstring(input_json);
-    NSLog(@"[BW] Objc from rust, run_command: %@", inputString);
 
-    NSString *outputString = @"Hello, World from objc!";
+    // NSString *outputString = [NSString stringWithFormat:@"{\"added\": %@}", e];
+    NSString *outputString = @"{\"added\": 0}";
     return nsstring_to_obj_c_string(outputString);
   } @catch (NSException *e) {
-    NSLog(@"[BW] Error occurred while running Objective-C command: %@", e);
     NSString *outputString = [NSString stringWithFormat:@"Error occurred while running Objective-C command: %@", e];
     return nsstring_to_obj_c_string(outputString);
   }

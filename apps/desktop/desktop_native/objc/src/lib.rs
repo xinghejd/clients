@@ -49,9 +49,5 @@ pub fn run_command(input: String) -> Result<String> {
     // Convert output from ObjC code to Rust string
     let objc_output = output.try_into()?;
 
-    println!(
-        "[BW][rust][objc-crate] Hello, world! Result of calling objc: {}",
-        objc_output
-    );
     Ok(objc_output)
 }

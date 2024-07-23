@@ -4,6 +4,26 @@ export class DesktopAutofillService {
   }
 
   async sync() {
-    await ipc.autofill.sync();
+    const syncResult = await ipc.autofill.runCommand({
+      command: "sync",
+      params: {
+        credentials: [
+          {
+            type: "fido2",
+          },
+          {
+            type: "password",
+          },
+        ],
+      },
+    });
+
+    if (syncResult.type === "error") {
+      // eslint-disable-next-line no-console
+      console.error("Sync error", syncResult.error);
+    } else {
+      // eslint-disable-next-line no-console
+      console.log("Sync result", syncResult.value);
+    }
   }
 }

@@ -3,27 +3,44 @@ import { ipcMain } from "electron";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { autofill } from "@bitwarden/desktop-napi";
 
-// eslint-disable-next-line @typescript-eslint/ban-types
-export type AutofillSyncMessage = {};
+import { CommandDefinition } from "./command";
+
+export type RunCommandParams<C extends CommandDefinition> = {
+  command: C["name"];
+  params: C["input"];
+};
+
+export type RunCommandResult<C extends CommandDefinition> = C["output"];
 
 export class NativeAutofillMain {
   constructor(private logService: LogService) {}
 
   async init() {
-    ipcMain.handle("autofill.sync", async (_event: any, _message: AutofillSyncMessage) => {
-      await this.runCommand("String from Electron");
-    });
+    ipcMain.handle(
+      "autofill.runCommand",
+      <C extends CommandDefinition>(
+        _event: any,
+        params: RunCommandParams<C>,
+      ): Promise<RunCommandResult<C>> => {
+        return this.runCommand(params);
+      },
+    );
   }
 
-  private async runCommand(command: string): Promise<any> {
-    this.logService.info("[BW][Main] =====================================");
-    this.logService.info("[BW][Main] Testing autofill native module");
+  private async runCommand<C extends CommandDefinition>(
+    command: RunCommandParams<C>,
+  ): Promise<RunCommandResult<C>> {
     try {
-      const result = await autofill.runCommand(command);
-      this.logService.info("[BW][Main] Result from helloWorld: ", result);
+      const result = await autofill.runCommand(JSON.stringify(command));
+      return { type: "success", value: JSON.parse(result) };
     } catch (e) {
-      this.logService.error("[BW][Main] Error running helloWorld: ", e);
+      this.logService.error("Error running autofill command:", e);
+
+      if (e instanceof Error) {
+        return { type: "error", error: e.stack ?? String(e) } as RunCommandResult<C>;
+      }
+
+      return { type: "error", error: String(e) } as RunCommandResult<C>;
     }
-    this.logService.info("[BW][Main] =====================================");
   }
 }
