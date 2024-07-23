@@ -54,7 +54,7 @@ struct ObjCString runCommand(char* inputJson) {
       NSString *outputString = @"{\"added\": 0}";
       return nsStringToObjCString(outputString);
     } @catch (NSException *e) {
-      NSString *outputString = [NSString stringWithFormat:@"Error occurred while running Objective-C command: %@", e];
+      NSString *outputString = [NSString stringWithFormat:@"{\"type\": \"error\", \"error\": \"Error occurred while running Objective-C command: %@\"}", e];
       return nsStringToObjCString(outputString);
     }
   }
