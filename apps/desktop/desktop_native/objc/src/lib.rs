@@ -24,7 +24,7 @@ impl TryFrom<ObjCString> for String {
 impl Drop for ObjCString {
     fn drop(&mut self) {
         unsafe {
-            objc::free_objc_string(self);
+            objc::freeObjCString(self);
         }
     }
 }
@@ -33,8 +33,8 @@ mod objc {
     use super::*;
 
     extern "C" {
-        pub fn run_command(value: *const c_char) -> ObjCString;
-        pub fn free_objc_string(value: &ObjCString);
+        pub fn runCommand(value: *const c_char) -> ObjCString;
+        pub fn freeObjCString(value: &ObjCString);
     }
 }
 
@@ -44,7 +44,7 @@ pub fn run_command(input: String) -> Result<String> {
         .context("Failed to convert Rust input string to a CString for use in call to ObjC code")?;
 
     // Call ObjC code
-    let output = unsafe { objc::run_command(c_input.as_ptr()) };
+    let output = unsafe { objc::runCommand(c_input.as_ptr()) };
 
     // Convert output from ObjC code to Rust string
     let objc_output = output.try_into()?;

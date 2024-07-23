@@ -23,39 +23,39 @@ struct ObjCString {
 };
 
 /// Converts an NSString to an ObjCString struct
-struct ObjCString nsstring_to_obj_c_string(NSString* string) {
+struct ObjCString nsStringToObjCString(NSString* string) {
   size_t size = [string lengthOfBytesUsingEncoding:NSUTF8StringEncoding] + 1;
   char *value = malloc(size);
   [string getCString:value maxLength:size encoding:NSUTF8StringEncoding];
 
-  struct ObjCString obj_c_string;
-  obj_c_string.value = value;
-  obj_c_string.size = size;
+  struct ObjCString objCString;
+  objCString.value = value;
+  objCString.size = size;
 
-  return obj_c_string;
+  return objCString;
 }
 
 /// Converts a C-string to an NSString
-NSString* c_string_to_nsstring(char* string) {
+NSString* cStringToNSString(char* string) {
   return [[NSString alloc] initWithUTF8String:string];
 }
 
 /// Frees the memory allocated for an ObjCString
-void free_objc_string(struct ObjCString *value) {
+void freeObjCString(struct ObjCString *value) {
   free(value->value);
 }
 
-struct ObjCString run_command(char* input_json) {
+struct ObjCString runCommand(char* inputJson) {
   @autoreleasepool {
     @try {
-      NSString *inputString = c_string_to_nsstring(input_json);
+      NSString *inputString = cStringToNSString(inputJson);
 
       // NSString *outputString = [NSString stringWithFormat:@"{\"added\": %@}", e];
       NSString *outputString = @"{\"added\": 0}";
-      return nsstring_to_obj_c_string(outputString);
+      return nsStringToObjCString(outputString);
     } @catch (NSException *e) {
       NSString *outputString = [NSString stringWithFormat:@"Error occurred while running Objective-C command: %@", e];
-      return nsstring_to_obj_c_string(outputString);
+      return nsStringToObjCString(outputString);
     }
   }
 }
@@ -64,7 +64,7 @@ struct ObjCString run_command(char* input_json) {
 // struct ObjCString hello_world(char* input)
 // {
 //   // NSString *inputString = [[NSString alloc] initWithUTF8String:value];
-//   NSString *inputString = c_string_to_nsstring(input);
+//   NSString *inputString = cStringToNSString(input);
 //   NSLog(@"[BW] Objc from rust, hello: %@", inputString);
 
 //   NSString *outputString = @"Hello, World from objc!";
@@ -91,5 +91,5 @@ struct ObjCString run_command(char* input_json) {
 //     NSLog(@"[BW] macOS 10 or earlier - no autofill support");
 //   }
 
-//   return nsstring_to_obj_c_string(outputString);
+//   return nsStringToObjCString(outputString);
 // }
