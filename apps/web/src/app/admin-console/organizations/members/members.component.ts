@@ -375,6 +375,9 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
       case ProductTierType.TeamsStarter:
         product = "teamsStarterPlan";
         break;
+      case ProductTierType.Families:
+        product = "familiesPlan";
+        break;
       default:
         throw new Error(`Unsupported product type: ${productType}`);
     }
@@ -395,7 +398,11 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
 
     const productType = this.organization.productTierType;
 
-    if (productType !== ProductTierType.Free && productType !== ProductTierType.TeamsStarter) {
+    if (
+      productType !== ProductTierType.Free &&
+      productType !== ProductTierType.TeamsStarter &&
+      productType !== ProductTierType.Families
+    ) {
       throw new Error(`Unsupported product type: ${productType}`);
     }
 
@@ -409,7 +416,11 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
 
     const productType = this.organization.productTierType;
 
-    if (productType !== ProductTierType.Free && productType !== ProductTierType.TeamsStarter) {
+    if (
+      productType !== ProductTierType.Free &&
+      productType !== ProductTierType.TeamsStarter &&
+      productType !== ProductTierType.Families
+    ) {
       throw new Error(`Unsupported product type: ${this.organization.productTierType}`);
     }
 
@@ -459,7 +470,8 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
       !user &&
       this.dataSource.data.length === this.organization.seats &&
       (this.organization.productTierType === ProductTierType.Free ||
-        this.organization.productTierType === ProductTierType.TeamsStarter)
+        this.organization.productTierType === ProductTierType.TeamsStarter ||
+        this.organization.productTierType === ProductTierType.Families)
     ) {
       // Show org upgrade modal
       await this.showSeatLimitReachedDialog();

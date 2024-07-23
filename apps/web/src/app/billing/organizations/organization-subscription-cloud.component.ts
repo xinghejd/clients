@@ -387,7 +387,9 @@ export class OrganizationSubscriptionCloudComponent implements OnInit, OnDestroy
       const reference = openChangePlanDialog(this.dialogService, {
         data: {
           organizationId: this.organizationId,
-          currentPlan: this.sub.plan,
+          subscription: this.sub
+            ? this.sub
+            : await this.organizationApiService.getSubscription(this.organizationId),
         },
       });
 

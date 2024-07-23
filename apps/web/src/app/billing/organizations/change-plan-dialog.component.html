@@ -240,27 +240,33 @@
 
         <div *ngIf="totalOpened" class="row">
           <bit-hint class="col-6" *ngIf="selectedInterval == planIntervals.Annually">
-            <p class="tw-mb-0" bitTypography="body2" *ngIf="selectedPlan.PasswordManager.basePrice">
-              {{ "basePrice" | i18n }}:
-              {{
-                (selectedPlan.isAnnual
-                  ? selectedPlan.PasswordManager.basePrice / 12
-                  : selectedPlan.PasswordManager.basePrice
-                ) | currency: "$"
-              }}
-              &times; 12
-              {{ "monthAbbr" | i18n }}
-              =
-              <ng-container *ngIf="acceptingSponsorship; else notAcceptingSponsorship">
-                <span class="tw-line-through">{{
-                  selectedPlan.PasswordManager.basePrice | currency: "$"
-                }}</span>
-                {{ "freeWithSponsorship" | i18n }}
-              </ng-container>
-              <ng-template #notAcceptingSponsorship>
-                {{ selectedPlan.PasswordManager.basePrice | currency: "$" }}
+            <p
+              class="tw-mb-0 tw-flex tw-justify-between"
+              bitTypography="body2"
+              *ngIf="selectedPlan.PasswordManager.basePrice"
+            >
+              <span>
+                {{ selectedPlan.PasswordManager.baseSeats }}
+                {{ "members" | i18n }} &times;
+                {{
+                  (selectedPlan.isAnnual
+                    ? selectedPlan.PasswordManager.basePrice / 12
+                    : selectedPlan.PasswordManager.basePrice
+                  ) | currency: "$"
+                }}
                 /{{ "year" | i18n }}
-              </ng-template>
+              </span>
+              <span>
+                <ng-container *ngIf="acceptingSponsorship; else notAcceptingSponsorship">
+                  <span class="tw-line-through">{{
+                    selectedPlan.PasswordManager.basePrice | currency: "$"
+                  }}</span>
+                  {{ "freeWithSponsorship" | i18n }}
+                </ng-container>
+                <ng-template #notAcceptingSponsorship>
+                  {{ selectedPlan.PasswordManager.basePrice | currency: "$" }}
+                </ng-template>
+              </span>
             </p>
             <p
               class="tw-mb-0 tw-flex tw-justify-between"
@@ -271,7 +277,7 @@
                 <span *ngIf="selectedPlan.PasswordManager.baseSeats"
                   >{{ "additionalUsers" | i18n }}:</span
                 >
-                {{ formGroup.controls["additionalSeats"].value || 0 }}&nbsp;
+                {{ organization.seats || 0 }}&nbsp;
                 <span *ngIf="!selectedPlan.PasswordManager.baseSeats">{{ "members" | i18n }}</span>
                 &times;
                 {{ selectedPlan.PasswordManager.seatPrice | currency: "$" }}
@@ -279,10 +285,7 @@
               </span>
 
               <span>
-                {{
-                  passwordManagerSeatTotal(selectedPlan, formGroup.value.additionalSeats)
-                    | currency: "$"
-                }}
+                {{ passwordManagerSeatTotal(selectedPlan) | currency: "$" }}
               </span>
             </p>
             <p
@@ -331,10 +334,7 @@
                 /{{ "month" | i18n }}
               </span>
               <span>
-                {{
-                  passwordManagerSeatTotal(selectedPlan, formGroup.value.additionalSeats)
-                    | currency: "$"
-                }}
+                {{ passwordManagerSeatTotal(selectedPlan) | currency: "$" }}
               </span>
             </p>
             <p

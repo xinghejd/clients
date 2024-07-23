@@ -33,7 +33,7 @@ import { TaxInfoComponent } from "../shared/tax-info.component";
 
 type ChangePlanDialogParams = {
   organizationId: string;
-  currentPlan: PlanResponse;
+  subscription: OrganizationSubscriptionResponse;
 };
 
 export enum ChangePlanDialogResultType {
@@ -76,7 +76,6 @@ export class ChangePlanDialogComponent implements OnInit {
   @Input() organizationId: string;
   @Input() showFree = false;
   @Input() showCancel = false;
-  @Input() currentPlan: PlanResponse;
   selectedFile: File;
 
   @Input()
@@ -120,10 +119,6 @@ export class ChangePlanDialogComponent implements OnInit {
   isInTrialFlow = false;
   discount = 0;
 
-  selfHostedForm = this.formBuilder.group({
-    file: [null, [Validators.required]],
-  });
-
   formGroup = this.formBuilder.group({
     name: [""],
     billingEmail: ["", [Validators.email]],
@@ -147,6 +142,7 @@ export class ChangePlanDialogComponent implements OnInit {
   currentPlanName: string;
   showPayment: boolean = false;
   totalOpened: boolean = false;
+  currentPlan: PlanResponse;
 
   private destroy$ = new Subject<void>();
 
@@ -167,14 +163,15 @@ export class ChangePlanDialogComponent implements OnInit {
   ) {}
 
   async ngOnInit(): Promise<void> {
-    this.organizationId = this.dialogParams.organizationId;
-    this.currentPlan = this.dialogParams.currentPlan;
-    this.currentPlanName = this.i18nService.t(this.currentPlan.nameLocalizationKey);
-    this.selectedPlan = this.dialogParams.currentPlan;
     if (this.dialogParams.organizationId) {
+      this.organizationId = this.dialogParams.organizationId;
+      this.currentPlan = this.dialogParams.subscription?.plan;
+      this.currentPlanName = this.i18nService.t(this.currentPlan.nameLocalizationKey);
+      this.selectedPlan = this.dialogParams.subscription?.plan;
+      this.sub = await this.organizationApiService.getSubscription(this.organizationId);
       this.organization = await this.organizationService.get(this.organizationId);
       this.billing = await this.organizationApiService.getBilling(this.organizationId);
-      this.sub = await this.organizationApiService.getSubscription(this.organizationId);
+      this.sub = this.dialogParams.subscription;
     }
 
     if (!this.selfHosted) {
@@ -240,8 +237,6 @@ export class ChangePlanDialogComponent implements OnInit {
       this.currentPlan.productTier === ProductTierType.Families
     ) {
       this.selectPlan(this.getPlanByType(ProductTierType.Teams));
-    } else if (this.currentPlan.productTier === ProductTierType.Teams) {
-      this.selectPlan(this.getPlanByType(ProductTierType.Enterprise));
     }
   }
 
@@ -250,15 +245,7 @@ export class ChangePlanDialogComponent implements OnInit {
   }
 
   planTypeChanged() {
-    const selectedProductTier = this.formGroup.value.productTier;
-    if (
-      this.selectedInterval === PlanInterval.Monthly &&
-      selectedProductTier === ProductTierType.Families
-    ) {
-      this.selectPlan(this.getPlanByType(ProductTierType.Teams));
-    } else {
-      this.selectPlan(this.getPlanByType(selectedProductTier));
-    }
+    this.selectPlan(this.getPlanByType(ProductTierType.Teams));
   }
 
   protected getPlanIntervals() {
@@ -336,6 +323,12 @@ export class ChangePlanDialogComponent implements OnInit {
   }
 
   protected selectPlan(plan: PlanResponse) {
+    if (
+      this.selectedInterval === PlanInterval.Monthly &&
+      plan.productTier == ProductTierType.Families
+    ) {
+      return;
+    }
     this.selectedPlan = plan;
     this.formGroup.patchValue({ productTier: plan.productTier });
   }
@@ -397,43 +390,24 @@ export class ChangePlanDialogComponent implements OnInit {
     return result;
   }
 
-  seatPriceMonthly(selectedPlan: PlanResponse) {
-    if (!selectedPlan.isAnnual) {
-      return selectedPlan.PasswordManager.seatPrice;
-    }
-    return selectedPlan.PasswordManager.seatPrice / 12;
-  }
-
-  passwordManagerSeatTotal(plan: PlanResponse, seats: number): number {
+  passwordManagerSeatTotal(plan: PlanResponse): number {
     if (!plan.PasswordManager.hasAdditionalSeatsOption) {
       return 0;
     }
 
-    return plan.PasswordManager.seatPrice * Math.abs(seats || 0);
+    const result = plan.PasswordManager.seatPrice * Math.abs(this.organization.seats || 0);
+    return result;
   }
 
   get passwordManagerSubtotal() {
     let subTotal = this.selectedPlan.PasswordManager.basePrice;
-    if (
-      this.selectedPlan.PasswordManager.hasAdditionalSeatsOption &&
-      this.formGroup.controls.additionalSeats.value
-    ) {
-      subTotal += this.passwordManagerSeatTotal(
-        this.selectedPlan,
-        this.formGroup.value.additionalSeats,
-      );
+    if (this.selectedPlan.PasswordManager.hasAdditionalSeatsOption) {
+      subTotal += this.passwordManagerSeatTotal(this.selectedPlan);
     }
-    if (
-      this.selectedPlan.PasswordManager.hasPremiumAccessOption &&
-      this.formGroup.controls.premiumAccessAddon.value
-    ) {
+    if (this.selectedPlan.PasswordManager.hasPremiumAccessOption) {
       subTotal += this.selectedPlan.PasswordManager.premiumAccessOptionPrice;
     }
     return subTotal - this.discount;
-  }
-
-  get freeTrial() {
-    return this.selectedPlan.trialPeriodDays != null;
   }
 
   get taxCharges() {
@@ -444,16 +418,6 @@ export class ChangePlanDialogComponent implements OnInit {
 
   get total() {
     return this.passwordManagerSubtotal + this.taxCharges || 0;
-  }
-
-  get paymentDesc() {
-    if (this.acceptingSponsorship) {
-      return this.i18nService.t("paymentSponsored");
-    } else if (this.freeTrial) {
-      return this.i18nService.t("paymentChargedWithTrial");
-    } else {
-      return this.i18nService.t("paymentCharged", this.i18nService.t(this.selectedPlanInterval));
-    }
   }
 
   get teamsStarterPlanIsAvailable() {
