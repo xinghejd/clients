@@ -2,6 +2,12 @@
 #import <AuthenticationServices/ASCredentialIdentityStore.h>
 #import <AuthenticationServices/ASCredentialIdentityStoreState.h>
 
+#if !__has_feature(objc_arc)
+  // Auto Reference Counting makes memory management easier for Objective-C objects
+  // Regular C objects still need to be managed manually
+  #error ARC must be enabled!
+#endif
+
 /// Simple struct to hold a C-string and its length
 /// This is used to return strings created in Objective-C to Rust
 /// so that Rust can free the memory when it's done with the string
@@ -10,6 +16,7 @@ struct ObjCString {
   size_t size;
 };
 
+/// Converts an NSString to an ObjCString struct
 struct ObjCString nsstring_to_obj_c_string(NSString* string) {
   size_t size = [string lengthOfBytesUsingEncoding:NSUTF8StringEncoding] + 1;
   char *value = malloc(size);
@@ -22,9 +29,12 @@ struct ObjCString nsstring_to_obj_c_string(NSString* string) {
   return obj_c_string;
 }
 
+/// Frees the memory allocated for an ObjCString
 void free_objc_string(struct ObjCString *value) {
   free(value->value);
 }
+
+// struct ObjCString hello_world(char* value)
 
 // void hello_world(char* value, char* output, int output_size)
 struct ObjCString hello_world(char* value)
@@ -55,8 +65,6 @@ struct ObjCString hello_world(char* value)
   else {
     NSLog(@"[BW] macOS 10 or earlier - no autofill support");
   }
-
-  [inputString dealloc];
 
   return nsstring_to_obj_c_string(outputString);
 }
