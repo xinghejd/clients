@@ -3,6 +3,6 @@
 
 #import <Foundation/Foundation.h>
 
-NSString *sync(NSDictionary *params);
+NSString *status(NSDictionary *params);
 
 #endif

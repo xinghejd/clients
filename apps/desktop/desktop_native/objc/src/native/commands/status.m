@@ -1,6 +1,7 @@
 #import <Foundation/Foundation.h>
-#import "sync.h"
+#import "../utils.h"
+#import "status.h"
 
 NSString *status(NSDictionary *params) {
-
+  return toSuccess(@{@"status": @"ok"});
 }

@@ -1,6 +1,7 @@
 #import <Foundation/Foundation.h>
 #import <AuthenticationServices/ASCredentialIdentityStore.h>
 #import <AuthenticationServices/ASCredentialIdentityStoreState.h>
+#import "commands/status.h"
 #import "utils.h"
 
 // Tips for developing Objective-C code:
@@ -55,26 +56,32 @@ NSDictionary *parseJson(NSString *jsonString, NSError *error) {
   return json;
 }
 
-NSString *internalRunCommand(char* inputJson) {
-  NSString *inputString = cStringToNSString(inputJson);
-
-  NSError *error = nil;
-  NSDictionary *input = parseJson(inputString, error);
-  if (error) {
-    return toError([NSString stringWithFormat:@"Error occured while deserializing input params: %@", error]);
+NSString *internalRunCommand(NSDictionary *input ) {
+  NSString *command = input[@"command"];
+  if ([command isEqual:@"status"]) {
+    return status(input);
   }
 
-  NSLog(@"[BW] Objc from rust, input: %@", input);
-
-  NSDictionary *output = @{@"added": @0};
-  NSString *outputString = toSuccess(output);
-  return outputString;
+  return toError([NSString stringWithFormat:@"Unknown command: %@", command]);
 }
 
+/// Runs a command with the given input JSON
+/// This function is called from Rust and is the entry point for running Objective-C code.
+/// It takes a JSON string as input, deserializes it, runs the command, and serializes the output.
+/// It also catches any exceptions that occur during the command execution.
 struct ObjCString runCommand(char* inputJson) {
   @autoreleasepool {
     @try {
-      NSString *outputString = internalRunCommand(inputJson);
+      NSString *inputString = cStringToNSString(inputJson);
+
+      NSError *error = nil;
+      NSDictionary *input = parseJson(inputString, error);
+      if (error) {
+        NSString *outputString = toError([NSString stringWithFormat:@"Error occured while deserializing input params: %@", error]);
+        return nsStringToObjCString(outputString);
+      }
+
+      NSString *outputString = internalRunCommand(input);
       return nsStringToObjCString(outputString);
     } @catch (NSException *e) {
       NSString *outputString = toError([NSString stringWithFormat:@"Error occurred while running Objective-C command: %@", e]);
