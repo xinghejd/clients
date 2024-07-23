@@ -19,6 +19,11 @@ import {
 export class Fido2ActiveRequestManager implements Fido2ActiveRequestManagerAbstraction {
   private activeRequests$: BehaviorSubject<RequestCollection> = new BehaviorSubject({});
 
+  /**
+   * Gets the observable stream of all active requests associated with a given tab id.
+   *
+   * @param tabId - The tab id to get the active request for.
+   */
   getActiveRequest$(tabId: number): Observable<ActiveRequest | undefined> {
     return this.activeRequests$.pipe(
       map((requests) => requests[tabId]),
@@ -28,10 +33,22 @@ export class Fido2ActiveRequestManager implements Fido2ActiveRequestManagerAbstr
     );
   }
 
+  /**
+   * Gets the active request associated with a given tab id.
+   *
+   * @param tabId - The tab id to get the active request for.
+   */
   getActiveRequest(tabId: number): ActiveRequest | undefined {
     return this.activeRequests$.value[tabId];
   }
 
+  /**
+   * Creates a new active fido2 request.
+   *
+   * @param tabId - The tab id to associate the request with.
+   * @param credentials - The credentials to use for the request.
+   * @param abortController - The abort controller to use for the request.
+   */
   async newActiveRequest(
     tabId: number,
     credentials: Fido2CredentialView[],
@@ -54,6 +71,11 @@ export class Fido2ActiveRequestManager implements Fido2ActiveRequestManagerAbstr
     return credentialId;
   }
 
+  /**
+   * Removes and aborts the active request associated with a given tab id.
+   *
+   * @param tabId - The tab id to abort the active request for.
+   */
   removeActiveRequest(tabId: number) {
     this.abortActiveRequest(tabId);
     this.updateRequests((existingRequests) => {
@@ -63,12 +85,22 @@ export class Fido2ActiveRequestManager implements Fido2ActiveRequestManagerAbstr
     });
   }
 
+  /**
+   * Aborts the active request associated with a given tab id.
+   *
+   * @param tabId - The tab id to abort the active request for.
+   */
   private abortActiveRequest(tabId: number): void {
     this.activeRequests$.value[tabId]?.subject.error(
       new DOMException("The operation either timed out or was not allowed.", "AbortError"),
     );
   }
 
+  /**
+   * Updates the active requests.
+   *
+   * @param updateFunction - The function to use to update the active requests.
+   */
   private updateRequests(
     updateFunction: (existingRequests: RequestCollection) => RequestCollection,
   ) {
