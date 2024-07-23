@@ -395,16 +395,22 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
       return;
     }
 
-    this.togglePasskeysHeadingAnchored(cipherListScrollTop);
-    this.togglePasskeysHeadingBorder(cipherListScrollTop);
-    this.toggleLoginHeadingBorder(cipherListScrollTop);
-  };
-
-  private togglePasskeysHeadingAnchored(cipherListScrollTop: number) {
-    if (!this.passkeysHeadingElement) {
-      return;
+    if (this.passkeysHeadingElement) {
+      this.togglePasskeysHeadingAnchored(cipherListScrollTop);
+      this.togglePasskeysHeadingBorder(cipherListScrollTop);
     }
 
+    if (this.loginHeadingElement) {
+      this.toggleLoginHeadingBorder(cipherListScrollTop);
+    }
+  };
+
+  /**
+   * Anchors the passkeys heading to the top of the last passkey item when the user scrolls.
+   *
+   * @param cipherListScrollTop - The current scroll top position of the ciphers list.
+   */
+  private togglePasskeysHeadingAnchored(cipherListScrollTop: number) {
     if (!this.passkeysHeadingHeight) {
       this.passkeysHeadingHeight = this.passkeysHeadingElement.offsetHeight;
     }
@@ -420,11 +426,13 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
     this.passkeysHeadingElement.setAttribute("style", "");
   }
 
+  /**
+   * Toggles a border on the passkeys heading on scroll, adding it when the user has
+   * scrolled at all and removing it once the user scrolls back to the top.
+   *
+   * @param cipherListScrollTop - The current scroll top position of the ciphers list.
+   */
   private togglePasskeysHeadingBorder(cipherListScrollTop: number) {
-    if (!this.passkeysHeadingElement) {
-      return;
-    }
-
     if (cipherListScrollTop < 1) {
       this.passkeysHeadingElement.classList.remove(this.headingBorderClass);
       return;
@@ -433,11 +441,13 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
     this.passkeysHeadingElement.classList.add(this.headingBorderClass);
   }
 
+  /**
+   * Toggles a border on  the login heading on scroll, adding it when the user has
+   * scrolled past the last passkey item and removing it once the user scrolls back up.
+   *
+   * @param cipherListScrollTop - The current scroll top position of the ciphers list.
+   */
   private toggleLoginHeadingBorder(cipherListScrollTop: number) {
-    if (!this.loginHeadingElement) {
-      return;
-    }
-
     if (!this.lastPasskeysListItemHeight) {
       this.lastPasskeysListItemHeight = this.lastPasskeysListItem.offsetHeight;
     }
@@ -826,6 +836,12 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
     return cipherSubtitleElement;
   }
 
+  /**
+   * Builds the passkeys details for a given cipher. Includes the passkey name and username.
+   *
+   * @param cipher - The cipher to build the passkey details for.
+   * @param cipherDetailsElement - The cipher details element to append the passkey details to.
+   */
   private buildPasskeysCipherDetailsElement(
     cipher: InlineMenuCipherData,
     cipherDetailsElement: HTMLSpanElement,
@@ -975,7 +991,7 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
    */
   private focusNextListItem(currentListItem: HTMLElement) {
     let nextListItem = currentListItem.nextSibling as HTMLElement;
-    if (nextListItem === this.passkeysHeadingElement || nextListItem === this.loginHeadingElement) {
+    if (this.listItemIsHeadingElement(nextListItem)) {
       nextListItem = nextListItem.nextSibling as HTMLElement;
     }
 
@@ -991,10 +1007,7 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
     }
 
     let firstListItem = currentListItem.parentElement?.firstChild as HTMLElement;
-    if (
-      firstListItem === this.passkeysHeadingElement ||
-      firstListItem === this.loginHeadingElement
-    ) {
+    if (this.listItemIsHeadingElement(firstListItem)) {
       firstListItem = firstListItem.nextSibling as HTMLElement;
     }
 
@@ -1010,10 +1023,7 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
    */
   private focusPreviousListItem(currentListItem: HTMLElement) {
     let previousListItem = currentListItem.previousSibling as HTMLElement;
-    if (
-      previousListItem === this.passkeysHeadingElement ||
-      previousListItem === this.loginHeadingElement
-    ) {
+    if (this.listItemIsHeadingElement(previousListItem)) {
       previousListItem = previousListItem.previousSibling as HTMLElement;
     }
 
@@ -1068,5 +1078,14 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
    */
   private isFilledByIdentityCipher = () => {
     return this.filledByCipherType === CipherType.Identity;
+  };
+
+  /**
+   * Identifies if the passed list item is a heading element.
+   *
+   * @param listItem - The list item to check.
+   */
+  private listItemIsHeadingElement = (listItem: HTMLElement) => {
+    return listItem === this.passkeysHeadingElement || listItem === this.loginHeadingElement;
   };
 }
