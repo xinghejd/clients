@@ -29,6 +29,11 @@ struct ObjCString nsstring_to_obj_c_string(NSString* string) {
   return obj_c_string;
 }
 
+/// Converts a C-string to an NSString
+NSString* c_string_to_nsstring(char* string) {
+  return [[NSString alloc] initWithUTF8String:string];
+}
+
 /// Frees the memory allocated for an ObjCString
 void free_objc_string(struct ObjCString *value) {
   free(value->value);
@@ -37,9 +42,10 @@ void free_objc_string(struct ObjCString *value) {
 // struct ObjCString hello_world(char* value)
 
 // void hello_world(char* value, char* output, int output_size)
-struct ObjCString hello_world(char* value)
+struct ObjCString hello_world(char* input)
 {
-  NSString *inputString = [[NSString alloc] initWithUTF8String:value];
+  // NSString *inputString = [[NSString alloc] initWithUTF8String:value];
+  NSString *inputString = c_string_to_nsstring(input);
   NSLog(@"[BW] Objc from rust, hello: %@", inputString);
 
   NSString *outputString = @"Hello, World from objc!";
