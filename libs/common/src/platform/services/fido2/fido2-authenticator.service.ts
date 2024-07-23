@@ -234,8 +234,6 @@ export class Fido2AuthenticatorService implements Fido2AuthenticatorServiceAbstr
         throw new Fido2AuthenticatorError(Fido2AuthenticatorErrorCode.NotAllowed);
       }
 
-      // TODO: We need to check for PasswordReprompt here, but we can only
-      // do that if there is a single credential to choose from.
       let response;
       if (
         params.requireUserVerification ||
