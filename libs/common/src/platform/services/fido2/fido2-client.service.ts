@@ -7,6 +7,7 @@ import { DomainSettingsService } from "../../../autofill/services/domain-setting
 import { VaultSettingsService } from "../../../vault/abstractions/vault-settings/vault-settings.service";
 import { Fido2CredentialView } from "../../../vault/models/view/fido2-credential.view";
 import { ConfigService } from "../../abstractions/config/config.service";
+import { Fido2ActiveRequestManager } from "../../abstractions/fido2/fido2-active-request-manager.abstraction";
 import {
   Fido2AuthenticatorError,
   Fido2AuthenticatorErrorCode,
@@ -33,7 +34,6 @@ import { ScheduledTaskNames } from "../../scheduling/scheduled-task-name.enum";
 import { TaskSchedulerService } from "../../scheduling/task-scheduler.service";
 
 import { isValidRpId } from "./domain-utils";
-import { Fido2ActiveRequestManager } from "./fido2-active-request-manager";
 import { Fido2Utils } from "./fido2-utils";
 import { guidToRawFormat } from "./guid-utils";
 
@@ -44,7 +44,6 @@ import { guidToRawFormat } from "./guid-utils";
  * It is highly recommended that the W3C specification is used a reference when reading this code.
  */
 export class Fido2ClientService implements Fido2ClientServiceAbstraction {
-  private requestManager = new Fido2ActiveRequestManager();
   private timeoutAbortController: AbortController;
   private readonly TIMEOUTS = {
     NO_VERIFICATION: {
@@ -66,6 +65,7 @@ export class Fido2ClientService implements Fido2ClientServiceAbstraction {
     private vaultSettingsService: VaultSettingsService,
     private domainSettingsService: DomainSettingsService,
     private taskSchedulerService: TaskSchedulerService,
+    private requestManager: Fido2ActiveRequestManager,
     private logService?: LogService,
   ) {
     this.taskSchedulerService.registerTaskHandler(ScheduledTaskNames.fido2ClientAbortTimeout, () =>
@@ -368,29 +368,6 @@ export class Fido2ClientService implements Fido2ClientServiceAbstraction {
     return this.generateAssertCredentialResult(getAssertionResult, clientDataJSONBytes);
   }
 
-  private setAbortTimeout = (
-    abortController: AbortController,
-    userVerification?: UserVerification,
-    timeout?: number,
-  ): Subscription => {
-    let clampedTimeout: number;
-
-    const { WITH_VERIFICATION, NO_VERIFICATION } = this.TIMEOUTS;
-    if (userVerification === "required") {
-      timeout = timeout ?? WITH_VERIFICATION.DEFAULT;
-      clampedTimeout = Math.max(WITH_VERIFICATION.MIN, Math.min(timeout, WITH_VERIFICATION.MAX));
-    } else {
-      timeout = timeout ?? NO_VERIFICATION.DEFAULT;
-      clampedTimeout = Math.max(NO_VERIFICATION.MIN, Math.min(timeout, NO_VERIFICATION.MAX));
-    }
-
-    this.timeoutAbortController = abortController;
-    return this.taskSchedulerService.setTimeout(
-      ScheduledTaskNames.fido2ClientAbortTimeout,
-      clampedTimeout,
-    );
-  };
-
   private async handleMediatedConditionalRequest(
     params: AssertCredentialParams,
     tab: chrome.tabs.Tab,
@@ -452,6 +429,29 @@ export class Fido2ClientService implements Fido2ClientServiceAbstraction {
       signature: Fido2Utils.bufferToString(getAssertionResult.signature),
     };
   }
+
+  private setAbortTimeout = (
+    abortController: AbortController,
+    userVerification?: UserVerification,
+    timeout?: number,
+  ): Subscription => {
+    let clampedTimeout: number;
+
+    const { WITH_VERIFICATION, NO_VERIFICATION } = this.TIMEOUTS;
+    if (userVerification === "required") {
+      timeout = timeout ?? WITH_VERIFICATION.DEFAULT;
+      clampedTimeout = Math.max(WITH_VERIFICATION.MIN, Math.min(timeout, WITH_VERIFICATION.MAX));
+    } else {
+      timeout = timeout ?? NO_VERIFICATION.DEFAULT;
+      clampedTimeout = Math.max(NO_VERIFICATION.MIN, Math.min(timeout, NO_VERIFICATION.MAX));
+    }
+
+    this.timeoutAbortController = abortController;
+    return this.taskSchedulerService.setTimeout(
+      ScheduledTaskNames.fido2ClientAbortTimeout,
+      clampedTimeout,
+    );
+  };
 }
 
 /**
