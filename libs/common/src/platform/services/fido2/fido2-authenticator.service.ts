@@ -235,11 +235,15 @@ export class Fido2AuthenticatorService implements Fido2AuthenticatorServiceAbstr
       }
 
       let response;
+      const cipherContainsMasterPasswordReprompt = cipherOptions.some(
+        (cipher) => cipher.reprompt !== CipherRepromptType.None,
+      );
       if (
         params.requireUserVerification ||
         !params.assumeUserPresence ||
         cipherOptions.length > 1 ||
-        cipherOptions.length === 0
+        cipherOptions.length === 0 ||
+        cipherContainsMasterPasswordReprompt
       ) {
         response = await userInterfaceSession.pickCredential({
           cipherIds: cipherOptions.map((cipher) => cipher.id),
