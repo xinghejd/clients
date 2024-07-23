@@ -32,7 +32,7 @@ export class NativeAutofillMain {
   ): Promise<RunCommandResult<C>> {
     try {
       const result = await autofill.runCommand(JSON.stringify(command));
-      return { type: "success", value: JSON.parse(result) };
+      return JSON.parse(result);
     } catch (e) {
       this.logService.error("Error running autofill command:", e);
 

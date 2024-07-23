@@ -1,6 +1,7 @@
 #import <Foundation/Foundation.h>
 #import <AuthenticationServices/ASCredentialIdentityStore.h>
 #import <AuthenticationServices/ASCredentialIdentityStoreState.h>
+#import "utils.h"
 
 // Tips for developing Objective-C code:
 // - Use the `NSLog` function to log messages to the system log
@@ -45,16 +46,38 @@ void freeObjCString(struct ObjCString *value) {
   free(value->value);
 }
 
+NSDictionary *parseJson(NSString *jsonString, NSError *error) {
+  NSData *data = [jsonString dataUsingEncoding:NSUTF8StringEncoding];
+  NSDictionary *json = [NSJSONSerialization JSONObjectWithData:data options:0 error:&error];
+  if (error) {
+    return nil;
+  }
+  return json;
+}
+
+NSString *internalRunCommand(char* inputJson) {
+  NSString *inputString = cStringToNSString(inputJson);
+
+  NSError *error = nil;
+  NSDictionary *input = parseJson(inputString, error);
+  if (error) {
+    return toError([NSString stringWithFormat:@"Error occured while deserializing input params: %@", error]);
+  }
+
+  NSLog(@"[BW] Objc from rust, input: %@", input);
+
+  NSDictionary *output = @{@"added": @0};
+  NSString *outputString = toSuccess(output);
+  return outputString;
+}
+
 struct ObjCString runCommand(char* inputJson) {
   @autoreleasepool {
     @try {
-      NSString *inputString = cStringToNSString(inputJson);
-
-      // NSString *outputString = [NSString stringWithFormat:@"{\"added\": %@}", e];
-      NSString *outputString = @"{\"added\": 0}";
+      NSString *outputString = internalRunCommand(inputJson);
       return nsStringToObjCString(outputString);
     } @catch (NSException *e) {
-      NSString *outputString = [NSString stringWithFormat:@"{\"type\": \"error\", \"error\": \"Error occurred while running Objective-C command: %@\"}", e];
+      NSString *outputString = toError([NSString stringWithFormat:@"Error occurred while running Objective-C command: %@", e]);
       return nsStringToObjCString(outputString);
     }
   }
