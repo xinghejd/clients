@@ -1,14 +1,4 @@
-import {
-  BehaviorSubject,
-  distinctUntilChanged,
-  firstValueFrom,
-  map,
-  Observable,
-  shareReplay,
-  startWith,
-  Subject,
-  Subscription,
-} from "rxjs";
+import { firstValueFrom, map, Observable, Subscription } from "rxjs";
 import { parse } from "tldts";
 
 import { AuthService } from "../../../auth/abstractions/auth.service";
@@ -21,6 +11,7 @@ import {
   Fido2AuthenticatorError,
   Fido2AuthenticatorErrorCode,
   Fido2AuthenticatorGetAssertionParams,
+  Fido2AuthenticatorGetAssertionResult,
   Fido2AuthenticatorMakeCredentialsParams,
   Fido2AuthenticatorService,
   PublicKeyCredentialDescriptor,
@@ -42,75 +33,9 @@ import { ScheduledTaskNames } from "../../scheduling/scheduled-task-name.enum";
 import { TaskSchedulerService } from "../../scheduling/task-scheduler.service";
 
 import { isValidRpId } from "./domain-utils";
+import { Fido2ActiveRequestManager } from "./fido2-active-request-manager";
 import { Fido2Utils } from "./fido2-utils";
 import { guidToRawFormat } from "./guid-utils";
-
-interface ActiveRequest {
-  credentials: Fido2CredentialView[];
-  subject: Subject<string>;
-}
-
-type RequestCollection = Readonly<{ [tabId: number]: ActiveRequest }>;
-
-class ActiveRequestManager {
-  private activeRequests$: BehaviorSubject<RequestCollection> = new BehaviorSubject({});
-
-  getActiveRequest$(tabId: number): Observable<ActiveRequest | undefined> {
-    return this.activeRequests$.pipe(
-      map((requests) => requests[tabId]),
-      distinctUntilChanged(),
-      shareReplay({ bufferSize: 1, refCount: true }),
-      startWith(undefined),
-    );
-  }
-
-  getActiveRequest(tabId: number): ActiveRequest | undefined {
-    return this.activeRequests$.value[tabId];
-  }
-
-  async newActiveRequest(
-    tabId: number,
-    credentials: Fido2CredentialView[],
-    abortController: AbortController,
-  ): Promise<string> {
-    const newRequest: ActiveRequest = {
-      credentials,
-      subject: new Subject(),
-    };
-    this.updateRequests((existingRequests) => ({
-      ...existingRequests,
-      [tabId]: newRequest,
-    }));
-
-    const abortListener = () => this.abortActiveRequest(tabId);
-    abortController.signal.addEventListener("abort", abortListener);
-    const credentialId = firstValueFrom(newRequest.subject);
-    abortController.signal.removeEventListener("abort", abortListener);
-
-    return credentialId;
-  }
-
-  removeActiveRequest(tabId: number) {
-    this.abortActiveRequest(tabId);
-    this.updateRequests((existingRequests) => {
-      const newRequests = { ...existingRequests };
-      delete newRequests[tabId];
-      return newRequests;
-    });
-  }
-
-  private abortActiveRequest(tabId: number): void {
-    this.activeRequests$.value[tabId]?.subject.error(
-      new DOMException("The operation either timed out or was not allowed.", "AbortError"),
-    );
-  }
-
-  private updateRequests(
-    updateFunction: (existingRequests: RequestCollection) => RequestCollection,
-  ) {
-    this.activeRequests$.next(updateFunction(this.activeRequests$.value));
-  }
-}
 
 /**
  * Bitwarden implementation of the Web Authentication API as described by W3C
@@ -119,7 +44,7 @@ class ActiveRequestManager {
  * It is highly recommended that the W3C specification is used a reference when reading this code.
  */
 export class Fido2ClientService implements Fido2ClientServiceAbstraction {
-  private requestManager = new ActiveRequestManager();
+  private requestManager = new Fido2ActiveRequestManager();
   private timeoutAbortController: AbortController;
   private readonly TIMEOUTS = {
     NO_VERIFICATION: {
@@ -369,25 +294,6 @@ export class Fido2ClientService implements Fido2ClientServiceAbstraction {
       throw new DOMException("'rp.id' cannot be used with the current origin", "SecurityError");
     }
 
-    let assumeUserPresence = false;
-    if (params.mediation === "conditional") {
-      const authStatus = await this.authService.getAuthStatus();
-      const availableCredentials =
-        authStatus === AuthenticationStatus.Unlocked
-          ? await this.authenticator.silentCredentialDiscovery(params.rpId)
-          : [];
-      this.logService?.info(
-        `[Fido2Client] started mediated request, available credentials: ${availableCredentials.length}`,
-      );
-      const credentialId = await this.requestManager.newActiveRequest(
-        tab.id,
-        availableCredentials,
-        abortController,
-      );
-      params.allowedCredentialIds = [Fido2Utils.bufferToString(guidToRawFormat(credentialId))];
-      assumeUserPresence = true;
-    }
-
     const collectedClientData = {
       type: "webauthn.get",
       challenge: params.challenge,
@@ -397,12 +303,18 @@ export class Fido2ClientService implements Fido2ClientServiceAbstraction {
     };
     const clientDataJSON = JSON.stringify(collectedClientData);
     const clientDataJSONBytes = Utils.fromByteStringToArray(clientDataJSON);
+
+    if (params.mediation === "conditional") {
+      return this.handleMediatedConditionalRequest(
+        params,
+        tab,
+        abortController,
+        clientDataJSONBytes,
+      );
+    }
+
     const clientDataHash = await crypto.subtle.digest({ name: "SHA-256" }, clientDataJSONBytes);
-    const getAssertionParams = mapToGetAssertionParams({
-      params,
-      clientDataHash,
-      assumeUserPresence,
-    });
+    const getAssertionParams = mapToGetAssertionParams({ params, clientDataHash });
 
     if (abortController.signal.aborted) {
       this.logService?.info(`[Fido2Client] Aborted with AbortController`);
@@ -453,16 +365,7 @@ export class Fido2ClientService implements Fido2ClientServiceAbstraction {
 
     timeoutSubscription?.unsubscribe();
 
-    return {
-      authenticatorData: Fido2Utils.bufferToString(getAssertionResult.authenticatorData),
-      clientDataJSON: Fido2Utils.bufferToString(clientDataJSONBytes),
-      credentialId: Fido2Utils.bufferToString(getAssertionResult.selectedCredential.id),
-      userHandle:
-        getAssertionResult.selectedCredential.userHandle !== undefined
-          ? Fido2Utils.bufferToString(getAssertionResult.selectedCredential.userHandle)
-          : undefined,
-      signature: Fido2Utils.bufferToString(getAssertionResult.signature),
-    };
+    return this.generateAssertCredentialResult(getAssertionResult, clientDataJSONBytes);
   }
 
   private setAbortTimeout = (
@@ -487,6 +390,68 @@ export class Fido2ClientService implements Fido2ClientServiceAbstraction {
       clampedTimeout,
     );
   };
+
+  private async handleMediatedConditionalRequest(
+    params: AssertCredentialParams,
+    tab: chrome.tabs.Tab,
+    abortController: AbortController,
+    clientDataJSONBytes: Uint8Array,
+  ): Promise<AssertCredentialResult> {
+    let getAssertionResult;
+    let assumeUserPresence = false;
+    while (!getAssertionResult) {
+      const authStatus = await firstValueFrom(this.authService.activeAccountStatus$);
+      const availableCredentials =
+        authStatus === AuthenticationStatus.Unlocked
+          ? await this.authenticator.silentCredentialDiscovery(params.rpId)
+          : [];
+      this.logService?.info(
+        `[Fido2Client] started mediated request, available credentials: ${availableCredentials.length}`,
+      );
+      const credentialId = await this.requestManager.newActiveRequest(
+        tab.id,
+        availableCredentials,
+        abortController,
+      );
+      params.allowedCredentialIds = [Fido2Utils.bufferToString(guidToRawFormat(credentialId))];
+      assumeUserPresence = true;
+
+      const clientDataHash = await crypto.subtle.digest({ name: "SHA-256" }, clientDataJSONBytes);
+      const getAssertionParams = mapToGetAssertionParams({
+        params,
+        clientDataHash,
+        assumeUserPresence,
+      });
+
+      try {
+        getAssertionResult = await this.authenticator.getAssertion(getAssertionParams, tab);
+      } catch (e) {
+        this.logService?.info(`[Fido2Client] Aborted by user: ${e}`);
+      }
+
+      if (abortController.signal.aborted) {
+        this.logService?.info(`[Fido2Client] Aborted with AbortController`);
+      }
+    }
+
+    return this.generateAssertCredentialResult(getAssertionResult, clientDataJSONBytes);
+  }
+
+  private generateAssertCredentialResult(
+    getAssertionResult: Fido2AuthenticatorGetAssertionResult,
+    clientDataJSONBytes: Uint8Array,
+  ): AssertCredentialResult {
+    return {
+      authenticatorData: Fido2Utils.bufferToString(getAssertionResult.authenticatorData),
+      clientDataJSON: Fido2Utils.bufferToString(clientDataJSONBytes),
+      credentialId: Fido2Utils.bufferToString(getAssertionResult.selectedCredential.id),
+      userHandle:
+        getAssertionResult.selectedCredential.userHandle !== undefined
+          ? Fido2Utils.bufferToString(getAssertionResult.selectedCredential.userHandle)
+          : undefined,
+      signature: Fido2Utils.bufferToString(getAssertionResult.signature),
+    };
+  }
 }
 
 /**
