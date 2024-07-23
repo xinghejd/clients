@@ -1,5 +1,6 @@
 #import <Foundation/Foundation.h>
 #import "commands/status.h"
+#import "commands/sync.h"
 #import "utils.h"
 
 // Tips for developing Objective-C code:
@@ -56,8 +57,11 @@ NSDictionary *parseJson(NSString *jsonString, NSError *error) {
 
 NSString *internalRunCommand(NSDictionary *input ) {
   NSString *command = input[@"command"];
+
   if ([command isEqual:@"status"]) {
     return status(input);
+  } else if ([command isEqual:@"sync"]) {
+    return _sync(input);
   }
 
   return toError([NSString stringWithFormat:@"Unknown command: %@", command]);

@@ -283,7 +283,7 @@ const safeProviders: SafeProvider[] = [
   }),
   safeProvider({
     provide: DesktopAutofillService,
-    deps: [],
+    deps: [LogService, CipherServiceAbstraction],
   }),
   safeProvider({
     provide: NativeMessagingManifestService,

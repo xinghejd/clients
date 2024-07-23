@@ -1,5 +1,5 @@
-#ifndef SYNC_H
-#define SYNC_H
+#ifndef STATUS_H
+#define STATUS_H
 
 #import <Foundation/Foundation.h>
 

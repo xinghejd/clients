@@ -20,6 +20,9 @@ export type NativeAutofillFido2Credential = {
 
 export type NativeAutofillPasswordCredential = {
   type: "password";
+  cipherId: string;
+  uri: string;
+  username: string;
 };
 
 export type NativeAutofillSyncResult = CommandOutput<{
