@@ -46,15 +46,17 @@ void free_objc_string(struct ObjCString *value) {
 }
 
 struct ObjCString run_command(char* input_json) {
-  @try {
-    NSString *inputString = c_string_to_nsstring(input_json);
+  @autoreleasepool {
+    @try {
+      NSString *inputString = c_string_to_nsstring(input_json);
 
-    // NSString *outputString = [NSString stringWithFormat:@"{\"added\": %@}", e];
-    NSString *outputString = @"{\"added\": 0}";
-    return nsstring_to_obj_c_string(outputString);
-  } @catch (NSException *e) {
-    NSString *outputString = [NSString stringWithFormat:@"Error occurred while running Objective-C command: %@", e];
-    return nsstring_to_obj_c_string(outputString);
+      // NSString *outputString = [NSString stringWithFormat:@"{\"added\": %@}", e];
+      NSString *outputString = @"{\"added\": 0}";
+      return nsstring_to_obj_c_string(outputString);
+    } @catch (NSException *e) {
+      NSString *outputString = [NSString stringWithFormat:@"Error occurred while running Objective-C command: %@", e];
+      return nsstring_to_obj_c_string(outputString);
+    }
   }
 }
 
