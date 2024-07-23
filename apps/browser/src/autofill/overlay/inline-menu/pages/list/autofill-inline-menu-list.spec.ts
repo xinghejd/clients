@@ -518,6 +518,7 @@ describe("AutofillInlineMenuList", () => {
         let loginCipher1: InlineMenuCipherData;
         let loginCipher2: InlineMenuCipherData;
         let loginCipher3: InlineMenuCipherData;
+        let loginCipher4: InlineMenuCipherData;
         const borderClass = "inline-menu-list-heading--bordered";
 
         beforeEach(() => {
@@ -568,6 +569,12 @@ describe("AutofillInlineMenuList", () => {
               passkey: null,
             },
           });
+          loginCipher4 = createAutofillOverlayCipherDataMock(4, {
+            login: {
+              username: "username4",
+              passkey: null,
+            },
+          });
           postWindowMessage(
             createInitAutofillInlineMenuListMessageMock({
               ciphers: [
@@ -577,6 +584,7 @@ describe("AutofillInlineMenuList", () => {
                 loginCipher1,
                 loginCipher2,
                 loginCipher3,
+                loginCipher4,
               ],
               showPasskeysLabels: true,
               portKey,
@@ -622,6 +630,19 @@ describe("AutofillInlineMenuList", () => {
             expect(
               autofillInlineMenuList["loginHeadingElement"].classList.contains(borderClass),
             ).toBe(false);
+          });
+
+          it("loads each page of ciphers until the list of updated ciphers is exhausted", () => {
+            jest.useFakeTimers();
+            autofillInlineMenuList["ciphersList"].scrollTop = 10;
+            jest.spyOn(autofillInlineMenuList as any, "loadPageOfCiphers");
+
+            autofillInlineMenuList["ciphersList"].dispatchEvent(new Event("scroll"));
+            jest.advanceTimersByTime(1000);
+            autofillInlineMenuList["ciphersList"].dispatchEvent(new Event("scroll"));
+            jest.runAllTimers();
+
+            expect(autofillInlineMenuList["loadPageOfCiphers"]).toHaveBeenCalledTimes(1);
           });
         });
 
