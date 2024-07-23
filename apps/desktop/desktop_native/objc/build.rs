@@ -5,5 +5,7 @@ fn main() {
         .file("src/native/autofill.m")
         .flag("-fobjc-arc") // Enable Auto Reference Counting (ARC)
         .compile("autofill");
+    println!("cargo::rerun-if-changed=src/native/commands/status.m");
+    println!("cargo::rerun-if-changed=src/native/utils.m");
     println!("cargo::rerun-if-changed=src/native/autofill.m");
 }
