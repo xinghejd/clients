@@ -155,32 +155,27 @@ export class SetPasswordComponent extends BaseChangePasswordComponent {
     let keysRequest: KeysRequest | null = null;
     let newKeyPair: [string, EncString] | null = null;
 
-    if (
-      this.forceSetPasswordReason !=
-      ForceSetPasswordReason.TdeUserWithoutPasswordHasPasswordResetPermission
-    ) {
-      // Existing JIT provisioned user in a MP encryption org setting first password
-      // Users in this state will not already have a user asymmetric key pair so must create it for them
-      // We don't want to re-create the user key pair if the user already has one (TDE user case)
+    // Existing JIT provisioned user in a MP encryption org setting first password
+    // Users in this state will not already have a user asymmetric key pair so must create it for them
+    // We don't want to re-create the user key pair if the user already has one (TDE user case)
 
-      // in case we have a local private key, and are not sure whether it has been posted to the server, we post the local private key instead of generating a new one
-      const existingUserPrivateKey = (await firstValueFrom(
-        this.cryptoService.userPrivateKey$(this.userId),
-      )) as Uint8Array;
-      const existingUserPublicKey = await firstValueFrom(
-        this.cryptoService.userPublicKey$(this.userId),
-      );
-      if (existingUserPrivateKey != null && existingUserPublicKey != null) {
-        const existingUserPublicKeyB64 = Utils.fromBufferToB64(existingUserPublicKey);
-        newKeyPair = [
-          existingUserPublicKeyB64,
-          await this.encryptService.encrypt(existingUserPrivateKey, userKey[0]),
-        ];
-      } else {
-        newKeyPair = await this.cryptoService.makeKeyPair(userKey[0]);
-      }
-      keysRequest = new KeysRequest(newKeyPair[0], newKeyPair[1].encryptedString);
+    // in case we have a local private key, and are not sure whether it has been posted to the server, we post the local private key instead of generating a new one
+    const existingUserPrivateKey = (await firstValueFrom(
+      this.cryptoService.userPrivateKey$(this.userId),
+    )) as Uint8Array;
+    const existingUserPublicKey = await firstValueFrom(
+      this.cryptoService.userPublicKey$(this.userId),
+    );
+    if (existingUserPrivateKey != null && existingUserPublicKey != null) {
+      const existingUserPublicKeyB64 = Utils.fromBufferToB64(existingUserPublicKey);
+      newKeyPair = [
+        existingUserPublicKeyB64,
+        await this.encryptService.encrypt(existingUserPrivateKey, userKey[0]),
+      ];
+    } else {
+      newKeyPair = await this.cryptoService.makeKeyPair(userKey[0]);
     }
+    keysRequest = new KeysRequest(newKeyPair[0], newKeyPair[1].encryptedString);
 
     const request = new SetPasswordRequest(
       masterPasswordHash,
