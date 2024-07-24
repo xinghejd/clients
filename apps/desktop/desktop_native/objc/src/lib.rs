@@ -1,4 +1,7 @@
-use std::ffi::{c_char, CStr, CString};
+use std::{
+    ffi::{c_char, CStr, CString},
+    os::raw::c_void,
+};
 
 use anyhow::{Context, Result};
 
@@ -31,6 +34,10 @@ impl CommandContext {
 
         Ok(())
     }
+
+    pub fn as_ptr(&mut self) -> *mut c_void {
+        self as *mut Self as *mut c_void
+    }
 }
 
 impl TryFrom<ObjCString> for String {
@@ -55,10 +62,12 @@ impl Drop for ObjCString {
 }
 
 mod objc {
+    use std::os::raw::c_void;
+
     use super::*;
 
     extern "C" {
-        pub fn runCommand(context: &mut CommandContext, value: *const c_char);
+        pub fn runCommand(context: *mut c_void, value: *const c_char);
         pub fn freeObjCString(value: &ObjCString);
     }
 
@@ -101,7 +110,7 @@ pub async fn run_command(input: String) -> Result<String> {
     let (mut context, rx) = CommandContext::new();
 
     // Call ObjC code
-    unsafe { objc::runCommand(&mut context, c_input.as_ptr()) };
+    unsafe { objc::runCommand(context.as_ptr(), c_input.as_ptr()) };
 
     // Convert output from ObjC code to Rust string
     let objc_output = rx.await?.try_into()?;
