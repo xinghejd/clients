@@ -168,7 +168,6 @@ export class ChangePlanDialogComponent implements OnInit {
       this.currentPlan = this.dialogParams.subscription?.plan;
       this.currentPlanName = this.i18nService.t(this.currentPlan.nameLocalizationKey);
       this.selectedPlan = this.dialogParams.subscription?.plan;
-      this.sub = await this.organizationApiService.getSubscription(this.organizationId);
       this.organization = await this.organizationService.get(this.organizationId);
       this.billing = await this.organizationApiService.getBilling(this.organizationId);
       this.sub = this.dialogParams.subscription;
@@ -232,12 +231,7 @@ export class ChangePlanDialogComponent implements OnInit {
   }
 
   setInitialPlanSelection() {
-    if (
-      this.currentPlan.productTier === ProductTierType.Free ||
-      this.currentPlan.productTier === ProductTierType.Families
-    ) {
-      this.selectPlan(this.getPlanByType(ProductTierType.Teams));
-    }
+    this.selectPlan(this.getPlanByType(ProductTierType.Enterprise));
   }
 
   getPlanByType(productTier: ProductTierType) {
@@ -245,7 +239,7 @@ export class ChangePlanDialogComponent implements OnInit {
   }
 
   planTypeChanged() {
-    this.selectPlan(this.getPlanByType(ProductTierType.Teams));
+    this.selectPlan(this.getPlanByType(ProductTierType.Enterprise));
   }
 
   protected getPlanIntervals() {
@@ -277,19 +271,36 @@ export class ChangePlanDialogComponent implements OnInit {
 
     switch (cardState) {
       case PlanCardState.Selected: {
-        return [
-          "tw-group",
-          "tw-cursor-pointer",
-          "tw-block",
-          "tw-rounded",
-          "tw-border",
-          "tw-border-solid",
-          "tw-border-primary-600",
-          "hover:tw-border-primary-700",
-          "focus:tw-border-2",
-          "focus:tw-border-primary-700",
-          "focus:tw-rounded-lg",
-        ];
+        if (this.currentPlan.productTier === ProductTierType.Teams) {
+          return [
+            "tw-group",
+            "tw-cursor-pointer",
+            "tw-block",
+            "tw-rounded",
+            "tw-w-1/2",
+            "tw-border",
+            "tw-border-solid",
+            "tw-border-primary-600",
+            "hover:tw-border-primary-700",
+            "focus:tw-border-2",
+            "focus:tw-border-primary-700",
+            "focus:tw-rounded-lg",
+          ];
+        } else {
+          return [
+            "tw-group",
+            "tw-cursor-pointer",
+            "tw-block",
+            "tw-rounded",
+            "tw-border",
+            "tw-border-solid",
+            "tw-border-primary-600",
+            "hover:tw-border-primary-700",
+            "focus:tw-border-2",
+            "focus:tw-border-primary-700",
+            "focus:tw-rounded-lg",
+          ];
+        }
       }
       case PlanCardState.NotSelected: {
         return [
@@ -376,7 +387,7 @@ export class ChangePlanDialogComponent implements OnInit {
 
     result.sort((planA, planB) => planA.displaySortOrder - planB.displaySortOrder);
 
-    return result;
+    return result.reverse();
   }
 
   get selectablePlans() {
@@ -460,8 +471,8 @@ export class ChangePlanDialogComponent implements OnInit {
   }
 
   changedCountry() {
-    if (this.paymentComponent) {
-      this.paymentComponent!.hideBank = this.taxComponent.taxFormGroup?.value.country !== "US";
+    if (this.paymentComponent && this.taxComponent) {
+      this.paymentComponent!.hideBank = this.taxComponent?.taxFormGroup?.value.country !== "US";
       // Bank Account payments are only available for US customers
       if (
         this.paymentComponent.hideBank &&
@@ -517,6 +528,7 @@ export class ChangePlanDialogComponent implements OnInit {
 
   private async updateOrganization(orgId: string) {
     const request = new OrganizationUpgradeRequest();
+    request.additionalSeats = this.organization.seats;
     request.additionalSeats = this.formGroup.controls.additionalSeats.value;
     request.premiumAccessAddon =
       this.selectedPlan.PasswordManager.hasPremiumAccessOption &&
