@@ -260,7 +260,6 @@ export class AutofillInlineMenuIframeService implements AutofillInlineMenuIframe
       return;
     }
 
-    this.clearFadeInTimeout();
     this.updateElementStyles(this.iframe, position);
     this.announceAriaAlert();
   }
