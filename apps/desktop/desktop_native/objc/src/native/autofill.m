@@ -49,11 +49,11 @@ NSDictionary *parseJson(NSString *jsonString, NSError *error) {
 }
 
 void _return(void* context, NSString *output) {
-  command_return(context, nsStringToObjCString(output));
+  commandReturn(context, nsStringToObjCString(output));
 }
 
 NSString *internalRunCommand(void* context, NSDictionary *input) {
-  _return(context, toSuccess(@{@"message": @"command_return from Objective-C"}));
+  _return(context, toSuccess(@{@"message": @"commandReturn from Objective-C"}));
   NSString *command = input[@"command"];
 
   if ([command isEqual:@"status"]) {

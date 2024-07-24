@@ -13,6 +13,6 @@ struct ObjCString
 };
 
 /// Function to call from Objective-C to return a string to Rust
-extern void command_return(void *context, struct ObjCString output);
+extern void commandReturn(void *context, struct ObjCString output);
 
 #endif

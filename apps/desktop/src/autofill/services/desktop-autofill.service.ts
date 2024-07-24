@@ -18,7 +18,8 @@ export class DesktopAutofillService {
   ) {}
 
   async init() {
-    (window as any).testAutofill = () => this.sync();
+    (window as any).testAutofill = () => this.status();
+    // (window as any).testAutofill = () => this.sync();
   }
 
   async sync() {
