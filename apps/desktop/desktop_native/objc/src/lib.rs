@@ -1,4 +1,7 @@
-use std::ffi::{c_char, CStr, CString};
+use std::{
+    ffi::{c_char, CStr, CString},
+    ptr::null_mut,
+};
 
 use anyhow::{Context, Result};
 
@@ -30,11 +33,19 @@ impl Drop for ObjCString {
 }
 
 mod objc {
+    use std::ffi::c_void;
+
     use super::*;
 
     extern "C" {
-        pub fn runCommand(value: *const c_char) -> ObjCString;
+        pub fn runCommand(context: *mut c_void, value: *const c_char) -> ObjCString;
         pub fn freeObjCString(value: &ObjCString);
+    }
+
+    #[no_mangle]
+    pub extern "C" fn command_return(context: *mut c_void, value: ObjCString) {
+        let str_value: String = value.try_into().unwrap();
+        println!("{}", str_value);
     }
 }
 
@@ -44,7 +55,7 @@ pub fn run_command(input: String) -> Result<String> {
         .context("Failed to convert Rust input string to a CString for use in call to ObjC code")?;
 
     // Call ObjC code
-    let output = unsafe { objc::runCommand(c_input.as_ptr()) };
+    let output = unsafe { objc::runCommand(null_mut(), c_input.as_ptr()) };
 
     // Convert output from ObjC code to Rust string
     let objc_output = output.try_into()?;
