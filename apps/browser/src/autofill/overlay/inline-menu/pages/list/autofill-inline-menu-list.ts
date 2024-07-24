@@ -742,9 +742,9 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
       const { height } = entry.contentRect;
 
       const removeScrollbarClass = "inline-menu-list-actions--scrollbar";
-      if (height >= 170) {
+      if (this.ciphersList && height >= 170) {
         this.ciphersList.classList.add(removeScrollbarClass);
-      } else {
+      } else if (this.ciphersList) {
         this.ciphersList.classList.remove(removeScrollbarClass);
       }
 

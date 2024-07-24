@@ -127,7 +127,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     deletedCipher: () => this.updateOverlayCiphers(),
   };
   private readonly inlineMenuButtonPortMessageHandlers: InlineMenuButtonPortMessageHandlers = {
-    triggerDelayedAutofillInlineMenuClosure: ({ port }) => this.triggerDelayedInlineMenuClosure(),
+    triggerDelayedAutofillInlineMenuClosure: () => this.triggerDelayedInlineMenuClosure(),
     autofillInlineMenuButtonClicked: ({ port }) => this.handleInlineMenuButtonClicked(port),
     autofillInlineMenuBlurred: () => this.checkInlineMenuListFocused(),
     redirectAutofillInlineMenuFocusOut: ({ message, port }) =>
@@ -301,6 +301,10 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       ) {
         this.cardAndIdentityCiphers.add(cipherView);
       }
+    }
+
+    if (!this.cardAndIdentityCiphers.size) {
+      this.cardAndIdentityCiphers = null;
     }
 
     return cipherViews;
@@ -1796,7 +1800,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
 
     Promise.resolve(messageResponse)
       .then((response) => sendResponse(response))
-      .catch(this.logService.error);
+      .catch((error) => this.logService.error(error));
     return true;
   };
 
