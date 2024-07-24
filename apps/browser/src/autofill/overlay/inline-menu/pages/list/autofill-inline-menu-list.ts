@@ -758,14 +758,14 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
     if (!this.ciphersList) {
       return;
     }
-    const removeScrollbarClass = "inline-menu-list-actions--scrollbar";
+    const scrollbarClass = "inline-menu-list-actions--scrollbar";
 
     if (height >= 170) {
-      this.ciphersList.classList.add(removeScrollbarClass);
+      this.ciphersList.classList.add(scrollbarClass);
       return;
     }
 
-    this.ciphersList.classList.remove(removeScrollbarClass);
+    this.ciphersList.classList.remove(scrollbarClass);
   };
 
   /**
