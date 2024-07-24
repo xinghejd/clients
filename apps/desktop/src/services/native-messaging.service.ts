@@ -2,7 +2,7 @@ import { Injectable, NgZone } from "@angular/core";
 import { firstValueFrom, map } from "rxjs";
 
 import {
-  NativeMessageCommandType,
+  NativeMessageCommandTypes,
   BiometricUnlockNotSupportedResponse,
   BiometricUnlockCanceledResponse,
   BiometricUnlockNoUserResponse,
@@ -83,7 +83,7 @@ export class NativeMessagingService {
     // Request to setup secure encryption
     if (
       "command" in rawMessage &&
-      rawMessage.command === NativeMessageCommandType.SETUP_ENCRYPTION
+      rawMessage.command === NativeMessageCommandTypes.SETUP_ENCRYPTION
     ) {
       const innerMessage = rawMessage as BiometricCommandSetupEncryption;
       const remotePublicKey = Utils.fromB64ToArray(innerMessage.publicKey);
@@ -149,7 +149,7 @@ export class NativeMessagingService {
     }
 
     switch (message.command) {
-      case NativeMessageCommandType.BIOMETRIC_UNLOCK: {
+      case NativeMessageCommandTypes.BIOMETRIC_UNLOCK: {
         if (!(await this.platformUtilService.supportsBiometric())) {
           await this.sendBiometricCommandResponse(new BiometricUnlockNotSupportedResponse(), appId);
           return;
@@ -219,7 +219,7 @@ export class NativeMessagingService {
 
         break;
       }
-      case NativeMessageCommandType.BROWSER_PROVIDED_USER_KEY: {
+      case NativeMessageCommandTypes.BROWSER_PROVIDED_USER_KEY: {
         const innerMessage = message as BiometricCommandProvideUserKey;
         const userId = innerMessage.userId as UserId;
         const userKey = SymmetricCryptoKey.fromString(innerMessage.userKeyB64) as UserKey;

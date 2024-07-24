@@ -9,7 +9,7 @@ import {
   AuthRequestService,
   LoginEmailServiceAbstraction,
   LogoutReason,
-  BiometricUnlockResponse,
+  BiometricUnlockResponses,
   BiometricProvideUserKeyCommand,
 } from "@bitwarden/auth/common";
 import { ApiService as ApiServiceAbstraction } from "@bitwarden/common/abstractions/api.service";
@@ -1494,7 +1494,7 @@ export default class MainBackground {
     const responsePromise = this.nativeMessagingBackground.getResponse();
     await this.nativeMessagingBackground.send({ command: "biometricUnlock" });
     const response = await responsePromise;
-    return response.response === BiometricUnlockResponse.UNLOCKED;
+    return response.response === BiometricUnlockResponses.UNLOCKED;
   }
 
   private async fullSync(override = false) {

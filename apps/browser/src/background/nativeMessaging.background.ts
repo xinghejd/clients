@@ -1,8 +1,8 @@
 import { firstValueFrom } from "rxjs";
 
 import {
-  NativeMessageCommandType,
-  BiometricUnlockResponse,
+  NativeMessageCommandTypes,
+  BiometricUnlockResponses,
   BiometricCommandSetupEncryption,
 } from "@bitwarden/auth/common";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
@@ -133,7 +133,7 @@ export class NativeMessagingBackground {
             this.connected = false;
             this.port.disconnect();
             break;
-          case NativeMessageCommandType.SETUP_ENCRYPTION: {
+          case NativeMessageCommandTypes.SETUP_ENCRYPTION: {
             // Ignore since it belongs to another device
             if (message.appId !== this.appId) {
               return;
@@ -154,7 +154,7 @@ export class NativeMessagingBackground {
             this.secureSetupResolve();
             break;
           }
-          case NativeMessageCommandType.INVALIDATE_ENCRYPTION:
+          case NativeMessageCommandTypes.INVALIDATE_ENCRYPTION:
             // Ignore since it belongs to another device
             if (message.appId !== this.appId) {
               return;
@@ -177,7 +177,7 @@ export class NativeMessagingBackground {
             }
 
             break;
-          case NativeMessageCommandType.VERIFY_FINGERPRINT: {
+          case NativeMessageCommandTypes.VERIFY_FINGERPRINT: {
             if (this.sharedSecret == null) {
               this.validatingFingerprint = true;
               // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
@@ -186,7 +186,7 @@ export class NativeMessagingBackground {
             }
             break;
           }
-          case NativeMessageCommandType.WRONG_USER:
+          case NativeMessageCommandTypes.WRONG_USER:
             this.showWrongUserDialog();
             break;
           default:
@@ -310,8 +310,8 @@ export class NativeMessagingBackground {
     }
 
     switch (message.command) {
-      case NativeMessageCommandType.BIOMETRIC_UNLOCK: {
-        if (message.response === BiometricUnlockResponse.NOT_ENABLED) {
+      case NativeMessageCommandTypes.BIOMETRIC_UNLOCK: {
+        if (message.response === BiometricUnlockResponses.NOT_ENABLED) {
           this.messagingService.send("showDialog", {
             title: { key: "biometricsNotEnabledTitle" },
             content: { key: "biometricsNotEnabledDesc" },
@@ -320,7 +320,7 @@ export class NativeMessagingBackground {
             type: "warning",
           });
           break;
-        } else if (message.response === BiometricUnlockResponse.NOT_SUPPORTED) {
+        } else if (message.response === BiometricUnlockResponses.NOT_SUPPORTED) {
           this.messagingService.send("showDialog", {
             title: { key: "biometricsNotSupportedTitle" },
             content: { key: "biometricsNotSupportedDesc" },
@@ -329,7 +329,7 @@ export class NativeMessagingBackground {
             type: "warning",
           });
           break;
-        } else if (message.response === BiometricUnlockResponse.NO_USER_ID) {
+        } else if (message.response === BiometricUnlockResponses.NO_USER_ID) {
           this.messagingService.send("showDialog", {
             title: { key: "biometricsNoUserIdTitle" },
             content: { key: "biometricsNoUserIdDesc" },
@@ -338,7 +338,7 @@ export class NativeMessagingBackground {
             type: "warning",
           });
           break;
-        } else if (message.response === BiometricUnlockResponse.NO_USER) {
+        } else if (message.response === BiometricUnlockResponses.NO_USER) {
           this.messagingService.send("showDialog", {
             title: { key: "biometricsNoUserTitle" },
             content: { key: "biometricsNoUserDesc" },
@@ -347,7 +347,7 @@ export class NativeMessagingBackground {
             type: "warning",
           });
           break;
-        } else if (message.response === BiometricUnlockResponse.NO_CLIENT_KEY_HALF) {
+        } else if (message.response === BiometricUnlockResponses.NO_CLIENT_KEY_HALF) {
           this.messagingService.send("showDialog", {
             title: { key: "biometricsNoClientKeyHalfTitle" },
             content: { key: "biometricsNoClientKeyHalfDesc" },
@@ -356,14 +356,14 @@ export class NativeMessagingBackground {
             type: "warning",
           });
           break;
-        } else if (message.response === BiometricUnlockResponse.CANCELED) {
+        } else if (message.response === BiometricUnlockResponses.CANCELED) {
           break;
         }
 
         // Check for initial setup of biometric unlock
         const enabled = await firstValueFrom(this.biometricStateService.biometricUnlockEnabled$);
         if (enabled === null || enabled === false) {
-          if (message.response === BiometricUnlockResponse.UNLOCKED) {
+          if (message.response === BiometricUnlockResponses.UNLOCKED) {
             await this.biometricStateService.setBiometricUnlockEnabled(true);
           }
           break;
@@ -374,7 +374,7 @@ export class NativeMessagingBackground {
           break;
         }
 
-        if (message.response === BiometricUnlockResponse.UNLOCKED) {
+        if (message.response === BiometricUnlockResponses.UNLOCKED) {
           try {
             if (message.userKeyB64) {
               const userKey = new SymmetricCryptoKey(
