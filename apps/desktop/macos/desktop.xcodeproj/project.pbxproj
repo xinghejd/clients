@@ -279,9 +279,11 @@
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = "autofill-extension/autofill_extension.entitlements";
 				CODE_SIGN_IDENTITY = "Apple Development";
-				CODE_SIGN_STYLE = Automatic;
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Mac Developer";
+				CODE_SIGN_STYLE = Manual;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = LTZ2PFU5D6;
+				"DEVELOPMENT_TEAM[sdk=macosx*]" = LTZ2PFU5D6;
 				ENABLE_HARDENED_RUNTIME = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "autofill-extension/Info.plist";
@@ -296,6 +298,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "com.bitwarden.desktop.autofill-extension";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = "Bitwarden Desktop Autofill Development 2024";
 				SKIP_INSTALL = YES;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -307,9 +310,11 @@
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = "autofill-extension/autofill_extension.entitlements";
 				CODE_SIGN_IDENTITY = "Apple Development";
-				CODE_SIGN_STYLE = Automatic;
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Mac Developer";
+				CODE_SIGN_STYLE = Manual;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = LTZ2PFU5D6;
+				"DEVELOPMENT_TEAM[sdk=macosx*]" = LTZ2PFU5D6;
 				ENABLE_HARDENED_RUNTIME = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "autofill-extension/Info.plist";
@@ -324,6 +329,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "com.bitwarden.desktop.autofill-extension";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = "Bitwarden Desktop Autofill Development 2024";
 				SKIP_INSTALL = YES;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
