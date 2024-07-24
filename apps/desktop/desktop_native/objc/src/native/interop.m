@@ -35,6 +35,14 @@ NSString *_error(NSString *error) {
   return toReturn;
 }
 
+NSString *_error_er(NSError *error) {
+  return _error([error localizedDescription]);
+}
+
+NSString *_error_ex(NSException *error) {
+  return _error([NSString stringWithFormat:@"%@ (%@): %@", error.name, error.reason, [error callStackSymbols]]);
+}
+
 void _return(void* context, NSString *output) {
   if (!commandReturn(context, nsStringToObjCString(output))) {
     NSLog(@"Error: Failed to return command output");

@@ -18,8 +18,8 @@ export class DesktopAutofillService {
   ) {}
 
   async init() {
-    (window as any).testAutofill = () => this.status();
-    // (window as any).testAutofill = () => this.sync();
+    // (window as any).testAutofill = () => this.status();
+    (window as any).testAutofill = () => this.sync();
   }
 
   async sync() {
@@ -28,9 +28,9 @@ export class DesktopAutofillService {
       return this.logService.error("Error getting autofill status", status.error);
     }
 
-    // if (status.value.state.autofillEnabled) {
-    //   return;
-    // }
+    if (!status.value.state.autofillEnabled) {
+      return;
+    }
 
     const ciphers = await this.cipherService.getAllDecrypted();
 

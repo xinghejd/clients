@@ -25,6 +25,8 @@ void freeObjCString(struct ObjCString *value);
 
 NSString *_success(NSDictionary *value);
 NSString *_error(NSString *error);
+NSString *_error_er(NSError *error);
+NSString *_error_ex(NSException *error);
 void _return(void *context, NSString *output);
 
 struct ObjCString nsStringToObjCString(NSString *string);
