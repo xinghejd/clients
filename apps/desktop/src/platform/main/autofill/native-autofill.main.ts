@@ -34,7 +34,7 @@ export class NativeAutofillMain {
       const result = await autofill.runCommand(JSON.stringify(command));
       return JSON.parse(result);
     } catch (e) {
-      this.logService.error("Error running autofill command:", e);
+      this.logService.error(`Error running autofill command '${command.command}':`, e);
 
       if (e instanceof Error) {
         return { type: "error", error: e.stack ?? String(e) } as RunCommandResult<C>;
