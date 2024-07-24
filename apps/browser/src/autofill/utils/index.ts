@@ -101,19 +101,15 @@ export function buildSvgDomElement(svgString: string, ariaHidden = true): HTMLEl
  * @param command - The command to send.
  * @param options - The options to send with the command.
  */
-export async function sendExtensionMessage(
+export function sendExtensionMessage(
   command: string,
   options: Record<string, any> = {},
-): Promise<any | void> {
-  return new Promise((resolve) => {
-    chrome.runtime.sendMessage(Object.assign({ command }, options), (response) => {
-      if (chrome.runtime.lastError) {
-        // Do nothing
-      }
-
-      resolve(response);
-    });
-  });
+): Promise<any> {
+  try {
+    return chrome.runtime.sendMessage({ command, ...options });
+  } catch {
+    //  Do nothing
+  }
 }
 
 /**
