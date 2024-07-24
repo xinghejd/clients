@@ -148,6 +148,7 @@ pub mod autofill {
     #[napi]
     pub async fn run_command(value: String) -> napi::Result<String> {
         desktop_core::autofill::run_command(value)
+            .await
             .map_err(|e| napi::Error::from_reason(e.to_string()))
     }
 }

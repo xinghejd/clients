@@ -11,6 +11,10 @@ pub struct ObjCString {
     size: usize,
 }
 
+pub struct CommandContext {
+    // let (tx, rx) = oneshot::channel();
+}
+
 impl TryFrom<ObjCString> for String {
     type Error = anyhow::Error;
 
@@ -49,10 +53,12 @@ mod objc {
     }
 }
 
-pub fn run_command(input: String) -> Result<String> {
+pub async fn run_command(input: String) -> Result<String> {
     // Convert input to type that can be passed to ObjC code
     let c_input = CString::new(input)
         .context("Failed to convert Rust input string to a CString for use in call to ObjC code")?;
+
+    // let (tx, rx) = tokio::sync::oneshot::channel::<ObjCString>();
 
     // Call ObjC code
     let output = unsafe { objc::runCommand(null_mut(), c_input.as_ptr()) };
