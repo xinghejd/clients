@@ -10,7 +10,7 @@ export class BitLabel {
   constructor(private elementRef: ElementRef<HTMLInputElement>) {}
 
   @HostBinding("class") @Input() get classList() {
-    return ["tw-truncate"];
+    return ["tw-truncate", "tw-inline-flex", "tw-gap-1", "tw-items-baseline", "tw-flex-row"];
   }
 
   @HostBinding("title") get title() {

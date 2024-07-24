@@ -40,7 +40,7 @@ export class BitInputDirective implements BitFormFieldControl {
       "tw-bg-background",
       "tw-border-none",
       "focus:tw-outline-none",
-      "[&:is(input,textarea):read-only]:tw-bg-secondary-100",
+      "[&:is(input,textarea):disabled]:tw-bg-secondary-100",
     ];
 
     if (this.parentFormField === null) {
@@ -116,6 +116,10 @@ export class BitInputDirective implements BitFormFieldControl {
       this.elementRef.nativeElement.setSelectionRange(end, end);
       this.elementRef.nativeElement.focus();
     });
+  }
+
+  get readOnly(): boolean {
+    return this.elementRef.nativeElement.readOnly;
   }
 
   get standaloneInputClasses() {
