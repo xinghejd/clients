@@ -38,6 +38,7 @@ NSString *_error(NSString *error) {
 void _return(void* context, NSString *output) {
   if (!commandReturn(context, nsStringToObjCString(output))) {
     NSLog(@"Error: Failed to return command output");
+    // NOTE: This will most likely crash the application
     @throw [NSException exceptionWithName:@"CommandReturnError" reason:@"Failed to return command output" userInfo:nil];
   }
 }

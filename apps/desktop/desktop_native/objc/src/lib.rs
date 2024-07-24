@@ -55,12 +55,10 @@ impl Drop for ObjCString {
 }
 
 mod objc {
-    use std::ffi::c_int;
-
     use super::*;
 
     extern "C" {
-        pub fn runCommand(context: &mut CommandContext, value: *const c_char) -> ObjCString;
+        pub fn runCommand(context: &mut CommandContext, value: *const c_char);
         pub fn freeObjCString(value: &ObjCString);
     }
 

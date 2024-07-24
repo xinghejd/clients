@@ -6,8 +6,8 @@
 #import "../interop.h"
 #import "sync.h"
 
-// 'run' is because the name clashes with internal macOS function
-NSString *runSync(NSDictionary *params) {
+// 'run' is added to the name because it clashes with internal macOS function
+void runSync(void* context, NSDictionary *params) {
   NSArray *credentials = params[@"credentials"];
 
   // Map credentials to ASPasswordCredential objects
@@ -35,5 +35,5 @@ NSString *runSync(NSDictionary *params) {
       }
     }];
 
-  return result;
+  _return(context, result);
 }

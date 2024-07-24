@@ -33,14 +33,16 @@ BOOL passwordSupported() {
   }
 }
 
-NSString *status(NSDictionary *params) {
-  return _success(@{
-    @"support": @{
-      @"fido2": @(fido2Supported()),
-      @"password": @(passwordSupported())
-    },
-    @"state": @{
-      @"enabled": @(autofillEnabled())
-    }
-  });
+void status(void* context, NSDictionary *params) {
+  _return(context,
+    _success(@{
+      @"support": @{
+        @"fido2": @(fido2Supported()),
+        @"password": @(passwordSupported())
+      },
+      @"state": @{
+        @"enabled": @(autofillEnabled())
+      }
+    })
+  );
 }

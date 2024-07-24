@@ -16,17 +16,16 @@
   #error ARC must be enabled!
 #endif
 
-NSString *internalRunCommand(void* context, NSDictionary *input) {
-  _return(context, _success(@{@"message": @"commandReturn from Objective-C"}));
+void pickAndRunCommand(void* context, NSDictionary *input) {
   NSString *command = input[@"command"];
 
   if ([command isEqual:@"status"]) {
-    return status(input);
+    return status(context, input);
   } else if ([command isEqual:@"sync"]) {
-    return runSync(input);
+    return runSync(context, input);
   }
 
-  return _error([NSString stringWithFormat:@"Unknown command: %@", command]);
+  _return(context, _error([NSString stringWithFormat:@"Unknown command: %@", command]));
 }
 
 /// [Callable from Rust]
@@ -34,7 +33,7 @@ NSString *internalRunCommand(void* context, NSDictionary *input) {
 /// This function is called from Rust and is the entry point for running Objective-C code.
 /// It takes a JSON string as input, deserializes it, runs the command, and serializes the output.
 /// It also catches any exceptions that occur during the command execution.
-struct ObjCString runCommand(void *context, char* inputJson) {
+void runCommand(void *context, char* inputJson) {
   @autoreleasepool {
     @try {
       NSString *inputString = cStringToNSString(inputJson);
@@ -42,15 +41,14 @@ struct ObjCString runCommand(void *context, char* inputJson) {
       NSError *error = nil;
       NSDictionary *input = parseJson(inputString, error);
       if (error) {
-        NSString *outputString = _error([NSString stringWithFormat:@"Error occured while deserializing input params: %@", error]);
-        return nsStringToObjCString(outputString);
+        NSLog(@"Error occured while deserializing input params: %@", error);
+        return _return(context, _error([NSString stringWithFormat:@"Error occured while deserializing input params: %@", error]));
       }
 
-      NSString *outputString = internalRunCommand(context, input);
-      return nsStringToObjCString(outputString);
+      pickAndRunCommand(context, input);
     } @catch (NSException *e) {
-      NSString *outputString = _error([NSString stringWithFormat:@"Error occurred while running Objective-C command: %@", e]);
-      return nsStringToObjCString(outputString);
+      NSLog(@"Error occurred while running Objective-C command: %@", e);
+      _return(context, _error([NSString stringWithFormat:@"Error occurred while running Objective-C command: %@", e]));
     }
   }
 }
