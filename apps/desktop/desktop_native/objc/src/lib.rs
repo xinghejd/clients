@@ -66,7 +66,7 @@ mod objc {
 
     /// This function is called from the ObjC code to return the output of the command
     #[no_mangle]
-    pub extern "C" fn commandReturn(context: &mut CommandContext, value: ObjCString) -> c_int {
+    pub extern "C" fn commandReturn(context: &mut CommandContext, value: ObjCString) -> bool {
         let value: String = match value.try_into() {
             Ok(value) => value,
             Err(e) => {
@@ -75,7 +75,7 @@ mod objc {
                     e
                 );
 
-                return 1;
+                return false;
             }
         };
 
@@ -87,9 +87,11 @@ mod objc {
                     e
                 );
 
-                1
+                return false;
             }
-        }
+        };
+
+        return true;
     }
 }
 

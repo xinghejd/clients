@@ -3,11 +3,11 @@
 #import <AuthenticationServices/ASCredentialIdentityStoreState.h>
 #import <AuthenticationServices/ASCredentialServiceIdentifier.h>
 #import <AuthenticationServices/ASPasswordCredentialIdentity.h>
-#import "../utils.h"
+#import "../interop.h"
 #import "sync.h"
 
-// _ is because the name clashes with internal macOS function
-NSString *_sync(NSDictionary *params) {
+// 'run' is because the name clashes with internal macOS function
+NSString *runSync(NSDictionary *params) {
   NSArray *credentials = params[@"credentials"];
 
   // Map credentials to ASPasswordCredential objects
@@ -29,9 +29,9 @@ NSString *_sync(NSDictionary *params) {
   [ASCredentialIdentityStore.sharedStore saveCredentialIdentities:passwordCredentials
     completion:^(BOOL success, NSError * _Nullable error) {
       if (error) {
-        result = toError(error);
+        result = _error(error);
       } else {
-        result = toSuccess(@{@"added": @([passwordCredentials count])});
+        result = _success(@{@"added": @([passwordCredentials count])});
       }
     }];
 

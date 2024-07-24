@@ -1,7 +1,7 @@
 #import <Foundation/Foundation.h>
 #import <AuthenticationServices/ASCredentialIdentityStore.h>
 #import <AuthenticationServices/ASCredentialIdentityStoreState.h>
-#import "../utils.h"
+#import "../interop.h"
 #import "status.h"
 
 BOOL autofillEnabled() {
@@ -34,7 +34,7 @@ BOOL passwordSupported() {
 }
 
 NSString *status(NSDictionary *params) {
-  return toSuccess(@{
+  return _success(@{
     @"support": @{
       @"fido2": @(fido2Supported()),
       @"password": @(passwordSupported())

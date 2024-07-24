@@ -1,7 +1,7 @@
 #import <Foundation/Foundation.h>
 #import "commands/status.h"
 #import "commands/sync.h"
-#import "rust.h"
+#import "interop.h"
 #import "utils.h"
 
 // Tips for developing Objective-C code:
@@ -16,55 +16,20 @@
   #error ARC must be enabled!
 #endif
 
-/// Converts an NSString to an ObjCString struct
-struct ObjCString nsStringToObjCString(NSString* string) {
-  size_t size = [string lengthOfBytesUsingEncoding:NSUTF8StringEncoding] + 1;
-  char *value = malloc(size);
-  [string getCString:value maxLength:size encoding:NSUTF8StringEncoding];
-
-  struct ObjCString objCString;
-  objCString.value = value;
-  objCString.size = size;
-
-  return objCString;
-}
-
-/// Converts a C-string to an NSString
-NSString* cStringToNSString(char* string) {
-  return [[NSString alloc] initWithUTF8String:string];
-}
-
-/// Frees the memory allocated for an ObjCString
-void freeObjCString(struct ObjCString *value) {
-  free(value->value);
-}
-
-NSDictionary *parseJson(NSString *jsonString, NSError *error) {
-  NSData *data = [jsonString dataUsingEncoding:NSUTF8StringEncoding];
-  NSDictionary *json = [NSJSONSerialization JSONObjectWithData:data options:0 error:&error];
-  if (error) {
-    return nil;
-  }
-  return json;
-}
-
-void _return(void* context, NSString *output) {
-  commandReturn(context, nsStringToObjCString(output));
-}
-
 NSString *internalRunCommand(void* context, NSDictionary *input) {
-  _return(context, toSuccess(@{@"message": @"commandReturn from Objective-C"}));
+  _return(context, _success(@{@"message": @"commandReturn from Objective-C"}));
   NSString *command = input[@"command"];
 
   if ([command isEqual:@"status"]) {
     return status(input);
   } else if ([command isEqual:@"sync"]) {
-    return _sync(input);
+    return runSync(input);
   }
 
-  return toError([NSString stringWithFormat:@"Unknown command: %@", command]);
+  return _error([NSString stringWithFormat:@"Unknown command: %@", command]);
 }
 
+/// [Callable from Rust]
 /// Runs a command with the given input JSON
 /// This function is called from Rust and is the entry point for running Objective-C code.
 /// It takes a JSON string as input, deserializes it, runs the command, and serializes the output.
@@ -77,14 +42,14 @@ struct ObjCString runCommand(void *context, char* inputJson) {
       NSError *error = nil;
       NSDictionary *input = parseJson(inputString, error);
       if (error) {
-        NSString *outputString = toError([NSString stringWithFormat:@"Error occured while deserializing input params: %@", error]);
+        NSString *outputString = _error([NSString stringWithFormat:@"Error occured while deserializing input params: %@", error]);
         return nsStringToObjCString(outputString);
       }
 
       NSString *outputString = internalRunCommand(context, input);
       return nsStringToObjCString(outputString);
     } @catch (NSException *e) {
-      NSString *outputString = toError([NSString stringWithFormat:@"Error occurred while running Objective-C command: %@", e]);
+      NSString *outputString = _error([NSString stringWithFormat:@"Error occurred while running Objective-C command: %@", e]);
       return nsStringToObjCString(outputString);
     }
   }

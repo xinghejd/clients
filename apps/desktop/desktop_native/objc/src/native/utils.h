@@ -3,7 +3,7 @@
 
 #import <Foundation/Foundation.h>
 
-NSString *toSuccess(NSDictionary *value);
-NSString *toError(NSString *error);
+NSDictionary *parseJson(NSString *jsonString, NSError *error);
+NSString *serializeJson(NSDictionary *dictionary, NSError *error);
 
 #endif
