@@ -965,12 +965,32 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
       }
 
       const { height } = entry.contentRect;
+      this.toggleScrollClass(height);
       this.postMessageToParent({
         command: "updateAutofillInlineMenuListHeight",
         styles: { height: `${height}px` },
       });
       break;
     }
+  };
+
+  /**
+   * Toggles the scrollbar class on the inline menu list actions container.
+   *
+   * @param height - The height of the inline menu list actions container.
+   */
+  private toggleScrollClass = (height: number) => {
+    if (!this.ciphersList) {
+      return;
+    }
+    const scrollbarClass = "inline-menu-list-actions--scrollbar";
+
+    if (height >= 170) {
+      this.ciphersList.classList.add(scrollbarClass);
+      return;
+    }
+
+    this.ciphersList.classList.remove(scrollbarClass);
   };
 
   /**
