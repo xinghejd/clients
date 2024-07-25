@@ -32,7 +32,7 @@
   <div
     class="tw-relative tw-flex tw-flex-col tw-overflow-hidden"
     [ngClass]="{
-      'tw-min-h-60': loading
+      'tw-min-h-60': loading,
     }"
   >
     <div
@@ -47,7 +47,7 @@
         'tw-overflow-y-auto': !loading,
         'tw-invisible tw-overflow-y-hidden': loading,
         'tw-bg-background': background === 'default',
-        'tw-bg-background-alt': background === 'alt'
+        'tw-bg-background-alt': background === 'alt',
       }"
     >
       <ng-content select="[bitDialogContent]"></ng-content>
