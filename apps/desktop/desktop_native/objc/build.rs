@@ -1,4 +1,5 @@
 fn main() {
+    // TODO: Auto discover all .m files in the src/native directory
     cc::Build::new()
         .file("src/native/commands/status.m")
         .file("src/native/commands/sync.m")
