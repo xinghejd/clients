@@ -9,10 +9,15 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 
 import { BrowserApi } from "../../platform/browser/browser-api";
 import { ScriptInjectorService } from "../../platform/services/abstractions/script-injector.service";
-import AutofillPageDetails from "../models/autofill-page-details";
 import { AutofillService } from "../services/abstractions/autofill.service";
 
-export class AutoSubmitLoginBackground {
+import {
+  AutoSubmitLoginBackground as AutoSubmitLoginBackgroundAbstraction,
+  AutoSubmitLoginBackgroundExtensionMessageHandlers,
+  AutoSubmitLoginMessage,
+} from "./abstractions/auto-submit-login.background";
+
+export class AutoSubmitLoginBackground implements AutoSubmitLoginBackgroundAbstraction {
   private validIdpHosts: Set<string> = new Set([
     "top-frame.local:8890",
     "dev-836655.oktapreview.com",
@@ -20,7 +25,12 @@ export class AutoSubmitLoginBackground {
   private validAutoSubmitHosts: Set<string> = new Set();
   private mostRecentIdpHost: { url?: string; tabId?: number } = {};
   private currentAutoSubmitHostData: { url?: string; tabId?: number } = {};
-  private isSafariBrowser: boolean = false;
+  private readonly isSafariBrowser: boolean = false;
+  private readonly extensionMessageHandlers: AutoSubmitLoginBackgroundExtensionMessageHandlers = {
+    triggerAutoSubmitLogin: ({ message, sender }) => this.triggerAutoSubmitLogin(message, sender),
+    multiStepAutoSubmitLoginComplete: ({ sender }) =>
+      this.handleMultiStepAutoSubmitLoginComplete(sender),
+  };
 
   constructor(
     private logService: LogService,
@@ -39,8 +49,6 @@ export class AutoSubmitLoginBackground {
         }
       })
       .catch((error) => this.logService.error(error));
-
-    // this.init();
   }
 
   init() {
@@ -59,59 +67,81 @@ export class AutoSubmitLoginBackground {
     }
   }
 
-  private clearAutoSubmitHostData = () => {
-    this.validAutoSubmitHosts.clear();
-    this.currentAutoSubmitHostData = {};
-    this.mostRecentIdpHost = {};
-  };
-
   private handleOnBeforeRequest = (details: chrome.webRequest.WebRequestBodyDetails) => {
     const requestInitiator = this.getRequestInitiator(details);
     const isValidInitiator = this.isValidInitiator(requestInitiator);
 
-    if (this.validAutoSubmitHosts.size > 0 && isValidInitiator && details.method === "POST") {
-      this.clearAutoSubmitHostData();
-      return;
-    }
-
     if (
-      this.validAutoSubmitHosts.size > 0 &&
-      this.isRequestInMainFrame(details) &&
-      (!isValidInitiator || !this.isValidAutoSubmitHost(details.url))
+      this.postRequestEncounteredAfterSubmission(details, isValidInitiator) ||
+      this.requestRedirectsToInvalidHost(details, isValidInitiator)
     ) {
       this.clearAutoSubmitHostData();
       return;
     }
 
     if (isValidInitiator && this.shouldRouteTriggerAutoSubmit(details, requestInitiator)) {
-      if (this.isRequestInMainFrame(details)) {
-        this.currentAutoSubmitHostData = {
-          url: details.url,
-          tabId: details.tabId,
-        };
-      }
-      const autoSubmitHost = this.getUrlHost(details.url);
-      this.validAutoSubmitHosts.add(autoSubmitHost);
-      chrome.webNavigation.onCompleted.removeListener(this.handleAutoSubmitHostNavigationCompleted);
-      chrome.webNavigation.onCompleted.addListener(this.handleAutoSubmitHostNavigationCompleted, {
-        url: [{ hostEquals: autoSubmitHost }],
-      });
-
+      this.setupAutoSubmitFlow(details);
       return;
     }
 
+    this.disableAutoSubmitFlow(requestInitiator, details).catch((error) =>
+      this.logService.error(error),
+    );
+  };
+
+  private postRequestEncounteredAfterSubmission = (
+    details: chrome.webRequest.WebRequestBodyDetails,
+    isValidInitiator: boolean,
+  ) => {
+    return details.method === "POST" && this.validAutoSubmitHosts.size > 0 && isValidInitiator;
+  };
+
+  private requestRedirectsToInvalidHost = (
+    details: chrome.webRequest.WebRequestBodyDetails,
+    isValidInitiator: boolean,
+  ) => {
+    return (
+      this.validAutoSubmitHosts.size > 0 &&
+      this.isRequestInMainFrame(details) &&
+      (!isValidInitiator || !this.isValidAutoSubmitHost(details.url))
+    );
+  };
+
+  private setupAutoSubmitFlow = (details: chrome.webRequest.WebRequestBodyDetails) => {
+    if (this.isRequestInMainFrame(details)) {
+      this.currentAutoSubmitHostData = {
+        url: details.url,
+        tabId: details.tabId,
+      };
+    }
+
+    const autoSubmitHost = this.getUrlHost(details.url);
+    this.validAutoSubmitHosts.add(autoSubmitHost);
+    chrome.webNavigation.onCompleted.removeListener(this.handleAutoSubmitHostNavigationCompleted);
+    chrome.webNavigation.onCompleted.addListener(this.handleAutoSubmitHostNavigationCompleted, {
+      url: [{ hostEquals: autoSubmitHost }],
+    });
+  };
+
+  private disableAutoSubmitFlow = async (
+    requestInitiator: string,
+    details: chrome.webRequest.WebRequestBodyDetails,
+  ) => {
     if (this.isValidAutoSubmitHost(requestInitiator)) {
       this.removeUrlFromAutoSubmitHosts(requestInitiator);
       return;
     }
 
-    BrowserApi.getTab(details.tabId)
-      .then((tab) => {
-        if (this.isValidAutoSubmitHost(tab?.url)) {
-          this.removeUrlFromAutoSubmitHosts(tab.url);
-        }
-      })
-      .catch((error) => this.logService.error(error));
+    const tab = await BrowserApi.getTab(details.tabId);
+    if (this.isValidAutoSubmitHost(tab?.url)) {
+      this.removeUrlFromAutoSubmitHosts(tab.url);
+    }
+  };
+
+  private clearAutoSubmitHostData = () => {
+    this.validAutoSubmitHosts.clear();
+    this.currentAutoSubmitHostData = {};
+    this.mostRecentIdpHost = {};
   };
 
   private handleWebRequestOnBeforeRedirect = (
@@ -133,17 +163,12 @@ export class AutoSubmitLoginBackground {
       return;
     }
 
-    this.triggerAutoSubmitLogin(details.tabId).catch((error) => this.logService.error(error));
+    this.injectAutoSubmitLoginScript(details.tabId).catch((error) => this.logService.error(error));
     chrome.webNavigation.onCompleted.removeListener(this.handleAutoSubmitHostNavigationCompleted);
   };
 
-  private getAuthStatus = async () => {
-    return firstValueFrom(this.authService.activeAccountStatus$);
-  };
-
-  private triggerAutoSubmitLogin = async (tabId: number) => {
-    const authStatus = await this.getAuthStatus();
-    if (authStatus !== AuthenticationStatus.Unlocked) {
+  private injectAutoSubmitLoginScript = async (tabId: number) => {
+    if ((await this.getAuthStatus()) !== AuthenticationStatus.Unlocked) {
       return;
     }
 
@@ -157,37 +182,8 @@ export class AutoSubmitLoginBackground {
     });
   };
 
-  private handleExtensionMessage = async (
-    message: {
-      command: string;
-      pageDetails: AutofillPageDetails;
-    },
-    sender: chrome.runtime.MessageSender,
-  ) => {
-    const { tab, url } = sender;
-
-    if (tab?.id !== this.currentAutoSubmitHostData.tabId || !this.isValidAutoSubmitHost(url)) {
-      return;
-    }
-
-    if (message.command === "triggerAutoSubmitLogin") {
-      await this.autofillService.doAutoFillOnTab(
-        [
-          {
-            frameId: sender.frameId,
-            tab,
-            details: message.pageDetails,
-          },
-        ],
-        tab,
-        true,
-        true,
-      );
-    }
-
-    if (message.command === "multiStepAutoSubmitLoginComplete") {
-      this.removeUrlFromAutoSubmitHosts(url);
-    }
+  private getAuthStatus = async () => {
+    return firstValueFrom(this.authService.activeAccountStatus$);
   };
 
   private isValidInitiator = (url: string) => {
@@ -195,10 +191,6 @@ export class AutoSubmitLoginBackground {
   };
 
   private isValidIdpHost = (url: string) => {
-    if (!url) {
-      return false;
-    }
-
     const host = this.getUrlHost(url);
     if (!host) {
       return false;
@@ -208,10 +200,6 @@ export class AutoSubmitLoginBackground {
   };
 
   private isValidAutoSubmitHost = (url: string) => {
-    if (!url) {
-      return false;
-    }
-
     const host = this.getUrlHost(url);
     if (!host) {
       return false;
@@ -248,6 +236,10 @@ export class AutoSubmitLoginBackground {
   };
 
   private getUrlHost = (url: string) => {
+    if (!url) {
+      return "";
+    }
+
     try {
       const urlObj = new URL(url);
       return urlObj.host;
@@ -278,6 +270,54 @@ export class AutoSubmitLoginBackground {
     }
 
     return details.type === "main_frame";
+  };
+
+  private triggerAutoSubmitLogin = async (
+    message: AutoSubmitLoginMessage,
+    sender: chrome.runtime.MessageSender,
+  ) => {
+    await this.autofillService.doAutoFillOnTab(
+      [
+        {
+          frameId: sender.frameId,
+          tab: sender.tab,
+          details: message.pageDetails,
+        },
+      ],
+      sender.tab,
+      true,
+      true,
+    );
+  };
+
+  private handleMultiStepAutoSubmitLoginComplete = async (sender: chrome.runtime.MessageSender) => {
+    this.removeUrlFromAutoSubmitHosts(sender.url);
+  };
+
+  private handleExtensionMessage = async (
+    message: AutoSubmitLoginMessage,
+    sender: chrome.runtime.MessageSender,
+    sendResponse: (response?: any) => void,
+  ) => {
+    const { tab, url } = sender;
+    if (tab?.id !== this.currentAutoSubmitHostData.tabId || !this.isValidAutoSubmitHost(url)) {
+      return;
+    }
+
+    const handler: CallableFunction | undefined = this.extensionMessageHandlers[message?.command];
+    if (!handler) {
+      return null;
+    }
+
+    const messageResponse = handler({ message, sender });
+    if (typeof messageResponse === "undefined") {
+      return null;
+    }
+
+    Promise.resolve(messageResponse)
+      .then((response) => sendResponse(response))
+      .catch(this.logService.error);
+    return true;
   };
 
   private async initSafari() {
