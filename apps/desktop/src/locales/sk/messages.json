@@ -539,6 +539,18 @@
       }
     }
   },
+  "masterPassword": {
+    "message": "Hlavné heslo"
+  },
+  "masterPassImportant": {
+    "message": "Vaše hlavné heslo sa nebude dať obnoviť, ak ho zabudnete!"
+  },
+  "confirmMasterPassword": {
+    "message": "Potvrdiť hlavné heslo"
+  },
+  "masterPassHintLabel": {
+    "message": "Nápoveda pre hlavné heslo"
+  },
   "settings": {
     "message": "Nastavenia"
   },
@@ -614,6 +626,9 @@
   },
   "verificationCodeRequired": {
     "message": "Overovací kód je povinný."
+  },
+  "webauthnCancelOrTimeout": {
+    "message": "Overenie bolo zrušené alebo trvalo príliš dlho. Skúste to znova."
   },
   "invalidVerificationCode": {
     "message": "Neplatný verifikačný kód"
@@ -1955,6 +1970,9 @@
   "emailVerificationRequired": {
     "message": "Vyžaduje sa overenie e-mailu"
   },
+  "emailVerifiedV2": {
+    "message": "Overený e-mail"
+  },
   "emailVerificationRequiredDesc": {
     "message": "Na používanie tejto funkcie musíte overiť svoj e-mail."
   },
@@ -2762,6 +2780,9 @@
         "example": "My Org Name"
       }
     }
+  },
+  "duoHealthCheckResultsInNullAuthUrlError": {
+    "message": "Chyba pri pripájaní k službe Duo. Použite inú metódu dvojstupňového prihlásenia alebo kontaktujte Duo a požiadajte o pomoc."
   },
   "launchDuoAndFollowStepsToFinishLoggingIn": {
     "message": "Spustite DuO a postupujte podľa pokynov na dokončenie prihlásenia."

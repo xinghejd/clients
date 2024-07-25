@@ -42,6 +42,12 @@
   "cardholderName": {
     "message": "Kart sahibinin adı"
   },
+  "loginCredentials": {
+    "message": "Giriş məlumatları"
+  },
+  "authenticatorKey": {
+    "message": "Kimlik doğrulayıcı açarı"
+  },
   "number": {
     "message": "Nömrə"
   },
@@ -138,6 +144,15 @@
   "authenticatorKeyTotp": {
     "message": "Kimlik doğrulayıcı açarı (TOTP)"
   },
+  "totpHelperTitle": {
+    "message": "2 addımlı doğrulama problemsiz edin"
+  },
+  "totpHelper": {
+    "message": "Bitwarden, 2 addımlı doğrulama kodlarını saxlaya və doldura bilər. Açarı kopyalayıb bu xanaya yapışdırın."
+  },
+  "totpHelperWithCapture": {
+    "message": "Bitwarden, 2 addımlı doğrulama kodlarını saxlaya və doldura bilər. Bu veb sayt kimlik doğrulayıcı QR kodunun ekran şəklini çəkmək üçün kamera ikonunu seçin, ya da açarı kopyalayıb bu xanaya yapışdırın."
+  },
   "folder": {
     "message": "Qovluq"
   },
@@ -174,7 +189,7 @@
     "description": "This is the folder for uncategorized items"
   },
   "selfOwnershipLabel": {
-    "message": "You",
+    "message": "Siz",
     "description": "Used as a label to indicate that the user is the owner of an item."
   },
   "addFolder": {
@@ -406,13 +421,13 @@
     "message": "Element"
   },
   "itemDetails": {
-    "message": "Item details"
+    "message": "Element detalları"
   },
   "itemName": {
-    "message": "Item name"
+    "message": "Element adı"
   },
   "cannotRemoveViewOnlyCollections": {
-    "message": "You cannot remove collections with View only permissions: $COLLECTIONS$",
+    "message": "\"Yalnız baxma\" icazələrinə sahib kolleksiyaları silə bilməzsiniz: $COLLECTIONS$",
     "placeholders": {
       "collections": {
         "content": "$1",
@@ -611,6 +626,18 @@
   },
   "loginExpired": {
     "message": "Seansın müddəti bitdi."
+  },
+  "restartRegistration": {
+    "message": "Restart registration"
+  },
+  "expiredLink": {
+    "message": "Expired link"
+  },
+  "pleaseRestartRegistrationOrTryLoggingIn": {
+    "message": "Please restart registration or try logging in."
+  },
+  "youMayAlreadyHaveAnAccount": {
+    "message": "You may already have an account"
   },
   "logOutConfirmation": {
     "message": "Çıxış etmək istədiyinizə əminsiniz?"
@@ -854,8 +881,8 @@
   "emailAddress": {
     "message": "E-poçt ünvanı"
   },
-  "yourVaultIsLocked": {
-    "message": "Anbarınız kilidlənib. Davam etmək üçün ana parolunuzu doğrulayın."
+  "yourVaultIsLockedV2": {
+    "message": "Anbarınız kilidlənib."
   },
   "uuid": {
     "message": "UUID"
@@ -1060,7 +1087,7 @@
     "message": "Davam etmək istədiyinizə əminsiniz?"
   },
   "moveSelectedItemsDesc": {
-    "message": "Seçdiyiniz $COUNT$ elementi daşımaq istədiyiniz qovluğu seçin.",
+    "message": "Seçilmiş $COUNT$ elementi əlavə etmək istədiyiniz qovluğu seçin.",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -1690,6 +1717,9 @@
   },
   "twoStepAuthenticatorScanCodeV2": {
     "message": "Kimlik doğrulayıcı tətbiqinizlə aşağıdakı QR kodu skan edin və ya açarı daxil edin."
+  },
+  "twoStepAuthenticatorQRCanvasError": {
+    "message": "QR kod yüklənə bilmədi. Yenidən sınayın və ya aşağıdakı açarı istifadə edin."
   },
   "key": {
     "message": "Açar"
@@ -3399,6 +3429,9 @@
   "emailVerified": {
     "message": "Hesab e-poçtu doğrulandı"
   },
+  "emailVerifiedV2": {
+    "message": "E-poçt doğrulandı"
+  },
   "emailVerifiedFailed": {
     "message": "E-poçtunuz doğrulana bilmir. Yeni bir doğrulama e-poçtu göndərməyə çalışın."
   },
@@ -3777,8 +3810,8 @@
   "nothingSelected": {
     "message": "Heç nə seçmədiniz."
   },
-  "receiveMarketingEmails": {
-    "message": "Elanlar, məsləhətlər və araşdırma fürsətləri üçün Bitwarden-dən e-poçt alın."
+  "receiveMarketingEmailsV2": {
+    "message": "Get advice, announcements, and research opportunities from Bitwarden in your inbox."
   },
   "unsubscribe": {
     "message": "Abunəlikdən çıx"
@@ -5513,6 +5546,9 @@
   "verificationCodeRequired": {
     "message": "Doğrulama kodu tələb olunur."
   },
+  "webauthnCancelOrTimeout": {
+    "message": "Kimlik doğrulama ləğv edildi və ya çox uzun çəkdi. Lütfən yenidən sınayın."
+  },
   "invalidVerificationCode": {
     "message": "Yararsız doğrulama kodu"
   },
@@ -6203,6 +6239,9 @@
         "example": "4"
       }
     }
+  },
+  "duoHealthCheckResultsInNullAuthUrlError": {
+    "message": "Duo xidmətinə bağlanarkən xəta baş verdi. Fərqli iki addımlı giriş üsulu istifadə edin və ya kömək üçün Duo ilə əlaqə saxlayın."
   },
   "launchDuoAndFollowStepsToFinishLoggingIn": {
     "message": "DUO-nu başladın və giriş prosesini tamamlamaq üçün addımları izləyin."
@@ -7877,7 +7916,7 @@
     "message": "Bu kolleksiyalara təyin et"
   },
   "bulkCollectionAssignmentDialogDescription": {
-    "message": "Elementlərin paylaşılacağı kolleksiyaları seçin. Bir kolleksiyada bir element güncəlləndikdə, bütün kolleksiyalarda əks olunacaq. Elementləri, yalnız bu kolleksiyalara müraciət edə bilən təşkilat üzvləri görə bilər."
+    "message": "Yalnız bu kolleksiyalara müraciəti olan təşkilat üzvləri bu elementləri görə biləcək."
   },
   "selectCollectionsToAssign": {
     "message": "Təyin ediləcək kolleksiyaları seçin"
@@ -8155,23 +8194,6 @@
   "restrictedGroupAccessDesc": {
     "message": "Özünüzü bir qrupa əlavə edə bilməzsiniz."
   },
-  "unassignedItemsBannerSelfHost": {
-    "message": "Bildiriş: 2 May 2024-cü ildən etibarən təyin edilməmiş təşkilat elementləri artıq cihazlar arasında Bütün Anbarlar görünüşündə görünməyən və yalnız Admin Konsolu vasitəsilə əlçatan olacaq. Bu elementləri görünən etmək üçün Admin Konsolundan bir kolleksiyaya təyin edin."
-  },
-  "unassignedItemsBannerNotice": {
-    "message": "Bildiriş: Təyin edilməyən təşkilat elementləri artıq Bütün Anbarlar görünüşündə görünən olmayacaq və yalnız Admin Konsolu vasitəsilə əlçatan olacaq."
-  },
-  "unassignedItemsBannerSelfHostNotice": {
-    "message": "Bildiriş: 16 May 2024-cü il tarixindən etibarən, təyin edilməyən təşkilat elementləri cihazlar arasında və Bütün Anbarlar görünüşündə görünən olmayacaq və yalnız Admin Konsolu vasitəsilə əlçatan olacaq."
-  },
-  "unassignedItemsBannerCTAPartOne": {
-    "message": "Bu elementləri görünən etmək üçün",
-    "description": "This will be part of a larger sentence, which will read like so: Assign these items to a collection from the Admin Console to make them visible."
-  },
-  "unassignedItemsBannerCTAPartTwo": {
-    "message": "bir kolleksiyaya təyin edin.",
-    "description": "This will be part of a larger sentence, which will read like so: Assign these items to a collection from the Admin Console to make them visible."
-  },
   "deleteProvider": {
     "message": "Provayderi sil"
   },
@@ -8439,6 +8461,9 @@
   "memberAccessReportDesc": {
     "message": "Üzvlərin düzgün kimlik məlumatlarına müraciət etdiklərinə və onların hesabınlarının güvəndə olduğuna əmin olun. Üzv müraciəti və hesab konfiqurasiyalarının CSV-sini əldə etmək üçün bu hesabatı istifadə edin."
   },
+  "memberAccessReportPageDesc": {
+    "message": "Qruplar, kolleksiyalar və kolleksiya elementləri arasında təşkilat üzvlərinin müraciətini yoxlanışdan keçirin. CSV xaricə köçürməsi, kolleksiya icazələri və hesab konfiqurasiyaları haqqında məlumatlar da daxil olmaqla hər bir üzv üçün detallı məlumat təqdim edir."
+  },
   "higherKDFIterations": {
     "message": "Daha yüksək KDF iterasiyaları, ana parolunuzu təcavüzkar tərəfindən \"brute force\" hücumuna qarşı qorumağa kömək edir."
   },
@@ -8511,14 +8536,63 @@
   "downloadCSV": {
     "message": "CSV-ni endir"
   },
-  "billingHistoryDescription": {
-    "message": "Hər faktura tarixi üzrə müştəri detallarını almaq üçün bir CSV endirin. Bərabər dəyərdəki xidmət haqları CSV-ə daxil deyil və əlaqələndirilmiş fakturadan fərqli ola bilər. Ən dəqiq faktura detalları üçün aylıq fakturalarınıza istinad edin.",
-    "description": "A paragraph on the Billing History page of the Provider Portal letting users know they can download a CSV report for their invoices that does not include prorations."
-  },
   "monthlySubscriptionUserSeatsMessage": {
     "message": "Abunəliyinizə edilən tənzimləmələr, növbəti faktura dövrünüzdə faktura cəmlərinizə bərabər sayda paylanan ödəniş haqqı ilə nəticələnəcək. "
   },
   "annualSubscriptionUserSeatsMessage": {
     "message": "Abunəliyinizə edilən tənzimləmələr, aylıq faktura dövründə bərabər paylanan ödəniş haqqı ilə nəticələnəcək. "
+  },
+  "billingHistoryDescription": {
+    "message": "Hər faktura tarixi üzrə müştəri detallarını almaq üçün bir CSV endirin. Bərabər dəyərdəki xidmət haqları CSV-ə daxil deyil və əlaqələndirilmiş fakturadan fərqli ola bilər. Ən dəqiq faktura detalları üçün aylıq fakturalarınıza istinad edin.",
+    "description": "A paragraph on the Billing History page of the Provider Portal letting users know they can download a CSV report for their invoices that does not include prorations."
+  },
+  "noInvoicesToList": {
+    "message": "Sadalanacaq heç bir faktura yoxdur",
+    "description": "A paragraph on the Billing History page of the Provider Portal letting users know they can download a CSV report for their invoices that does not include prorations."
+  },
+  "providerClientVaultPrivacyNotification": {
+    "message": "Bildiriş: Bu oyun sonu, client anbar gizliliyi yaxşılaşdırılacaq və provayder üzvləri artıq client anbar elementlərinə birbaşa müraciət edə bilməyəcək. Suallar üçün",
+    "description": "This will be displayed as part of a larger sentence. The whole sentence reads: 'Notice: Later this month, client vault privacy will be improved and provider members will no longer have direct access to client vault items. For questions, please contact Bitwarden support'."
+  },
+  "contactBitwardenSupport": {
+    "message": "Bitwarden dəstəyi ilə əlaqə saxlayın.",
+    "description": "This will be displayed as part of a larger sentence. The whole sentence reads: 'Notice: Later this month, client vault privacy will be improved and provider members will no longer have direct access to client vault items. For questions, please contact Bitwarden support'. 'Bitwarden' should not be translated"
+  },
+  "sponsored": {
+    "message": "Sponsorlu"
+  },
+  "licenseAndBillingManagementDesc": {
+    "message": "Bitwarden bulud serverində güncəlləmələr etdikdən sonra, ən son dəyişiklikləri tətbiq etmək üçün lisenziya faylınızı yükləyin."
+  },
+  "addToFolder": {
+    "message": "Qovluğa əlavə et"
+  },
+  "selectFolder": {
+    "message": "Qovluq seç"
+  },
+  "personalItemsTransferWarning": {
+    "message": "$PERSONAL_ITEMS_COUNT$ seçilmiş təşkilata birdəfəlik transfer ediləcək. Artıq bu elementlərə sahib olmaya bilməyəcəksiniz.",
+    "placeholders": {
+      "personal_items_count": {
+        "content": "$1",
+        "example": "2 items"
+      }
+    }
+  },
+  "personalItemsWithOrgTransferWarning": {
+    "message": "$PERSONAL_ITEMS_COUNT$, $ORG$ təşkilatına birdəfəlik transfer ediləcək. Artıq bu elementlərə sahib olmaya bilməyəcəksiniz.",
+    "placeholders": {
+      "personal_items_count": {
+        "content": "$1",
+        "example": "2 items"
+      },
+      "org": {
+        "content": "$2",
+        "example": "Organization name"
+      }
+    }
+  },
+  "purchasedSeatsRemoved": {
+    "message": "satın alınmış yerlər silindi"
   }
 }

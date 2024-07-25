@@ -539,6 +539,18 @@
       }
     }
   },
+  "masterPassword": {
+    "message": "Master password"
+  },
+  "masterPassImportant": {
+    "message": "Your master password cannot be recovered if you forget it!"
+  },
+  "confirmMasterPassword": {
+    "message": "Confirm master password"
+  },
+  "masterPassHintLabel": {
+    "message": "Master password hint"
+  },
   "settings": {
     "message": "Ezarpenak"
   },
@@ -614,6 +626,9 @@
   },
   "verificationCodeRequired": {
     "message": "Egiaztatze-kodea behar da."
+  },
+  "webauthnCancelOrTimeout": {
+    "message": "The authentication was cancelled or took too long. Please try again."
   },
   "invalidVerificationCode": {
     "message": "Egiaztatze-kodea ez da baliozkoa"
@@ -1955,6 +1970,9 @@
   "emailVerificationRequired": {
     "message": "Emailaren egiaztapena behar da"
   },
+  "emailVerifiedV2": {
+    "message": "Email verified"
+  },
   "emailVerificationRequiredDesc": {
     "message": "Emaila egiaztatu behar duzu funtzio hau erabiltzeko."
   },
@@ -2762,6 +2780,9 @@
         "example": "My Org Name"
       }
     }
+  },
+  "duoHealthCheckResultsInNullAuthUrlError": {
+    "message": "Error connecting with the Duo service. Use a different two-step login method or contact Duo for assistance."
   },
   "launchDuoAndFollowStepsToFinishLoggingIn": {
     "message": "Launch Duo and follow the steps to finish logging in."

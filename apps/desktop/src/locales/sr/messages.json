@@ -539,6 +539,18 @@
       }
     }
   },
+  "masterPassword": {
+    "message": "Главна лозинка"
+  },
+  "masterPassImportant": {
+    "message": "Ваша главна лозинка се не може повратити ако је заборавите!"
+  },
+  "confirmMasterPassword": {
+    "message": "Потрдити главну лозинку"
+  },
+  "masterPassHintLabel": {
+    "message": "Савет главне лозинке"
+  },
   "settings": {
     "message": "Подешавања"
   },
@@ -614,6 +626,9 @@
   },
   "verificationCodeRequired": {
     "message": "Верификациони код је обавезан."
+  },
+  "webauthnCancelOrTimeout": {
+    "message": "Аутентификација је отказана или је трајала предуго. Молим вас, покушајте поново."
   },
   "invalidVerificationCode": {
     "message": "Неисправан верификациони код"
@@ -1955,6 +1970,9 @@
   "emailVerificationRequired": {
     "message": "Потребна је верификација е-поште"
   },
+  "emailVerifiedV2": {
+    "message": "Имејл верификован"
+  },
   "emailVerificationRequiredDesc": {
     "message": "Морате да проверите е-пошту да бисте користили ову функцију."
   },
@@ -2762,6 +2780,9 @@
         "example": "My Org Name"
       }
     }
+  },
+  "duoHealthCheckResultsInNullAuthUrlError": {
+    "message": "Грешка при повезивању са услугом Duo. Користите други метод пријаве у два корака или контактирајте Duo за помоћ."
   },
   "launchDuoAndFollowStepsToFinishLoggingIn": {
     "message": "Покренути Duo и пратите кораке да бисте завршили пријављивање."

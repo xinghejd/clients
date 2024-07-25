@@ -539,6 +539,18 @@
       }
     }
   },
+  "masterPassword": {
+    "message": "Hoofdwachtwoord"
+  },
+  "masterPassImportant": {
+    "message": "Je kunt je hoofdwachtwoord niet herstellen als je het vergeet!"
+  },
+  "confirmMasterPassword": {
+    "message": "Hoofdwachtwoord bevestigen"
+  },
+  "masterPassHintLabel": {
+    "message": "Hoofdwachtwoordhint"
+  },
   "settings": {
     "message": "Instellingen"
   },
@@ -614,6 +626,9 @@
   },
   "verificationCodeRequired": {
     "message": "Verificatiecode vereist."
+  },
+  "webauthnCancelOrTimeout": {
+    "message": "De authenticatie werd geannuleerd of duurde te lang. Probeer het opnieuw."
   },
   "invalidVerificationCode": {
     "message": "Ongeldige verificatiecode"
@@ -1955,6 +1970,9 @@
   "emailVerificationRequired": {
     "message": "E-mailverificatie vereist"
   },
+  "emailVerifiedV2": {
+    "message": "E-mailadres geverifieerd"
+  },
   "emailVerificationRequiredDesc": {
     "message": "Je moet je e-mailadres verifiëren om deze functionaliteit te gebruiken."
   },
@@ -2762,6 +2780,9 @@
         "example": "My Org Name"
       }
     }
+  },
+  "duoHealthCheckResultsInNullAuthUrlError": {
+    "message": "Fout bij het verbinden met de Duo-service. Gebruik een andere tweestapsaanmeldingsmethode of neem contact op met Duo voor hulp."
   },
   "launchDuoAndFollowStepsToFinishLoggingIn": {
     "message": "Start Duo en volg de stappen om in te loggen."

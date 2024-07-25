@@ -539,6 +539,18 @@
       }
     }
   },
+  "masterPassword": {
+    "message": "Huvudlösenord"
+  },
+  "masterPassImportant": {
+    "message": "Ditt huvudlösenord kan inte återställas om du glömmer det!"
+  },
+  "confirmMasterPassword": {
+    "message": "Bekräfta huvudlösenord"
+  },
+  "masterPassHintLabel": {
+    "message": "Huvudlösenordsledtråd"
+  },
   "settings": {
     "message": "Inställningar"
   },
@@ -614,6 +626,9 @@
   },
   "verificationCodeRequired": {
     "message": "Verifieringskod krävs."
+  },
+  "webauthnCancelOrTimeout": {
+    "message": "The authentication was cancelled or took too long. Please try again."
   },
   "invalidVerificationCode": {
     "message": "Ogiltig verifieringskod"
@@ -1955,6 +1970,9 @@
   "emailVerificationRequired": {
     "message": "E-postverifiering krävs"
   },
+  "emailVerifiedV2": {
+    "message": "Email verified"
+  },
   "emailVerificationRequiredDesc": {
     "message": "Du måste verifiera din e-post för att använda den här funktionen."
   },
@@ -2762,6 +2780,9 @@
         "example": "My Org Name"
       }
     }
+  },
+  "duoHealthCheckResultsInNullAuthUrlError": {
+    "message": "Error connecting with the Duo service. Use a different two-step login method or contact Duo for assistance."
   },
   "launchDuoAndFollowStepsToFinishLoggingIn": {
     "message": "Starta Duo och följ stegen för att slutföra inloggningen."

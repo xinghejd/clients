@@ -539,6 +539,18 @@
       }
     }
   },
+  "masterPassword": {
+    "message": "Mesterjelszó"
+  },
+  "masterPassImportant": {
+    "message": "A mesterjelszó nem állítható helyre, ha elfelejtik!"
+  },
+  "confirmMasterPassword": {
+    "message": "Mesterjelszó megerősítése"
+  },
+  "masterPassHintLabel": {
+    "message": "Mesterjelszó emlékeztető"
+  },
   "settings": {
     "message": "Beállítások"
   },
@@ -614,6 +626,9 @@
   },
   "verificationCodeRequired": {
     "message": "Az ellenőrző kód kötelező."
+  },
+  "webauthnCancelOrTimeout": {
+    "message": "A hitelesítés megszakításra került vagy túl sokáig tartott. Próbáljuk újra."
   },
   "invalidVerificationCode": {
     "message": "Érvénytelen ellenőrző kód"
@@ -1955,6 +1970,9 @@
   "emailVerificationRequired": {
     "message": "Email hitelesítés szükséges"
   },
+  "emailVerifiedV2": {
+    "message": "Az email cím ellenőrzésre került."
+  },
   "emailVerificationRequiredDesc": {
     "message": "A funkció használatához ellenőrizni kell az email címet."
   },
@@ -2762,6 +2780,9 @@
         "example": "My Org Name"
       }
     }
+  },
+  "duoHealthCheckResultsInNullAuthUrlError": {
+    "message": "Hiba történt a Duo szolgáltatáshoz csatlakozáskor. Használjunk másik kétlépcsős bejelentkezési módot vagy kérjünk segítséget a Duotól."
   },
   "launchDuoAndFollowStepsToFinishLoggingIn": {
     "message": "Indítsuk el a DUO-t és kövessük a lépéseket a bejelentkezés befejezéséhez."

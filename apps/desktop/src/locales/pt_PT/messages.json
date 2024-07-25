@@ -346,7 +346,7 @@
     "message": "Remover"
   },
   "nameRequired": {
-    "message": "É necessário o nome."
+    "message": "O nome é obrigatório."
   },
   "addedItem": {
     "message": "Item adicionado"
@@ -539,6 +539,18 @@
       }
     }
   },
+  "masterPassword": {
+    "message": "Palavra-passe mestra"
+  },
+  "masterPassImportant": {
+    "message": "A sua palavra-passe mestra não pode ser recuperada se a esquecer!"
+  },
+  "confirmMasterPassword": {
+    "message": "Confirmar a palavra-passe mestra"
+  },
+  "masterPassHintLabel": {
+    "message": "Dica da palavra-passe mestra"
+  },
   "settings": {
     "message": "Definições"
   },
@@ -614,6 +626,9 @@
   },
   "verificationCodeRequired": {
     "message": "É necessário o código de verificação."
+  },
+  "webauthnCancelOrTimeout": {
+    "message": "A autenticação foi cancelada ou demorou demasiado tempo. Por favor, tente novamente."
   },
   "invalidVerificationCode": {
     "message": "Código de verificação inválido"
@@ -1944,7 +1959,7 @@
     "message": "Eliminação pendente"
   },
   "webAuthnAuthenticate": {
-    "message": "Autenticar WebAuthn"
+    "message": "Autenticar o WebAuthn"
   },
   "hideEmail": {
     "message": "Ocultar o meu endereço de e-mail dos destinatários."
@@ -1954,6 +1969,9 @@
   },
   "emailVerificationRequired": {
     "message": "Verificação de e-mail necessária"
+  },
+  "emailVerifiedV2": {
+    "message": "E-mail verificado"
   },
   "emailVerificationRequiredDesc": {
     "message": "É necessário verificar o seu e-mail para utilizar esta funcionalidade."
@@ -2094,10 +2112,10 @@
     }
   },
   "leaveOrganization": {
-    "message": "Deixar a organização"
+    "message": "Sair da organização"
   },
   "leaveOrganizationConfirmation": {
-    "message": "Tem a certeza de que pretende deixar esta organização?"
+    "message": "Tem a certeza de que pretende sair desta organização?"
   },
   "leftOrganization": {
     "message": "Saiu da organização."
@@ -2606,10 +2624,10 @@
     "message": "Dispositivo de confiança"
   },
   "inputRequired": {
-    "message": "Campo necessário."
+    "message": "Campo obrigatório."
   },
   "required": {
-    "message": "necessário"
+    "message": "obrigatório"
   },
   "search": {
     "message": "Procurar"
@@ -2762,6 +2780,9 @@
         "example": "My Org Name"
       }
     }
+  },
+  "duoHealthCheckResultsInNullAuthUrlError": {
+    "message": "Erro ao ligar ao serviço Duo. Utilize um método de verificação de dois passos diferente ou contacte o Duo para obter assistência."
   },
   "launchDuoAndFollowStepsToFinishLoggingIn": {
     "message": "Inicie o Duo e siga os passos para concluir o início de sessão."

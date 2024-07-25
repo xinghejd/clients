@@ -539,6 +539,18 @@
       }
     }
   },
+  "masterPassword": {
+    "message": "マスターパスワード"
+  },
+  "masterPassImportant": {
+    "message": "マスターパスワードを忘れた場合は復元できません！"
+  },
+  "confirmMasterPassword": {
+    "message": "マスターパスワードの確認"
+  },
+  "masterPassHintLabel": {
+    "message": "マスターパスワードのヒント"
+  },
   "settings": {
     "message": "設定"
   },
@@ -614,6 +626,9 @@
   },
   "verificationCodeRequired": {
     "message": "認証コードは必須項目です。"
+  },
+  "webauthnCancelOrTimeout": {
+    "message": "認証がキャンセルされたか、時間がかかりすぎました。もう一度やり直してください。"
   },
   "invalidVerificationCode": {
     "message": "認証コードが間違っています"
@@ -1955,6 +1970,9 @@
   "emailVerificationRequired": {
     "message": "メールアドレスの確認が必要です"
   },
+  "emailVerifiedV2": {
+    "message": "メールアドレスを認証しました"
+  },
   "emailVerificationRequiredDesc": {
     "message": "この機能を使用するにはメールアドレスを確認する必要があります。"
   },
@@ -2762,6 +2780,9 @@
         "example": "My Org Name"
       }
     }
+  },
+  "duoHealthCheckResultsInNullAuthUrlError": {
+    "message": "Duo サービスへの接続中にエラーが発生しました。異なる二段階ログイン方法を使用するか、Duo に連絡してください。"
   },
   "launchDuoAndFollowStepsToFinishLoggingIn": {
     "message": "ログインを完了するには Duo を起動し手順に従ってください。"

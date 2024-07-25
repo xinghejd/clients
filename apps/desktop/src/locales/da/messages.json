@@ -539,6 +539,18 @@
       }
     }
   },
+  "masterPassword": {
+    "message": "Hovedadgangskode"
+  },
+  "masterPassImportant": {
+    "message": "Hovedadgangskoden kan ikke gendannes, hvis den glemmes!"
+  },
+  "confirmMasterPassword": {
+    "message": "Bekræft hovedadgangskode"
+  },
+  "masterPassHintLabel": {
+    "message": "Hovedadgangskodetip"
+  },
   "settings": {
     "message": "Indstillinger"
   },
@@ -614,6 +626,9 @@
   },
   "verificationCodeRequired": {
     "message": "Bekræftelseskode er obligatorisk."
+  },
+  "webauthnCancelOrTimeout": {
+    "message": "Godkendelsen blev afbrudt eller tog for lang tid. Forsøg igen."
   },
   "invalidVerificationCode": {
     "message": "Ugyldig bekræftelseskode"
@@ -1955,6 +1970,9 @@
   "emailVerificationRequired": {
     "message": "E-mailbekræftelse kræves"
   },
+  "emailVerifiedV2": {
+    "message": "E-mail bekræftet"
+  },
   "emailVerificationRequiredDesc": {
     "message": "Du skal bekræfte din mailadresse for at bruge denne funktion."
   },
@@ -2762,6 +2780,9 @@
         "example": "My Org Name"
       }
     }
+  },
+  "duoHealthCheckResultsInNullAuthUrlError": {
+    "message": "Fejl under forbindelsesoprettelsen til Duo-tjenesten. Brug en anden totrins-indlogningsmetode eller kontakt Duo for hjælp."
   },
   "launchDuoAndFollowStepsToFinishLoggingIn": {
     "message": "Start Duo og følg trinnene for at fuldføre indlogningen."

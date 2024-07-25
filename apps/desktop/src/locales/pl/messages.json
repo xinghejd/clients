@@ -539,6 +539,18 @@
       }
     }
   },
+  "masterPassword": {
+    "message": "Hasło główne"
+  },
+  "masterPassImportant": {
+    "message": "Twoje hasło główne nie może zostać odzyskane, jeśli je zapomnisz!"
+  },
+  "confirmMasterPassword": {
+    "message": "Potwierdź hasło główne"
+  },
+  "masterPassHintLabel": {
+    "message": "Podpowiedź do hasła głównego"
+  },
   "settings": {
     "message": "Ustawienia"
   },
@@ -614,6 +626,9 @@
   },
   "verificationCodeRequired": {
     "message": "Kod weryfikacyjny jest wymagany."
+  },
+  "webauthnCancelOrTimeout": {
+    "message": "Uwierzytelnianie zostało anulowane lub trwało zbyt długo. Spróbuj ponownie."
   },
   "invalidVerificationCode": {
     "message": "Kod weryfikacyjny jest nieprawidłowy"
@@ -1955,6 +1970,9 @@
   "emailVerificationRequired": {
     "message": "Weryfikacja adresu e-mail jest wymagana"
   },
+  "emailVerifiedV2": {
+    "message": "E-mail zweryfikowany"
+  },
   "emailVerificationRequiredDesc": {
     "message": "Musisz zweryfikować adres e-mail, aby używać tej funkcji."
   },
@@ -2762,6 +2780,9 @@
         "example": "My Org Name"
       }
     }
+  },
+  "duoHealthCheckResultsInNullAuthUrlError": {
+    "message": "Wystąpił błąd podczas połączenia z usługą Duo. Aby uzyskać pomoc, użyj innej metody dwustopniowego logowania lub skontaktuj się z Duo."
   },
   "launchDuoAndFollowStepsToFinishLoggingIn": {
     "message": "Uruchom Duo i wykonaj kroki, aby zakończyć logowanie."

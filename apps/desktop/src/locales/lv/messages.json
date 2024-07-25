@@ -539,6 +539,18 @@
       }
     }
   },
+  "masterPassword": {
+    "message": "Galvenā parole"
+  },
+  "masterPassImportant": {
+    "message": "Galveno paroli nevar atgūt, ja tā tiek aizmirsta."
+  },
+  "confirmMasterPassword": {
+    "message": "Apstiprināt galveno paroli"
+  },
+  "masterPassHintLabel": {
+    "message": "Galvenās paroles norāde"
+  },
   "settings": {
     "message": "Iestatījumi"
   },
@@ -614,6 +626,9 @@
   },
   "verificationCodeRequired": {
     "message": "Ir nepieciešams apstiprinājuma kods."
+  },
+  "webauthnCancelOrTimeout": {
+    "message": "Autentifikācija tika atcelta vai tā aizņēma pārāk daudz laika. Lūgums mēģināt vēlreiz."
   },
   "invalidVerificationCode": {
     "message": "Nederīgs apstiprinājuma kods"
@@ -1955,6 +1970,9 @@
   "emailVerificationRequired": {
     "message": "Nepieciešama e-pasta adreses apstiprināšana"
   },
+  "emailVerifiedV2": {
+    "message": "E-pasta adrese ir apliecināta"
+  },
   "emailVerificationRequiredDesc": {
     "message": "Ir jāapstiprina e-pasta adrese, lai izmantotu šo iespēju."
   },
@@ -2762,6 +2780,9 @@
         "example": "My Org Name"
       }
     }
+  },
+  "duoHealthCheckResultsInNullAuthUrlError": {
+    "message": "Kļūda savienojuma izveidošanā ar Duo pakalpojumu. Jāizmanto cits divpakāpju pieteikšanāš veids vai jāvēršas pie Duo pēc palīdzības."
   },
   "launchDuoAndFollowStepsToFinishLoggingIn": {
     "message": "Jāpalaiž Duo un jāseko soļiem, lai pabeigtu pieteikšanos."

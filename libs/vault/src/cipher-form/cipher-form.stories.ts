@@ -7,18 +7,26 @@ import {
   moduleMetadata,
   StoryObj,
 } from "@storybook/angular";
+import { BehaviorSubject } from "rxjs";
 
+import { AuditService } from "@bitwarden/common/abstractions/audit.service";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { CollectionView } from "@bitwarden/common/vault/models/view/collection.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
+import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
 import { AsyncActionsModule, ButtonModule, ToastService } from "@bitwarden/components";
-import { CipherFormConfig } from "@bitwarden/vault";
+import {
+  CipherFormConfig,
+  CipherFormGenerationService,
+  PasswordRepromptService,
+} from "@bitwarden/vault";
 import { PreloadedEnglishI18nModule } from "@bitwarden/web-vault/src/app/core/tests";
 
 import { CipherFormService } from "./abstractions/cipher-form.service";
+import { TotpCaptureService } from "./abstractions/totp-capture.service";
 import { CipherFormModule } from "./cipher-form.module";
 import { CipherFormComponent } from "./components/cipher-form.component";
 
@@ -71,6 +79,18 @@ const defaultConfig: CipherFormConfig = {
     folderId: "folder2",
     collectionIds: ["col1"],
     favorite: false,
+    notes: "Example notes",
+    viewPassword: true,
+    login: Object.assign(new LoginView(), {
+      username: "testuser",
+      password: "testpassword",
+      fido2Credentials: [
+        {
+          creationDate: new Date(2024, 6, 18),
+        },
+      ],
+      totp: "123456",
+    }) as LoginView,
   } as unknown as Cipher,
 };
 
@@ -103,6 +123,32 @@ export default {
           provide: ToastService,
           useValue: {
             showToast: action("showToast"),
+          },
+        },
+        {
+          provide: PasswordRepromptService,
+          useValue: {
+            enabled$: new BehaviorSubject(true),
+          },
+        },
+        {
+          provide: CipherFormGenerationService,
+          useValue: {
+            generateInitialPassword: () => Promise.resolve("initial-password"),
+            generatePassword: () => Promise.resolve("random-password"),
+            generateUsername: () => Promise.resolve("random-username"),
+          },
+        },
+        {
+          provide: TotpCaptureService,
+          useValue: {
+            captureTotpSecret: () => Promise.resolve("some-value"),
+          },
+        },
+        {
+          provide: AuditService,
+          useValue: {
+            passwordLeaked: () => Promise.resolve(0),
           },
         },
       ],

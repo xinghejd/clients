@@ -42,6 +42,12 @@
   "cardholderName": {
     "message": "Jméno držitele karty"
   },
+  "loginCredentials": {
+    "message": "Přihlašovací údaje"
+  },
+  "authenticatorKey": {
+    "message": "Ověřovací klíč"
+  },
   "number": {
     "message": "Číslo"
   },
@@ -138,6 +144,15 @@
   "authenticatorKeyTotp": {
     "message": "Autentizační klíč (TOTP)"
   },
+  "totpHelperTitle": {
+    "message": "Bezproblémové dvoufázové ověřování"
+  },
+  "totpHelper": {
+    "message": "Bitwarden umí ukládat a vyplňovat dvoufázové ověřovací kódy. Zkopírujte a vložte klíč do tohoto pole."
+  },
+  "totpHelperWithCapture": {
+    "message": "Bitwarden umí ukládat a vyplňovat dvoufázové ověřovací kódy. Vyberte ikonu fotoaparátu a pořiďte snímek obrazovky ověřovacího QR kódu této webové stránky nebo klíč zkopírujte a vložte do tohoto pole."
+  },
   "folder": {
     "message": "Složka"
   },
@@ -174,7 +189,7 @@
     "description": "This is the folder for uncategorized items"
   },
   "selfOwnershipLabel": {
-    "message": "You",
+    "message": "Vy",
     "description": "Used as a label to indicate that the user is the owner of an item."
   },
   "addFolder": {
@@ -406,13 +421,13 @@
     "message": "Položka"
   },
   "itemDetails": {
-    "message": "Item details"
+    "message": "Detaily položky"
   },
   "itemName": {
-    "message": "Item name"
+    "message": "Název položky"
   },
   "cannotRemoveViewOnlyCollections": {
-    "message": "You cannot remove collections with View only permissions: $COLLECTIONS$",
+    "message": "Nemůžete odebrat kolekce s oprávněními jen pro zobrazení: $COLLECTIONS$",
     "placeholders": {
       "collections": {
         "content": "$1",
@@ -611,6 +626,18 @@
   },
   "loginExpired": {
     "message": "Platnost přihlášení vypršela."
+  },
+  "restartRegistration": {
+    "message": "Restart registration"
+  },
+  "expiredLink": {
+    "message": "Expired link"
+  },
+  "pleaseRestartRegistrationOrTryLoggingIn": {
+    "message": "Please restart registration or try logging in."
+  },
+  "youMayAlreadyHaveAnAccount": {
+    "message": "You may already have an account"
   },
   "logOutConfirmation": {
     "message": "Opravdu se chcete odhlásit?"
@@ -854,8 +881,8 @@
   "emailAddress": {
     "message": "E-mailová adresa"
   },
-  "yourVaultIsLocked": {
-    "message": "Váš trezor je uzamčen. Pro pokračování musíte zadat hlavní heslo."
+  "yourVaultIsLockedV2": {
+    "message": "Váš trezor je uzamčen"
   },
   "uuid": {
     "message": "UUID"
@@ -992,7 +1019,7 @@
     "message": "Použije YubiKey pro přístup k Vašemu trezoru. Podporuje YubiKey 4, 5 a NEO."
   },
   "duoDescV2": {
-    "message": "Zadejte kód vygenerovaný DUO Security.",
+    "message": "Zadejte kód vygenerovaný Duo Security.",
     "description": "'Duo Security' and 'Duo Mobile' are product names and should not be translated."
   },
   "duoOrganizationDesc": {
@@ -1060,7 +1087,7 @@
     "message": "Opravdu chcete pokračovat?"
   },
   "moveSelectedItemsDesc": {
-    "message": "Vyberte složku, do které chcete přesunout $COUNT$ vybraných položek.",
+    "message": "Vyberte složku, do které chcete přidat $COUNT$ vybraných položek.",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -1690,6 +1717,9 @@
   },
   "twoStepAuthenticatorScanCodeV2": {
     "message": "Naskenujte QR kód pomocí Vaší ověřovací aplikace nebo zadejte klíč."
+  },
+  "twoStepAuthenticatorQRCanvasError": {
+    "message": "QR kód nelze načíst. Zkuste to znovu nebo použijte klíč níže."
   },
   "key": {
     "message": "Klíč"
@@ -3399,6 +3429,9 @@
   "emailVerified": {
     "message": "Vaše e-mailová adresa byla ověřena"
   },
+  "emailVerifiedV2": {
+    "message": "E-mail byl ověřen"
+  },
   "emailVerifiedFailed": {
     "message": "Nelze ověřit Váš e-mail. Zkuste odeslat nový ověřovací e-mail."
   },
@@ -3777,8 +3810,8 @@
   "nothingSelected": {
     "message": "Nevybrali jste žádné položky."
   },
-  "receiveMarketingEmails": {
-    "message": "Získejte e-maily od Bitwardenu pro oznámení, poradenství a výzkumné příležitosti."
+  "receiveMarketingEmailsV2": {
+    "message": "Get advice, announcements, and research opportunities from Bitwarden in your inbox."
   },
   "unsubscribe": {
     "message": "Odhlásit odběr"
@@ -5513,6 +5546,9 @@
   "verificationCodeRequired": {
     "message": "Je vyžadován ověřovací kód."
   },
+  "webauthnCancelOrTimeout": {
+    "message": "Ověření bylo zrušeno nebo trvalo příliš dlouho. Zkuste to znovu."
+  },
   "invalidVerificationCode": {
     "message": "Neplatný ověřovací kód"
   },
@@ -6204,14 +6240,17 @@
       }
     }
   },
+  "duoHealthCheckResultsInNullAuthUrlError": {
+    "message": "Chyba při připojování ke službě Duo. Použijte jinou dvoufázovou metodu přihlášení nebo kontaktujte Duo o pomoc."
+  },
   "launchDuoAndFollowStepsToFinishLoggingIn": {
-    "message": "Spusťte DUO a pro dokončení přihlášení postupujte podle kroků."
+    "message": "Spusťte Duo a pro dokončení přihlášení postupujte podle kroků."
   },
   "duoRequiredByOrgForAccount": {
-    "message": "Pro Váš účet je vyžadováno dvoufázové přihlášení DUO."
+    "message": "Pro Váš účet je vyžadováno dvoufázové přihlášení Duo."
   },
   "launchDuo": {
-    "message": "Spustit DUO"
+    "message": "Spustit Duo"
   },
   "turnOn": {
     "message": "Zapnout"
@@ -7877,7 +7916,7 @@
     "message": "Přiřadit k těmto kolekcím"
   },
   "bulkCollectionAssignmentDialogDescription": {
-    "message": "Vyberte kolekce, se kterými budou položky sdíleny. Jakmile bude položka aktualizována v jedné kolekci, bude zobrazena ve všech kolekcích. Jen členové organizace s přístupem k těmto kolekcím budou moci vidět položky."
+    "message": "Jen členové organizace s přístupem k těmto kolekcím budou moci vidět položky."
   },
   "selectCollectionsToAssign": {
     "message": "Vyberte kolekce pro přiřazení"
@@ -8155,23 +8194,6 @@
   "restrictedGroupAccessDesc": {
     "message": "Do skupiny nemůžete přidat sami sebe."
   },
-  "unassignedItemsBannerSelfHost": {
-    "message": "Upozornění: Dne 2. května 2024 již nebudou nepřiřazené položky organizace viditelné v zobrazení Všechny trezory ve všech zařízeních a budou přístupné jen prostřednictvím konzoly správce. Přiřaďte tyto položky do kolekce z konzoly pro správce, aby byly viditelné."
-  },
-  "unassignedItemsBannerNotice": {
-    "message": "Upozornění: Nepřiřazené položky organizace již nejsou viditelné ve Vašem zobrazení všech trezorů napříč zařízeními a jsou nyní přístupné pouze v konzoli správce."
-  },
-  "unassignedItemsBannerSelfHostNotice": {
-    "message": "Upozornění: 16. květba 2024 již nebudou nepřiřazené položky organizace viditelné ve Vašem zobrazení všech trezorů napříč zařízeními a budou přístupné pouze v konzoli správce."
-  },
-  "unassignedItemsBannerCTAPartOne": {
-    "message": "Přiřadit tyto položky ke kolekci z",
-    "description": "This will be part of a larger sentence, which will read like so: Assign these items to a collection from the Admin Console to make them visible."
-  },
-  "unassignedItemsBannerCTAPartTwo": {
-    "message": "aby byly viditelné.",
-    "description": "This will be part of a larger sentence, which will read like so: Assign these items to a collection from the Admin Console to make them visible."
-  },
   "deleteProvider": {
     "message": "Smazat poskytovatele"
   },
@@ -8439,6 +8461,9 @@
   "memberAccessReportDesc": {
     "message": "Ujistěte se, že členové mají přístup k správným údajům a jejich účty jsou bezpečné. Použijte tuto zprávu k získání CSV přístupu členů a konfigurací účtu."
   },
+  "memberAccessReportPageDesc": {
+    "message": "Audit přístupu členů organizace ke skupinám, kolekcím a položkám kolekcí. Export CSV poskytuje podrobný rozpis pro jednotlivé členy, včetně informací o oprávněních ke kolekcím a konfiguracích účtů."
+  },
   "higherKDFIterations": {
     "message": "Více iterací KDF Vám může pomoci ochránit hlavní heslo před útočníkem, který by ho vylákal hrubou silou."
   },
@@ -8511,14 +8536,63 @@
   "downloadCSV": {
     "message": "Stáhnout CSV"
   },
-  "billingHistoryDescription": {
-    "message": "Stáhněte si soubor CSV a získejte údaje o klientovi pro každé datum fakturace. Proporcionální poplatky nejsou v CSV zahrnuty a mohou se lišit od propojené faktury. Nejpřesnější údaje o vyúčtování naleznete v měsíčních fakturách.",
-    "description": "A paragraph on the Billing History page of the Provider Portal letting users know they can download a CSV report for their invoices that does not include prorations."
-  },
   "monthlySubscriptionUserSeatsMessage": {
     "message": "Úpravy předplatného budou mít za následek poměrné účtování celkových částek v dalším zúčtovacím období. "
   },
   "annualSubscriptionUserSeatsMessage": {
     "message": "Úpravy vašeho předplatného budou mít za následek poměrné poplatky v měsíčním zúčtovacím cyklu. "
+  },
+  "billingHistoryDescription": {
+    "message": "Stáhněte si soubor CSV a získejte údaje o klientovi pro každé datum fakturace. Proporcionální poplatky nejsou v CSV zahrnuty a mohou se lišit od propojené faktury. Nejpřesnější údaje o vyúčtování naleznete v měsíčních fakturách.",
+    "description": "A paragraph on the Billing History page of the Provider Portal letting users know they can download a CSV report for their invoices that does not include prorations."
+  },
+  "noInvoicesToList": {
+    "message": "Žádné faktury k zobrazení",
+    "description": "A paragraph on the Billing History page of the Provider Portal letting users know they can download a CSV report for their invoices that does not include prorations."
+  },
+  "providerClientVaultPrivacyNotification": {
+    "message": "Upozornění: Koncem tohoto měsíce bude vylepšena ochrana osobních údajů v klientském trezoru a členové poskytovatele již nebudou mít přímý přístup k položkám klientského trezoru. V případě dotazů se",
+    "description": "This will be displayed as part of a larger sentence. The whole sentence reads: 'Notice: Later this month, client vault privacy will be improved and provider members will no longer have direct access to client vault items. For questions, please contact Bitwarden support'."
+  },
+  "contactBitwardenSupport": {
+    "message": "obraťte na podporu společnosti Bitwarden.",
+    "description": "This will be displayed as part of a larger sentence. The whole sentence reads: 'Notice: Later this month, client vault privacy will be improved and provider members will no longer have direct access to client vault items. For questions, please contact Bitwarden support'. 'Bitwarden' should not be translated"
+  },
+  "sponsored": {
+    "message": "Sponzorováno"
+  },
+  "licenseAndBillingManagementDesc": {
+    "message": "Po provedení aktualizací na cloudovém serveru Bitwardenu nahrajte váš licenční soubor pro použití nejnovějších změn."
+  },
+  "addToFolder": {
+    "message": "Přidat do složky"
+  },
+  "selectFolder": {
+    "message": "Vybrat složku"
+  },
+  "personalItemsTransferWarning": {
+    "message": "$PERSONAL_ITEMS_COUNT$ bude trvale převedeno do vybrané organizace. Tyto položky již nebudete vlastnit.",
+    "placeholders": {
+      "personal_items_count": {
+        "content": "$1",
+        "example": "2 items"
+      }
+    }
+  },
+  "personalItemsWithOrgTransferWarning": {
+    "message": "$PERSONAL_ITEMS_COUNT$ bude trvale převedeno do $ORG$. Tyto položky již nebudete vlastnit.",
+    "placeholders": {
+      "personal_items_count": {
+        "content": "$1",
+        "example": "2 items"
+      },
+      "org": {
+        "content": "$2",
+        "example": "Organization name"
+      }
+    }
+  },
+  "purchasedSeatsRemoved": {
+    "message": "zakoupení uživatelé odebráni"
   }
 }

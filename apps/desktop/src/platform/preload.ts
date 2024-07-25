@@ -71,6 +71,11 @@ const clipboard = {
   write: (message: ClipboardWriteMessage) => ipcRenderer.invoke("clipboard.write", message),
 };
 
+const powermonitor = {
+  isLockMonitorAvailable: (): Promise<boolean> =>
+    ipcRenderer.invoke("powermonitor.isLockMonitorAvailable"),
+};
+
 const nativeMessaging = {
   sendReply: (message: EncryptedMessageResponse | UnencryptedMessageResponse) => {
     ipcRenderer.send("nativeMessagingReply", message);
@@ -162,6 +167,7 @@ export default {
   passwords,
   biometric,
   clipboard,
+  powermonitor,
   nativeMessaging,
   crypto,
 };

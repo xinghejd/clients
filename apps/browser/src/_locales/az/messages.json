@@ -556,6 +556,18 @@
   "security": {
     "message": "Güvənlik"
   },
+  "confirmMasterPassword": {
+    "message": "Ana parolu təsdiqlə"
+  },
+  "masterPassword": {
+    "message": "Ana parol"
+  },
+  "masterPassImportant": {
+    "message": "Unutsanız, ana parolunuz geri qaytarıla bilməz!"
+  },
+  "masterPassHintLabel": {
+    "message": "Ana parol ipucusu"
+  },
   "errorOccurred": {
     "message": "Bir xəta baş verdi"
   },
@@ -599,6 +611,9 @@
   "verificationCodeRequired": {
     "message": "Doğrulama kodu tələb olunur."
   },
+  "webauthnCancelOrTimeout": {
+    "message": "Kimlik doğrulama ləğv edildi və ya çox uzun çəkdi. Lütfən yenidən sınayın."
+  },
   "invalidVerificationCode": {
     "message": "Yararsız doğrulama kodu"
   },
@@ -624,6 +639,15 @@
   "totpCapture": {
     "message": "Hazırkı veb sahifədən kimlik doğrulayıcı QR kodunu skan et"
   },
+  "totpHelperTitle": {
+    "message": "2 addımlı doğrulama problemsiz edin"
+  },
+  "totpHelper": {
+    "message": "Bitwarden, 2 addımlı doğrulama kodlarını saxlaya və doldura bilər. Açarı kopyalayıb bu xanaya yapışdırın."
+  },
+  "totpHelperWithCapture": {
+    "message": "Bitwarden, 2 addımlı doğrulama kodlarını saxlaya və doldura bilər. Bu veb sayt kimlik doğrulayıcı QR kodunun ekran şəklini çəkmək üçün kamera ikonunu seçin, ya da açarı kopyalayıb bu xanaya yapışdırın."
+  },
   "copyTOTP": {
     "message": "Kimlik doğrulayıcı açarını kopyala (TOTP)"
   },
@@ -635,6 +659,21 @@
   },
   "loginExpired": {
     "message": "Giriş seansınızın müddəti bitdi."
+  },
+  "logIn": {
+    "message": "Log in"
+  },
+  "restartRegistration": {
+    "message": "Restart registration"
+  },
+  "expiredLink": {
+    "message": "Expired link"
+  },
+  "pleaseRestartRegistrationOrTryLoggingIn": {
+    "message": "Please restart registration or try logging in."
+  },
+  "youMayAlreadyHaveAnAccount": {
+    "message": "You may already have an account"
   },
   "logOutConfirmation": {
     "message": "Çıxış etmək istədiyinizə əminsiniz?"
@@ -1471,6 +1510,15 @@
       }
     }
   },
+  "viewItemHeader": {
+    "message": "$TYPE$ - bax",
+    "placeholders": {
+      "type": {
+        "content": "$1",
+        "example": "Login"
+      }
+    }
+  },
   "passwordHistory": {
     "message": "Parol tarixçəsi"
   },
@@ -1799,8 +1847,8 @@
   "masterPasswordPolicyRequirementsNotMet": {
     "message": "Yeni ana parolunuz siyasət tələblərini qarşılamır."
   },
-  "receiveMarketingEmails": {
-    "message": "Elanlar, məsləhətlər və araşdırma fürsətləri üçün Bitwarden-dən e-poçt alın."
+  "receiveMarketingEmailsV2": {
+    "message": "Get advice, announcements, and research opportunities from Bitwarden in your inbox."
   },
   "unsubscribe": {
     "message": "Abunəlikdən çıx"
@@ -2163,6 +2211,9 @@
   },
   "emailVerificationRequired": {
     "message": "E-poçt doğrulaması tələb olunur"
+  },
+  "emailVerifiedV2": {
+    "message": "E-poçt doğrulandı"
   },
   "emailVerificationRequiredDesc": {
     "message": "Bu özəlliyi istifadə etmək üçün e-poçtunuzu doğrulamalısınız. E-poçtunuzu veb anbarında doğrulaya bilərsiniz."
@@ -2738,6 +2789,14 @@
   "deviceTrusted": {
     "message": "Cihaz güvənlidir"
   },
+  "sendsNoItemsTitle": {
+    "message": "Aktiv \"Send\" yoxdur",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendsNoItemsMessage": {
+    "message": "Şifrələnmiş məlumatları hər kəslə güvənli şəkildə paylaşmaq üçün \"Send\"i istifadə edin.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
   "inputRequired": {
     "message": "Giriş lazımdır."
   },
@@ -3020,6 +3079,9 @@
         "example": "My Org Name"
       }
     }
+  },
+  "duoHealthCheckResultsInNullAuthUrlError": {
+    "message": "Duo xidmətinə bağlanarkən xəta baş verdi. Fərqli iki addımlı giriş üsulu istifadə edin və ya kömək üçün Duo ilə əlaqə saxlayın."
   },
   "launchDuoAndFollowStepsToFinishLoggingIn": {
     "message": "Duo-nu başladın və giriş prosesini tamamlamaq üçün addımları izləyin."
@@ -3334,20 +3396,6 @@
   "passkeyRemoved": {
     "message": "Parol silindi"
   },
-  "unassignedItemsBannerNotice": {
-    "message": "Bildiriş: Təyin edilməyən təşkilat elementləri artıq Bütün Anbarlar görünüşündə görünən olmayacaq və yalnız Admin Konsolu vasitəsilə əlçatan olacaq."
-  },
-  "unassignedItemsBannerSelfHostNotice": {
-    "message": "Bildiriş: 16 May 2024-cü il tarixindən etibarən, təyin edilməyən təşkilat elementləri Bütün Anbarlar görünüşündə görünən olmayacaq və yalnız Admin Konsolu vasitəsilə əlçatan olacaq."
-  },
-  "unassignedItemsBannerCTAPartOne": {
-    "message": "Bu elementləri görünən etmək üçün",
-    "description": "This will be part of a larger sentence, which will read like so: Assign these items to a collection from the Admin Console to make them visible."
-  },
-  "unassignedItemsBannerCTAPartTwo": {
-    "message": "bir kolleksiyaya təyin edin.",
-    "description": "This will be part of a larger sentence, which will read like so: Assign these items to a collection from the Admin Console to make them visible."
-  },
   "autofillSuggestions": {
     "message": "Avto-doldurma təklifləri"
   },
@@ -3493,13 +3541,13 @@
     "message": "Qovluğu olmayan elementlər"
   },
   "itemDetails": {
-    "message": "Item details"
+    "message": "Element detalları"
   },
   "itemName": {
-    "message": "Item name"
+    "message": "Element adı"
   },
   "cannotRemoveViewOnlyCollections": {
-    "message": "You cannot remove collections with View only permissions: $COLLECTIONS$",
+    "message": "\"Yalnız baxma\" icazələrinə sahib kolleksiyaları silə bilməzsiniz: $COLLECTIONS$",
     "placeholders": {
       "collections": {
         "content": "$1",
@@ -3511,14 +3559,32 @@
     "message": "Təşkilat deaktiv edildi"
   },
   "owner": {
-    "message": "Owner"
+    "message": "Sahiblik"
   },
   "selfOwnershipLabel": {
-    "message": "You",
+    "message": "Siz",
     "description": "Used as a label to indicate that the user is the owner of an item."
   },
   "contactYourOrgAdmin": {
     "message": "Deaktiv edilmiş təşkilatlardakı elementlərə müraciət edilə bilməz. Kömək üçün təşkilatınızın sahibi ilə əlaqə saxlayın."
+  },
+  "additionalInformation": {
+    "message": "Əlavə məlumat"
+  },
+  "itemHistory": {
+    "message": "Element tarixçəsi"
+  },
+  "lastEdited": {
+    "message": "Son düzəliş"
+  },
+  "ownerYou": {
+    "message": "Sahiblik: Siz"
+  },
+  "linked": {
+    "message": "Əlaqələndirildi"
+  },
+  "copySuccessful": {
+    "message": "Uğurla kopyalandı"
   },
   "upload": {
     "message": "Yüklə"
@@ -3558,5 +3624,205 @@
   },
   "filters": {
     "message": "Filtrlər"
+  },
+  "personalDetails": {
+    "message": "Şəxsi detallar"
+  },
+  "identification": {
+    "message": "İdentifikasiya"
+  },
+  "contactInfo": {
+    "message": "Əlaqə məlumatı"
+  },
+  "downloadAttachment": {
+    "message": "$ITEMNAME$ - endir",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Your File"
+      }
+    }
+  },
+  "loginCredentials": {
+    "message": "Giriş məlumatları"
+  },
+  "authenticatorKey": {
+    "message": "Kimlik doğrulayıcı açarı"
+  },
+  "cardDetails": {
+    "message": "Kart detalları"
+  },
+  "cardBrandDetails": {
+    "message": "$BRAND$ detalları",
+    "placeholders": {
+      "brand": {
+        "content": "$1",
+        "example": "Visa"
+      }
+    }
+  },
+  "addAccount": {
+    "message": "Hesab əlavə et"
+  },
+  "loading": {
+    "message": "Yüklənir"
+  },
+  "assign": {
+    "message": "Təyin et"
+  },
+  "bulkCollectionAssignmentDialogDescription": {
+    "message": "Yalnız bu kolleksiyalara müraciəti olan təşkilat üzvləri bu elementləri görə biləcək."
+  },
+  "bulkCollectionAssignmentWarning": {
+    "message": "$TOTAL_COUNT$ element seçmisiniz. Düzəliş icazəniz olmadığı üçün $READONLY_COUNT$ elementi güncəlləyə bilməzsiniz.",
+    "placeholders": {
+      "total_count": {
+        "content": "$1",
+        "example": "10"
+      },
+      "readonly_count": {
+        "content": "$2"
+      }
+    }
+  },
+  "addField": {
+    "message": "Xana əlavə et"
+  },
+  "add": {
+    "message": "Əlavə et"
+  },
+  "fieldType": {
+    "message": "Xana növü"
+  },
+  "fieldLabel": {
+    "message": "Xana etiketi"
+  },
+  "textHelpText": {
+    "message": "Təhlükəsizlik sualları kimi datalar üçün mətn xanalarını istifadə edin"
+  },
+  "hiddenHelpText": {
+    "message": "Parol kimi həssas datalar üçün gizli xanaları istifadə edin"
+  },
+  "checkBoxHelpText": {
+    "message": "\"E-poçtu xatırla\" kimi formun təsdiq qutusunu avto-doldurmaq istəyirsinizsə təsdiq qutularını istifadə edin"
+  },
+  "linkedHelpText": {
+    "message": "Müəyyən bir veb sayt üçün avto-doldurma problemləri ilə üzləşdikdə əlaqələndirilmiş xana istifadə edin."
+  },
+  "linkedLabelHelpText": {
+    "message": "Xana üçün bunları daxil edin: kimlik, ad, aria-label və ya placeholder."
+  },
+  "editField": {
+    "message": "Xanaya düzəliş et"
+  },
+  "editFieldLabel": {
+    "message": "$LABEL$ - düzəliş et",
+    "placeholders": {
+      "label": {
+        "content": "$1",
+        "example": "Custom field"
+      }
+    }
+  },
+  "deleteCustomField": {
+    "message": "$LABEL$ - sil",
+    "placeholders": {
+      "label": {
+        "content": "$1",
+        "example": "Custom field"
+      }
+    }
+  },
+  "fieldAdded": {
+    "message": "$LABEL$ əlavə edildi",
+    "placeholders": {
+      "label": {
+        "content": "$1",
+        "example": "Custom field"
+      }
+    }
+  },
+  "reorderToggleButton": {
+    "message": "$LABEL$ - yenidən sırala. Ox düyməsi ilə elementi yuxarı və ya aşağı daşıyın.",
+    "placeholders": {
+      "label": {
+        "content": "$1",
+        "example": "Custom field"
+      }
+    }
+  },
+  "reorderFieldUp": {
+    "message": "$LABEL$ yuxarı daşındı, mövqeyi $INDEX$/$LENGTH$",
+    "placeholders": {
+      "label": {
+        "content": "$1",
+        "example": "Custom field"
+      },
+      "index": {
+        "content": "$2",
+        "example": "1"
+      },
+      "length": {
+        "content": "$3",
+        "example": "3"
+      }
+    }
+  },
+  "selectCollectionsToAssign": {
+    "message": "Təyin ediləcək kolleksiyaları seçin"
+  },
+  "personalItemsTransferWarning": {
+    "message": "$PERSONAL_ITEMS_COUNT$ seçilmiş təşkilata birdəfəlik transfer ediləcək. Artıq bu elementlərə sahib olmaya bilməyəcəksiniz.",
+    "placeholders": {
+      "personal_items_count": {
+        "content": "$1",
+        "example": "2 items"
+      }
+    }
+  },
+  "personalItemsWithOrgTransferWarning": {
+    "message": "$PERSONAL_ITEMS_COUNT$, $ORG$ təşkilatına birdəfəlik transfer ediləcək. Artıq bu elementlərə sahib olmaya bilməyəcəksiniz.",
+    "placeholders": {
+      "personal_items_count": {
+        "content": "$1",
+        "example": "2 items"
+      },
+      "org": {
+        "content": "$2",
+        "example": "Organization name"
+      }
+    }
+  },
+  "successfullyAssignedCollections": {
+    "message": "Uğurla təyin edilən kolleksiyalar"
+  },
+  "nothingSelected": {
+    "message": "Heç nə seçməmisiniz."
+  },
+  "movedItemsToOrg": {
+    "message": "Seçilən elementlər $ORGNAME$ təşkilatına daşınıldı",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Company Name"
+      }
+    }
+  },
+  "reorderFieldDown": {
+    "message": "$LABEL$ aşağı daşındı, mövqeyi $INDEX$/$LENGTH$",
+    "placeholders": {
+      "label": {
+        "content": "$1",
+        "example": "Custom field"
+      },
+      "index": {
+        "content": "$2",
+        "example": "1"
+      },
+      "length": {
+        "content": "$3",
+        "example": "3"
+      }
+    }
   }
 }

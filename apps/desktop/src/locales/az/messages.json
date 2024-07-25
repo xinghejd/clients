@@ -539,6 +539,18 @@
       }
     }
   },
+  "masterPassword": {
+    "message": "Ana parol"
+  },
+  "masterPassImportant": {
+    "message": "Unutsanız, ana parolunuz geri qaytarıla bilməz!"
+  },
+  "confirmMasterPassword": {
+    "message": "Ana parolu təsdiqlə"
+  },
+  "masterPassHintLabel": {
+    "message": "Ana parol ipucusu"
+  },
   "settings": {
     "message": "Ayarlar"
   },
@@ -614,6 +626,9 @@
   },
   "verificationCodeRequired": {
     "message": "Doğrulama kodu tələb olunur."
+  },
+  "webauthnCancelOrTimeout": {
+    "message": "Kimlik doğrulama ləğv edildi və ya çox uzun çəkdi. Lütfən yenidən sınayın."
   },
   "invalidVerificationCode": {
     "message": "Yararsız doğrulama kodu"
@@ -1955,6 +1970,9 @@
   "emailVerificationRequired": {
     "message": "E-poçtun doğrulanması tələb olunur"
   },
+  "emailVerifiedV2": {
+    "message": "E-poçt doğrulandı"
+  },
   "emailVerificationRequiredDesc": {
     "message": "Bu özəlliyi istifadə etmək üçün e-poçtunuzu doğrulamalısınız."
   },
@@ -2762,6 +2780,9 @@
         "example": "My Org Name"
       }
     }
+  },
+  "duoHealthCheckResultsInNullAuthUrlError": {
+    "message": "Duo xidmətinə bağlanarkən xəta baş verdi. Fərqli iki addımlı giriş üsulu istifadə edin və ya kömək üçün Duo ilə əlaqə saxlayın."
   },
   "launchDuoAndFollowStepsToFinishLoggingIn": {
     "message": "Duo-nu başladın və giriş prosesini tamamlamaq üçün addımları izləyin."

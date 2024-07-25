@@ -539,6 +539,18 @@
       }
     }
   },
+  "masterPassword": {
+    "message": "Главна парола"
+  },
+  "masterPassImportant": {
+    "message": "Главната парола не може да бъде възстановена, ако я забравите!"
+  },
+  "confirmMasterPassword": {
+    "message": "Потвърждаване на главната парола"
+  },
+  "masterPassHintLabel": {
+    "message": "Подсказка за главната парола"
+  },
   "settings": {
     "message": "Настройки"
   },
@@ -614,6 +626,9 @@
   },
   "verificationCodeRequired": {
     "message": "Кодът за потвърждение е задължителен."
+  },
+  "webauthnCancelOrTimeout": {
+    "message": "Удостоверяването беше отменено или отне твърде много време. Моля, опитайте отново."
   },
   "invalidVerificationCode": {
     "message": "Грешен код за потвърждаване"
@@ -1955,6 +1970,9 @@
   "emailVerificationRequired": {
     "message": "Изисква се потвърждение на е-пощата"
   },
+  "emailVerifiedV2": {
+    "message": "Е-пощата е потвърдена"
+  },
   "emailVerificationRequiredDesc": {
     "message": "Трябва да потвърдите е-пощата си, за да можете да използвате тази функционалност."
   },
@@ -2762,6 +2780,9 @@
         "example": "My Org Name"
       }
     }
+  },
+  "duoHealthCheckResultsInNullAuthUrlError": {
+    "message": "Грешка при свързването с услугата на Duo. Използвайте друг метод за двустепенно удостоверяване или се свържете с Duo за съдействие."
   },
   "launchDuoAndFollowStepsToFinishLoggingIn": {
     "message": "Стартирайте Duo и следвайте инструкциите, за да завършите вписването."

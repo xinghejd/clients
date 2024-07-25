@@ -556,6 +556,18 @@
   "security": {
     "message": "Sikkerhed"
   },
+  "confirmMasterPassword": {
+    "message": "Bekræft hovedadgangskode"
+  },
+  "masterPassword": {
+    "message": "Hovedadgangskode"
+  },
+  "masterPassImportant": {
+    "message": "Hovedadgangskoden kan ikke gendannes, hvis den glemmes!"
+  },
+  "masterPassHintLabel": {
+    "message": "Hovedadgangskodetip"
+  },
   "errorOccurred": {
     "message": "Der er opstået en fejl"
   },
@@ -599,6 +611,9 @@
   "verificationCodeRequired": {
     "message": "Bekræftelseskode er påkrævet."
   },
+  "webauthnCancelOrTimeout": {
+    "message": "Godkendelsen blev afbrudt eller tog for lang tid. Forsøg igen."
+  },
   "invalidVerificationCode": {
     "message": "Ugyldig bekræftelseskode"
   },
@@ -624,6 +639,15 @@
   "totpCapture": {
     "message": "Skan godkendelses QR-kode fra den aktuelle webside"
   },
+  "totpHelperTitle": {
+    "message": "Gør 2-trinsbekræftelse problemfri"
+  },
+  "totpHelper": {
+    "message": "Bitwarden kan gemme og udfylde 2-trinsbekræftelseskoder. Kopiér og indsæt nøglen i dette felt."
+  },
+  "totpHelperWithCapture": {
+    "message": "Bitwarden kan gemme og udfylde 2-trinsbekræftelseskoder. Vælg kameraikonet for at tage et skærmfoto af dette websteds godkendelses-QR-kode, eller kopiér og indsæt nøglen i dette felt."
+  },
   "copyTOTP": {
     "message": "Kopiér godkendelsesnøgle (TOTP)"
   },
@@ -635,6 +659,21 @@
   },
   "loginExpired": {
     "message": "Din login-session er udløbet."
+  },
+  "logIn": {
+    "message": "Log in"
+  },
+  "restartRegistration": {
+    "message": "Restart registration"
+  },
+  "expiredLink": {
+    "message": "Expired link"
+  },
+  "pleaseRestartRegistrationOrTryLoggingIn": {
+    "message": "Please restart registration or try logging in."
+  },
+  "youMayAlreadyHaveAnAccount": {
+    "message": "You may already have an account"
   },
   "logOutConfirmation": {
     "message": "Er du sikker på, du vil logge ud?"
@@ -1471,6 +1510,15 @@
       }
     }
   },
+  "viewItemHeader": {
+    "message": "Vis $TYPE$",
+    "placeholders": {
+      "type": {
+        "content": "$1",
+        "example": "Login"
+      }
+    }
+  },
   "passwordHistory": {
     "message": "Adgangskodehistorik"
   },
@@ -1799,8 +1847,8 @@
   "masterPasswordPolicyRequirementsNotMet": {
     "message": "Din nye hovedadgangskode opfylder ikke politikkravene."
   },
-  "receiveMarketingEmails": {
-    "message": "Get emails from Bitwarden for announcements, advice, and research opportunities."
+  "receiveMarketingEmailsV2": {
+    "message": "Get advice, announcements, and research opportunities from Bitwarden in your inbox."
   },
   "unsubscribe": {
     "message": "Afmeld"
@@ -2163,6 +2211,9 @@
   },
   "emailVerificationRequired": {
     "message": "E-mailbekræftelse kræves"
+  },
+  "emailVerifiedV2": {
+    "message": "E-mail bekræftet"
   },
   "emailVerificationRequiredDesc": {
     "message": "Du skal bekræfte din e-mail for at bruge denne funktion. Du kan bekræfte din e-mail i web-boksen."
@@ -2738,6 +2789,14 @@
   "deviceTrusted": {
     "message": "Enhed betroet"
   },
+  "sendsNoItemsTitle": {
+    "message": "Ingen aktive Sends",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendsNoItemsMessage": {
+    "message": "Brug Send til at dele krypterede oplysninger sikkert med nogen.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
   "inputRequired": {
     "message": "Input obligatorisk."
   },
@@ -3020,6 +3079,9 @@
         "example": "My Org Name"
       }
     }
+  },
+  "duoHealthCheckResultsInNullAuthUrlError": {
+    "message": "Fejl under forbindelsesoprettelsen til Duo-tjenesten. Brug en anden totrins-indlogningsmetode eller kontakt Duo for hjælp."
   },
   "launchDuoAndFollowStepsToFinishLoggingIn": {
     "message": "Start Duo og følg trinnene for at fuldføre indlogningen."
@@ -3334,20 +3396,6 @@
   "passkeyRemoved": {
     "message": "Adgangsnøgle fjernet"
   },
-  "unassignedItemsBannerNotice": {
-    "message": "Bemærk: Utildelte organisationsemner er ikke længere synlige i Alle Bokse-visningen, men er kun tilgængelige via Admin-konsol."
-  },
-  "unassignedItemsBannerSelfHostNotice": {
-    "message": "Bemærk: Pr. 16. maj 2024 er utildelte organisationsemner er ikke længere synlige i Alle Bokse-visningen, men er kun tilgængelige via Admin-konsol."
-  },
-  "unassignedItemsBannerCTAPartOne": {
-    "message": "Tildel disse emner til en samling via",
-    "description": "This will be part of a larger sentence, which will read like so: Assign these items to a collection from the Admin Console to make them visible."
-  },
-  "unassignedItemsBannerCTAPartTwo": {
-    "message": "for at gøre dem synlige.",
-    "description": "This will be part of a larger sentence, which will read like so: Assign these items to a collection from the Admin Console to make them visible."
-  },
   "autofillSuggestions": {
     "message": "Autoudfyldningsforslag"
   },
@@ -3493,13 +3541,13 @@
     "message": "Emner uden mappe"
   },
   "itemDetails": {
-    "message": "Item details"
+    "message": "Emnedetaljer"
   },
   "itemName": {
-    "message": "Item name"
+    "message": "Emnenavn"
   },
   "cannotRemoveViewOnlyCollections": {
-    "message": "You cannot remove collections with View only permissions: $COLLECTIONS$",
+    "message": "Samlinger med kun tilladelsen Vis kan ikke fjernes: $COLLECTIONS$",
     "placeholders": {
       "collections": {
         "content": "$1",
@@ -3511,14 +3559,32 @@
     "message": "Organisation er deaktiveret"
   },
   "owner": {
-    "message": "Owner"
+    "message": "Ejer"
   },
   "selfOwnershipLabel": {
-    "message": "You",
+    "message": "Dig",
     "description": "Used as a label to indicate that the user is the owner of an item."
   },
   "contactYourOrgAdmin": {
     "message": "Emner i deaktiverede organisationer kan ikke tilgås. Kontakt organisationsejeren for assistance."
+  },
+  "additionalInformation": {
+    "message": "Yderligere oplysninger"
+  },
+  "itemHistory": {
+    "message": "Emnehistorik"
+  },
+  "lastEdited": {
+    "message": "Senest redigeret"
+  },
+  "ownerYou": {
+    "message": "Ejer: Dig"
+  },
+  "linked": {
+    "message": "Linket"
+  },
+  "copySuccessful": {
+    "message": "Kopieret"
   },
   "upload": {
     "message": "Upload"
@@ -3558,5 +3624,205 @@
   },
   "filters": {
     "message": "Filtre"
+  },
+  "personalDetails": {
+    "message": "Personlige oplysninger"
+  },
+  "identification": {
+    "message": "Identifikation"
+  },
+  "contactInfo": {
+    "message": "Kontaktoplysninger"
+  },
+  "downloadAttachment": {
+    "message": "Download - $ITEMNAME$",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Your File"
+      }
+    }
+  },
+  "loginCredentials": {
+    "message": "Login-legitimationsoplysninger"
+  },
+  "authenticatorKey": {
+    "message": "Godkendelsesnøgle"
+  },
+  "cardDetails": {
+    "message": "Kortoplysninger"
+  },
+  "cardBrandDetails": {
+    "message": "$BRAND$ oplysninger",
+    "placeholders": {
+      "brand": {
+        "content": "$1",
+        "example": "Visa"
+      }
+    }
+  },
+  "addAccount": {
+    "message": "Tilføj konto"
+  },
+  "loading": {
+    "message": "Indlæser"
+  },
+  "assign": {
+    "message": "Tildel"
+  },
+  "bulkCollectionAssignmentDialogDescription": {
+    "message": "Kun organisationsmedlemmer med adgang til disse samlinger vil kunne se emnerne."
+  },
+  "bulkCollectionAssignmentWarning": {
+    "message": "Der er valgt $TOTAL_COUNT$ emner. $READONLY_COUNT$ af emnerne kan ikke opdateres grundet manglende redigeringsrettigheder.",
+    "placeholders": {
+      "total_count": {
+        "content": "$1",
+        "example": "10"
+      },
+      "readonly_count": {
+        "content": "$2"
+      }
+    }
+  },
+  "addField": {
+    "message": "Tilføj felt"
+  },
+  "add": {
+    "message": "Tilføj"
+  },
+  "fieldType": {
+    "message": "Felttype"
+  },
+  "fieldLabel": {
+    "message": "Feltetiket"
+  },
+  "textHelpText": {
+    "message": "Brug tekstfelter til data, såsom sikkerhedsspørgsmål"
+  },
+  "hiddenHelpText": {
+    "message": "Brug skjulte felter til sensitive data, såsom en adgangskode"
+  },
+  "checkBoxHelpText": {
+    "message": "Brug afkrydsningsfelter, hvis et formularafkrydsningsfelt skal autoudfyldes, såsom en husket e-mail"
+  },
+  "linkedHelpText": {
+    "message": "Brug et linket felt ved autoudfyldningsproblemer for et bestemt websted."
+  },
+  "linkedLabelHelpText": {
+    "message": "Angiv feltets HTML-ID, navn, aria-label eller variabel."
+  },
+  "editField": {
+    "message": "Redigér felt"
+  },
+  "editFieldLabel": {
+    "message": "Redigér $LABEL$",
+    "placeholders": {
+      "label": {
+        "content": "$1",
+        "example": "Custom field"
+      }
+    }
+  },
+  "deleteCustomField": {
+    "message": "Slet $LABEL$",
+    "placeholders": {
+      "label": {
+        "content": "$1",
+        "example": "Custom field"
+      }
+    }
+  },
+  "fieldAdded": {
+    "message": "$LABEL$ tilføjet",
+    "placeholders": {
+      "label": {
+        "content": "$1",
+        "example": "Custom field"
+      }
+    }
+  },
+  "reorderToggleButton": {
+    "message": "Omarrangér $LABEL$. Brug piletasterne til at flytte elementet op eller ned.",
+    "placeholders": {
+      "label": {
+        "content": "$1",
+        "example": "Custom field"
+      }
+    }
+  },
+  "reorderFieldUp": {
+    "message": "$LABEL$ flyttet op, position $INDEX$ af $LENGTH$",
+    "placeholders": {
+      "label": {
+        "content": "$1",
+        "example": "Custom field"
+      },
+      "index": {
+        "content": "$2",
+        "example": "1"
+      },
+      "length": {
+        "content": "$3",
+        "example": "3"
+      }
+    }
+  },
+  "selectCollectionsToAssign": {
+    "message": "Vælg samlinger at tildele"
+  },
+  "personalItemsTransferWarning": {
+    "message": "$PERSONAL_ITEMS_COUNT$ overføres permanent til den valgte organisation. Man vil ikke længere eje disse emner.",
+    "placeholders": {
+      "personal_items_count": {
+        "content": "$1",
+        "example": "2 items"
+      }
+    }
+  },
+  "personalItemsWithOrgTransferWarning": {
+    "message": "$PERSONAL_ITEMS_COUNT$ overføres permanent til $ORG$. Man vil ikke længere eje disse emner.",
+    "placeholders": {
+      "personal_items_count": {
+        "content": "$1",
+        "example": "2 items"
+      },
+      "org": {
+        "content": "$2",
+        "example": "Organization name"
+      }
+    }
+  },
+  "successfullyAssignedCollections": {
+    "message": "Samlinger hermed tildelt"
+  },
+  "nothingSelected": {
+    "message": "Ingenting er valgt."
+  },
+  "movedItemsToOrg": {
+    "message": "Valgte emner flyttet til $ORGNAME$",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Company Name"
+      }
+    }
+  },
+  "reorderFieldDown": {
+    "message": "$LABEL$ flyttet ned, position $INDEX$ af $LENGTH$",
+    "placeholders": {
+      "label": {
+        "content": "$1",
+        "example": "Custom field"
+      },
+      "index": {
+        "content": "$2",
+        "example": "1"
+      },
+      "length": {
+        "content": "$3",
+        "example": "3"
+      }
+    }
   }
 }

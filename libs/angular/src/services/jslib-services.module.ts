@@ -2,6 +2,12 @@ import { ErrorHandler, LOCALE_ID, NgModule } from "@angular/core";
 import { Subject } from "rxjs";
 
 import {
+  SetPasswordJitService,
+  DefaultSetPasswordJitService,
+  RegistrationFinishService as RegistrationFinishServiceAbstraction,
+  DefaultRegistrationFinishService,
+} from "@bitwarden/auth/angular";
+import {
   AuthRequestServiceAbstraction,
   AuthRequestService,
   PinServiceAbstraction,
@@ -14,6 +20,7 @@ import {
   UserDecryptionOptionsService,
   UserDecryptionOptionsServiceAbstraction,
   LogoutReason,
+  RegisterRouteService,
 } from "@bitwarden/auth/common";
 import { ApiService as ApiServiceAbstraction } from "@bitwarden/common/abstractions/api.service";
 import { AuditService as AuditServiceAbstraction } from "@bitwarden/common/abstractions/audit.service";
@@ -126,6 +133,7 @@ import { BraintreeService } from "@bitwarden/common/billing/services/payment-pro
 import { StripeService } from "@bitwarden/common/billing/services/payment-processors/stripe.service";
 import { AppIdService as AppIdServiceAbstraction } from "@bitwarden/common/platform/abstractions/app-id.service";
 import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
+import { BulkEncryptService } from "@bitwarden/common/platform/abstractions/bulk-encrypt.service";
 import { ConfigApiServiceAbstraction } from "@bitwarden/common/platform/abstractions/config/config-api.service.abstraction";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { CryptoFunctionService as CryptoFunctionServiceAbstraction } from "@bitwarden/common/platform/abstractions/crypto-function.service";
@@ -149,15 +157,19 @@ import { StateFactory } from "@bitwarden/common/platform/factories/state-factory
 import { Message, MessageListener, MessageSender } from "@bitwarden/common/platform/messaging";
 // eslint-disable-next-line no-restricted-imports -- Used for dependency injection
 import { SubjectMessageSender } from "@bitwarden/common/platform/messaging/internal";
-import { devFlagEnabled, flagEnabled } from "@bitwarden/common/platform/misc/flags";
+import { devFlagEnabled } from "@bitwarden/common/platform/misc/flags";
 import { Account } from "@bitwarden/common/platform/models/domain/account";
 import { GlobalState } from "@bitwarden/common/platform/models/domain/global-state";
+import {
+  TaskSchedulerService,
+  DefaultTaskSchedulerService,
+} from "@bitwarden/common/platform/scheduling";
 import { AppIdService } from "@bitwarden/common/platform/services/app-id.service";
 import { ConfigApiService } from "@bitwarden/common/platform/services/config/config-api.service";
 import { DefaultConfigService } from "@bitwarden/common/platform/services/config/default-config.service";
 import { ConsoleLogService } from "@bitwarden/common/platform/services/console-log.service";
 import { CryptoService } from "@bitwarden/common/platform/services/crypto.service";
-import { EncryptServiceImplementation } from "@bitwarden/common/platform/services/cryptography/encrypt.service.implementation";
+import { BulkEncryptServiceImplementation } from "@bitwarden/common/platform/services/cryptography/bulk-encrypt.service.implementation";
 import { MultithreadEncryptServiceImplementation } from "@bitwarden/common/platform/services/cryptography/multithread-encrypt.service.implementation";
 import { DefaultBroadcasterService } from "@bitwarden/common/platform/services/default-broadcaster.service";
 import { DefaultEnvironmentService } from "@bitwarden/common/platform/services/default-environment.service";
@@ -405,6 +417,7 @@ const safeProviders: SafeProvider[] = [
       BillingAccountProfileStateService,
       VaultTimeoutSettingsServiceAbstraction,
       KdfConfigServiceAbstraction,
+      TaskSchedulerService,
     ],
   }),
   safeProvider({
@@ -428,6 +441,7 @@ const safeProviders: SafeProvider[] = [
       stateService: StateServiceAbstraction,
       autofillSettingsService: AutofillSettingsServiceAbstraction,
       encryptService: EncryptService,
+      bulkEncryptService: BulkEncryptService,
       fileUploadService: CipherFileUploadServiceAbstraction,
       configService: ConfigService,
       stateProvider: StateProvider,
@@ -441,6 +455,7 @@ const safeProviders: SafeProvider[] = [
         stateService,
         autofillSettingsService,
         encryptService,
+        bulkEncryptService,
         fileUploadService,
         configService,
         stateProvider,
@@ -454,6 +469,7 @@ const safeProviders: SafeProvider[] = [
       StateServiceAbstraction,
       AutofillSettingsServiceAbstraction,
       EncryptService,
+      BulkEncryptService,
       CipherFileUploadServiceAbstraction,
       ConfigService,
       StateProvider,
@@ -710,6 +726,8 @@ const safeProviders: SafeProvider[] = [
       AuthServiceAbstraction,
       VaultTimeoutSettingsServiceAbstraction,
       StateEventRunnerService,
+      TaskSchedulerService,
+      LogService,
       LOCKED_CALLBACK,
       LOGOUT_CALLBACK,
     ],
@@ -722,6 +740,10 @@ const safeProviders: SafeProvider[] = [
     provide: SsoLoginServiceAbstraction,
     useClass: SsoLoginService,
     deps: [StateProvider],
+  }),
+  safeProvider({
+    provide: STATE_FACTORY,
+    useValue: new StateFactory(GlobalState, Account),
   }),
   safeProvider({
     provide: StateServiceAbstraction,
@@ -804,6 +826,7 @@ const safeProviders: SafeProvider[] = [
       StateServiceAbstraction,
       AuthServiceAbstraction,
       MessagingServiceAbstraction,
+      TaskSchedulerService,
     ],
   }),
   safeProvider({
@@ -813,13 +836,24 @@ const safeProviders: SafeProvider[] = [
   }),
   safeProvider({
     provide: EncryptService,
-    useFactory: encryptServiceFactory,
+    useClass: MultithreadEncryptServiceImplementation,
     deps: [CryptoFunctionServiceAbstraction, LogService, LOG_MAC_FAILURES],
+  }),
+  safeProvider({
+    provide: BulkEncryptService,
+    useClass: BulkEncryptServiceImplementation,
+    deps: [CryptoFunctionServiceAbstraction, LogService],
   }),
   safeProvider({
     provide: EventUploadServiceAbstraction,
     useClass: EventUploadService,
-    deps: [ApiServiceAbstraction, StateProvider, LogService, AuthServiceAbstraction],
+    deps: [
+      ApiServiceAbstraction,
+      StateProvider,
+      LogService,
+      AuthServiceAbstraction,
+      TaskSchedulerService,
+    ],
   }),
   safeProvider({
     provide: EventCollectionServiceAbstraction,
@@ -946,7 +980,13 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: DefaultConfigService,
     useClass: DefaultConfigService,
-    deps: [ConfigApiServiceAbstraction, EnvironmentService, LogService, StateProvider],
+    deps: [
+      ConfigApiServiceAbstraction,
+      EnvironmentService,
+      LogService,
+      StateProvider,
+      AuthServiceAbstraction,
+    ],
   }),
   safeProvider({
     provide: ConfigService,
@@ -1012,6 +1052,7 @@ const safeProviders: SafeProvider[] = [
       SECURE_STORAGE,
       UserDecryptionOptionsServiceAbstraction,
       LogService,
+      ConfigService,
     ],
   }),
   safeProvider({
@@ -1202,6 +1243,11 @@ const safeProviders: SafeProvider[] = [
     deps: [INTRAPROCESS_MESSAGING_SUBJECT],
   }),
   safeProvider({
+    provide: TaskSchedulerService,
+    useClass: DefaultTaskSchedulerService,
+    deps: [LogService],
+  }),
+  safeProvider({
     provide: ProviderApiServiceAbstraction,
     useClass: ProviderApiService,
     deps: [ApiServiceAbstraction],
@@ -1221,17 +1267,31 @@ const safeProviders: SafeProvider[] = [
     useClass: StripeService,
     deps: [LogService],
   }),
+  safeProvider({
+    provide: SetPasswordJitService,
+    useClass: DefaultSetPasswordJitService,
+    deps: [
+      ApiServiceAbstraction,
+      CryptoServiceAbstraction,
+      I18nServiceAbstraction,
+      KdfConfigServiceAbstraction,
+      InternalMasterPasswordServiceAbstraction,
+      OrganizationApiServiceAbstraction,
+      OrganizationUserService,
+      InternalUserDecryptionOptionsServiceAbstraction,
+    ],
+  }),
+  safeProvider({
+    provide: RegisterRouteService,
+    useClass: RegisterRouteService,
+    deps: [ConfigService],
+  }),
+  safeProvider({
+    provide: RegistrationFinishServiceAbstraction,
+    useClass: DefaultRegistrationFinishService,
+    deps: [CryptoServiceAbstraction, AccountApiServiceAbstraction],
+  }),
 ];
-
-function encryptServiceFactory(
-  cryptoFunctionservice: CryptoFunctionServiceAbstraction,
-  logService: LogService,
-  logMacFailures: boolean,
-): EncryptService {
-  return flagEnabled("multithreadDecryption")
-    ? new MultithreadEncryptServiceImplementation(cryptoFunctionservice, logService, logMacFailures)
-    : new EncryptServiceImplementation(cryptoFunctionservice, logService, logMacFailures);
-}
 
 @NgModule({
   declarations: [],

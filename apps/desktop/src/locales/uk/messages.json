@@ -539,6 +539,18 @@
       }
     }
   },
+  "masterPassword": {
+    "message": "Головний пароль"
+  },
+  "masterPassImportant": {
+    "message": "Головний пароль неможливо відновити, якщо ви його втратите!"
+  },
+  "confirmMasterPassword": {
+    "message": "Підтвердьте головний пароль"
+  },
+  "masterPassHintLabel": {
+    "message": "Підказка для головного пароля"
+  },
   "settings": {
     "message": "Налаштування"
   },
@@ -614,6 +626,9 @@
   },
   "verificationCodeRequired": {
     "message": "Потрібний код підтвердження."
+  },
+  "webauthnCancelOrTimeout": {
+    "message": "The authentication was cancelled or took too long. Please try again."
   },
   "invalidVerificationCode": {
     "message": "Недійсний код підтвердження"
@@ -1955,6 +1970,9 @@
   "emailVerificationRequired": {
     "message": "Необхідно підтвердити е-пошту"
   },
+  "emailVerifiedV2": {
+    "message": "Електронну пошту підтверджено"
+  },
   "emailVerificationRequiredDesc": {
     "message": "Для використання цієї функції необхідно підтвердити електронну пошту."
   },
@@ -2762,6 +2780,9 @@
         "example": "My Org Name"
       }
     }
+  },
+  "duoHealthCheckResultsInNullAuthUrlError": {
+    "message": "Error connecting with the Duo service. Use a different two-step login method or contact Duo for assistance."
   },
   "launchDuoAndFollowStepsToFinishLoggingIn": {
     "message": "Запустіть Duo і виконайте дії для завершення входу."
