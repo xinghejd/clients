@@ -4,6 +4,7 @@ import { Subject, mergeMap, takeUntil } from "rxjs";
 import { UriMatchStrategy } from "@bitwarden/common/models/domain/domain-service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { getCredentialsForAutofill } from "@bitwarden/common/platform/services/fido2/fido2-autofill-utils";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
@@ -55,7 +56,7 @@ export class DesktopAutofillService implements OnDestroy {
       return;
     }
 
-    const fido2Credentials: NativeAutofillFido2Credential[] = [];
+    let fido2Credentials: NativeAutofillFido2Credential[];
     let passwordCredentials: NativeAutofillPasswordCredential[];
 
     if (status.value.support.password) {
@@ -74,6 +75,13 @@ export class DesktopAutofillService implements OnDestroy {
           uri: cipher.login.uris.find((uri) => uri.match !== UriMatchStrategy.Never).uri,
           username: cipher.login.username,
         }));
+    }
+
+    if (status.value.support.fido2) {
+      fido2Credentials = (await getCredentialsForAutofill(cipherViews)).map((credential) => ({
+        type: "fido2",
+        ...credential,
+      }));
     }
 
     const syncResult = await ipc.autofill.runCommand<NativeAutofillSyncCommand>({

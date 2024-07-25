@@ -16,6 +16,13 @@ export type NativeAutofillCredential =
 
 export type NativeAutofillFido2Credential = {
   type: "fido2";
+  cipherId: string;
+  rpId: string;
+  userName: string;
+  /** Should be Base64URL-encoded binary data */
+  credentialId: string;
+  /** Should be Base64URL-encoded binary data */
+  userHandle: string;
 };
 
 export type NativeAutofillPasswordCredential = {

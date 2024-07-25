@@ -3,6 +3,8 @@
 #import <AuthenticationServices/ASCredentialIdentityStoreState.h>
 #import <AuthenticationServices/ASCredentialServiceIdentifier.h>
 #import <AuthenticationServices/ASPasswordCredentialIdentity.h>
+#import <AuthenticationServices/ASPasskeyCredentialIdentity.h>
+#import "../utils.h"
 #import "../interop.h"
 #import "sync.h"
 
@@ -11,26 +13,47 @@ void runSync(void* context, NSDictionary *params) {
   NSArray *credentials = params[@"credentials"];
 
   // Map credentials to ASPasswordCredential objects
-  NSMutableArray *passwordCredentials = [NSMutableArray arrayWithCapacity:credentials.count];
+  NSMutableArray *mappedCredentials = [NSMutableArray arrayWithCapacity:credentials.count];
   for (NSDictionary *credential in credentials) {
-    NSString *cipherId = credential[@"cipherId"];
-    NSString *uri = credential[@"uri"];
-    NSString *username = credential[@"username"];
+    NSString *type = credential[@"type"];
 
-    ASCredentialServiceIdentifier *serviceId = [[ASCredentialServiceIdentifier alloc]
-      initWithIdentifier:uri type:ASCredentialServiceIdentifierTypeURL];
-    ASPasswordCredentialIdentity *credential = [[ASPasswordCredentialIdentity alloc]
-      initWithServiceIdentifier:serviceId user:username recordIdentifier:cipherId];
+    if ([type isEqualToString:@"password"]) {
+      NSString *cipherId = credential[@"cipherId"];
+      NSString *uri = credential[@"uri"];
+      NSString *username = credential[@"username"];
 
-    [passwordCredentials addObject:credential];
+      ASCredentialServiceIdentifier *serviceId = [[ASCredentialServiceIdentifier alloc]
+        initWithIdentifier:uri type:ASCredentialServiceIdentifierTypeURL];
+      ASPasswordCredentialIdentity *credential = [[ASPasswordCredentialIdentity alloc]
+        initWithServiceIdentifier:serviceId user:username recordIdentifier:cipherId];
+
+      [mappedCredentials addObject:credential];
+    }
+
+    if ([type isEqualToString:@"fido2"]) {
+      NSString *cipherId = credential[@"cipherId"];
+      NSString *rpId = credential[@"rpId"];
+      NSString *userName = credential[@"userName"];
+      NSData *credentialId = decodeBase64URL(credential[@"credentialId"]);
+      NSData *userHandle = decodeBase64URL(credential[@"userHandle"]);
+
+      ASPasskeyCredentialIdentity *credential = [[ASPasskeyCredentialIdentity alloc]
+        initWithRelyingPartyIdentifier:rpId
+        userName:userName
+        credentialID:credentialId
+        userHandle:userHandle
+        recordIdentifier:cipherId];
+
+      [mappedCredentials addObject:credential];
+    }
   }
 
-  [ASCredentialIdentityStore.sharedStore replaceCredentialIdentityEntries:passwordCredentials
+  [ASCredentialIdentityStore.sharedStore replaceCredentialIdentityEntries:mappedCredentials
     completion:^(BOOL success, NSError * _Nullable error) {
       if (error) {
         return _return(context, _error_er(error));
       }
 
-      _return(context, _success(@{@"added": @([passwordCredentials count])}));
+      _return(context, _success(@{@"added": @([mappedCredentials count])}));
     }];
 }
