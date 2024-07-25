@@ -20,6 +20,7 @@ export class AutoSubmitLoginBackground {
   private validAutoSubmitHosts: Set<string> = new Set();
   private mostRecentIdpHost: { url?: string; tabId?: number } = {};
   private currentAutoSubmitHostData: { url?: string; tabId?: number } = {};
+  private isSafariBrowser: boolean = false;
 
   constructor(
     private logService: LogService,
@@ -29,6 +30,7 @@ export class AutoSubmitLoginBackground {
     private configService: ConfigService,
     private platformUtilsService: PlatformUtilsService,
   ) {
+    this.isSafariBrowser = this.platformUtilsService.isSafari();
     this.configService
       .getFeatureFlag(FeatureFlag.AutoSubmitLogin)
       .then((enabled) => {
@@ -37,77 +39,19 @@ export class AutoSubmitLoginBackground {
         }
       })
       .catch((error) => this.logService.error(error));
+
+    // this.init();
   }
 
   init() {
+    BrowserApi.addListener(chrome.runtime.onMessage, this.handleExtensionMessage);
     chrome.webRequest.onBeforeRequest.addListener(this.handleOnBeforeRequest, {
       urls: ["<all_urls>"],
       types: ["main_frame", "sub_frame"],
     });
 
-    BrowserApi.addListener(chrome.runtime.onMessage, this.handleExtensionMessage);
-
-    if (this.platformUtilsService.isSafari()) {
-      BrowserApi.getTabFromCurrentWindow()
-        .then((tab) => {
-          if (!tab) {
-            return;
-          }
-
-          if (this.validIdpHosts.has(this.getUrlHost(tab.url))) {
-            this.mostRecentIdpHost = {
-              url: tab.url,
-              tabId: tab.id,
-            };
-          }
-        })
-        .catch((error) => this.logService.error(error));
-      chrome.tabs.onActivated.addListener(async (activeInfo) => {
-        const tab = await BrowserApi.getTab(activeInfo.tabId);
-        if (this.isValidIdpHost(tab.url)) {
-          this.mostRecentIdpHost = {
-            url: tab.url,
-            tabId: activeInfo.tabId,
-          };
-        }
-      });
-      chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
-        if (changeInfo.url && this.isValidIdpHost(changeInfo.url)) {
-          this.mostRecentIdpHost = {
-            url: changeInfo.url,
-            tabId: tabId,
-          };
-        }
-      });
-      chrome.webNavigation.onCompleted.addListener((details) => {
-        if (details.frameId !== 0) {
-          return;
-        }
-
-        if (this.isValidIdpHost(details.url)) {
-          this.validAutoSubmitHosts.clear();
-          this.mostRecentIdpHost = {
-            url: details.url,
-            tabId: details.tabId,
-          };
-          chrome.tabs.onRemoved.addListener(this.handleTabOnRemoved);
-        }
-      });
-      chrome.webRequest.onBeforeRedirect.addListener(
-        (details) => {
-          if (
-            this.isRequestInMainFrame(details) &&
-            this.urlContainsAutoFillParam(details.redirectUrl)
-          ) {
-            this.validAutoSubmitHosts.add(this.getUrlHost(details.redirectUrl));
-            this.validAutoSubmitHosts.add(this.getUrlHost(details.url));
-          }
-        },
-        {
-          urls: ["<all_urls>"],
-          types: ["main_frame", "sub_frame"],
-        },
-      );
+    if (this.isSafariBrowser) {
+      this.initSafari().catch((error) => this.logService.error(error));
     }
   }
 
@@ -140,8 +84,8 @@ export class AutoSubmitLoginBackground {
       }
       const autoSubmitHost = this.getUrlHost(details.url);
       this.validAutoSubmitHosts.add(autoSubmitHost);
-      chrome.webNavigation.onCompleted.removeListener(this.handleWebNavigationOnCompleted);
-      chrome.webNavigation.onCompleted.addListener(this.handleWebNavigationOnCompleted, {
+      chrome.webNavigation.onCompleted.removeListener(this.handleAutoSubmitHostNavigationCompleted);
+      chrome.webNavigation.onCompleted.addListener(this.handleAutoSubmitHostNavigationCompleted, {
         url: [{ hostEquals: autoSubmitHost }],
       });
 
@@ -162,7 +106,7 @@ export class AutoSubmitLoginBackground {
       .catch((error) => this.logService.error(error));
   };
 
-  handleWebNavigationOnCompleted = (
+  handleAutoSubmitHostNavigationCompleted = (
     details: chrome.webNavigation.WebNavigationFramedCallbackDetails,
   ) => {
     if (
@@ -173,7 +117,7 @@ export class AutoSubmitLoginBackground {
     }
 
     this.triggerAutoSubmitLogin(details.tabId).catch((error) => this.logService.error(error));
-    chrome.webNavigation.onCompleted.removeListener(this.handleWebNavigationOnCompleted);
+    chrome.webNavigation.onCompleted.removeListener(this.handleAutoSubmitHostNavigationCompleted);
   };
 
   getAuthStatus = async () => {
@@ -270,7 +214,7 @@ export class AutoSubmitLoginBackground {
     if (this.isRequestInMainFrame(details)) {
       return (
         this.urlContainsAutoFillParam(details.url) ||
-        (this.platformUtilsService.isSafari() &&
+        (this.isSafariBrowser &&
           (this.isValidAutoSubmitHost(details.url) ||
             this.validAutoSubmitHosts.has(this.getUrlHost(details.url))))
       );
@@ -298,7 +242,7 @@ export class AutoSubmitLoginBackground {
   };
 
   private getRequestInitiator = (details: chrome.webRequest.ResourceRequest) => {
-    if (!this.platformUtilsService.isSafari()) {
+    if (!this.isSafariBrowser) {
       return details.initiator || (details as browser.webRequest._OnBeforeRequestDetails).originUrl;
     }
 
@@ -314,11 +258,63 @@ export class AutoSubmitLoginBackground {
   };
 
   private isRequestInMainFrame = (details: chrome.webRequest.ResourceRequest) => {
-    if (this.platformUtilsService.isSafari()) {
+    if (this.isSafariBrowser) {
       return details.frameId === 0;
     }
 
     return details.type === "main_frame";
+  };
+
+  private async initSafari() {
+    const currentTab = await BrowserApi.getTabFromCurrentWindow();
+    this.setMostRecentIdpHost(currentTab.url, currentTab.id);
+
+    chrome.tabs.onActivated.addListener(this.handleTabOnActivated);
+    chrome.tabs.onUpdated.addListener(this.handleTabOnUpdated);
+    chrome.webNavigation.onCompleted.addListener((details) => {
+      if (details.frameId !== 0) {
+        return;
+      }
+
+      if (this.isValidIdpHost(details.url)) {
+        this.validAutoSubmitHosts.clear();
+        this.mostRecentIdpHost = {
+          url: details.url,
+          tabId: details.tabId,
+        };
+        chrome.tabs.onRemoved.addListener(this.handleTabOnRemoved);
+      }
+    });
+    chrome.webRequest.onBeforeRedirect.addListener(
+      (details) => {
+        if (
+          this.isRequestInMainFrame(details) &&
+          this.urlContainsAutoFillParam(details.redirectUrl)
+        ) {
+          this.validAutoSubmitHosts.add(this.getUrlHost(details.redirectUrl));
+          this.validAutoSubmitHosts.add(this.getUrlHost(details.url));
+        }
+      },
+      {
+        urls: ["<all_urls>"],
+        types: ["main_frame", "sub_frame"],
+      },
+    );
+  }
+
+  private setMostRecentIdpHost(url: string, tabId: number) {
+    if (this.isValidIdpHost(url)) {
+      this.mostRecentIdpHost = { url, tabId };
+    }
+  }
+
+  private handleTabOnActivated = async (activeInfo: chrome.tabs.TabActiveInfo) => {
+    const tab = await BrowserApi.getTab(activeInfo.tabId);
+    this.setMostRecentIdpHost(tab.url, tab.id);
+  };
+
+  private handleTabOnUpdated = (tabId: number, changeInfo: chrome.tabs.TabChangeInfo) => {
+    this.setMostRecentIdpHost(changeInfo.url, tabId);
   };
 
   private handleTabOnRemoved = (tabId: number) => {
