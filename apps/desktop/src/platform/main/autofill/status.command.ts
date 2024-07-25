@@ -12,8 +12,9 @@ export type NativeAutofillStatusResult = CommandOutput<{
   support: {
     fido2: boolean;
     password: boolean;
+    incrementalUpdates: boolean;
   };
   state: {
-    autofillEnabled: boolean;
+    enabled: boolean;
   };
 }>;

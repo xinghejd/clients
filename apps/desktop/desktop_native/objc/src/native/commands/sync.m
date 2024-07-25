@@ -25,12 +25,12 @@ void runSync(void* context, NSDictionary *params) {
     [passwordCredentials addObject:credential];
   }
 
-  [ASCredentialIdentityStore.sharedStore saveCredentialIdentities:passwordCredentials
+  [ASCredentialIdentityStore.sharedStore replaceCredentialIdentityEntries:passwordCredentials
     completion:^(BOOL success, NSError * _Nullable error) {
       if (error) {
-        _return(context, _error_er(error));
-      } else {
-        _return(context, _success(@{@"added": @([passwordCredentials count])}));
+        return _return(context, _error_er(error));
       }
+
+      _return(context, _success(@{@"added": @([passwordCredentials count])}));
     }];
 }

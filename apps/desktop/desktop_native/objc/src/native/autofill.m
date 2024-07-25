@@ -18,11 +18,12 @@
 
 void pickAndRunCommand(void* context, NSDictionary *input) {
   NSString *command = input[@"command"];
+  NSDictionary *params = input[@"params"];
 
   if ([command isEqual:@"status"]) {
-    return status(context, input);
+    return status(context, params);
   } else if ([command isEqual:@"sync"]) {
-    return runSync(context, input);
+    return runSync(context, params);
   }
 
   _return(context, _error([NSString stringWithFormat:@"Unknown command: %@", command]));

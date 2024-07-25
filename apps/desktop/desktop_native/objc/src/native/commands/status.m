@@ -4,14 +4,14 @@
 #import "../interop.h"
 #import "status.h"
 
-BOOL autofillEnabled(void (^callback)(BOOL)) {
+BOOL storeState(void (^callback)(ASCredentialIdentityStoreState*)) {
   if (@available(macos 11, *)) {
     ASCredentialIdentityStore *store = [ASCredentialIdentityStore sharedStore];
     [store getCredentialIdentityStoreStateWithCompletion:^(ASCredentialIdentityStoreState * _Nonnull state) {
-      callback(state.enabled);
+      callback(state);
     }];
   } else {
-    callback(NO);
+    callback(nil);
   }
 }
 
@@ -32,15 +32,24 @@ BOOL passwordSupported() {
 }
 
 void status(void* context, NSDictionary *params) {
-  autofillEnabled(^(BOOL enabled) {
+  storeState(^(ASCredentialIdentityStoreState *state) {
+    BOOL enabled = NO;
+    BOOL supportsIncremental = NO;
+
+    if (state != nil) {
+      enabled = state.isEnabled;
+      supportsIncremental = state.supportsIncrementalUpdates;
+    }
+
     _return(context,
       _success(@{
         @"support": @{
           @"fido2": @(fido2Supported()),
-          @"password": @(passwordSupported())
+          @"password": @(passwordSupported()),
+          @"incrementalUpdates": @(supportsIncremental),
         },
         @"state": @{
-          @"enabled": @(enabled)
+          @"enabled": @(enabled),
         }
       })
     );

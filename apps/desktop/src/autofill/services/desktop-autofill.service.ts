@@ -10,6 +10,7 @@ import {
   NativeAutofillPasswordCredential,
   NativeAutofillSyncCommand,
 } from "../../platform/main/autofill/sync.command";
+import { isDev } from "../../utils";
 
 export class DesktopAutofillService {
   constructor(
@@ -18,8 +19,9 @@ export class DesktopAutofillService {
   ) {}
 
   async init() {
-    // (window as any).testAutofill = () => this.status();
-    (window as any).testAutofill = () => this.sync();
+    if (isDev()) {
+      (window as any).DesktopAutofillService = this;
+    }
   }
 
   async sync() {
@@ -28,7 +30,8 @@ export class DesktopAutofillService {
       return this.logService.error("Error getting autofill status", status.error);
     }
 
-    if (!status.value.state.autofillEnabled) {
+    if (!status.value.state.enabled) {
+      this.logService.debug("Autofill is disabled");
       return;
     }
 
@@ -66,11 +69,11 @@ export class DesktopAutofillService {
       return this.logService.error("Error syncing autofill credentials", syncResult.error);
     }
 
-    this.logService.info("Synced autofill credentials", syncResult.value);
+    this.logService.debug("Synced autofill credentials", syncResult.value);
   }
 
   private status() {
-    // TODO: Investigate this type needs to be explicitly set
+    // TODO: Investigate why this type needs to be explicitly set
     return ipc.autofill.runCommand<NativeAutofillStatusCommand>({
       command: "status",
       params: {},
