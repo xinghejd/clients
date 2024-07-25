@@ -1,8 +1,12 @@
+import { Injectable, OnDestroy } from "@angular/core";
+import { Subject, mergeMap, takeUntil } from "rxjs";
+
 import { UriMatchStrategy } from "@bitwarden/common/models/domain/domain-service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
+import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
 import { NativeAutofillStatusCommand } from "../../platform/main/autofill/status.command";
 import {
@@ -12,11 +16,21 @@ import {
 } from "../../platform/main/autofill/sync.command";
 import { isDev } from "../../utils";
 
-export class DesktopAutofillService {
+@Injectable()
+export class DesktopAutofillService implements OnDestroy {
+  private destroy$ = new Subject<void>();
+
   constructor(
     private logService: LogService,
     private cipherService: CipherService,
-  ) {}
+  ) {
+    this.cipherService.cipherViews$
+      .pipe(
+        mergeMap((cipherViewMap) => this.sync(Object.values(cipherViewMap))),
+        takeUntil(this.destroy$),
+      )
+      .subscribe();
+  }
 
   async init() {
     if (isDev()) {
@@ -24,24 +38,28 @@ export class DesktopAutofillService {
     }
   }
 
-  async sync() {
+  /** Used for development purposes. TODO: Remove before merging */
+  async manualSync() {
+    await this.sync(await this.cipherService.getAllDecrypted());
+  }
+
+  /** Give metadata about all available credentials in the users vault */
+  async sync(cipherViews: CipherView[]) {
     const status = await this.status();
     if (status.type === "error") {
       return this.logService.error("Error getting autofill status", status.error);
     }
 
     if (!status.value.state.enabled) {
-      this.logService.debug("Autofill is disabled");
+      // Autofill is disabled
       return;
     }
-
-    const ciphers = await this.cipherService.getAllDecrypted();
 
     const fido2Credentials: NativeAutofillFido2Credential[] = [];
     let passwordCredentials: NativeAutofillPasswordCredential[];
 
     if (status.value.support.password) {
-      passwordCredentials = ciphers
+      passwordCredentials = cipherViews
         .filter(
           (cipher) =>
             cipher.type === CipherType.Login &&
@@ -69,14 +87,20 @@ export class DesktopAutofillService {
       return this.logService.error("Error syncing autofill credentials", syncResult.error);
     }
 
-    this.logService.debug("Synced autofill credentials", syncResult.value);
+    this.logService.debug(`Synced ${syncResult.value.added} autofill credentials`);
   }
 
+  /** Get autofill status from OS */
   private status() {
     // TODO: Investigate why this type needs to be explicitly set
     return ipc.autofill.runCommand<NativeAutofillStatusCommand>({
       command: "status",
       params: {},
     });
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }
