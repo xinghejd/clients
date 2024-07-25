@@ -20,6 +20,7 @@ import {
   SetPasswordJitComponent,
   LockIcon,
   RegistrationLinkExpiredComponent,
+  LockV2Component,
 } from "@bitwarden/auth/angular";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 
@@ -174,6 +175,21 @@ const routes: Routes = [
     path: "",
     component: AnonLayoutWrapperComponent,
     children: [
+      {
+        path: "lockv2",
+        canActivate: [],
+        data: {
+          pageTitle: "yourVaultIsLockedV2",
+          pageIcon: LockIcon,
+          showReadonlyHostname: true,
+        } satisfies AnonLayoutWrapperData,
+        children: [
+          {
+            path: "",
+            component: LockV2Component,
+          },
+        ],
+      },
       {
         path: "signup",
         canActivate: [canAccessFeature(FeatureFlag.EmailVerification), unauthGuardFn()],
