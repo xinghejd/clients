@@ -33,7 +33,7 @@ import { Organization } from "@bitwarden/common/admin-console/models/domain/orga
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 import { OrganizationKeysRequest } from "@bitwarden/common/admin-console/models/request/organization-keys.request";
 import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions/billilng-api.service.abstraction";
-import { ProductTierType } from "@bitwarden/common/billing/enums";
+import { isSelfUpgradable, ProductTierType } from "@bitwarden/common/billing/enums";
 import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -398,11 +398,7 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
 
     const productType = this.organization.productTierType;
 
-    if (
-      productType !== ProductTierType.Free &&
-      productType !== ProductTierType.TeamsStarter &&
-      productType !== ProductTierType.Families
-    ) {
+    if (!isSelfUpgradable(productType)) {
       throw new Error(`Unsupported product type: ${productType}`);
     }
 
@@ -416,11 +412,7 @@ export class MembersComponent extends BaseMembersComponent<OrganizationUserView>
 
     const productType = this.organization.productTierType;
 
-    if (
-      productType !== ProductTierType.Free &&
-      productType !== ProductTierType.TeamsStarter &&
-      productType !== ProductTierType.Families
-    ) {
+    if (!isSelfUpgradable(productType)) {
       throw new Error(`Unsupported product type: ${this.organization.productTierType}`);
     }
 
