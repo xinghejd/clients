@@ -84,16 +84,6 @@ export class AutoSubmitLoginBackground {
           return;
         }
 
-        // if (this.mostRecentIdpHost.tabId && this.mostRecentIdpHost.tabId !== details.tabId) {
-        //   this.mostRecentIdpHost = {};
-        //   return;
-        // }
-        //
-        // if (this.mostRecentIdpHost.url && this.mostRecentIdpHost.url !== details.url) {
-        //   this.mostRecentIdpHost = {};
-        //   return;
-        // }
-
         if (this.isValidIdpHost(details.url)) {
           this.validAutoSubmitHosts.clear();
           this.mostRecentIdpHost = {
@@ -105,16 +95,12 @@ export class AutoSubmitLoginBackground {
       });
       chrome.webRequest.onBeforeRedirect.addListener(
         (details) => {
-          if (this.isRequestInMainFrame(details)) {
-            try {
-              const urlObj = new URL(details.redirectUrl);
-              if (urlObj.search.indexOf("autofill=1") !== -1) {
-                this.validAutoSubmitHosts.add(this.getUrlHost(details.redirectUrl));
-                this.validAutoSubmitHosts.add(this.getUrlHost(details.url));
-              }
-            } catch {
-              // do nothing
-            }
+          if (
+            this.isRequestInMainFrame(details) &&
+            this.urlContainsAutoFillParam(details.redirectUrl)
+          ) {
+            this.validAutoSubmitHosts.add(this.getUrlHost(details.redirectUrl));
+            this.validAutoSubmitHosts.add(this.getUrlHost(details.url));
           }
         },
         {
@@ -152,11 +138,11 @@ export class AutoSubmitLoginBackground {
           tabId: details.tabId,
         };
       }
-      this.validAutoSubmitHosts.add(this.getUrlHost(details.url));
-      chrome.webRequest.onCompleted.addListener(this.handleWebRequestOnCompleted, {
-        tabId: details.tabId,
-        urls: ["<all_urls>"],
-        types: ["main_frame", "sub_frame"],
+      const autoSubmitHost = this.getUrlHost(details.url);
+      this.validAutoSubmitHosts.add(autoSubmitHost);
+      chrome.webNavigation.onCompleted.removeListener(this.handleWebNavigationOnCompleted);
+      chrome.webNavigation.onCompleted.addListener(this.handleWebNavigationOnCompleted, {
+        url: [{ hostEquals: autoSubmitHost }],
       });
 
       return;
@@ -176,23 +162,13 @@ export class AutoSubmitLoginBackground {
       .catch((error) => this.logService.error(error));
   };
 
-  handleWebRequestOnCompleted = (details: chrome.webRequest.WebResponseDetails) => {
-    chrome.webRequest.onCompleted.removeListener(this.handleWebRequestOnCompleted);
-
-    const requestInitiator = this.getRequestInitiator(details);
-
-    if (
-      this.isValidInitiator(requestInitiator) &&
-      this.shouldRouteTriggerAutoSubmit(details, requestInitiator)
-    ) {
-      chrome.webNavigation.onCompleted.addListener(this.handleWebNavigationOnCompleted);
-    }
-  };
-
   handleWebNavigationOnCompleted = (
     details: chrome.webNavigation.WebNavigationFramedCallbackDetails,
   ) => {
-    if (details.tabId !== this.currentAutoSubmitHostData.tabId) {
+    if (
+      details.tabId !== this.currentAutoSubmitHostData.tabId ||
+      !this.urlContainsAutoFillParam(details.url)
+    ) {
       return;
     }
 
@@ -292,20 +268,24 @@ export class AutoSubmitLoginBackground {
     initiator: string,
   ) => {
     if (this.isRequestInMainFrame(details)) {
-      try {
-        const urlObj = new URL(details.url);
-        return (
-          urlObj.search.indexOf("autofill=1") !== -1 ||
-          (this.platformUtilsService.isSafari() &&
-            (this.isValidAutoSubmitHost(details.url) ||
-              this.validAutoSubmitHosts.has(this.getUrlHost(details.url))))
-        );
-      } catch {
-        return false;
-      }
+      return (
+        this.urlContainsAutoFillParam(details.url) ||
+        (this.platformUtilsService.isSafari() &&
+          (this.isValidAutoSubmitHost(details.url) ||
+            this.validAutoSubmitHosts.has(this.getUrlHost(details.url))))
+      );
     }
 
     return this.isValidAutoSubmitHost(initiator);
+  };
+
+  private urlContainsAutoFillParam = (url: string) => {
+    try {
+      const urlObj = new URL(url);
+      return urlObj.search.indexOf("autofill=1") !== -1;
+    } catch {
+      return false;
+    }
   };
 
   private getUrlHost = (url: string) => {
