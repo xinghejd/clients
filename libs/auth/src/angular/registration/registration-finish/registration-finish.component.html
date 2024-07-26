@@ -1,4 +1,4 @@
-<div class="full-loading-spinner" *ngIf="loading">
+<div class="tw-flex tw-items-center tw-justify-center" *ngIf="loading">
   <i class="bwi bwi-spinner bwi-spin bwi-3x" aria-hidden="true"></i>
 </div>
 
@@ -8,4 +8,5 @@
   [masterPasswordPolicyOptions]="masterPasswordPolicyOptions"
   [loading]="submitting"
   (onPasswordFormSubmit)="handlePasswordFormSubmit($event)"
+  [buttonText]="'createAccount' | i18n"
 ></auth-input-password>

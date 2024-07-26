@@ -81,6 +81,7 @@
               name="file"
               formControlName="file"
               (change)="setSelectedFile($event)"
+              hidden
               class="tw-hidden"
             />
             <bit-hint>{{ "sendFileDesc" | i18n }} {{ "maxFileSize" | i18n }}</bit-hint>
