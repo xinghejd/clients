@@ -116,7 +116,7 @@ export const Scrollable: Story = {
       sortFn: (a: any, b: any) => a.id - b.id,
     },
     template: `
-      <bit-table-scroll [dataSource]="dataSource" [itemSize]="43">
+      <bit-table-scroll [dataSource]="dataSource" [rowSize]="43">
         <ng-container header>
           <tr>
             <th bitCell bitSortable="id" default>Id</th>

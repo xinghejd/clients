@@ -45,7 +45,7 @@ export class TableScrollComponent
   implements AfterContentChecked, AfterViewInit, OnDestroy
 {
   /** The size of the items in the list (in pixels). */
-  @Input({ required: true }) itemSize: number;
+  @Input({ required: true }) rowSize: number;
 
   @ContentChild(BitRowDef) protected rowDef: BitRowDef;
 
