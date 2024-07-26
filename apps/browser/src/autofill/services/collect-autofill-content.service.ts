@@ -1462,7 +1462,7 @@ class CollectAutofillContentService implements CollectAutofillContentServiceInte
    *
    * @deprecated - This method remains as a fallback in the case that the deepQuery implementation fails.
    */
-  private queryAllTreeWalkerNodes(
+  queryAllTreeWalkerNodes(
     rootNode: Node,
     filterCallback: CallableFunction,
     isObservingShadowRoot = true,
@@ -1595,6 +1595,10 @@ class CollectAutofillContentService implements CollectAutofillContentServiceInte
     }
 
     return Boolean(this.deepQueryElements(document, `input[type="password"]`)?.length);
+  }
+
+  get getAutofillFormElements(): AutofillFormElements {
+    return this.autofillFormElements;
   }
 }
 

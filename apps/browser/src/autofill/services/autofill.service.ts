@@ -378,7 +378,7 @@ export default class AutofillService implements AutofillServiceInterface {
         BrowserApi.tabSendMessage(
           tab,
           {
-            command: "fillForm",
+            command: options.autoSubmitLogin ? "triggerAutoSubmitLogin" : "fillForm",
             fillScript: fillScript,
             url: tab.url,
             pageDetailsUrl: pd.details.url,
@@ -423,12 +423,14 @@ export default class AutofillService implements AutofillServiceInterface {
    * @param {PageDetail[]} pageDetails The data scraped from the page
    * @param {chrome.tabs.Tab} tab The tab to be autofilled
    * @param {boolean} fromCommand Whether the autofill is triggered by a keyboard shortcut (`true`) or autofill on page load (`false`)
+   * @param {boolean} autoSubmitLogin Whether the autofill is for an auto-submit login
    * @returns {Promise<string | null>} The TOTP code of the successfully autofilled login, if any
    */
   async doAutoFillOnTab(
     pageDetails: PageDetail[],
     tab: chrome.tabs.Tab,
     fromCommand: boolean,
+    autoSubmitLogin = false,
   ): Promise<string | null> {
     let cipher: CipherView;
     if (fromCommand) {
@@ -468,6 +470,7 @@ export default class AutofillService implements AutofillServiceInterface {
       fillNewPassword: fromCommand,
       allowUntrustedIframe: fromCommand,
       allowTotpAutofill: fromCommand,
+      autoSubmitLogin,
     });
 
     // Update last used index as autofill has succeeded
@@ -812,6 +815,22 @@ export default class AutofillService implements AutofillServiceInterface {
       filledFields[p.opid] = p;
       AutofillService.fillByOpid(fillScript, p, login.password);
     });
+
+    // CG POC - Auto-submit form fields
+    if (usernames.length || passwords.length) {
+      const autoSubmitSet = new Set();
+
+      for (let i = 0; i < usernames.length; i++) {
+        autoSubmitSet.add(usernames[i].form);
+      }
+
+      for (let i = 0; i < passwords.length; i++) {
+        autoSubmitSet.add(passwords[i].form);
+      }
+
+      fillScript.autosubmit = Array.from(autoSubmitSet);
+    }
+    // END CG POC
 
     if (options.allowTotpAutofill) {
       await Promise.all(
