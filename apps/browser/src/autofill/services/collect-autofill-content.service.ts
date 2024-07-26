@@ -1,41 +1,42 @@
 import AutofillField from "../models/autofill-field";
 import AutofillForm from "../models/autofill-form";
 import AutofillPageDetails from "../models/autofill-page-details";
-import {
-  ElementWithOpId,
-  FillableFormFieldElement,
-  FormFieldElement,
-  FormElementWithAttribute,
-} from "../types";
+import { ElementWithOpId, FillableFormFieldElement, FormFieldElement } from "../types";
 import {
   elementIsDescriptionDetailsElement,
   elementIsDescriptionTermElement,
   elementIsFillableFormField,
   elementIsFormElement,
+  elementIsInputElement,
   elementIsLabelElement,
   elementIsSelectElement,
   elementIsSpanElement,
   nodeIsElement,
-  elementIsInputElement,
   elementIsTextAreaElement,
   nodeIsFormElement,
   nodeIsInputElement,
-  // sendExtensionMessage,
+  sendExtensionMessage,
+  getAttributeBoolean,
+  getPropertyOrAttribute,
   requestIdleCallbackPolyfill,
+  cancelIdleCallbackPolyfill,
 } from "../utils";
 
 import { AutofillOverlayContentService } from "./abstractions/autofill-overlay-content.service";
 import {
-  UpdateAutofillDataAttributeParams,
   AutofillFieldElements,
   AutofillFormElements,
   CollectAutofillContentService as CollectAutofillContentServiceInterface,
+  UpdateAutofillDataAttributeParams,
 } from "./abstractions/collect-autofill-content.service";
 import { DomElementVisibilityService } from "./abstractions/dom-element-visibility.service";
 
 class CollectAutofillContentService implements CollectAutofillContentServiceInterface {
+  private readonly sendExtensionMessage = sendExtensionMessage;
   private readonly domElementVisibilityService: DomElementVisibilityService;
   private readonly autofillOverlayContentService: AutofillOverlayContentService;
+  private readonly getAttributeBoolean = getAttributeBoolean;
+  private readonly getPropertyOrAttribute = getPropertyOrAttribute;
   private noFieldsFound = false;
   private domRecentlyMutated = true;
   private autofillFormElements: AutofillFormElements = new Map();
@@ -44,9 +45,9 @@ class CollectAutofillContentService implements CollectAutofillContentServiceInte
   private intersectionObserver: IntersectionObserver;
   private elementInitializingIntersectionObserver: Set<Element> = new Set();
   private mutationObserver: MutationObserver;
-  private updateAutofillElementsAfterMutationTimeout: number | NodeJS.Timeout;
   private mutationsQueue: MutationRecord[][] = [];
-  private readonly updateAfterMutationTimeoutDelay = 1000;
+  private updateAfterMutationIdleCallback: NodeJS.Timeout | number;
+  private readonly updateAfterMutationTimeout = 1000;
   private readonly formFieldQueryString;
   private readonly nonInputFormFieldTags = new Set(["textarea", "select"]);
   private readonly ignoredInputTypes = new Set([
@@ -121,7 +122,10 @@ class CollectAutofillContentService implements CollectAutofillContentServiceInte
     }
 
     this.domRecentlyMutated = false;
-    return this.getFormattedPageDetails(autofillFormsData, autofillFieldsData);
+    const pageDetails = this.getFormattedPageDetails(autofillFormsData, autofillFieldsData);
+    this.setupInlineMenuListeners(pageDetails);
+
+    return pageDetails;
   }
 
   /**
@@ -278,11 +282,14 @@ class CollectAutofillContentService implements CollectAutofillContentServiceInte
    * @private
    */
   private updateCachedAutofillFieldVisibility() {
-    this.autofillFieldElements.forEach(
-      async (autofillField, element) =>
-        (autofillField.viewable =
-          await this.domElementVisibilityService.isFormFieldViewable(element)),
-    );
+    this.autofillFieldElements.forEach(async (autofillField, element) => {
+      const previouslyViewable = autofillField.viewable;
+      autofillField.viewable = await this.domElementVisibilityService.isFormFieldViewable(element);
+
+      if (!previouslyViewable && autofillField.viewable) {
+        this.setupInlineMenu(element, autofillField);
+      }
+    });
   }
 
   /**
@@ -456,10 +463,6 @@ class CollectAutofillContentService implements CollectAutofillContentServiceInte
 
     if (elementIsSpanElement(element)) {
       this.cacheAutofillFieldElement(index, element, autofillFieldBase);
-      void this.autofillOverlayContentService?.setupAutofillOverlayListenerOnField(
-        element,
-        autofillFieldBase,
-      );
       return autofillFieldBase;
     }
 
@@ -499,10 +502,6 @@ class CollectAutofillContentService implements CollectAutofillContentServiceInte
     };
 
     this.cacheAutofillFieldElement(index, element, autofillField);
-    void this.autofillOverlayContentService?.setupAutofillOverlayListenerOnField(
-      element,
-      autofillField,
-    );
     return autofillField;
   };
 
@@ -534,31 +533,11 @@ class CollectAutofillContentService implements CollectAutofillContentServiceInte
    * @private
    */
   private getAutoCompleteAttribute(element: ElementWithOpId<FormFieldElement>): string {
-    const autoCompleteType =
+    return (
       this.getPropertyOrAttribute(element, "x-autocompletetype") ||
       this.getPropertyOrAttribute(element, "autocompletetype") ||
-      this.getPropertyOrAttribute(element, "autocomplete");
-    return autoCompleteType !== "off" ? autoCompleteType : null;
-  }
-
-  /**
-   * Returns a boolean representing the attribute value of an element.
-   * @param {ElementWithOpId<FormFieldElement>} element
-   * @param {string} attributeName
-   * @param {boolean} checkString
-   * @returns {boolean}
-   * @private
-   */
-  private getAttributeBoolean(
-    element: ElementWithOpId<FormFieldElement>,
-    attributeName: string,
-    checkString = false,
-  ): boolean {
-    if (checkString) {
-      return this.getPropertyOrAttribute(element, attributeName) === "true";
-    }
-
-    return Boolean(this.getPropertyOrAttribute(element, attributeName));
+      this.getPropertyOrAttribute(element, "autocomplete")
+    );
   }
 
   /**
@@ -873,21 +852,6 @@ class CollectAutofillContentService implements CollectAutofillContentServiceInte
   }
 
   /**
-   * Get the value of a property or attribute from a FormFieldElement.
-   * @param {HTMLElement} element
-   * @param {string} attributeName
-   * @returns {string | null}
-   * @private
-   */
-  private getPropertyOrAttribute(element: HTMLElement, attributeName: string): string | null {
-    if (attributeName in element) {
-      return (element as FormElementWithAttribute)[attributeName];
-    }
-
-    return element.getAttribute(attributeName);
-  }
-
-  /**
    * Gets the value of the element. If the element is a checkbox, returns a checkmark if the
    * checkbox is checked, or an empty string if it is not checked. If the element is a hidden
    * input, returns the value of the input if it is less than 254 characters, or a truncated
@@ -1079,6 +1043,7 @@ class CollectAutofillContentService implements CollectAutofillContentServiceInte
     this.domRecentlyMutated = true;
     if (this.autofillOverlayContentService) {
       this.autofillOverlayContentService.pageDetailsUpdateRequired = true;
+      void this.sendExtensionMessage("closeAutofillInlineMenu", { forceCloseInlineMenu: true });
     }
     this.noFieldsFound = false;
 
@@ -1234,13 +1199,13 @@ class CollectAutofillContentService implements CollectAutofillContentServiceInte
    * @private
    */
   private updateAutofillElementsAfterMutation() {
-    if (this.updateAutofillElementsAfterMutationTimeout) {
-      clearTimeout(this.updateAutofillElementsAfterMutationTimeout);
+    if (this.updateAfterMutationIdleCallback) {
+      cancelIdleCallbackPolyfill(this.updateAfterMutationIdleCallback);
     }
 
-    this.updateAutofillElementsAfterMutationTimeout = setTimeout(
+    this.updateAfterMutationIdleCallback = requestIdleCallbackPolyfill(
       this.getPageDetails.bind(this),
-      this.updateAfterMutationTimeoutDelay,
+      { timeout: this.updateAfterMutationTimeout },
     );
   }
 
@@ -1417,35 +1382,77 @@ class CollectAutofillContentService implements CollectAutofillContentServiceInte
         continue;
       }
 
+      const cachedAutofillFieldElement = this.autofillFieldElements.get(formFieldElement);
+      if (!cachedAutofillFieldElement) {
+        this.intersectionObserver.unobserve(entry.target);
+        continue;
+      }
+
       const isViewable =
         await this.domElementVisibilityService.isFormFieldViewable(formFieldElement);
       if (!isViewable) {
         continue;
       }
 
-      const cachedAutofillFieldElement = this.autofillFieldElements.get(formFieldElement);
-      if (!cachedAutofillFieldElement) {
-        continue;
-      }
-
       cachedAutofillFieldElement.viewable = true;
-
-      void this.autofillOverlayContentService?.setupAutofillOverlayListenerOnField(
-        formFieldElement,
-        cachedAutofillFieldElement,
-      );
+      this.setupInlineMenu(formFieldElement, cachedAutofillFieldElement);
 
       this.intersectionObserver?.unobserve(entry.target);
     }
   };
 
   /**
+   * Iterates over all cached field elements and sets up the inline menu listeners on each field.
+   *
+   * @param pageDetails - The page details to use for the inline menu listeners
+   */
+  private setupInlineMenuListeners(pageDetails: AutofillPageDetails) {
+    if (!this.autofillOverlayContentService) {
+      return;
+    }
+
+    this.autofillFieldElements.forEach((autofillField, formFieldElement) => {
+      this.setupInlineMenu(formFieldElement, autofillField, pageDetails);
+    });
+  }
+
+  /**
+   * Sets up the inline menu listener on the passed field element.
+   *
+   * @param formFieldElement - The form field element to set up the inline menu listener on
+   * @param autofillField - The metadata for the form field
+   * @param pageDetails - The page details to use for the inline menu listeners
+   */
+  private setupInlineMenu(
+    formFieldElement: ElementWithOpId<FormFieldElement>,
+    autofillField: AutofillField,
+    pageDetails?: AutofillPageDetails,
+  ) {
+    if (!this.autofillOverlayContentService) {
+      return;
+    }
+
+    const autofillPageDetails =
+      pageDetails ||
+      this.getFormattedPageDetails(
+        this.getFormattedAutofillFormsData(),
+        this.getFormattedAutofillFieldsData(),
+      );
+
+    void this.autofillOverlayContentService.setupInlineMenu(
+      formFieldElement,
+      autofillField,
+      autofillPageDetails,
+    );
+  }
+
+  /**
    * Destroys the CollectAutofillContentService. Clears all
    * timeouts and disconnects the mutation observer.
    */
   destroy() {
-    if (this.updateAutofillElementsAfterMutationTimeout) {
-      clearTimeout(this.updateAutofillElementsAfterMutationTimeout);
+    if (this.updateAfterMutationIdleCallback) {
+      cancelIdleCallbackPolyfill(this.updateAfterMutationIdleCallback);
     }
     this.mutationObserver?.disconnect();
     this.intersectionObserver?.disconnect();

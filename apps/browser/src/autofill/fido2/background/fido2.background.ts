@@ -33,7 +33,7 @@ export class Fido2Background implements Fido2BackgroundInterface {
     runAt: "document_start",
   };
   private readonly sharedRegistrationOptions: SharedFido2ScriptRegistrationOptions = {
-    matches: ["https://*/*"],
+    matches: ["https://*/*", "http://localhost/*"],
     excludeMatches: ["https://*/*.xml*"],
     allFrames: true,
     ...this.sharedInjectionDetails,
@@ -295,12 +295,12 @@ export class Fido2Background implements Fido2BackgroundInterface {
   ) => {
     const handler: CallableFunction | undefined = this.extensionMessageHandlers[message?.command];
     if (!handler) {
-      return;
+      return null;
     }
 
     const messageResponse = handler({ message, sender });
-    if (!messageResponse) {
-      return;
+    if (typeof messageResponse === "undefined") {
+      return null;
     }
 
     Promise.resolve(messageResponse)

@@ -42,6 +42,12 @@
   "cardholderName": {
     "message": "Ім'я власника картки"
   },
+  "loginCredentials": {
+    "message": "Облікові дані для входу"
+  },
+  "authenticatorKey": {
+    "message": "Ключ автентифікації"
+  },
   "number": {
     "message": "Номер"
   },
@@ -138,6 +144,15 @@
   "authenticatorKeyTotp": {
     "message": "Ключ автентифікації (TOTP)"
   },
+  "totpHelperTitle": {
+    "message": "Спростіть двоетапну перевірку"
+  },
+  "totpHelper": {
+    "message": "Bitwarden може автоматично заповнювати одноразові коди двоетапної перевірки. Скопіюйте і вставте ключ у це поле."
+  },
+  "totpHelperWithCapture": {
+    "message": "Bitwarden може автоматично заповнювати одноразові коди двоетапної перевірки. Відкрийте камеру, щоб сканувати QR-код на цьому вебсайті, або скопіюйте і вставте ключ у це поле."
+  },
   "folder": {
     "message": "Тека"
   },
@@ -172,6 +187,10 @@
   "noneFolder": {
     "message": "Без теки",
     "description": "This is the folder for uncategorized items"
+  },
+  "selfOwnershipLabel": {
+    "message": "Ви",
+    "description": "Used as a label to indicate that the user is the owner of an item."
   },
   "addFolder": {
     "message": "Додати теку"
@@ -401,6 +420,21 @@
   "item": {
     "message": "Запис"
   },
+  "itemDetails": {
+    "message": "Подробиці запису"
+  },
+  "itemName": {
+    "message": "Назва запису"
+  },
+  "cannotRemoveViewOnlyCollections": {
+    "message": "Ви не можете вилучати збірки, маючи дозвіл лише на перегляд: $COLLECTIONS$",
+    "placeholders": {
+      "collections": {
+        "content": "$1",
+        "example": "Work, Personal"
+      }
+    }
+  },
   "ex": {
     "message": "зразок",
     "description": "Short abbreviation for 'example'."
@@ -536,6 +570,24 @@
       }
     }
   },
+  "itemsMovedToOrg": {
+    "message": "Items moved to $ORGNAME$",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Company Name"
+      }
+    }
+  },
+  "itemMovedToOrg": {
+    "message": "Item moved to $ORGNAME$",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Company Name"
+      }
+    }
+  },
   "deleteItem": {
     "message": "Видалити запис"
   },
@@ -592,6 +644,18 @@
   },
   "loginExpired": {
     "message": "Тривалість вашого сеансу завершилась."
+  },
+  "restartRegistration": {
+    "message": "Перезапустити реєстрацію"
+  },
+  "expiredLink": {
+    "message": "Протерміноване посилання"
+  },
+  "pleaseRestartRegistrationOrTryLoggingIn": {
+    "message": "Перезапустіть реєстрацію або спробуйте ввійти."
+  },
+  "youMayAlreadyHaveAnAccount": {
+    "message": "Можливо, ви вже зареєстровані"
   },
   "logOutConfirmation": {
     "message": "Ви дійсно хочете вийти?"
@@ -713,6 +777,12 @@
   "createAccount": {
     "message": "Створити обліковий запис"
   },
+  "setAStrongPassword": {
+    "message": "Встановіть надійний пароль"
+  },
+  "finishCreatingYourAccountBySettingAPassword": {
+    "message": "Завершіть створення облікового запису, встановивши пароль"
+  },
   "newAroundHere": {
     "message": "Виконуєте вхід вперше?"
   },
@@ -760,6 +830,19 @@
   },
   "masterPassHintLabel": {
     "message": "Підказка для головного пароля"
+  },
+  "masterPassHintText": {
+    "message": "У разі втрати пароля, можна отримати підказку на вашу електронну пошту. Максимум $CURRENT$/$MAXIMUM$ символів.",
+    "placeholders": {
+      "current": {
+        "content": "$1",
+        "example": "0"
+      },
+      "maximum": {
+        "content": "$2",
+        "example": "50"
+      }
+    }
   },
   "settings": {
     "message": "Налаштування"
@@ -816,8 +899,8 @@
   "emailAddress": {
     "message": "Адреса е-пошти"
   },
-  "yourVaultIsLocked": {
-    "message": "Сховище заблоковано. Введіть головний пароль для продовження."
+  "yourVaultIsLockedV2": {
+    "message": "Ваше сховище заблоковано"
   },
   "uuid": {
     "message": "UUID"
@@ -943,18 +1026,18 @@
   "authenticatorAppTitle": {
     "message": "Програма автентифікації"
   },
-  "authenticatorAppDesc": {
-    "message": "Використовуйте програму автентифікації (наприклад, Authy або Google Authenticator), щоб генерувати тимчасові коди підтвердження.",
-    "description": "'Authy' and 'Google Authenticator' are product names and should not be translated."
+  "authenticatorAppDescV2": {
+    "message": "Введіть код, згенерований програмою для автентифікації, як-от Bitwarden Authenticator.",
+    "description": "'Bitwarden Authenticator' is a product name and should not be translated."
   },
-  "yubiKeyTitle": {
-    "message": "Ключ безпеки YubiKey OTP"
+  "yubiKeyTitleV2": {
+    "message": "Ключ безпеки Yubico OTP"
   },
   "yubiKeyDesc": {
-    "message": "Використовуйте YubiKey для доступу до облікового запису. Працює з YubiKey серії 4, 5, а також пристроями NEO."
+    "message": "Використовуйте YubiKey 4, 5, або пристрій NEO."
   },
-  "duoDesc": {
-    "message": "Авторизуйтесь за допомогою Duo Security з використанням мобільного додатку Duo Mobile, SMS, телефонного виклику, або ключа безпеки U2F.",
+  "duoDescV2": {
+    "message": "Введіть код, згенерований Duo Security.",
     "description": "'Duo Security' and 'Duo Mobile' are product names and should not be translated."
   },
   "duoOrganizationDesc": {
@@ -968,10 +1051,10 @@
     "message": "Ключ безпеки FIDO U2F"
   },
   "webAuthnTitle": {
-    "message": "FIDO2 WebAuthn"
+    "message": "Ключ доступу"
   },
   "webAuthnDesc": {
-    "message": "Використовуйте будь-який ключ безпеки WebAuthn для доступу до сховища."
+    "message": "Використовуйте біометрію вашого пристрою або сумісний ключ безпеки FIDO2."
   },
   "webAuthnMigrated": {
     "message": "(Перенесено з FIDO)"
@@ -979,8 +1062,8 @@
   "emailTitle": {
     "message": "Е-пошта"
   },
-  "emailDesc": {
-    "message": "Коди підтвердження будуть надсилатися на вашу пошту."
+  "emailDescV2": {
+    "message": "Введіть код, надісланий вам електронною поштою."
   },
   "continue": {
     "message": "Продовжити"
@@ -1022,7 +1105,7 @@
     "message": "Ви дійсно хочете продовжити?"
   },
   "moveSelectedItemsDesc": {
-    "message": "Оберіть теку, в яку ви бажаєте перемістити $COUNT$ вибраних записів.",
+    "message": "Оберіть теку, в яку ви бажаєте додати $COUNT$ вибраних записів.",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -1423,8 +1506,8 @@
   "importEncKeyError": {
     "message": "Помилка розшифрування експортованого файлу. Ваш ключ шифрування відрізняється від ключа, використаного для експортування даних."
   },
-  "importDestination": {
-    "message": "Призначення імпорту"
+  "destination": {
+    "message": "Destination"
   },
   "learnAboutImportOptions": {
     "message": "Дізнайтеся про параметри імпорту"
@@ -1480,7 +1563,7 @@
     "message": "Налаштування"
   },
   "preferencesDesc": {
-    "message": "Налаштуйте свою роботу з веб сховищем."
+    "message": "Налаштуйте свою роботу з вебсховищем."
   },
   "preferencesUpdated": {
     "message": "Налаштування збережено"
@@ -1489,7 +1572,7 @@
     "message": "Мова"
   },
   "languageDesc": {
-    "message": "Змінити мову інтерфейсу веб сховища."
+    "message": "Змінити мову інтерфейсу вебсховища."
   },
   "enableFavicon": {
     "message": "Показувати піктограми вебсайтів"
@@ -1620,35 +1703,47 @@
   "twoStepLoginAuthDesc": {
     "message": "Введіть головний пароль, щоб змінити налаштування двоетапної перевірки."
   },
-  "twoStepAuthenticatorDesc": {
-    "message": "Налаштуйте двоетапну перевірку за допомогою програми автентифікації:"
+  "twoStepAuthenticatorInstructionPrefix": {
+    "message": "Завантажте програму для автентифікації, як от"
   },
-  "twoStepAuthenticatorDownloadApp": {
-    "message": "Завантажте програму автентифікації для двоетапної перевірки"
+  "twoStepAuthenticatorInstructionInfix1": {
+    "message": ","
   },
-  "twoStepAuthenticatorNeedApp": {
-    "message": "Необхідна програма автентифікації для двоетапної перевірки? Завантажте одну з таких"
+  "twoStepAuthenticatorInstructionInfix2": {
+    "message": "або"
   },
-  "iosDevices": {
-    "message": "Пристрої iOS"
+  "twoStepAuthenticatorInstructionSuffix": {
+    "message": "."
   },
-  "androidDevices": {
-    "message": "Пристрої Android"
+  "continueToExternalUrlTitle": {
+    "message": "Продовжити на $URL$?",
+    "placeholders": {
+      "url": {
+        "content": "$1",
+        "example": "bitwarden.com"
+      }
+    }
   },
-  "windowsDevices": {
-    "message": "Пристрої Windows"
+  "continueToExternalUrlDesc": {
+    "message": "Зараз ви перейдете з Bitwarden до вебсайту в новому вікні."
   },
-  "twoStepAuthenticatorAppsRecommended": {
-    "message": "Ці програми є рекомендованими, однак ви можете використовувати й інші."
+  "twoStepContinueToBitwardenUrlTitle": {
+    "message": "Продовжити на bitwarden.com?"
   },
-  "twoStepAuthenticatorScanCode": {
-    "message": "Скануйте цей QR-код за допомогою програми автентифікації"
+  "twoStepContinueToBitwardenUrlDesc": {
+    "message": "Bitwarden Authenticator дозволяє зберігати ключі авторизації та генерувати одноразові коди TOTP для двоетапної перевірки. Дізнайтеся більше про це на вебсайті bitwarden.com."
+  },
+  "twoStepAuthenticatorScanCodeV2": {
+    "message": "Скануйте зазначений нижче QR-код за допомогою програми для автентифікації або введіть ключ."
+  },
+  "twoStepAuthenticatorQRCanvasError": {
+    "message": "Не вдалося завантажити QR-код. Повторіть спробу або скористайтеся зазначеним нижче ключем."
   },
   "key": {
     "message": "Ключ"
   },
-  "twoStepAuthenticatorEnterCode": {
-    "message": "Введіть отриманий в програмі 6-значний код підтвердження"
+  "twoStepAuthenticatorEnterCodeV2": {
+    "message": "Код підтвердження"
   },
   "twoStepAuthenticatorReaddDesc": {
     "message": "Якщо вам необхідно додати інший пристрій, скануйте зазначений нижче QR-код (або введіть ключ) для вашої програми автентифікації."
@@ -1678,7 +1773,7 @@
     "message": "У зв'язку з обмеженнями платформи, YubiKey не можна використовувати в усіх програмах Bitwarden. Вам слід активувати іншого провайдера двоетапної перевірки, щоб мати змогу отримати доступ до свого облікового запису, коли неможливо скористатися YubiKey. Підтримувані платформи:"
   },
   "twoFactorYubikeySupportUsb": {
-    "message": "Веб сховище, програма для комп'ютера, CLI, а також усі розширення браузера на пристроях, де можливо під'єднати YubiKey до USB."
+    "message": "Вебсховище, програма для комп'ютера, CLI, а також усі розширення браузера на пристроях, де можливо під'єднати YubiKey до USB."
   },
   "twoFactorYubikeySupportMobile": {
     "message": "Мобільні програми на пристроях з NFC, або порт даних, який може приймати YubiKey."
@@ -1780,7 +1875,7 @@
     "message": "У зв'язку з обмеженнями платформи, FIDO U2F не можна використовувати в усіх програмах Bitwarden. Вам слід активувати іншого провайдера двоетапної перевірки, щоб мати змогу отримати доступ до свого облікового запису, коли неможливо скористатися FIDO U2F. Підтримувані платформи:"
   },
   "twoFactorU2fSupportWeb": {
-    "message": "Веб сховище і розширення браузера на комп'ютерах і ноутбуках з браузерами, що мають підтримку U2F (Chrome, Opera, Vivaldi, або Firefox з увімкненим FIDO U2F)."
+    "message": "Вебсховище і розширення браузера на комп'ютерах і ноутбуках з браузерами, що мають підтримку U2F (Chrome, Opera, Vivaldi, або Firefox з увімкненим FIDO U2F)."
   },
   "twoFactorU2fWaiting": {
     "message": "Чекаємо доки ви торкнетеся кнопки на своєму ключі безпеки"
@@ -1795,7 +1890,7 @@
     "message": "У зв'язку з обмеженнями платформи, WebAuthn не можна використовувати в усіх програмах Bitwarden. Вам слід активувати іншого провайдера двоетапної перевірки, щоб мати змогу отримати доступ до свого облікового запису, коли неможливо скористатися WebAuthn. Підтримувані платформи:"
   },
   "twoFactorWebAuthnSupportWeb": {
-    "message": "Веб сховище і розширення браузера на комп'ютерах і ноутбуках з браузерами, що мають підтримку WebAuthn (Chrome, Opera, Vivaldi, або Firefox з увімкненим FIDO U2F)."
+    "message": "Вебсховище і розширення браузера на комп'ютерах і ноутбуках з браузерами, що мають підтримку WebAuthn (Chrome, Opera, Vivaldi, або Firefox з увімкненим FIDO U2F)."
   },
   "twoFactorRecoveryYourCode": {
     "message": "Ваш код відновлення двоетапної перевірки Bitwarden"
@@ -2244,7 +2339,7 @@
     "message": "Необмежений термін дії"
   },
   "status": {
-    "message": "Статус"
+    "message": "Стан"
   },
   "nextCharge": {
     "message": "Наступна оплата"
@@ -2704,12 +2799,6 @@
   "accessControl": {
     "message": "Контроль доступу"
   },
-  "groupAccessAllItems": {
-    "message": "Ця грума має доступ і дозвіл редагування записів."
-  },
-  "groupAccessSelectedCollections": {
-    "message": "Ця група має доступ лише до окремих збірок."
-  },
   "readOnly": {
     "message": "Лише читання"
   },
@@ -2755,20 +2844,11 @@
   "userUsingTwoStep": {
     "message": "Цей користувач використовує двоетапну перевірку для захисту свого облікового запису."
   },
-  "userAccessAllItems": {
-    "message": "Цей користувач має доступ і можливість змінювати всі записи."
-  },
-  "userAccessSelectedCollections": {
-    "message": "Цей користувач має доступ лише до обраних збірок."
-  },
   "search": {
     "message": "Пошук"
   },
   "invited": {
     "message": "Запрошено"
-  },
-  "accepted": {
-    "message": "Схвалено"
   },
   "confirmed": {
     "message": "Підтверджено"
@@ -2834,13 +2914,13 @@
     "description": "Desktop app"
   },
   "webVault": {
-    "message": "Веб сховище"
+    "message": "Вебсховище"
   },
   "cli": {
     "message": "CLI"
   },
   "bitWebVault": {
-    "message": "Веб сховище Bitwarden"
+    "message": "Вебсховище Bitwarden"
   },
   "bitSecretsManager": {
     "message": "Менеджер секретів Bitwarden"
@@ -3355,6 +3435,9 @@
   "emailVerified": {
     "message": "Адресу е-пошти підтверджено"
   },
+  "emailVerifiedV2": {
+    "message": "Електронну пошту підтверджено"
+  },
   "emailVerifiedFailed": {
     "message": "Неможливо підтвердити вашу е-пошту. Спробуйте надіслати нове повідомлення для підтвердження."
   },
@@ -3368,13 +3451,16 @@
     "message": "Оновити браузер"
   },
   "updateBrowserDesc": {
-    "message": "Ви використовуєте непідтримуваний браузер. Веб сховище може працювати неправильно."
+    "message": "Ви використовуєте непідтримуваний браузер. Вебсховище може працювати неправильно."
   },
   "joinOrganization": {
     "message": "Приєднатися до організації"
   },
   "joinOrganizationDesc": {
     "message": "Вас було запрошено приєднатися до зазначеної вгорі організації. Щоб підтвердити запрошення, вам необхідно увійти в обліковий запис Bitwarden, або створити його."
+  },
+  "finishJoiningThisOrganizationBySettingAMasterPassword": {
+    "message": "Finish joining this organization by setting a master password."
   },
   "inviteAccepted": {
     "message": "Запрошення прийнято"
@@ -3661,6 +3747,15 @@
       }
     }
   },
+  "subscriptionSeatMaxReached": {
+    "message": "Ви не можете запросити більш як $COUNT$ учасників, не збільшивши кількість місць вашого тарифного плану.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "50"
+      }
+    }
+  },
   "seatsToAdd": {
     "message": "Додаються місця"
   },
@@ -3723,6 +3818,21 @@
   },
   "nothingSelected": {
     "message": "Ви нічого не обрали."
+  },
+  "receiveMarketingEmailsV2": {
+    "message": "Отримуйте поради, оголошення та можливості дослідження від Bitwarden у своїй поштовій скриньці."
+  },
+  "unsubscribe": {
+    "message": "Відписатися"
+  },
+  "atAnyTime": {
+    "message": "можна будь-коли."
+  },
+  "byContinuingYouAgreeToThe": {
+    "message": "Продовжуючи, ви погоджуєтеся з"
+  },
+  "and": {
+    "message": "і"
   },
   "acceptPolicies": {
     "message": "Позначивши цей прапорець, ви погоджуєтеся з:"
@@ -4117,6 +4227,9 @@
   "thisWindowWillCloseIn5Seconds": {
     "message": "Це вікно автоматично закриється через 5 секунд"
   },
+  "youMayCloseThisWindow": {
+    "message": "Можете закрити це вікно"
+  },
   "includeAllTeamsFeatures": {
     "message": "Усі функції команд, плюс:"
   },
@@ -4256,7 +4369,7 @@
     "message": "Поточна кількість доступів"
   },
   "sendPasswordDesc": {
-    "message": "За бажанням вимагати пароль в користувачів для доступу до цього відправлення.",
+    "message": "Ви можете встановити пароль для доступу до цього відправлення.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendNotesDesc": {
@@ -4272,6 +4385,9 @@
   "sendLink": {
     "message": "Посилання на відправлення",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "copyLink": {
+    "message": "Copy link"
   },
   "copySendLink": {
     "message": "Копіювати посилання відправлення",
@@ -4687,6 +4803,75 @@
   "sendVaultCardOr": {
     "message": "або",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Learn more, see how it works, **or** try it now.'"
+  },
+  "developmentDevOpsAndITTeamsChooseBWSecret": {
+    "message": "Development, DevOps, and IT teams choose Bitwarden Secrets Manager to securely manage and deploy their infrastructure and machine secrets."
+  },
+  "centralizeSecretsManagement": {
+    "message": "Centralize secrets management."
+  },
+  "centralizeSecretsManagementDescription": {
+    "message": "Securely store and manage secrets in one location to prevent secret sprawl across your organization."
+  },
+  "preventSecretLeaks": {
+    "message": "Prevent secret leaks."
+  },
+  "preventSecretLeaksDescription": {
+    "message": "Protect secrets with end-to-end encryption. No more hard coding secrets or sharing through .env files."
+  },
+  "enhanceDeveloperProductivity": {
+    "message": "Enhance developer productivity."
+  },
+  "enhanceDeveloperProductivityDescription": {
+    "message": "Programmatically retrieve and deploy secrets at runtime so developers can focus on what matters most, like improving code quality."
+  },
+  "strengthenBusinessSecurity": {
+    "message": "Strengthen business security."
+  },
+  "strengthenBusinessSecurityDescription": {
+    "message": "Maintain tight control over machine and human access to secrets with SSO integrations, event logs, and access rotation."
+  },
+  "tryItNow": {
+    "message": "Try it now"
+  },
+  "sendRequest": {
+    "message": "Send request"
+  },
+  "addANote": {
+    "message": "Add a note"
+  },
+  "bitwardenSecretsManager": {
+    "message": "Bitwarden Secrets Manager"
+  },
+  "moreProductsFromBitwarden": {
+    "message": "More products from Bitwarden"
+  },
+  "requestAccessToSecretsManager": {
+    "message": "Request access to Secrets Manager"
+  },
+  "youNeedApprovalFromYourAdminToTrySecretsManager": {
+    "message": "You need approval from your administrator to try Secrets Manager."
+  },
+  "smAccessRequestEmailSent": {
+    "message": "Access request for secrets manager email sent to admins."
+  },
+  "requestAccessSMDefaultEmailContent": {
+    "message": "Hi,\n\nI am requesting a subscription to Bitwarden Secrets Manager for our team. Your support would mean a great deal!\n\nBitwarden Secrets Manager is an end-to-end encrypted secrets management solution for securely storing, sharing, and deploying machine credentials like API keys, database passwords, and authentication certificates.\n\nSecrets Manager will help us to:\n\n- Improve security\n- Streamline operations\n- Prevent costly secret leaks\n\nTo request a free trial for our team, please reach out to Bitwarden.\n\nThank you for your help!"
+  },
+  "giveMembersAccess": {
+    "message": "Give members access:"
+  },
+  "viewAndSelectTheMembers": {
+    "message": "view and select the members you want to give access to Secrets Manager."
+  },
+  "openYourOrganizations": {
+    "message": "Open your organization's"
+  },
+  "usingTheMenuSelect": {
+    "message": "Using the menu, select"
+  },
+  "toGrantAccessToSelectedMembers": {
+    "message": "to grant access to selected members."
   },
   "sendVaultCardTryItNow": {
     "message": "спробуйте",
@@ -5442,6 +5627,9 @@
   "verificationCodeRequired": {
     "message": "Потрібний код підтвердження."
   },
+  "webauthnCancelOrTimeout": {
+    "message": "Автентифікацію було скасовано або вона тривала надто довго. Повторіть спробу."
+  },
   "invalidVerificationCode": {
     "message": "Недійсний код підтвердження"
   },
@@ -5602,7 +5790,7 @@
     "message": "URL-адреса сервера API"
   },
   "webVaultUrl": {
-    "message": "URL-адреса сервера веб сховища"
+    "message": "URL-адреса сервера вебсховища"
   },
   "identityUrl": {
     "message": "URL-адреса сервера ідентифікації"
@@ -6132,6 +6320,9 @@
         "example": "4"
       }
     }
+  },
+  "duoHealthCheckResultsInNullAuthUrlError": {
+    "message": "Помилка під'єднання до служби Duo. Скористайтеся іншим способом двоетапної перевірки або зверніться до служби підтримки Duo по допомогу."
   },
   "launchDuoAndFollowStepsToFinishLoggingIn": {
     "message": "Запустіть Duo і виконайте дії для завершення входу."
@@ -7634,6 +7825,9 @@
   "alreadyHaveAccount": {
     "message": "Вже маєте обліковий запис?"
   },
+  "toggleSideNavigation": {
+    "message": "Перемкнути бічну навігацію"
+  },
   "skipToContent": {
     "message": "Перейти до вмісту"
   },
@@ -7802,8 +7996,11 @@
   "assignToTheseCollections": {
     "message": "Призначити до цих збірок"
   },
-  "bulkCollectionAssignmentDialogDescription": {
-    "message": "Оберіть збірки, в яких поширюватимуться записи. Після оновлення запису в одній збірці зміни буде відображено у всіх збірках. Лише учасники організації з доступом до цих збірок зможуть переглядати записи."
+  "bulkCollectionAssignmentDialogDescriptionSingular": {
+    "message": "Only organization members with access to these collections will be able to see the item."
+  },
+  "bulkCollectionAssignmentDialogDescriptionPlural": {
+    "message": "Only organization members with access to these collections will be able to see the items."
   },
   "selectCollectionsToAssign": {
     "message": "Оберіть збірки для призначення"
@@ -7852,7 +8049,7 @@
     "message": "Скориговані місця будуть відображені в наступному платіжному циклі."
   },
   "unassignedSeatsDescription": {
-    "message": "Непризначені місця передплати"
+    "message": "Непризначені місця"
   },
   "purchaseSeatDescription": {
     "message": "Додаткові придбані місця"
@@ -8081,23 +8278,6 @@
   "restrictedGroupAccessDesc": {
     "message": "Ви не можете додати себе до групи."
   },
-  "unassignedItemsBannerSelfHost": {
-    "message": "Сповіщення: 2 травня 2024 року, непризначені елементи організації більше не будуть видимі на ваших пристроях у поданні \"Усі сховища\", і будуть доступні лише через консоль адміністратора. Щоб зробити їх видимими, призначте ці елементи збірці в консолі адміністратора."
-  },
-  "unassignedItemsBannerNotice": {
-    "message": "Примітка: непризначені елементи організації більше не видимі на ваших пристроях у поданні \"Усі сховища\", і тепер доступні лише через консоль адміністратора."
-  },
-  "unassignedItemsBannerSelfHostNotice": {
-    "message": "Примітка: 16 травня 2024 року непризначені елементи організації більше не будуть видимі на ваших пристроях у поданні \"Усі сховища\", і будуть доступні лише через консоль адміністратора."
-  },
-  "unassignedItemsBannerCTAPartOne": {
-    "message": "Призначте ці елементи збірці в",
-    "description": "This will be part of a larger sentence, which will read like so: Assign these items to a collection from the Admin Console to make them visible."
-  },
-  "unassignedItemsBannerCTAPartTwo": {
-    "message": "щоб зробити їх видимими.",
-    "description": "This will be part of a larger sentence, which will read like so: Assign these items to a collection from the Admin Console to make them visible."
-  },
   "deleteProvider": {
     "message": "Видалити провайдера"
   },
@@ -8159,11 +8339,17 @@
   "setUpGithubActions": {
     "message": "Налаштувати дії для Github"
   },
+  "setUpKubernetes": {
+    "message": "Налаштувати Kubernetes"
+  },
   "setUpGitlabCICD": {
     "message": "Налаштувати GitLab CI/CD"
   },
   "setUpAnsible": {
     "message": "Налаштувати Ansible"
+  },
+  "rustSDKRepo": {
+    "message": "Переглянути репозиторій Rust"
   },
   "cSharpSDKRepo": {
     "message": "Перегляд репозиторію C#"
@@ -8340,5 +8526,172 @@
   "providerBillingEmailHint": {
     "message": "На цю адресу електронної пошти надсилатимуться всі рахунки, які стосуються цього провайдера",
     "description": "A hint that shows up on the Provider setup page to inform the admin the billing email will receive the provider's invoices."
+  },
+  "upgradeOrganizationEnterprise": {
+    "message": "Ідентифікація ризиків безпеки шляхом аудиту доступу учасників"
+  },
+  "onlyAvailableForEnterpriseOrganization": {
+    "message": "Швидко переглядайте доступ учасників організації, перейшовши на тарифний план Enterprise."
+  },
+  "date": {
+    "message": "Дата"
+  },
+  "exportClientReport": {
+    "message": "Експортувати звіт клієнта"
+  },
+  "memberAccessReport": {
+    "message": "Доступ учасників"
+  },
+  "memberAccessReportDesc": {
+    "message": "Переконайтеся, що учасники мають доступ до належних облікових даних і їхні облікові записи надійні. Використовуйте цей звіт, щоб отримати файл CSV з даними про доступ учасників та конфігурації облікових записів."
+  },
+  "memberAccessReportPageDesc": {
+    "message": "Аудит доступу учасника організації до груп, збірок та елементів збірок. Експорт CSV надає детальну розбивку для кожного учасника, зокрема інформацію про дозволи для збірок та конфігурації облікового запису."
+  },
+  "higherKDFIterations": {
+    "message": "Вищі значення KDF-ітерацій можуть допомогти захистити ваш головний пароль від грубого зламу зловмисником."
+  },
+  "incrementsOf100,000": {
+    "message": "кроком 100 000"
+  },
+  "smallIncrements": {
+    "message": "невеликі кроки"
+  },
+  "kdfIterationRecommends": {
+    "message": "Ми рекомендуємо 600 000 або більше"
+  },
+  "kdfToHighWarningIncreaseInIncrements": {
+    "message": "Для старіших пристроїв занадто високе значення KDF може призвести до проблем зі швидкодією. Збільшуйте значення з $VALUE$ і тестуйте роботу на пристрої.",
+    "placeholders": {
+      "value": {
+        "content": "$1",
+        "example": "increments of 100,000"
+      }
+    }
+  },
+  "providerReinstate": {
+    "message": " Зверніться до служби підтримки для відновлення передплати."
+  },
+  "secretPeopleDescription": {
+    "message": "Надайте групам або людям доступ до цього секрету. Дозволи, надані користувачам, перевизначать дозволи, встановлені для груп."
+  },
+  "secretPeopleEmptyMessage": {
+    "message": "Додайте людей або групи, щоб поділитися доступом до цього секрету"
+  },
+  "secretMachineAccountsDescription": {
+    "message": "Надайте машинним обліковим записам доступ до цього секрету."
+  },
+  "secretMachineAccountsEmptyMessage": {
+    "message": "Додайте машинні облікові записи для надання доступу до цього секрету"
+  },
+  "smAccessRemovalWarningSecretTitle": {
+    "message": "Скасувати доступ до цього секрету"
+  },
+  "smAccessRemovalSecretMessage": {
+    "message": "Ця дія призведе до вилучення вашого доступу до цього секрету."
+  },
+  "invoice": {
+    "message": "Рахунок"
+  },
+  "unassignedSeatsAvailable": {
+    "message": "У вас доступно $SEATS$ непризначених місць.",
+    "placeholders": {
+      "seats": {
+        "content": "$1",
+        "example": "10"
+      }
+    },
+    "description": "A message showing how many unassigned seats are available for a provider."
+  },
+  "contactYourProviderForAdditionalSeats": {
+    "message": "Зверніться до адміністратора вашого провайдера для придбання додаткових місць."
+  },
+  "open": {
+    "message": "Відкрито",
+    "description": "The status of an invoice."
+  },
+  "uncollectible": {
+    "message": "Не збирається",
+    "description": "The status of an invoice."
+  },
+  "clientDetails": {
+    "message": "Подробиці клієнта"
+  },
+  "downloadCSV": {
+    "message": "Завантажити CSV"
+  },
+  "monthlySubscriptionUserSeatsMessage": {
+    "message": "Коригування передплати призведе до перерахунку суми вашого платежу в наступному платіжному періоді. "
+  },
+  "annualSubscriptionUserSeatsMessage": {
+    "message": "Коригування передплати призведе до перерахунку суми вашого платежу для щомісячного платіжного циклу. "
+  },
+  "billingHistoryDescription": {
+    "message": "Завантажте CSV для отримання клієнтських даних для кожної платіжної дати. Пропорційні витрати не включаються до CSV і можуть відрізнятися від пов'язаного рахунка. Для отримання найточніших даних щодо оплати, перегляньте щомісячні рахунки.",
+    "description": "A paragraph on the Billing History page of the Provider Portal letting users know they can download a CSV report for their invoices that does not include prorations."
+  },
+  "noInvoicesToList": {
+    "message": "Немає рахунків для показу",
+    "description": "A paragraph on the Billing History page of the Provider Portal letting users know they can download a CSV report for their invoices that does not include prorations."
+  },
+  "providerClientVaultPrivacyNotification": {
+    "message": "Повідомлення: пізніше цього місяця приватність клієнтського сховища буде поліпшено й учасники провайдера більше не матимуть прямого доступу до елементів клієнтських сховищ. Для отримання відповідей на запитання,",
+    "description": "This will be displayed as part of a larger sentence. The whole sentence reads: 'Notice: Later this month, client vault privacy will be improved and provider members will no longer have direct access to client vault items. For questions, please contact Bitwarden support'."
+  },
+  "contactBitwardenSupport": {
+    "message": "зверніться до служби підтримки Bitwarden.",
+    "description": "This will be displayed as part of a larger sentence. The whole sentence reads: 'Notice: Later this month, client vault privacy will be improved and provider members will no longer have direct access to client vault items. For questions, please contact Bitwarden support'. 'Bitwarden' should not be translated"
+  },
+  "sponsored": {
+    "message": "Спонсоровано"
+  },
+  "licenseAndBillingManagementDesc": {
+    "message": "Після оновлень на сервері Bitwarden вивантажте свій файл ліцензії, щоб застосувати останні зміни."
+  },
+  "addToFolder": {
+    "message": "Додати теку"
+  },
+  "selectFolder": {
+    "message": "Вибрати теку"
+  },
+  "personalItemTransferWarningSingular": {
+    "message": "1 item will be permanently transferred to the selected organization. You will no longer own this item."
+  },
+  "personalItemsTransferWarningPlural": {
+    "message": "$PERSONAL_ITEMS_COUNT$ items will be permanently transferred to the selected organization. You will no longer own these items.",
+    "placeholders": {
+      "personal_items_count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "personalItemWithOrgTransferWarningSingular": {
+    "message": "1 item will be permanently transferred to $ORG$. You will no longer own this item.",
+    "placeholders": {
+      "org": {
+        "content": "$1",
+        "example": "Organization name"
+      }
+    }
+  },
+  "personalItemsWithOrgTransferWarningPlural": {
+    "message": "$PERSONAL_ITEMS_COUNT$ items will be permanently transferred to $ORG$. You will no longer own these items.",
+    "placeholders": {
+      "personal_items_count": {
+        "content": "$1",
+        "example": "2"
+      },
+      "org": {
+        "content": "$2",
+        "example": "Organization name"
+      }
+    }
+  },
+  "data": {
+    "message": "Data"
+  },
+  "purchasedSeatsRemoved": {
+    "message": "куплених місць вилучено"
   }
 }
