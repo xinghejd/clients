@@ -1,5 +1,8 @@
-import { firstValueFrom } from "rxjs";
+import { firstValueFrom, Observable } from "rxjs";
 
+import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
+import { PolicyType } from "@bitwarden/common/admin-console/enums";
+import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
@@ -18,6 +21,7 @@ import {
 } from "./abstractions/auto-submit-login.background";
 
 export class AutoSubmitLoginBackground implements AutoSubmitLoginBackgroundAbstraction {
+  private ipdAutoSubmitLoginPolicy$: Observable<Policy>;
   private validIdpHosts: Set<string> = new Set([
     "top-frame.local:8890",
     "dev-836655.oktapreview.com",
@@ -39,19 +43,53 @@ export class AutoSubmitLoginBackground implements AutoSubmitLoginBackgroundAbstr
     private authService: AuthService,
     private configService: ConfigService,
     private platformUtilsService: PlatformUtilsService,
+    private policyService: PolicyService,
   ) {
     this.isSafariBrowser = this.platformUtilsService.isSafari();
-    this.configService
-      .getFeatureFlag(FeatureFlag.AutoSubmitLogin)
-      .then((enabled) => {
-        if (enabled) {
-          this.init();
-        }
-      })
-      .catch((error) => this.logService.error(error));
   }
 
-  init() {
+  async init() {
+    const featureFlagEnabled = await this.configService.getFeatureFlag(
+      FeatureFlag.IdpAutoSubmitLogin,
+    );
+    if (!featureFlagEnabled) {
+      return;
+    }
+
+    this.ipdAutoSubmitLoginPolicy$ = this.policyService.get$(PolicyType.AutomaticAppLogIn);
+    this.ipdAutoSubmitLoginPolicy$.subscribe((policy) => {
+      if (!policy.enabled) {
+        this.destroy();
+        return;
+      }
+
+      this.applyPolicyToActiveUser(policy).catch((error) => this.logService.error(error));
+    });
+  }
+
+  private applyPolicyToActiveUser = async (policy: Policy) => {
+    const policyAppliesToUser = await firstValueFrom(
+      this.policyService.policyAppliesToActiveUser$(PolicyType.AutomaticAppLogIn),
+    );
+
+    if (!policyAppliesToUser) {
+      this.destroy();
+      return;
+    }
+
+    await this.setupAutoSubmitLoginListeners(policy);
+  };
+
+  private setupAutoSubmitLoginListeners = async (policy: Policy) => {
+    if (!policy?.data.idpHost) {
+      return;
+    }
+
+    this.parseIpdHostsFromPolicy(policy.data.idpHost);
+    if (!this.validIdpHosts.size) {
+      return;
+    }
+
     BrowserApi.addListener(chrome.runtime.onMessage, this.handleExtensionMessage);
     chrome.webRequest.onBeforeRequest.addListener(this.handleOnBeforeRequest, {
       urls: ["<all_urls>"],
@@ -65,7 +103,21 @@ export class AutoSubmitLoginBackground implements AutoSubmitLoginBackgroundAbstr
     if (this.isSafariBrowser) {
       this.initSafari().catch((error) => this.logService.error(error));
     }
-  }
+  };
+
+  private parseIpdHostsFromPolicy = (idpHost: string) => {
+    if (!idpHost) {
+      return;
+    }
+
+    const urls = idpHost.split(",");
+    urls.forEach((url) => {
+      const host = this.getUrlHost(url?.trim());
+      if (host) {
+        this.validIdpHosts.add(host);
+      }
+    });
+  };
 
   private handleOnBeforeRequest = (details: chrome.webRequest.WebRequestBodyDetails) => {
     const requestInitiator = this.getRequestInitiator(details);
@@ -371,4 +423,15 @@ export class AutoSubmitLoginBackground implements AutoSubmitLoginBackgroundAbstr
   private triggerAutoSubmitAfterRedirectOnSafari = (url: string) => {
     return this.isSafariBrowser && this.isValidAutoSubmitHost(url);
   };
+
+  private destroy() {
+    BrowserApi.removeListener(chrome.runtime.onMessage, this.handleExtensionMessage);
+    chrome.webRequest.onBeforeRequest.removeListener(this.handleOnBeforeRequest);
+    chrome.webRequest.onBeforeRedirect.removeListener(this.handleWebRequestOnBeforeRedirect);
+    chrome.webNavigation.onCompleted.removeListener(this.handleAutoSubmitHostNavigationCompleted);
+    chrome.tabs.onActivated.removeListener(this.handleSafariTabOnActivated);
+    chrome.tabs.onUpdated.removeListener(this.handleSafariTabOnUpdated);
+    chrome.webNavigation.onCompleted.removeListener(this.handleSafariWebNavigationOnCompleted);
+    chrome.tabs.onRemoved.removeListener(this.handleSafariTabOnRemoved);
+  }
 }
