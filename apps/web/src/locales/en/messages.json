@@ -5277,7 +5277,7 @@
     "message": "Your master password does not meet one or more of your organization policies. In order to access the vault, you must update your master password now. Proceeding will log you out of your current session, requiring you to log back in. Active sessions on other devices may continue to remain active for up to one hour."
   },
   "automaticAppLogin": {
-    "message": "Automatic app log in"
+    "message": "Automatic log in for applications"
   },
   "automaticAppLoginDesc": {
     "message": "Allow automatic login for members. Login forms will automatically be filled and submitted for apps launched from your configured identity provider."
