@@ -9,7 +9,7 @@ import { VaultTimeoutService } from "@bitwarden/common/abstractions/vault-timeou
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
-import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
+// import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { VaultTimeoutAction } from "@bitwarden/common/enums/vault-timeout-action.enum";
 import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
@@ -81,20 +81,21 @@ export class LockV2Component implements OnInit, OnDestroy {
     //        - If they have a master password and no PIN, they will be presented with the master password input
     //        - If they have biometrics enabled, they will be presented with the biometric prompt
 
-    const isUnlocked = await firstValueFrom(
-      this.authService
-        .authStatusFor$(userId)
-        .pipe(map((status) => status === AuthenticationStatus.Unlocked)),
-    );
-    if (isUnlocked) {
-      // navigate to home
-      await this.router.navigate(["/"]);
-      return;
-    }
+    // TODO: test that removing this introduces no issues and that the existing lock guard catches this case.
+    // const isUnlocked = await firstValueFrom(
+    //   this.authService
+    //     .authStatusFor$(userId)
+    //     .pipe(map((status) => status === AuthenticationStatus.Unlocked)),
+    // );
+    // if (isUnlocked) {
+    //   // navigate to home
+    //   await this.router.navigate(["/"]);
+    //   return;
+    // }
 
+    // TODO: move to lockGuard at start - separate PR
     // shouldn't all of this be in a service as well?
     // So much of this seems like it has cross over with user verification
-
     const availableVaultTimeoutActions = await firstValueFrom(
       this.vaultTimeoutSettingsService.availableVaultTimeoutActions$(userId),
     );
@@ -103,13 +104,31 @@ export class LockV2Component implements OnInit, OnDestroy {
       return await this.vaultTimeoutService.logOut(userId);
     }
 
+    // --------
+
+    // Discussion on overlap b/w unlock methods and user verification
+    // - Key difference is that user verification always happens after user is authN and has unlocked
+    // aready.
+    // - You can see an example of this difference in that we have to check for
+    // the existence of the ephemeralPinSet below.
+    // - Another example: unlock only checks user decryption opts for if user has MP (doesn't check for
+    // local MP hash) whereas user verification checks for MP + local MP hash
+    // for this last example, with Jake's latest changes to the userVerificationService.verifyByMP
+    // we should only ever need to check if the user has a MP or not b/c local hash matters less than
+    // it did before b/c we simply go to the server if we have no local hash.
+
+    // TODO: Separate PR: move pin logic down into PIN service + update user verification service to use
     const pinLockType: PinLockType = await this.pinService.getPinLockType(userId);
     const ephemeralPinSet = await this.pinService.getPinKeyEncryptedUserKeyEphemeral(userId);
     this.pinEnabled =
       (pinLockType === "EPHEMERAL" && !!ephemeralPinSet) || pinLockType === "PERSISTENT";
 
+    // TODO: use user decryption options with passed in user id.
     this.masterPasswordEnabled = await this.userVerificationService.hasMasterPassword();
 
+    // TODO: talk to Bernd about biometrics service structure and if we can neatly
+    // refactor these methods to live in a single place on that service like we want for the
+    // pin service above.
     this.supportsBiometric = await this.platformUtilsService.supportsBiometric();
     this.biometricLock =
       (await this.vaultTimeoutSettingsService.isBiometricLockSet()) &&
