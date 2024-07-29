@@ -10,6 +10,7 @@ const paths = {
   extensionDistDir: "./macos/dist",
   extensionDist: "./macos/dist/autofill-extension.appex",
   macOsProject: "./macos/desktop.xcodeproj",
+  macOsConfig: "./macos/production.xcconfig",
 };
 
 async function buildMacOs() {
@@ -27,6 +28,8 @@ async function buildMacOs() {
     "-alltargets",
     "-configuration",
     "Release",
+    "-xcconfig",
+    paths.macOsConfig,
   ]);
   stdOutProc(proc);
   await new Promise((resolve, reject) =>

@@ -27,7 +27,9 @@ async function run(context) {
     if (!fse.existsSync(extensionPath)) {
       console.log("### Autofill extension not found - skipping");
     } else {
-      fse.mkdirSync(path.join(appPath, "Contents/PlugIns"));
+      if (!fse.existsSync(path.join(appPath, "Contents/PlugIns"))) {
+        fse.mkdirSync(path.join(appPath, "Contents/PlugIns"));
+      }
       fse.copySync(extensionPath, path.join(appPath, "Contents/PlugIns/autofill-extension.appex"));
       shouldResign = true;
     }
@@ -40,7 +42,9 @@ async function run(context) {
     if (!fse.existsSync(plugIn)) {
       console.log("### Safari extension not found - skipping");
     } else {
-      fse.mkdirSync(path.join(appPath, "Contents/PlugIns"));
+      if (!fse.existsSync(path.join(appPath, "Contents/PlugIns"))) {
+        fse.mkdirSync(path.join(appPath, "Contents/PlugIns"));
+      }
       fse.copySync(
         path.join(plugIn, "safari.appex"),
         path.join(appPath, "Contents/PlugIns/safari.appex"),
