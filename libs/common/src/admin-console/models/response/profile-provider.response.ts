@@ -1,6 +1,5 @@
 import { BaseResponse } from "../../../models/response/base.response";
-import { ProviderUserStatusType } from "../../enums/provider-user-status-type";
-import { ProviderUserType } from "../../enums/provider-user-type";
+import { ProviderStatusType, ProviderUserStatusType, ProviderUserType } from "../../enums";
 import { PermissionsApi } from "../api/permissions.api";
 
 export class ProfileProviderResponse extends BaseResponse {
@@ -13,6 +12,7 @@ export class ProfileProviderResponse extends BaseResponse {
   permissions: PermissionsApi;
   userId: string;
   useEvents: boolean;
+  providerStatus: ProviderStatusType;
 
   constructor(response: any) {
     super(response);
@@ -25,5 +25,6 @@ export class ProfileProviderResponse extends BaseResponse {
     this.permissions = new PermissionsApi(this.getResponseProperty("permissions"));
     this.userId = this.getResponseProperty("UserId");
     this.useEvents = this.getResponseProperty("UseEvents");
+    this.providerStatus = this.getResponseProperty("ProviderStatus");
   }
 }

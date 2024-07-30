@@ -4,8 +4,8 @@ import { ActivatedRoute } from "@angular/router";
 import { first } from "rxjs/operators";
 
 import { PasswordHistoryComponent as BasePasswordHistoryComponent } from "@bitwarden/angular/vault/components/password-history.component";
-import { I18nService } from "@bitwarden/common/abstractions/i18n.service";
-import { PlatformUtilsService } from "@bitwarden/common/abstractions/platformUtils.service";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 
 @Component({
@@ -19,7 +19,7 @@ export class PasswordHistoryComponent extends BasePasswordHistoryComponent {
     platformUtilsService: PlatformUtilsService,
     i18nService: I18nService,
     private location: Location,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
   ) {
     super(cipherService, platformUtilsService, i18nService, window);
   }

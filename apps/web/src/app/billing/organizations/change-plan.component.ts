@@ -1,8 +1,8 @@
 import { Component, EventEmitter, Input, Output } from "@angular/core";
 
-import { LogService } from "@bitwarden/common/abstractions/log.service";
-import { PlanType } from "@bitwarden/common/billing/enums/plan-type";
-import { ProductType } from "@bitwarden/common/enums/productType";
+import { ProductTierType } from "@bitwarden/common/billing/enums";
+import { PlanResponse } from "@bitwarden/common/billing/models/response/plan.response";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 
 @Component({
   selector: "app-change-plan",
@@ -10,12 +10,12 @@ import { ProductType } from "@bitwarden/common/enums/productType";
 })
 export class ChangePlanComponent {
   @Input() organizationId: string;
+  @Input() currentPlan: PlanResponse;
+  @Input() preSelectedProductTier: ProductTierType;
   @Output() onChanged = new EventEmitter();
   @Output() onCanceled = new EventEmitter();
 
   formPromise: Promise<any>;
-  defaultUpgradePlan: PlanType = PlanType.FamiliesAnnually;
-  defaultUpgradeProduct: ProductType = ProductType.Families;
 
   constructor(private logService: LogService) {}
 

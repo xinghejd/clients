@@ -1,5 +1,5 @@
 import { BillingSyncConfigRequest } from "../../../billing/models/request/billing-sync-config.request";
-import { OrganizationConnectionType } from "../../enums/organization-connection-type";
+import { OrganizationConnectionType } from "../../enums";
 
 import { ScimConfigRequest } from "./scim-config.request";
 
@@ -11,6 +11,6 @@ export class OrganizationConnectionRequest {
     public organizationId: string,
     public type: OrganizationConnectionType,
     public enabled: boolean,
-    public config: OrganizationConnectionRequestConfigs
+    public config: OrganizationConnectionRequestConfigs,
   ) {}
 }

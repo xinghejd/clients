@@ -1,6 +1,7 @@
-import { ProductType } from "../../../enums/productType";
-import { OrganizationUserStatusType } from "../../enums/organization-user-status-type";
-import { OrganizationUserType } from "../../enums/organization-user-type";
+import { Jsonify } from "type-fest";
+
+import { ProductTierType } from "../../../billing/enums";
+import { OrganizationUserStatusType, OrganizationUserType, ProviderType } from "../../enums";
 import { PermissionsApi } from "../api/permissions.api";
 import { ProfileOrganizationResponse } from "../response/profile-organization.response";
 
@@ -23,6 +24,7 @@ export class OrganizationData {
   useCustomPermissions: boolean;
   useResetPassword: boolean;
   useSecretsManager: boolean;
+  usePasswordManager: boolean;
   useActivateAutofillPolicy: boolean;
   selfHost: boolean;
   usersGetPremium: boolean;
@@ -34,21 +36,36 @@ export class OrganizationData {
   permissions: PermissionsApi;
   resetPasswordEnrolled: boolean;
   userId: string;
+  organizationUserId: string;
   hasPublicAndPrivateKeys: boolean;
   providerId: string;
   providerName: string;
+  providerType?: ProviderType;
   isProviderUser: boolean;
+  isMember: boolean;
   familySponsorshipFriendlyName: string;
   familySponsorshipAvailable: boolean;
-  planProductType: ProductType;
+  productTierType: ProductTierType;
   keyConnectorEnabled: boolean;
   keyConnectorUrl: string;
   familySponsorshipLastSyncDate?: Date;
   familySponsorshipValidUntil?: Date;
   familySponsorshipToDelete?: boolean;
   accessSecretsManager: boolean;
+  limitCollectionCreationDeletion: boolean;
+  allowAdminAccessToAllCollectionItems: boolean;
 
-  constructor(response: ProfileOrganizationResponse) {
+  constructor(
+    response?: ProfileOrganizationResponse,
+    options?: {
+      isMember: boolean;
+      isProviderUser: boolean;
+    },
+  ) {
+    if (response == null) {
+      return;
+    }
+
     this.id = response.id;
     this.name = response.name;
     this.status = response.status;
@@ -67,6 +84,7 @@ export class OrganizationData {
     this.useCustomPermissions = response.useCustomPermissions;
     this.useResetPassword = response.useResetPassword;
     this.useSecretsManager = response.useSecretsManager;
+    this.usePasswordManager = response.usePasswordManager;
     this.useActivateAutofillPolicy = response.useActivateAutofillPolicy;
     this.selfHost = response.selfHost;
     this.usersGetPremium = response.usersGetPremium;
@@ -78,17 +96,37 @@ export class OrganizationData {
     this.permissions = response.permissions;
     this.resetPasswordEnrolled = response.resetPasswordEnrolled;
     this.userId = response.userId;
+    this.organizationUserId = response.organizationUserId;
     this.hasPublicAndPrivateKeys = response.hasPublicAndPrivateKeys;
     this.providerId = response.providerId;
     this.providerName = response.providerName;
+    this.providerType = response.providerType;
     this.familySponsorshipFriendlyName = response.familySponsorshipFriendlyName;
     this.familySponsorshipAvailable = response.familySponsorshipAvailable;
-    this.planProductType = response.planProductType;
+    this.productTierType = response.productTierType;
     this.keyConnectorEnabled = response.keyConnectorEnabled;
     this.keyConnectorUrl = response.keyConnectorUrl;
     this.familySponsorshipLastSyncDate = response.familySponsorshipLastSyncDate;
     this.familySponsorshipValidUntil = response.familySponsorshipValidUntil;
     this.familySponsorshipToDelete = response.familySponsorshipToDelete;
     this.accessSecretsManager = response.accessSecretsManager;
+    this.limitCollectionCreationDeletion = response.limitCollectionCreationDeletion;
+    this.allowAdminAccessToAllCollectionItems = response.allowAdminAccessToAllCollectionItems;
+
+    this.isMember = options.isMember;
+    this.isProviderUser = options.isProviderUser;
+  }
+
+  static fromJSON(obj: Jsonify<OrganizationData>) {
+    return Object.assign(new OrganizationData(), obj, {
+      familySponsorshipLastSyncDate:
+        obj.familySponsorshipLastSyncDate != null
+          ? new Date(obj.familySponsorshipLastSyncDate)
+          : obj.familySponsorshipLastSyncDate,
+      familySponsorshipValidUntil:
+        obj.familySponsorshipValidUntil != null
+          ? new Date(obj.familySponsorshipValidUntil)
+          : obj.familySponsorshipValidUntil,
+    });
   }
 }

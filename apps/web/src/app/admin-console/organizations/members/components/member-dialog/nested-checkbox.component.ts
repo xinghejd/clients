@@ -1,9 +1,9 @@
 import { KeyValue } from "@angular/common";
-import { Component, EventEmitter, Input, Output, OnInit, OnDestroy } from "@angular/core";
+import { Component, Input, OnInit, OnDestroy } from "@angular/core";
 import { FormControl, FormGroup } from "@angular/forms";
 import { Subject, takeUntil } from "rxjs";
 
-import { Utils } from "@bitwarden/common/misc/utils";
+import { Utils } from "@bitwarden/common/platform/misc/utils";
 
 @Component({
   selector: "app-nested-checkbox",
@@ -14,8 +14,6 @@ export class NestedCheckboxComponent implements OnInit, OnDestroy {
 
   @Input() parentId: string;
   @Input() checkboxes: FormGroup<Record<string, FormControl<boolean>>>;
-  @Output() onSavedUser = new EventEmitter();
-  @Output() onDeletedUser = new EventEmitter();
 
   get parentIndeterminate() {
     return (
@@ -29,7 +27,7 @@ export class NestedCheckboxComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe((value) => {
         Object.values(this.checkboxes.controls).forEach((control) =>
-          control.setValue(value, { emitEvent: false })
+          control.setValue(value, { emitEvent: false }),
         );
       });
   }

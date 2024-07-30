@@ -4,20 +4,20 @@ import { concatMap, Subject, takeUntil } from "rxjs";
 
 import { UserNamePipe } from "@bitwarden/angular/pipes/user-name.pipe";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { ExportService } from "@bitwarden/common/abstractions/export.service";
-import { FileDownloadService } from "@bitwarden/common/abstractions/fileDownload/fileDownload.service";
-import { I18nService } from "@bitwarden/common/abstractions/i18n.service";
-import { LogService } from "@bitwarden/common/abstractions/log.service";
-import { OrganizationUserService } from "@bitwarden/common/abstractions/organization-user/organization-user.service";
-import { PlatformUtilsService } from "@bitwarden/common/abstractions/platformUtils.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { OrganizationUserService } from "@bitwarden/common/admin-console/abstractions/organization-user/organization-user.service";
 import { ProviderService } from "@bitwarden/common/admin-console/abstractions/provider.service";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
-import { EventSystemUser } from "@bitwarden/common/enums/event-system-user";
+import { EventSystemUser } from "@bitwarden/common/enums";
 import { EventResponse } from "@bitwarden/common/models/response/event.response";
+import { FileDownloadService } from "@bitwarden/common/platform/abstractions/file-download/file-download.service";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 
-import { BaseEventsComponent } from "../../../common/base.events.component";
 import { EventService } from "../../../core";
+import { EventExportService } from "../../../tools/event-export";
+import { BaseEventsComponent } from "../../common/base.events.component";
 
 const EVENT_SYSTEM_USER_TO_TRANSLATION: Record<EventSystemUser, string> = {
   [EventSystemUser.SCIM]: null, // SCIM acronym not able to be translated so just display SCIM
@@ -41,7 +41,7 @@ export class EventsComponent extends BaseEventsComponent implements OnInit, OnDe
     private route: ActivatedRoute,
     eventService: EventService,
     i18nService: I18nService,
-    exportService: ExportService,
+    exportService: EventExportService,
     platformUtilsService: PlatformUtilsService,
     private router: Router,
     logService: LogService,
@@ -49,7 +49,7 @@ export class EventsComponent extends BaseEventsComponent implements OnInit, OnDe
     private organizationService: OrganizationService,
     private organizationUserService: OrganizationUserService,
     private providerService: ProviderService,
-    fileDownloadService: FileDownloadService
+    fileDownloadService: FileDownloadService,
   ) {
     super(
       eventService,
@@ -57,7 +57,7 @@ export class EventsComponent extends BaseEventsComponent implements OnInit, OnDe
       exportService,
       platformUtilsService,
       logService,
-      fileDownloadService
+      fileDownloadService,
     );
   }
 
@@ -73,7 +73,7 @@ export class EventsComponent extends BaseEventsComponent implements OnInit, OnDe
           }
           await this.load();
         }),
-        takeUntil(this.destroy$)
+        takeUntil(this.destroy$),
       )
       .subscribe();
   }
@@ -93,7 +93,7 @@ export class EventsComponent extends BaseEventsComponent implements OnInit, OnDe
           (await this.providerService.get(this.organization.providerId)).canManageUsers
         ) {
           const providerUsersResponse = await this.apiService.getProviderUsers(
-            this.organization.providerId
+            this.organization.providerId,
           );
           providerUsersResponse.data.forEach((u) => {
             const name = this.userNamePipe.transform(u);
@@ -108,7 +108,7 @@ export class EventsComponent extends BaseEventsComponent implements OnInit, OnDe
       }
     }
 
-    await this.loadEvents(true);
+    await this.refreshEvents();
     this.loaded = true;
   }
 
@@ -117,7 +117,7 @@ export class EventsComponent extends BaseEventsComponent implements OnInit, OnDe
       this.organizationId,
       startDate,
       endDate,
-      continuationToken
+      continuationToken,
     );
   }
 
@@ -154,7 +154,7 @@ export class EventsComponent extends BaseEventsComponent implements OnInit, OnDe
 
     if (r.serviceAccountId) {
       return {
-        name: this.i18nService.t("serviceAccount") + " " + this.getShortId(r.serviceAccountId),
+        name: this.i18nService.t("machineAccount") + " " + this.getShortId(r.serviceAccountId),
       };
     }
 

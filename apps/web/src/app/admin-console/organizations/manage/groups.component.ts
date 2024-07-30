@@ -15,25 +15,24 @@ import {
 import { first } from "rxjs/operators";
 
 import { SearchPipe } from "@bitwarden/angular/pipes/search.pipe";
-import { ModalService } from "@bitwarden/angular/services/modal.service";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { I18nService } from "@bitwarden/common/abstractions/i18n.service";
-import { LogService } from "@bitwarden/common/abstractions/log.service";
-import { PlatformUtilsService } from "@bitwarden/common/abstractions/platformUtils.service";
 import { SearchService } from "@bitwarden/common/abstractions/search.service";
-import { CollectionService } from "@bitwarden/common/admin-console/abstractions/collection.service";
-import { CollectionData } from "@bitwarden/common/admin-console/models/data/collection.data";
-import { Collection } from "@bitwarden/common/admin-console/models/domain/collection";
+import { ListResponse } from "@bitwarden/common/models/response/list.response";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { CollectionService } from "@bitwarden/common/vault/abstractions/collection.service";
+import { CollectionData } from "@bitwarden/common/vault/models/data/collection.data";
+import { Collection } from "@bitwarden/common/vault/models/domain/collection";
 import {
   CollectionDetailsResponse,
   CollectionResponse,
-} from "@bitwarden/common/admin-console/models/response/collection.response";
-import { CollectionView } from "@bitwarden/common/admin-console/models/view/collection.view";
-import { Utils } from "@bitwarden/common/misc/utils";
-import { ListResponse } from "@bitwarden/common/models/response/list.response";
+} from "@bitwarden/common/vault/models/response/collection.response";
+import { CollectionView } from "@bitwarden/common/vault/models/view/collection.view";
 import { DialogService } from "@bitwarden/components";
 
-import { GroupService, GroupView } from "../../../organizations/core";
+import { InternalGroupService as GroupService, GroupView } from "../core";
 
 import {
   GroupAddEditDialogResultType,
@@ -72,6 +71,11 @@ type GroupDetailsRow = {
   collectionNames?: string[];
 };
 
+/**
+ * @deprecated To be replaced with NewGroupsComponent which significantly refactors this component.
+ * The GroupsComponentRefactor flag switches between the old and new components; this component will be removed when
+ * the feature flag is removed.
+ */
 @Component({
   selector: "app-org-groups",
   templateUrl: "groups.component.html",
@@ -92,15 +96,16 @@ export class GroupsComponent implements OnInit, OnDestroy {
   private pagedGroupsCount = 0;
   private pagedGroups: GroupDetailsRow[];
   private searchedGroups: GroupDetailsRow[];
-  private _searchText: string;
+  private _searchText$ = new BehaviorSubject<string>("");
   private destroy$ = new Subject<void>();
   private refreshGroups$ = new BehaviorSubject<void>(null);
+  private isSearching: boolean = false;
 
   get searchText() {
-    return this._searchText;
+    return this._searchText$.value;
   }
   set searchText(value: string) {
-    this._searchText = value;
+    this._searchText$.next(value);
     // Manually update as we are not using the search pipe in the template
     this.updateSearchedGroups();
   }
@@ -115,7 +120,7 @@ export class GroupsComponent implements OnInit, OnDestroy {
     if (this.isPaging()) {
       return this.pagedGroups;
     }
-    if (this.isSearching()) {
+    if (this.isSearching) {
       return this.searchedGroups;
     }
     return this.groups;
@@ -126,13 +131,12 @@ export class GroupsComponent implements OnInit, OnDestroy {
     private groupService: GroupService,
     private route: ActivatedRoute,
     private i18nService: I18nService,
-    private modalService: ModalService,
     private dialogService: DialogService,
     private platformUtilsService: PlatformUtilsService,
     private searchService: SearchService,
     private logService: LogService,
     private collectionService: CollectionService,
-    private searchPipe: SearchPipe
+    private searchPipe: SearchPipe,
   ) {}
 
   async ngOnInit() {
@@ -143,13 +147,13 @@ export class GroupsComponent implements OnInit, OnDestroy {
           combineLatest([
             // collectionMap
             from(this.apiService.getCollections(this.organizationId)).pipe(
-              concatMap((response) => this.toCollectionMap(response))
+              concatMap((response) => this.toCollectionMap(response)),
             ),
             // groups
             this.refreshGroups$.pipe(
-              switchMap(() => this.groupService.getAll(this.organizationId))
+              switchMap(() => this.groupService.getAll(this.organizationId)),
             ),
-          ])
+          ]),
         ),
         map(([collectionMap, groups]) => {
           return groups
@@ -164,7 +168,7 @@ export class GroupsComponent implements OnInit, OnDestroy {
                 .sort(this.i18nService.collator?.compare),
             }));
         }),
-        takeUntil(this.destroy$)
+        takeUntil(this.destroy$),
       )
       .subscribe((groups) => {
         this.groups = groups;
@@ -179,9 +183,18 @@ export class GroupsComponent implements OnInit, OnDestroy {
         concatMap(async (qParams) => {
           this.searchText = qParams.search;
         }),
-        takeUntil(this.destroy$)
+        takeUntil(this.destroy$),
       )
       .subscribe();
+
+    this._searchText$
+      .pipe(
+        switchMap((searchText) => this.searchService.isSearchable(searchText)),
+        takeUntil(this.destroy$),
+      )
+      .subscribe((isSearchable) => {
+        this.isSearching = isSearchable;
+      });
   }
 
   ngOnDestroy() {
@@ -200,7 +213,7 @@ export class GroupsComponent implements OnInit, OnDestroy {
     }
     if (this.groups.length > pagedLength) {
       this.pagedGroups = this.pagedGroups.concat(
-        this.groups.slice(pagedLength, pagedLength + pagedSize)
+        this.groups.slice(pagedLength, pagedLength + pagedSize),
       );
     }
     this.pagedGroupsCount = this.pagedGroups.length;
@@ -209,7 +222,7 @@ export class GroupsComponent implements OnInit, OnDestroy {
 
   async edit(
     group: GroupDetailsRow,
-    startingTabIndex: GroupAddEditTabType = GroupAddEditTabType.Info
+    startingTabIndex: GroupAddEditTabType = GroupAddEditTabType.Info,
   ) {
     const dialogRef = openGroupAddEditDialog(this.dialogService, {
       data: {
@@ -229,17 +242,17 @@ export class GroupsComponent implements OnInit, OnDestroy {
   }
 
   add() {
+    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     this.edit(null);
   }
 
   async delete(groupRow: GroupDetailsRow) {
-    const confirmed = await this.platformUtilsService.showDialog(
-      this.i18nService.t("deleteGroupConfirmation"),
-      groupRow.details.name,
-      this.i18nService.t("yes"),
-      this.i18nService.t("no"),
-      "warning"
-    );
+    const confirmed = await this.dialogService.openSimpleDialog({
+      title: groupRow.details.name,
+      content: { key: "deleteGroupConfirmation" },
+      type: "warning",
+    });
     if (!confirmed) {
       return false;
     }
@@ -249,7 +262,7 @@ export class GroupsComponent implements OnInit, OnDestroy {
       this.platformUtilsService.showToast(
         "success",
         null,
-        this.i18nService.t("deletedGroupId", groupRow.details.name)
+        this.i18nService.t("deletedGroupId", groupRow.details.name),
       );
       this.removeGroup(groupRow.details.id);
     } catch (e) {
@@ -265,13 +278,14 @@ export class GroupsComponent implements OnInit, OnDestroy {
     }
 
     const deleteMessage = groupsToDelete.map((g) => g.details.name).join(", ");
-    const confirmed = await this.platformUtilsService.showDialog(
-      deleteMessage,
-      this.i18nService.t("deleteMultipleGroupsConfirmation", groupsToDelete.length.toString()),
-      this.i18nService.t("yes"),
-      this.i18nService.t("no"),
-      "warning"
-    );
+    const confirmed = await this.dialogService.openSimpleDialog({
+      title: {
+        key: "deleteMultipleGroupsConfirmation",
+        placeholders: [groupsToDelete.length.toString()],
+      },
+      content: deleteMessage,
+      type: "warning",
+    });
     if (!confirmed) {
       return false;
     }
@@ -279,12 +293,12 @@ export class GroupsComponent implements OnInit, OnDestroy {
     try {
       await this.groupService.deleteMany(
         this.organizationId,
-        groupsToDelete.map((g) => g.details.id)
+        groupsToDelete.map((g) => g.details.id),
       );
       this.platformUtilsService.showToast(
         "success",
         null,
-        this.i18nService.t("deletedManyGroups", groupsToDelete.length.toString())
+        this.i18nService.t("deletedManyGroups", groupsToDelete.length.toString()),
       );
 
       groupsToDelete.forEach((g) => this.removeGroup(g.details.id));
@@ -298,10 +312,6 @@ export class GroupsComponent implements OnInit, OnDestroy {
     this.loadMore();
   }
 
-  isSearching() {
-    return this.searchService.isSearchable(this.searchText);
-  }
-
   check(groupRow: GroupDetailsRow) {
     groupRow.checked = !groupRow.checked;
   }
@@ -311,7 +321,7 @@ export class GroupsComponent implements OnInit, OnDestroy {
   }
 
   isPaging() {
-    const searching = this.isSearching();
+    const searching = this.isSearching;
     if (searching && this.didScroll) {
       this.resetPaging();
     }
@@ -329,7 +339,7 @@ export class GroupsComponent implements OnInit, OnDestroy {
 
   private async toCollectionMap(response: ListResponse<CollectionResponse>) {
     const collections = response.data.map(
-      (r) => new Collection(new CollectionData(r as CollectionDetailsResponse))
+      (r) => new Collection(new CollectionData(r as CollectionDetailsResponse)),
     );
     const decryptedCollections = await this.collectionService.decryptMany(collections);
 
@@ -341,13 +351,13 @@ export class GroupsComponent implements OnInit, OnDestroy {
   }
 
   private updateSearchedGroups() {
-    if (this.searchService.isSearchable(this.searchText)) {
+    if (this.isSearching) {
       // Making use of the pipe in the component as we need know which groups where filtered
       this.searchedGroups = this.searchPipe.transform(
         this.groups,
         this.searchText,
         (group) => group.details.name,
-        (group) => group.details.id
+        (group) => group.details.id,
       );
     }
   }

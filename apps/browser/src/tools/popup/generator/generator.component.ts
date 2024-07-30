@@ -1,16 +1,21 @@
 import { Location } from "@angular/common";
-import { Component } from "@angular/core";
+import { Component, NgZone } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
+import { firstValueFrom } from "rxjs";
 
 import { GeneratorComponent as BaseGeneratorComponent } from "@bitwarden/angular/tools/generator/components/generator.component";
-import { I18nService } from "@bitwarden/common/abstractions/i18n.service";
-import { LogService } from "@bitwarden/common/abstractions/log.service";
-import { PlatformUtilsService } from "@bitwarden/common/abstractions/platformUtils.service";
-import { StateService } from "@bitwarden/common/abstractions/state.service";
-import { PasswordGenerationServiceAbstraction } from "@bitwarden/common/tools/generator/password";
-import { UsernameGenerationServiceAbstraction } from "@bitwarden/common/tools/generator/username";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { AddEditCipherInfo } from "@bitwarden/common/vault/types/add-edit-cipher-info";
+import { ToastService } from "@bitwarden/components";
+import {
+  PasswordGenerationServiceAbstraction,
+  UsernameGenerationServiceAbstraction,
+} from "@bitwarden/generator-legacy";
 
 @Component({
   selector: "app-generator",
@@ -19,31 +24,38 @@ import { AddEditCipherInfo } from "@bitwarden/common/vault/types/add-edit-cipher
 export class GeneratorComponent extends BaseGeneratorComponent {
   private addEditCipherInfo: AddEditCipherInfo;
   private cipherState: CipherView;
+  private cipherService: CipherService;
 
   constructor(
     passwordGenerationService: PasswordGenerationServiceAbstraction,
     usernameGenerationService: UsernameGenerationServiceAbstraction,
     platformUtilsService: PlatformUtilsService,
     i18nService: I18nService,
-    stateService: StateService,
+    accountService: AccountService,
+    cipherService: CipherService,
     route: ActivatedRoute,
     logService: LogService,
-    private location: Location
+    ngZone: NgZone,
+    private location: Location,
+    toastService: ToastService,
   ) {
     super(
       passwordGenerationService,
       usernameGenerationService,
       platformUtilsService,
-      stateService,
+      accountService,
       i18nService,
       logService,
       route,
-      window
+      ngZone,
+      window,
+      toastService,
     );
+    this.cipherService = cipherService;
   }
 
   async ngOnInit() {
-    this.addEditCipherInfo = await this.stateService.getAddEditCipherInfo();
+    this.addEditCipherInfo = await firstValueFrom(this.cipherService.addEditCipherInfo$);
     if (this.addEditCipherInfo != null) {
       this.cipherState = this.addEditCipherInfo.cipher;
     }
@@ -62,7 +74,9 @@ export class GeneratorComponent extends BaseGeneratorComponent {
       this.cipherState.login.username = this.username;
     }
     this.addEditCipherInfo.cipher = this.cipherState;
-    this.stateService.setAddEditCipherInfo(this.addEditCipherInfo);
+    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
+    this.cipherService.setAddEditCipherInfo(this.addEditCipherInfo);
     this.close();
   }
 

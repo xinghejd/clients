@@ -1,10 +1,13 @@
+import { importProvidersFrom } from "@angular/core";
 import { FormBuilder, FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { action } from "@storybook/addon-actions";
-import { Meta, moduleMetadata, Story } from "@storybook/angular";
+import { applicationConfig, Meta, moduleMetadata, Story } from "@storybook/angular";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
-import { OrganizationUserStatusType } from "@bitwarden/common/admin-console/enums/organization-user-status-type";
-import { OrganizationUserType } from "@bitwarden/common/admin-console/enums/organization-user-type";
+import {
+  OrganizationUserStatusType,
+  OrganizationUserType,
+} from "@bitwarden/common/admin-console/enums";
 import {
   AvatarModule,
   BadgeModule,
@@ -16,7 +19,7 @@ import {
   TabsModule,
 } from "@bitwarden/components";
 
-import { PreloadedEnglishI18nModule } from "../../../../../tests/preloaded-english-i18n.module";
+import { PreloadedEnglishI18nModule } from "../../../../../core/tests";
 
 import { AccessSelectorComponent } from "./access-selector.component";
 import { AccessItemType, AccessItemView, CollectionPermission } from "./access-selector.models";
@@ -37,11 +40,13 @@ export default {
         FormsModule,
         TabsModule,
         TableModule,
-        PreloadedEnglishI18nModule,
         JslibModule,
         IconButtonModule,
       ],
       providers: [],
+    }),
+    applicationConfig({
+      providers: [importProvidersFrom(PreloadedEnglishI18nModule)],
     }),
   ],
   parameters: {},
@@ -95,7 +100,7 @@ const sampleMembers = itemsFactory(10, AccessItemType.Member);
 const sampleGroups = itemsFactory(6, AccessItemType.Group);
 
 const StandaloneAccessSelectorTemplate: Story<AccessSelectorComponent> = (
-  args: AccessSelectorComponent
+  args: AccessSelectorComponent,
 ) => ({
   props: {
     items: [],
@@ -121,7 +126,7 @@ const StandaloneAccessSelectorTemplate: Story<AccessSelectorComponent> = (
 });
 
 const DialogAccessSelectorTemplate: Story<AccessSelectorComponent> = (
-  args: AccessSelectorComponent
+  args: AccessSelectorComponent,
 ) => ({
   props: {
     items: [],
@@ -147,7 +152,7 @@ const DialogAccessSelectorTemplate: Story<AccessSelectorComponent> = (
           [showMemberRoles]="showMemberRoles"
         ></bit-access-selector>
       </span>
-      <div bitDialogFooter class="tw-flex tw-items-center tw-flex-row tw-gap-2">
+      <ng-container bitDialogFooter>
         <button bitButton buttonType="primary">Save</button>
         <button bitButton buttonType="secondary">Cancel</button>
         <button
@@ -157,7 +162,7 @@ const DialogAccessSelectorTemplate: Story<AccessSelectorComponent> = (
           size="default"
           title="Delete"
           aria-label="Delete"></button>
-      </div>
+      </ng-container>
     </bit-dialog>
 `,
 });
@@ -248,7 +253,6 @@ MemberGroupAccess.args = {
       type: AccessItemType.Group,
       listName: "Admin Group",
       labelName: "Admin Group",
-      accessAllItems: true,
     },
   ]),
 };
@@ -304,7 +308,6 @@ CollectionAccess.args = {
       type: AccessItemType.Group,
       listName: "Admin Group",
       labelName: "Admin Group",
-      accessAllItems: true,
       readonly: true,
     },
     {
@@ -315,7 +318,6 @@ CollectionAccess.args = {
       status: OrganizationUserStatusType.Confirmed,
       role: OrganizationUserType.Admin,
       email: "admin@email.com",
-      accessAllItems: true,
       readonly: true,
     },
   ]),
@@ -333,7 +335,7 @@ GroupMembersAccess.story = {
 const fb = new FormBuilder();
 
 const ReactiveFormAccessSelectorTemplate: Story<AccessSelectorComponent> = (
-  args: AccessSelectorComponent
+  args: AccessSelectorComponent,
 ) => ({
   props: {
     items: [],

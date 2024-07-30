@@ -1,14 +1,18 @@
 import { Component, EventEmitter, Input, OnInit, Output } from "@angular/core";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { I18nService } from "@bitwarden/common/abstractions/i18n.service";
-import { LogService } from "@bitwarden/common/abstractions/log.service";
-import { PlatformUtilsService } from "@bitwarden/common/abstractions/platformUtils.service";
-import { ProviderUserType } from "@bitwarden/common/admin-console/enums/provider-user-type";
+import { ProviderUserType } from "@bitwarden/common/admin-console/enums";
 import { PermissionsApi } from "@bitwarden/common/admin-console/models/api/permissions.api";
 import { ProviderUserInviteRequest } from "@bitwarden/common/admin-console/models/request/provider/provider-user-invite.request";
 import { ProviderUserUpdateRequest } from "@bitwarden/common/admin-console/models/request/provider/provider-user-update.request";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { DialogService } from "@bitwarden/components";
 
+/**
+ * @deprecated Please use the {@link MembersDialogComponent} instead.
+ */
 @Component({
   selector: "provider-user-add-edit",
   templateUrl: "user-add-edit.component.html",
@@ -17,8 +21,8 @@ export class UserAddEditComponent implements OnInit {
   @Input() name: string;
   @Input() providerUserId: string;
   @Input() providerId: string;
-  @Output() onSavedUser = new EventEmitter();
-  @Output() onDeletedUser = new EventEmitter();
+  @Output() savedUser = new EventEmitter();
+  @Output() deletedUser = new EventEmitter();
 
   loading = true;
   editMode = false;
@@ -36,7 +40,8 @@ export class UserAddEditComponent implements OnInit {
     private apiService: ApiService,
     private i18nService: I18nService,
     private platformUtilsService: PlatformUtilsService,
-    private logService: LogService
+    private logService: LogService,
+    private dialogService: DialogService,
   ) {}
 
   async ngOnInit() {
@@ -44,7 +49,7 @@ export class UserAddEditComponent implements OnInit {
 
     if (this.editMode) {
       this.editMode = true;
-      this.title = this.i18nService.t("editUser");
+      this.title = this.i18nService.t("editMember");
       try {
         const user = await this.apiService.getProviderUser(this.providerId, this.providerUserId);
         this.type = user.type;
@@ -52,7 +57,7 @@ export class UserAddEditComponent implements OnInit {
         this.logService.error(e);
       }
     } else {
-      this.title = this.i18nService.t("inviteUser");
+      this.title = this.i18nService.t("inviteMember");
     }
 
     this.loading = false;
@@ -66,7 +71,7 @@ export class UserAddEditComponent implements OnInit {
         this.formPromise = this.apiService.putProviderUser(
           this.providerId,
           this.providerUserId,
-          request
+          request,
         );
       } else {
         const request = new ProviderUserInviteRequest();
@@ -78,9 +83,9 @@ export class UserAddEditComponent implements OnInit {
       this.platformUtilsService.showToast(
         "success",
         null,
-        this.i18nService.t(this.editMode ? "editedUserId" : "invitedUsers", this.name)
+        this.i18nService.t(this.editMode ? "editedUserId" : "invitedUsers", this.name),
       );
-      this.onSavedUser.emit();
+      this.savedUser.emit();
     } catch (e) {
       this.logService.error(e);
     }
@@ -91,13 +96,12 @@ export class UserAddEditComponent implements OnInit {
       return;
     }
 
-    const confirmed = await this.platformUtilsService.showDialog(
-      this.i18nService.t("removeUserConfirmation"),
-      this.name,
-      this.i18nService.t("yes"),
-      this.i18nService.t("no"),
-      "warning"
-    );
+    const confirmed = await this.dialogService.openSimpleDialog({
+      title: this.name,
+      content: { key: "removeUserConfirmation" },
+      type: "warning",
+    });
+
     if (!confirmed) {
       return false;
     }
@@ -108,9 +112,9 @@ export class UserAddEditComponent implements OnInit {
       this.platformUtilsService.showToast(
         "success",
         null,
-        this.i18nService.t("removedUserId", this.name)
+        this.i18nService.t("removedUserId", this.name),
       );
-      this.onDeletedUser.emit();
+      this.deletedUser.emit();
     } catch (e) {
       this.logService.error(e);
     }

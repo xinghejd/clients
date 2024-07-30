@@ -1,27 +1,38 @@
-import { Location } from "@angular/common";
+import { DatePipe, Location } from "@angular/common";
 import { Component } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
+import qrcodeParser from "qrcode-parser";
+import { firstValueFrom } from "rxjs";
 import { first } from "rxjs/operators";
 
 import { AddEditComponent as BaseAddEditComponent } from "@bitwarden/angular/vault/components/add-edit.component";
 import { AuditService } from "@bitwarden/common/abstractions/audit.service";
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
-import { I18nService } from "@bitwarden/common/abstractions/i18n.service";
-import { LogService } from "@bitwarden/common/abstractions/log.service";
-import { MessagingService } from "@bitwarden/common/abstractions/messaging.service";
-import { PlatformUtilsService } from "@bitwarden/common/abstractions/platformUtils.service";
-import { StateService } from "@bitwarden/common/abstractions/state.service";
-import { CollectionService } from "@bitwarden/common/admin-console/abstractions/collection.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
+import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
+import { CollectionService } from "@bitwarden/common/vault/abstractions/collection.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
-import { PasswordRepromptService } from "@bitwarden/common/vault/abstractions/password-reprompt.service";
-import { CipherType } from "@bitwarden/common/vault/enums/cipher-type";
+import { CipherType } from "@bitwarden/common/vault/enums";
 import { LoginUriView } from "@bitwarden/common/vault/models/view/login-uri.view";
+import { DialogService } from "@bitwarden/components";
+import { PasswordRepromptService } from "@bitwarden/vault";
 
-import { BrowserApi } from "../../../../browser/browserApi";
-import { PopupUtilsService } from "../../../../popup/services/popup-utils.service";
+import { BrowserApi } from "../../../../platform/browser/browser-api";
+import BrowserPopupUtils from "../../../../platform/popup/browser-popup-utils";
+import { PopupCloseWarningService } from "../../../../popup/services/popup-close-warning.service";
+import { BrowserFido2UserInterfaceSession } from "../../../fido2/browser-fido2-user-interface.service";
+import { Fido2UserVerificationService } from "../../../services/fido2-user-verification.service";
+import { fido2PopoutSessionData$ } from "../../utils/fido2-popout-session-data";
+import { closeAddEditVaultItemPopout, VaultPopoutType } from "../../utils/vault-popout-window";
 
 @Component({
   selector: "app-vault-add-edit",
@@ -34,13 +45,16 @@ export class AddEditComponent extends BaseAddEditComponent {
   openAttachmentsInPopup: boolean;
   showAutoFillOnPageLoadOptions: boolean;
 
+  private fido2PopoutSessionData$ = fido2PopoutSessionData$();
+
   constructor(
     cipherService: CipherService,
     folderService: FolderService,
     i18nService: I18nService,
     platformUtilsService: PlatformUtilsService,
     auditService: AuditService,
-    stateService: StateService,
+    accountService: AccountService,
+    private autofillSettingsService: AutofillSettingsServiceAbstraction,
     collectionService: CollectionService,
     messagingService: MessagingService,
     private route: ActivatedRoute,
@@ -48,10 +62,15 @@ export class AddEditComponent extends BaseAddEditComponent {
     private location: Location,
     eventCollectionService: EventCollectionService,
     policyService: PolicyService,
-    private popupUtilsService: PopupUtilsService,
+    private popupCloseWarningService: PopupCloseWarningService,
     organizationService: OrganizationService,
     passwordRepromptService: PasswordRepromptService,
-    logService: LogService
+    logService: LogService,
+    sendApiService: SendApiService,
+    dialogService: DialogService,
+    datePipe: DatePipe,
+    configService: ConfigService,
+    private fido2UserVerificationService: Fido2UserVerificationService,
   ) {
     super(
       cipherService,
@@ -59,14 +78,19 @@ export class AddEditComponent extends BaseAddEditComponent {
       i18nService,
       platformUtilsService,
       auditService,
-      stateService,
+      accountService,
       collectionService,
       messagingService,
       eventCollectionService,
       policyService,
       logService,
       passwordRepromptService,
-      organizationService
+      organizationService,
+      sendApiService,
+      dialogService,
+      window,
+      datePipe,
+      configService,
     );
   }
 
@@ -100,18 +124,22 @@ export class AddEditComponent extends BaseAddEditComponent {
       if (params.selectedVault) {
         this.organizationId = params.selectedVault;
       }
+
       await this.load();
 
       if (!this.editMode || this.cloneMode) {
+        // Only allow setting username if there's no existing value
         if (
-          !this.popupUtilsService.inPopout(window) &&
-          params.name &&
-          (this.cipher.name == null || this.cipher.name === "")
+          params.username &&
+          (this.cipher.login.username == null || this.cipher.login.username === "")
         ) {
+          this.cipher.login.username = params.username;
+        }
+
+        if (params.name && (this.cipher.name == null || this.cipher.name === "")) {
           this.cipher.name = params.name;
         }
         if (
-          !this.popupUtilsService.inPopout(window) &&
           params.uri &&
           (this.cipher.login.uris[0].uri == null || this.cipher.login.uris[0].uri === "")
         ) {
@@ -119,7 +147,11 @@ export class AddEditComponent extends BaseAddEditComponent {
         }
       }
 
-      this.openAttachmentsInPopup = this.popupUtilsService.inPopup(window);
+      this.openAttachmentsInPopup = BrowserPopupUtils.inPopup(window);
+
+      if (this.inAddEditPopoutWindow()) {
+        BrowserApi.messageListener("add-edit-popout", this.handleExtensionMessage.bind(this));
+      }
     });
 
     if (!this.editMode) {
@@ -132,8 +164,8 @@ export class AddEditComponent extends BaseAddEditComponent {
 
     this.setFocus();
 
-    if (this.popupUtilsService.inTab(window)) {
-      this.popupUtilsService.enableCloseTabWarning();
+    if (BrowserPopupUtils.inPopout(window)) {
+      this.popupCloseWarningService.enable();
     }
   }
 
@@ -141,22 +173,50 @@ export class AddEditComponent extends BaseAddEditComponent {
     await super.load();
     this.showAutoFillOnPageLoadOptions =
       this.cipher.type === CipherType.Login &&
-      (await this.stateService.getEnableAutoFillOnPageLoad());
+      (await firstValueFrom(this.autofillSettingsService.autofillOnPageLoad$));
   }
 
   async submit(): Promise<boolean> {
+    const fido2SessionData = await firstValueFrom(this.fido2PopoutSessionData$);
+    const { isFido2Session, sessionId, userVerification } = fido2SessionData;
+    const inFido2PopoutWindow = BrowserPopupUtils.inPopout(window) && isFido2Session;
+
+    // TODO: Revert to use fido2 user verification service once user verification for passkeys is approved for production.
+    // PM-4577 - https://github.com/bitwarden/clients/pull/8746
+    if (
+      inFido2PopoutWindow &&
+      !(await this.handleFido2UserVerification(sessionId, userVerification))
+    ) {
+      return false;
+    }
+
     const success = await super.submit();
     if (!success) {
       return false;
     }
 
-    if (this.popupUtilsService.inTab(window)) {
-      this.popupUtilsService.disableCloseTabWarning();
-      this.messagingService.send("closeTab", { delay: 1000 });
+    if (BrowserPopupUtils.inPopout(window)) {
+      this.popupCloseWarningService.disable();
+    }
+
+    if (inFido2PopoutWindow) {
+      BrowserFido2UserInterfaceSession.confirmNewCredentialResponse(
+        sessionId,
+        this.cipher.id,
+        userVerification,
+      );
+      return true;
+    }
+
+    if (this.inAddEditPopoutWindow()) {
+      this.messagingService.send("addEditCipherSubmitted");
+      await closeAddEditVaultItemPopout(1000);
       return true;
     }
 
     if (this.cloneMode) {
+      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.router.navigate(["/tabs/vault"]);
     } else {
       this.location.back();
@@ -172,8 +232,12 @@ export class AddEditComponent extends BaseAddEditComponent {
         .createUrlTree(["/attachments"], { queryParams: { cipherId: this.cipher.id } })
         .toString();
       const currentBaseUrl = window.location.href.replace(this.router.url, "");
-      this.popupUtilsService.popOut(window, currentBaseUrl + destinationUrl);
+      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
+      BrowserPopupUtils.openCurrentPagePopout(window, currentBaseUrl + destinationUrl);
     } else {
+      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.router.navigate(["/attachments"], { queryParams: { cipherId: this.cipher.id } });
     }
   }
@@ -181,15 +245,26 @@ export class AddEditComponent extends BaseAddEditComponent {
   editCollections() {
     super.editCollections();
     if (this.cipher.organizationId != null) {
+      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.router.navigate(["/collections"], { queryParams: { cipherId: this.cipher.id } });
     }
   }
 
-  cancel() {
+  async cancel() {
     super.cancel();
 
-    if (this.popupUtilsService.inTab(window)) {
-      this.messagingService.send("closeTab");
+    const sessionData = await firstValueFrom(this.fido2PopoutSessionData$);
+    if (BrowserPopupUtils.inPopout(window) && sessionData.isFido2Session) {
+      this.popupCloseWarningService.disable();
+      BrowserFido2UserInterfaceSession.abortPopout(sessionData.sessionId);
+      return;
+    }
+
+    if (this.inAddEditPopoutWindow()) {
+      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
+      closeAddEditVaultItemPopout();
       return;
     }
 
@@ -200,6 +275,8 @@ export class AddEditComponent extends BaseAddEditComponent {
     const confirmed = await super.generateUsername();
     if (confirmed) {
       await this.saveCipherState();
+      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.router.navigate(["generator"], { queryParams: { type: "username" } });
     }
     return confirmed;
@@ -209,6 +286,8 @@ export class AddEditComponent extends BaseAddEditComponent {
     const confirmed = await super.generatePassword();
     if (confirmed) {
       await this.saveCipherState();
+      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.router.navigate(["generator"], { queryParams: { type: "password" } });
     }
     return confirmed;
@@ -217,6 +296,8 @@ export class AddEditComponent extends BaseAddEditComponent {
   async delete(): Promise<boolean> {
     const confirmed = await super.delete();
     if (confirmed) {
+      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.router.navigate(["/tabs/vault"]);
     }
     return confirmed;
@@ -236,7 +317,7 @@ export class AddEditComponent extends BaseAddEditComponent {
   }
 
   private saveCipherState() {
-    return this.stateService.setAddEditCipherInfo({
+    return this.cipherService.setAddEditCipherInfo({
       cipher: this.cipher,
       collectionIds:
         this.collections == null
@@ -257,5 +338,69 @@ export class AddEditComponent extends BaseAddEditComponent {
         document.getElementById("name").focus();
       }
     }, 200);
+  }
+
+  repromptChanged() {
+    super.repromptChanged();
+
+    if (!this.showAutoFillOnPageLoadOptions) {
+      return;
+    }
+
+    if (this.reprompt) {
+      this.platformUtilsService.showToast(
+        "info",
+        null,
+        this.i18nService.t("passwordRepromptDisabledAutofillOnPageLoad"),
+      );
+      return;
+    }
+
+    this.platformUtilsService.showToast(
+      "info",
+      null,
+      this.i18nService.t("autofillOnPageLoadSetToDefault"),
+    );
+  }
+
+  private inAddEditPopoutWindow() {
+    return BrowserPopupUtils.inSingleActionPopout(window, VaultPopoutType.addEditVaultItem);
+  }
+
+  async captureTOTPFromTab() {
+    try {
+      const screenshot = await BrowserApi.captureVisibleTab();
+      const data = await qrcodeParser(screenshot);
+      const url = new URL(data.toString());
+      if (url.protocol == "otpauth:" && url.searchParams.has("secret")) {
+        this.cipher.login.totp = data.toString();
+        this.platformUtilsService.showToast(
+          "success",
+          null,
+          this.i18nService.t("totpCaptureSuccess"),
+        );
+      }
+    } catch (e) {
+      this.platformUtilsService.showToast(
+        "error",
+        this.i18nService.t("errorOccurred"),
+        this.i18nService.t("totpCaptureError"),
+      );
+    }
+  }
+
+  private handleExtensionMessage(message: { [key: string]: any; command: string }) {
+    if (message.command === "inlineAutofillMenuRefreshAddEditCipher") {
+      this.load().catch((error) => this.logService.error(error));
+    }
+  }
+
+  // TODO: Remove and use fido2 user verification service once user verification for passkeys is approved for production.
+  private async handleFido2UserVerification(
+    sessionId: string,
+    userVerification: boolean,
+  ): Promise<boolean> {
+    // We are bypassing user verification pending approval for production.
+    return true;
   }
 }

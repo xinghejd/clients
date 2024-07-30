@@ -1,65 +1,90 @@
-import { Component, OnDestroy, OnInit } from "@angular/core";
-import { NavigationEnd, Router } from "@angular/router";
-import { filter, Subject, takeUntil } from "rxjs";
+import { Component, OnInit } from "@angular/core";
+import { ActivatedRoute, NavigationEnd, Router } from "@angular/router";
+import { filter, map, Observable, startWith, concatMap, firstValueFrom } from "rxjs";
 
-import { StateService } from "@bitwarden/common/abstractions/state.service";
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { ProductTierType } from "@bitwarden/common/billing/enums";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 
-import { ReportVariant, reports, ReportType, ReportEntry } from "../../../reports";
+import { ReportVariant, reports, ReportType, ReportEntry } from "../../../tools/reports";
 
 @Component({
   selector: "app-org-reports-home",
   templateUrl: "reports-home.component.html",
 })
-export class ReportsHomeComponent implements OnInit, OnDestroy {
-  reports: ReportEntry[];
+export class ReportsHomeComponent implements OnInit {
+  reports$: Observable<ReportEntry[]>;
+  homepage$: Observable<boolean>;
 
-  homepage = true;
-  private destrory$: Subject<void> = new Subject<void>();
+  private isMemberAccessReportEnabled: boolean;
 
-  constructor(private stateService: StateService, router: Router) {
-    router.events
-      .pipe(
-        filter((event) => event instanceof NavigationEnd),
-        takeUntil(this.destrory$)
-      )
-      .subscribe((event) => {
-        this.homepage = (event as NavigationEnd).urlAfterRedirects.endsWith("/reports");
-      });
+  constructor(
+    private route: ActivatedRoute,
+    private organizationService: OrganizationService,
+    private router: Router,
+    private configService: ConfigService,
+  ) {}
+
+  async ngOnInit() {
+    // TODO: Remove on "MemberAccessReport" feature flag cleanup
+    this.isMemberAccessReportEnabled = await firstValueFrom(
+      this.configService.getFeatureFlag$(FeatureFlag.MemberAccessReport),
+    );
+
+    this.homepage$ = this.router.events.pipe(
+      filter((event) => event instanceof NavigationEnd),
+      map((event) => this.isReportsHomepageRouteUrl((event as NavigationEnd).urlAfterRedirects)),
+      startWith(this.isReportsHomepageRouteUrl(this.router.url)),
+    );
+
+    this.reports$ = this.route.params.pipe(
+      concatMap((params) => this.organizationService.get$(params.organizationId)),
+      map((org) => this.buildReports(org.productTierType)),
+    );
   }
 
-  async ngOnInit(): Promise<void> {
-    const userHasPremium = await this.stateService.getCanAccessPremium();
+  private buildReports(productType: ProductTierType): ReportEntry[] {
+    const reportRequiresUpgrade =
+      productType == ProductTierType.Free ? ReportVariant.RequiresUpgrade : ReportVariant.Enabled;
 
-    const reportRequiresPremium = userHasPremium
-      ? ReportVariant.Enabled
-      : ReportVariant.RequiresPremium;
-
-    this.reports = [
+    const reportsArray = [
       {
         ...reports[ReportType.ExposedPasswords],
-        variant: reportRequiresPremium,
+        variant: reportRequiresUpgrade,
       },
       {
         ...reports[ReportType.ReusedPasswords],
-        variant: reportRequiresPremium,
+        variant: reportRequiresUpgrade,
       },
       {
         ...reports[ReportType.WeakPasswords],
-        variant: reportRequiresPremium,
+        variant: reportRequiresUpgrade,
       },
       {
         ...reports[ReportType.UnsecuredWebsites],
-        variant: reportRequiresPremium,
+        variant: reportRequiresUpgrade,
       },
       {
         ...reports[ReportType.Inactive2fa],
-        variant: reportRequiresPremium,
+        variant: reportRequiresUpgrade,
       },
     ];
+
+    if (this.isMemberAccessReportEnabled) {
+      reportsArray.push({
+        ...reports[ReportType.MemberAccessReport],
+        variant:
+          productType == ProductTierType.Enterprise
+            ? ReportVariant.Enabled
+            : ReportVariant.RequiresEnterprise,
+      });
+    }
+
+    return reportsArray;
   }
 
-  ngOnDestroy(): void {
-    this.destrory$.next();
-    this.destrory$.complete();
+  private isReportsHomepageRouteUrl(url: string): boolean {
+    return url.endsWith("/reports");
   }
 }

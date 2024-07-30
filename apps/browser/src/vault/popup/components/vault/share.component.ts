@@ -3,12 +3,12 @@ import { ActivatedRoute, Router } from "@angular/router";
 import { first } from "rxjs/operators";
 
 import { ShareComponent as BaseShareComponent } from "@bitwarden/angular/components/share.component";
-import { I18nService } from "@bitwarden/common/abstractions/i18n.service";
-import { LogService } from "@bitwarden/common/abstractions/log.service";
-import { PlatformUtilsService } from "@bitwarden/common/abstractions/platformUtils.service";
-import { CollectionService } from "@bitwarden/common/admin-console/abstractions/collection.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
+import { CollectionService } from "@bitwarden/common/vault/abstractions/collection.service";
 
 @Component({
   selector: "app-vault-share",
@@ -24,7 +24,7 @@ export class ShareComponent extends BaseShareComponent {
     cipherService: CipherService,
     private route: ActivatedRoute,
     private router: Router,
-    organizationService: OrganizationService
+    organizationService: OrganizationService,
   ) {
     super(
       collectionService,
@@ -32,13 +32,15 @@ export class ShareComponent extends BaseShareComponent {
       i18nService,
       cipherService,
       logService,
-      organizationService
+      organizationService,
     );
   }
 
   async ngOnInit() {
     // eslint-disable-next-line rxjs-angular/prefer-takeuntil
     this.onSharedCipher.subscribe(() => {
+      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.router.navigate(["view-cipher", { cipherId: this.cipherId }]);
     });
     // eslint-disable-next-line rxjs-angular/prefer-takeuntil, rxjs/no-async-subscribe
@@ -57,6 +59,8 @@ export class ShareComponent extends BaseShareComponent {
   }
 
   cancel() {
+    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     this.router.navigate(["/view-cipher"], {
       replaceUrl: true,
       queryParams: { cipherId: this.cipher.id },

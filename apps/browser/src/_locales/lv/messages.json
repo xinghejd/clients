@@ -3,18 +3,24 @@
     "message": "Bitwarden"
   },
   "extName": {
-    "message": "Bitwarden",
+    "message": "Bitwarden paroļu pārvaldnieks",
     "description": "Extension name, MUST be less than 40 characters (Safari restriction)"
   },
   "extDesc": {
-    "message": "Drošs bezmaksas paroļu pārvaldnieks visām Tavām ierīcēm.",
-    "description": "Extension description"
+    "message": "Bitwarden viegli aizsargā visas paroles, paroļu atslēgas un jutīgu informāciju mājās, darbā vai ceļā",
+    "description": "Extension description, MUST be less than 112 characters (Safari restriction)"
   },
   "loginOrCreateNewAccount": {
     "message": "Jāpiesakās vai jāizveido jauns konts, lai piekļūtu drošajai glabātavai."
   },
   "createAccount": {
     "message": "Izveidot kontu"
+  },
+  "setAStrongPassword": {
+    "message": "Jāiestata droša parole"
+  },
+  "finishCreatingYourAccountBySettingAPassword": {
+    "message": "Jāpabeidz sava konta izveida ar paroles iestatīšanu"
   },
   "login": {
     "message": "Pieteikties"
@@ -42,6 +48,19 @@
   },
   "masterPassHintDesc": {
     "message": "Galvenās paroles norāde var palīdzēt atcerēties paroli, ja tā ir aizmirsta."
+  },
+  "masterPassHintText": {
+    "message": "Ja tiks aizmirsta parole, tās norādi var nosūtīt uz e-pasta adresi. $CURRENT$/$MAXIMUM$ lielākais pieļaujamais rakstzīmju skaits.",
+    "placeholders": {
+      "current": {
+        "content": "$1",
+        "example": "0"
+      },
+      "maximum": {
+        "content": "$2",
+        "example": "50"
+      }
+    }
   },
   "reTypeMasterPass": {
     "message": "Atkārtoti ievadīt galveno paroli "
@@ -89,16 +108,40 @@
     "message": "Ievietot drošības kodu starpliktuvē"
   },
   "autoFill": {
-    "message": "Automātiskā aizpildīšana"
+    "message": "Automātiskā aizpilde"
+  },
+  "autoFillLogin": {
+    "message": "Automātiski aizpildīt pieteikšanos"
+  },
+  "autoFillCard": {
+    "message": "Automātiski aizpildīt karti"
+  },
+  "autoFillIdentity": {
+    "message": "Automātiski aizpildīt identitāti"
   },
   "generatePasswordCopied": {
-    "message": "Veidot paroli (ievietota starpliktuvē)"
+    "message": "Izveidot paroli (tiks ievietota starpliktuvē)"
   },
   "copyElementIdentifier": {
     "message": "Pavairot pielāgotā lauka nosaukumu"
   },
   "noMatchingLogins": {
     "message": "Nav atbilstošu pieteikšanās vienumu"
+  },
+  "noCards": {
+    "message": "Nav karšu"
+  },
+  "noIdentities": {
+    "message": "Nav identitāšu"
+  },
+  "addLoginMenu": {
+    "message": "Pievienot pieteikšanās vienumu"
+  },
+  "addCardMenu": {
+    "message": "Pievienot karti"
+  },
+  "addIdentityMenu": {
+    "message": "Pievienot identitāti"
   },
   "unlockVaultMenu": {
     "message": "Atslēgt glabātavu"
@@ -140,13 +183,31 @@
     "message": "Apstiprināšanas kods"
   },
   "confirmIdentity": {
-    "message": "Apstiprināt identitāti, lai turpinātu."
-  },
-  "account": {
-    "message": "Konts"
+    "message": "Jāapliecina sava identitāte, lai turpinātu."
   },
   "changeMasterPassword": {
     "message": "Mainīt galveno paroli"
+  },
+  "continueToWebApp": {
+    "message": "Pāriet uz tīmekļa lietotni?"
+  },
+  "continueToWebAppDesc": {
+    "message": "Vairāk sava Bitwarden konta iespēju var izpētīt tīmekļa vietnē."
+  },
+  "continueToHelpCenter": {
+    "message": "Pāriet uz palīdzības centru?"
+  },
+  "continueToHelpCenterDesc": {
+    "message": "Vairāk par to, kā izmantot Bitwarden, var uzzināt palīdzības centrā."
+  },
+  "continueToBrowserExtensionStore": {
+    "message": "Turpināt pārlūka paplašinājumu veikalā?"
+  },
+  "continueToBrowserExtensionStoreDesc": {
+    "message": "Var palīdzēt citiem noskaidrot, vai Bitwarden viņiem der. To var izdarīt pārlūka lietotņu veikalā, atstājot vērtējumu."
+  },
+  "changeMasterPasswordOnWebConfirmation": {
+    "message": "Savu galveno paroli var mainīt Bitwarden tīmekļa lietotnē."
   },
   "fingerprintPhrase": {
     "message": "Atpazīšanas vārdkopa",
@@ -162,8 +223,44 @@
   "logOut": {
     "message": "Atteikties"
   },
+  "aboutBitwarden": {
+    "message": "Par Bitwarden"
+  },
   "about": {
     "message": "Par"
+  },
+  "moreFromBitwarden": {
+    "message": "Vairāk no Bitwarden"
+  },
+  "continueToBitwardenDotCom": {
+    "message": "Pāriet uz bitwarden.com?"
+  },
+  "bitwardenForBusiness": {
+    "message": "Bitwarden uzņēmējdarbībai"
+  },
+  "bitwardenAuthenticator": {
+    "message": "Bitwarden autentificētājs"
+  },
+  "continueToAuthenticatorPageDesc": {
+    "message": "Bitwarden autentificētājs ļauj glabāt autentificētāja atslēgas un izveidot TOTP kodus divpakāpju apliecināšanas plūsmām. Vairāk var uzzināt tīmekļvietnē bitwarden.com"
+  },
+  "bitwardenSecretsManager": {
+    "message": "Bitwarden noslēpumu pārvaldnieks"
+  },
+  "continueToSecretsManagerPageDesc": {
+    "message": "Droša izstrādātāju noslēpumu uzglabāšana, pārvaldīšana un kopīgošana ar Bitwarden noslēpumu pārvaldnieku. Vairāk var uzzināt tīmekļvietnē bitwarden.com."
+  },
+  "passwordlessDotDev": {
+    "message": "Passwordless.dev"
+  },
+  "continueToPasswordlessDotDevPageDesc": {
+    "message": "Plūdenu un drošu pieteikšanās pieredžu, kas ir brīvas no ierastajām parolēm, izveidošana ar Passwordless.dev. Vairāk var uzzināt tīmekļvietnē bitwarden.com."
+  },
+  "freeBitwardenFamilies": {
+    "message": "Bezmaksas Bitwarden ģimenēm"
+  },
+  "freeBitwardenFamiliesPageDesc": {
+    "message": "Tev ir tiesības uz bezmaksas Bitwarden ģimenēm. Šo piedāvājumu šodien var pieņemt tīmekļa lietotnē."
   },
   "version": {
     "message": "Laidiens"
@@ -223,8 +320,8 @@
   "passGenInfo": {
     "message": "Automātiski veido spēcīgas, neatkārtojamas paroles visiem pieteikšanās vienumiem."
   },
-  "bitWebVault": {
-    "message": "Bitwarden tīmekļa glabātava"
+  "bitWebVaultApp": {
+    "message": "Bitwarden tīmekļa lietotne"
   },
   "importItems": {
     "message": "Ievietot vienumus"
@@ -243,6 +340,9 @@
   },
   "length": {
     "message": "Garums"
+  },
+  "passwordMinLength": {
+    "message": "Mazākais pieļaujamais paroles garums"
   },
   "uppercase": {
     "message": "Lielie burti (A-Z)"
@@ -299,11 +399,23 @@
   "password": {
     "message": "Parole"
   },
+  "totp": {
+    "message": "Autentificētāja noslēpums"
+  },
   "passphrase": {
     "message": "Paroles vārdkopa"
   },
   "favorite": {
     "message": "Izlasē"
+  },
+  "unfavorite": {
+    "message": "Noņemt no izlases"
+  },
+  "itemAddedToFavorites": {
+    "message": "Vienums pievienots izlasē"
+  },
+  "itemRemovedFromFavorites": {
+    "message": "Vienums noņemts no izlases"
   },
   "notes": {
     "message": "Piezīmes"
@@ -326,6 +438,9 @@
   "launch": {
     "message": "Palaist"
   },
+  "launchWebsite": {
+    "message": "Atvērt tīmekļvietni"
+  },
   "website": {
     "message": "Tīmekļa vietne"
   },
@@ -338,6 +453,21 @@
   "other": {
     "message": "Cits"
   },
+  "unlockMethods": {
+    "message": "Atslēgšanas iespējas"
+  },
+  "unlockMethodNeededToChangeTimeoutActionDesc": {
+    "message": "Jāuzstāda atslēgšanas veids, lai mainītu glabātavas noildzes darbību."
+  },
+  "unlockMethodNeeded": {
+    "message": "Jāuzstāda atslēgšanas veids iestatījumos"
+  },
+  "sessionTimeoutHeader": {
+    "message": "Sesijas noildze"
+  },
+  "otherOptions": {
+    "message": "Citas iespējas"
+  },
   "rateExtension": {
     "message": "Novērtēt paplašinājumu"
   },
@@ -345,13 +475,13 @@
     "message": "Lūgums apsvērt palīdzēt mums ar labu atsauksmi."
   },
   "browserNotSupportClipboard": {
-    "message": "Tīmekļa pārlūks neatbalsta vienkāršu starpliktuves kopēšanu. Tā vietā tas pašrocīgi jāievieto starpliktuvē."
+    "message": "Pārlūks neatbalsta vienkāršo ievietošanu starpliktuvē. Tā vietā tas jāievieto starpliktuvē pašrocīgi."
   },
   "verifyIdentity": {
-    "message": "Apstiprināt identitāti"
+    "message": "Identitātes apliecināšana"
   },
   "yourVaultIsLocked": {
-    "message": "Glabātava ir slēgta. Nepieciešams norādīt galveno paroli, lai turpinātu."
+    "message": "Glabātava ir aizslēgta. Jāapliecina sava identitāte, lai turpinātu."
   },
   "unlock": {
     "message": "Atslēgt"
@@ -377,6 +507,9 @@
   },
   "lockNow": {
     "message": "Aizslēgt"
+  },
+  "lockAll": {
+    "message": "Aizslēgt visu"
   },
   "immediately": {
     "message": "Nekavējoties"
@@ -423,8 +556,20 @@
   "security": {
     "message": "Drošība"
   },
+  "confirmMasterPassword": {
+    "message": "Apstiprināt galveno paroli"
+  },
+  "masterPassword": {
+    "message": "Galvenā parole"
+  },
+  "masterPassImportant": {
+    "message": "Galveno paroli nevar atgūt, ja tā tiek aizmirsta."
+  },
+  "masterPassHintLabel": {
+    "message": "Galvenās paroles norāde"
+  },
   "errorOccurred": {
-    "message": "Radusies kļūda"
+    "message": "Atgadījās kļūda"
   },
   "emailRequired": {
     "message": "E-pasta adrese ir nepieciešama."
@@ -454,17 +599,26 @@
   "newAccountCreated": {
     "message": "Jaunais konts ir izveidots. Tagad vari pieteikties."
   },
+  "youSuccessfullyLoggedIn": {
+    "message": "Pieteikšanās bija veiksmīga"
+  },
+  "youMayCloseThisWindow": {
+    "message": "Šo logu var aizvērt"
+  },
   "masterPassSent": {
     "message": "Mēs nosūtījām galvenās paroles norādi e-pastā."
   },
   "verificationCodeRequired": {
     "message": "Apstiprinājuma kods ir nepieciešams."
   },
+  "webauthnCancelOrTimeout": {
+    "message": "Autentifikācija tika atcelta vai tā aizņēma pārāk daudz laika. Lūgums mēģināt vēlreiz."
+  },
   "invalidVerificationCode": {
     "message": "Nederīgs apstiprinājuma kods"
   },
   "valueCopied": {
-    "message": "$VALUE$ ievietota starpliktuvē",
+    "message": "$VALUE$ ir starpliktuvē",
     "description": "Value has been copied to the clipboard.",
     "placeholders": {
       "value": {
@@ -476,11 +630,50 @@
   "autofillError": {
     "message": "Neizdevās automātiski aizpildīt izvēlēto vienumu šajā lapā. Tā vietā informācija ir jāievieto starpliktuvē un jāielīmē pašrocīgi."
   },
+  "totpCaptureError": {
+    "message": "Neizdevās nolasīt kvadrātkodu pašreizējā tīmekļa lapā"
+  },
+  "totpCaptureSuccess": {
+    "message": "Autentificētāja atslēga ir pievienota"
+  },
+  "totpCapture": {
+    "message": "Nolasīt autentificētāja kvadrātkodu pašreizējā tīmekļa lapā"
+  },
+  "totpHelperTitle": {
+    "message": "Make 2-step verification seamless"
+  },
+  "totpHelper": {
+    "message": "Bitwarden can store and fill 2-step verification codes. Copy and paste the key into this field."
+  },
+  "totpHelperWithCapture": {
+    "message": "Bitwarden can store and fill 2-step verification codes. Select the camera icon to take a screenshot of this website's authenticator QR code, or copy and paste the key into this field."
+  },
+  "copyTOTP": {
+    "message": "Ievietot starpliktuvē autentificētāja atslēgu (TOTP)"
+  },
   "loggedOut": {
     "message": "Atteicies"
   },
+  "loggedOutDesc": {
+    "message": "Notika izrakstīšanās no Tava konta."
+  },
   "loginExpired": {
     "message": "Pieteikšanās sesija ir beigusies."
+  },
+  "logIn": {
+    "message": "Log in"
+  },
+  "restartRegistration": {
+    "message": "Restart registration"
+  },
+  "expiredLink": {
+    "message": "Expired link"
+  },
+  "pleaseRestartRegistrationOrTryLoggingIn": {
+    "message": "Please restart registration or try logging in."
+  },
+  "youMayAlreadyHaveAnAccount": {
+    "message": "You may already have an account"
   },
   "logOutConfirmation": {
     "message": "Vai tiešām atteikties?"
@@ -500,14 +693,8 @@
   "addedFolder": {
     "message": "Pievienoja mapi"
   },
-  "changeMasterPass": {
-    "message": "Mainīt galveno paroli"
-  },
-  "changeMasterPasswordConfirmation": {
-    "message": "Galveno paroli ir iespējams mainīt bitwarden.com tīmekļa glabātavā. Vai apmeklēt tīmekļa vietni?"
-  },
   "twoStepLoginConfirmation": {
-    "message": "Divpakāpju pieteikšanās padara kontu krietni drošāku, pieprasot apstiprināt pieteikšanos ar tādu citu ierīču vai pakalpojumu starpniecību kā drošības atslēga, autentificētāja lietotne, īsziņa, tālruņa zvans vai e-pasts. Divpakāpju pieteikšanos var iespējot bitwarden.com tīmekļa glabātavā. Vai apmeklēt tīmekļa vietni?"
+    "message": "Divpakāpju pieteikšanās padara kontu krietni drošāku, pieprasot apstiprināt pieteikšanos ar tādu citu ierīču vai pakalpojumu starpniecību kā drošības atslēga, autentificētāja lietotne, īsziņa, tālruņa zvans vai e-pasts. Divpakāpju pieteikšanos var iespējot bitwarden.com tīmekļa glabātavā. Vai tagad apmeklēt tīmekļvietni?"
   },
   "editedFolder": {
     "message": "Mape labota"
@@ -522,7 +709,7 @@
     "message": "Uzsākšanas pamācība"
   },
   "gettingStartedTutorialVideo": {
-    "message": "Noskaties mūsu uzsākšanas pamācību, lai uzzinātu, kā iegūt vislielāko labumu no pārlūka paplašinājuma."
+    "message": "Noskaties mūsu uzsākšanas pamācību, lai uzzinātu, kā iegūt vislielāko labumu no pārlūka paplašinājuma!"
   },
   "syncingComplete": {
     "message": "Sinhronizācija pabeigta"
@@ -556,7 +743,7 @@
     "message": "Vienums labots"
   },
   "deleteItemConfirmation": {
-    "message": "Vai tiešām pārvietot vienumu uz atkritni?"
+    "message": "Vai tiešām pārvietot uz atkritni?"
   },
   "deletedItem": {
     "message": "Vienums pārvietots uz atkritni"
@@ -592,6 +779,9 @@
   "addLoginNotificationDesc": {
     "message": "Vaicāt pievienot vienumu, ja tāds nav atrodams glabātavā."
   },
+  "addLoginNotificationDescAlt": {
+    "message": "Vaicāt, vai pievienot vienumu, ja glabātavā tāds nav atrodams. Attiecas uz visiem pieslēgtajiem kontiem."
+  },
   "showCardsCurrentTab": {
     "message": "Rādīt kartes cilnes lapā"
   },
@@ -602,14 +792,14 @@
     "message": "Rādīt identitātes cilnes pārskatā"
   },
   "showIdentitiesCurrentTabDesc": {
-    "message": "Attēlot identitātes ciļņu lapā vieglākai aizpildīšanai."
+    "message": "Attēlot identitātes ciļņu lapā vieglākai aizpildei."
   },
   "clearClipboard": {
     "message": "Notīrīt starpliktuvi",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
   },
   "clearClipboardDesc": {
-    "message": "Automātiski noņemt kopētās vērtības no starpliktuves.",
+    "message": "Automātiski noņemt starpliktuvē ievietotās vērtības.",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
   },
   "notificationAddDesc": {
@@ -622,7 +812,16 @@
     "message": "Vaicāt atjaunināt esošu pieteikšanās vienumu"
   },
   "changedPasswordNotificationDesc": {
-    "message": "Vaicāt atjaunināt pieteikšanās vienuma paroli, ja vietnē ir noteiktas tās izmaiņas."
+    "message": "Vaicāt atjaunināt pieteikšanās vienuma paroli, ja tīmekļvietnē ir noteiktas tās izmaiņas."
+  },
+  "changedPasswordNotificationDescAlt": {
+    "message": "Vaicāt, vai atjaunināt pieteikšanās vienuma paroli, kad tīmekļvietnē ir noteikta atšķirība. Attiecas uzvisiem pieslēgtajiem kontiem."
+  },
+  "enableUsePasskeys": {
+    "message": "Vaicāt, vai saglabāt un izmantot piekļuves atslēgas"
+  },
+  "usePasskeysDesc": {
+    "message": "Vaicāt, vai saglabāt jaunas piekļuves atslēgas vai pieteikties ar glabātavā esošajām piekļuves atslēgām. Attiecas uz visiem pieslēgtajiem kontiem."
   },
   "notificationChangeDesc": {
     "message": "Vai atjaunināt šo paroli Bitwarden?"
@@ -630,24 +829,39 @@
   "notificationChangeSave": {
     "message": "Jā, atjaunināt"
   },
+  "notificationUnlockDesc": {
+    "message": "Jāatslēdz Bitwarden glabātava, lai pabeigtu automātiskās aizpildes pieprasījumu."
+  },
+  "notificationUnlock": {
+    "message": "Atslēgt"
+  },
+  "additionalOptions": {
+    "message": "Papildu iespējas"
+  },
   "enableContextMenuItem": {
     "message": "Rādīt konteksta izvēlnes iespējas"
   },
   "contextMenuItemDesc": {
-    "message": "Izmantot orējo klikšķi, lai piekļūtu paroļu veidošanai un vietnei atbilstošajiem pieteikšanās vienumiem. "
+    "message": "Izmantot otrējo klikšķi, lai piekļūtu paroļu veidošanai un tīmekļvietnei atbilstošajiem pieteikšanās vienumiem."
+  },
+  "contextMenuItemDescAlt": {
+    "message": "Izmantot otrējo klikšķi, lai piekļūtu paroļu veidošanai un tīmekļvietnei atbilstošajiem pieteikšanās vienumiem. Attiecas uz visiem pieslēgtajiem kontiem."
   },
   "defaultUriMatchDetection": {
     "message": "Noklusējuma URI atbilstības noteikšana",
     "description": "Default URI match detection for auto-fill."
   },
   "defaultUriMatchDetectionDesc": {
-    "message": "Izvēlēties noklusējuma veidu, kādā tiek apstrādāta pieteikšan'ās vienumu URI atbilstības noteikšana, kad tiek veiktas tādas darbības kā automātiska aizpildīšana."
+    "message": "Izvēlēties noklusējuma veidu, kādā tiek apstrādāta pieteikšanās vienumu URI atbilstības noteikšana, kad tiek veiktas tādas darbības kā automātiska aizpilde."
   },
   "theme": {
     "message": "Izskats"
   },
   "themeDesc": {
     "message": "Mainīt lietotnes izskata krāsas."
+  },
+  "themeDescAlt": {
+    "message": "Mainīt lietotnes izskata krāsas. Attiecas uz visiem pieslēgtajiem kontiem."
   },
   "dark": {
     "message": "Tumšs",
@@ -661,11 +875,38 @@
     "message": "Solarized Dark",
     "description": "'Solarized' is a noun and the name of a color scheme. It should not be translated."
   },
+  "exportFrom": {
+    "message": "Izgūt no"
+  },
   "exportVault": {
     "message": "Izgūt glabātavas saturu"
   },
   "fileFormat": {
     "message": "Datnes veids"
+  },
+  "fileEncryptedExportWarningDesc": {
+    "message": "Šī datņu izgūšana būs aizsargāta ar paroli, un būs nepieciešama datnes parole, lai to atšifrētu."
+  },
+  "filePassword": {
+    "message": "Datnes parole"
+  },
+  "exportPasswordDescription": {
+    "message": "Šī parole tiks izmantota, lai izgūtu un ievietotu šo datni"
+  },
+  "accountRestrictedOptionDescription": {
+    "message": "Jāizmanto konta šifrēšanas atslēga, kas iegūta no lietotājvārda un galvenās paroles, lai šifrētu izguvi un atļautu ievietošanu tikai pašreizējā Bitwarden kontā."
+  },
+  "passwordProtectedOptionDescription": {
+    "message": "Uzstādīt paroli, lai šifrētu izguvi un tad to ievietotu jebkurā Bitwarden kontā, izmantojot atšifrēšanas paroli."
+  },
+  "exportTypeHeading": {
+    "message": "Izgūšanas veids"
+  },
+  "accountRestricted": {
+    "message": "Konts ir ierobežots"
+  },
+  "filePasswordAndConfirmFilePasswordDoNotMatch": {
+    "message": "\"Datnes parole\" un \"Apstiprināt datnes paroli\" vērtības nesakrīt."
   },
   "warning": {
     "message": "UZMANĪBU",
@@ -675,7 +916,7 @@
     "message": "Apstiprināt glabātavas satura izgūšanu"
   },
   "exportWarningDesc": {
-    "message": "Šī izguve satur glabātavas datus nešifrētā veidā. Izdoto datni nevajadzētu glabāt vai sūtīt nedrošos veidos (piemēram, e-pastā). Izdzēst to uzreiz pēc izmantošanas."
+    "message": "Šī izguve satur glabātavas datus nešifrētā veidā. Izgūto datni nevajadzētu glabāt vai sūtīt nedrošos veidos (piemēram, e-pastā). Tā ir jāizdzēš uzreiz pēc izmantošanas."
   },
   "encExportKeyWarningDesc": {
     "message": "Šī izguve šifrē datus ar konta šifrēšanas atslēgu. Ja tā jebkad tiks mainīta, izvadi vajadzētu veikt vēlreiz, jo vairs nebūs iespējams atšifrēt šo datni."
@@ -689,11 +930,8 @@
   "shared": {
     "message": "Kopīgots"
   },
-  "learnOrg": {
-    "message": "Uzzināt par apvienībām"
-  },
-  "learnOrgConfirmation": {
-    "message": "Bitwarden nodrošina iespēju kopīgot glabātavas vienumus ar citiem, kad tiek izmantota apvienība. Vai apmeklēt bitwarden.com tīmekļa vietni, lai uzzinātu vairāk?"
+  "bitwardenForBusinessPageDesc": {
+    "message": "Bitwarden uzņēmējdarbībai nodrošina iespēju kopīgot savas glabātavas vienumus ar citiem, kad tiek izmantota apvienība. Vairāk var uzzināt tīmekļvietnē bitwarden.com."
   },
   "moveToOrganization": {
     "message": "Pārvietot uz apvienību"
@@ -762,8 +1000,8 @@
   "featureUnavailable": {
     "message": "Iespēja nav pieejama"
   },
-  "updateKey": {
-    "message": "Jūs nevarat izmantot šo funkciju līdz jūs atjaunojat savu šifrēšanas atslēgu."
+  "encryptionKeyMigrationRequired": {
+    "message": "Nepieciešama šifrēšanas atslēgas nomaiņa. Lūgums pieteikties tīmekļa glabātavā, lai atjauninātu savu šifrēšanas atslēgu."
   },
   "premiumMembership": {
     "message": "Premium dalība"
@@ -772,7 +1010,7 @@
     "message": "Pārvaldīt dalību"
   },
   "premiumManageAlert": {
-    "message": "Dalību ir iespējams pārvaldīt bitwarden.com tīmekļa glabātavā. Vai apmeklēt tīmekļa vietni?"
+    "message": "Dalību ir iespējams pārvaldīt bitwarden.com tīmekļa glabātavā. Vai tagad apmeklēt tīmekļvietni?"
   },
   "premiumRefresh": {
     "message": "Atjaunot dalību"
@@ -786,8 +1024,8 @@
   "ppremiumSignUpStorage": {
     "message": "1 GB šifrētas krātuves datņu pielikumiem."
   },
-  "ppremiumSignUpTwoStep": {
-    "message": "Tādas papildu divpakāpju pieteikšanās iespējas kā YubiKey, FIDO U2F un Duo."
+  "premiumSignUpTwoStepOptions": {
+    "message": "Tādas slēgtā pirmavota divpakāpju pieteikšanās iespējas kā YubiKey un Duo."
   },
   "ppremiumSignUpReports": {
     "message": "Paroļu higiēnas, konta veselības un datu noplūžu pārskati, lai uzturētu glabātavu drošu."
@@ -805,7 +1043,7 @@
     "message": "Iegādāties Premium"
   },
   "premiumPurchaseAlert": {
-    "message": "Premium dalību ir iespējams iegādāties bitwarden.com tīmekļa glabātavā. Vai apmeklēt tīmekļa vietni?"
+    "message": "Premium dalību ir iespējams iegādāties bitwarden.com tīmekļa glabātavā. Vai tagad apmeklēt tīmekļvietni?"
   },
   "premiumCurrentMember": {
     "message": "Tu esi Premium dalībnieks!"
@@ -829,7 +1067,7 @@
     "message": "Automātiski ievietot TOTP starpliktuvē"
   },
   "disableAutoTotpCopyDesc": {
-    "message": "Ja pieteikšanās vienumam ir pievienota autentificētāja atslēga, TOTP apstiprinājuma kods tiks automātiski pārkopēts uz starpliktuvi, kad vien tiks automātiski aizpildīta pieteikšanās veidne."
+    "message": "Ja pieteikšanās vienumam ir pievienota autentificētāja atslēga, TOTP apstiprinājuma kods tiks automātiski ievietots starpliktuvē, kad vien tiks automātiski aizpildīta pieteikšanās veidne."
   },
   "enableAutoBiometricsPrompt": {
     "message": "Palaižot vaicāt biometriju"
@@ -841,10 +1079,10 @@
     "message": "Ir nepieciešama Premium dalība, lai izmantotu šo iespēju."
   },
   "enterVerificationCodeApp": {
-    "message": "Ievadi 6 ciparu apstiprinājuma kodu no autentificētāja lietotnes!"
+    "message": "Jāievada 6 ciparu apstiprinājuma kods no autentificētāja lietotnes."
   },
   "enterVerificationCodeEmail": {
-    "message": "Ievadi 6 ciparu apstiprinājuma kodu, kas tika nosūtīts uz $EMAIL$.",
+    "message": "Jāievada 6 ciparu apstiprinājuma kods, kas tika nosūtīts uz $EMAIL$.",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -892,7 +1130,7 @@
     "message": "Šim kontam ir iespējota divpakāpju pieteikšanās, bet šajā pārlūkā netiek atbalstīts neviens no uzstādītajiem divpakāpju pārbaudes nodrošinātājiem."
   },
   "noTwoStepProviders2": {
-    "message": "Lūgums izmantot atbalstītu tīmekļa pārlūku (piemēram Chrome) un/vai pievienot papildus nodrošinātājus, kas tiek labāk atbalstīti dažādos pārlūkos (piemēram autentificētāja lietotni)."
+    "message": "Lūgums izmantot atbalstītu tīmekļa pārlūku (piemēram Chrome) un/vai pievienot papildu nodrošinātājus, kas tiek labāk atbalstīti dažādos pārlūkos (piemēram autentificētāja lietotni)."
   },
   "twoStepOptions": {
     "message": "Divpakāpju pieteikšanās iespējas"
@@ -906,41 +1144,50 @@
   "authenticatorAppTitle": {
     "message": "Autentificētāja lietotne"
   },
-  "authenticatorAppDesc": {
-    "message": "Izmanto autentificētāja lietotni (piemēram, Authy vai Google autentifikators), lai izveidotu laikā balstītus apstiprinājuma kodus!",
-    "description": "'Authy' and 'Google Authenticator' are product names and should not be translated."
+  "authenticatorAppDescV2": {
+    "message": "Jāievada autentificētāja lietotnes, piemēram, Bitwarden Authenticator, izveidots kods.",
+    "description": "'Bitwarden Authenticator' is a product name and should not be translated."
   },
-  "yubiKeyTitle": {
-    "message": "YubiKey OTP drošības atslēga"
+  "yubiKeyTitleV2": {
+    "message": "Yubico OTP drošības atslēga"
   },
   "yubiKeyDesc": {
-    "message": "Izmanto YubiKey, lai piekļūtu savam kontam! Darbojas ar YubiKey 4, 4 Nano, 4C un NEO ierīcēm."
+    "message": "Ir izmantojams YubiKey, lai piekļūtu savam kontam. Darbojas ar YubiKey 4, 4 Nano, 4C un NEO ierīcēm."
   },
-  "duoDesc": {
-    "message": "Apstiprini ar Duo Security, izmantojot Duo Mobile lietotni, īsziņu, tālruņa zvanu vai U2F drošības atslēgu!",
+  "duoDescV2": {
+    "message": "Jāievada Duo Security izveidots kods.",
     "description": "'Duo Security' and 'Duo Mobile' are product names and should not be translated."
   },
   "duoOrganizationDesc": {
-    "message": "Apstiprini ar Duo Security savā apvienībā, izmantojot Duo Mobile lietotni, īsziņu, tālruņa zvanu vai U2F drošības atslēgu!",
+    "message": "Apliecināšana ar savas apvienības Duo Security, izmantojot Duo Mobile lietotni, īsziņu, tālruņa zvanu vai U2F drošības atslēgu.",
     "description": "'Duo Security' and 'Duo Mobile' are product names and should not be translated."
   },
   "webAuthnTitle": {
     "message": "FIDO2 WebAuthn"
   },
   "webAuthnDesc": {
-    "message": "Izmantot jebkuru WebAuthn atbalstošu drošības atslēgu, lai piekļūtu kontam."
+    "message": "Ir izmantojama jebkura WebAuthn atbalstošu drošības atslēgu, lai piekļūtu kontam."
   },
   "emailTitle": {
     "message": "E-pasts"
   },
-  "emailDesc": {
-    "message": "Apstiprinājuma kodi tiks nosūtīti e-pastā."
+  "emailDescV2": {
+    "message": "Jāievada e-pastā nosūtītais kods."
   },
   "selfHostedEnvironment": {
     "message": "Pašuzturēta vide"
   },
   "selfHostedEnvironmentFooter": {
     "message": "Norādīt pašuzstādīta Bitwarden pamata URL."
+  },
+  "selfHostedBaseUrlHint": {
+    "message": "Jānorāda sava pašizvietotā Bitward servera pamata URL. Piemērs: https://bitwarden.uznemums.lv"
+  },
+  "selfHostedCustomEnvHeader": {
+    "message": "Papildu konfigurācijā ir iespējams norādīt URL katram pakalpojumam atsevišķi."
+  },
+  "selfHostedEnvFormInvalid": {
+    "message": "Jāpievieno vai no servera pamata URL vai vismaz viena pielāgota vide."
   },
   "customEnvironment": {
     "message": "Pielāgota vide"
@@ -969,17 +1216,42 @@
   "environmentSaved": {
     "message": "Vides URL ir saglabāti."
   },
+  "showAutoFillMenuOnFormFields": {
+    "message": "Rādīt automātiskās aizpildes izvēlni veidlapu laukos",
+    "description": "Represents the message for allowing the user to enable the auto-fill overlay"
+  },
+  "showAutoFillMenuOnFormFieldsDescAlt": {
+    "message": "Attiecas uz visiem pieslēgtajiem kontiem."
+  },
+  "turnOffBrowserBuiltInPasswordManagerSettings": {
+    "message": "Jāizslēdz sava pārlūka iebūvētā paroļu pārvaldnieka iestatījumi, lai izvairītos no nesaderībām."
+  },
+  "turnOffBrowserBuiltInPasswordManagerSettingsLink": {
+    "message": "Mainīt pārlūka iestatījumus."
+  },
+  "autofillOverlayVisibilityOff": {
+    "message": "Izslēgts",
+    "description": "Overlay setting select option for disabling autofill overlay"
+  },
+  "autofillOverlayVisibilityOnFieldFocus": {
+    "message": "Kad lauks ir atlasīts (atlasot)",
+    "description": "Overlay appearance select option for showing the field on focus of the input element"
+  },
+  "autofillOverlayVisibilityOnButtonClick": {
+    "message": "Kad tiek atlasīta automātiskās aizpildes ikona",
+    "description": "Overlay appearance select option for showing the field on click of the overlay icon"
+  },
   "enableAutoFillOnPageLoad": {
-    "message": "Iespējot aizpildīšanu lapas ielādes brīdī"
+    "message": "Automātiski aizpildīt lapas ielādes brīdī"
   },
   "enableAutoFillOnPageLoadDesc": {
     "message": "Ja tiek noteikta pieteikšanās veidne, tā tiks aizpildīta lapas ielādes brīdī."
   },
   "experimentalFeature": {
-    "message": "Pārveidotās vai neuzticamās vietnēs automātiskā aizpildīšana lapas ielādes laikā var tikt ļaunprātīgi izmantota."
+    "message": "Pārveidotās vai neuzticamās tīmekļvietnēs automātiskā aizpilde lapas ielādes laikā var tikt ļaunprātīgi izmantota."
   },
   "learnMoreAboutAutofill": {
-    "message": "Uzzināt vairāk par automātisko aizpildīšanu"
+    "message": "Uzzināt vairāk par automātisko aizpildi"
   },
   "defaultAutoFillOnPageLoad": {
     "message": "Noklusējuma automātiskās aizpildes iestatījums pieteikšanās vienumiem"
@@ -1006,16 +1278,13 @@
     "message": "Atvērt glabātavu sānu joslā"
   },
   "commandAutofillDesc": {
-    "message": "Automātiski aizpildīt ar iepriekš izmantoto pieteikšanās vienumu pašreizējā tīmekļa vietnē"
+    "message": "Automātiski aizpildīt ar iepriekš izmantoto pieteikšanās vienumu pašreizējā tīmekļvietnē"
   },
   "commandGeneratePasswordDesc": {
     "message": "Izveidot jaunu nejaušu paroli un ievietot to starpliktuvē"
   },
   "commandLockVaultDesc": {
     "message": "Aizslēgt glabātavu"
-  },
-  "privateModeWarning": {
-    "message": "Personiskā stāvokļa atbalsts ir izmēģinājuma, un dažas iespējas ir ierobežotas."
   },
   "customFields": {
     "message": "Pielāgoti lauki"
@@ -1056,10 +1325,13 @@
     "message": "Šis pārlūks nevar apstrādāt U2F pieprasījumus šajā uznirstošajā logā. Vai atvērt to atsevišķā logā, lai varētu pieteikties, izmantojot U2F?"
   },
   "enableFavicon": {
-    "message": "Rādīt vietņu ikonas"
+    "message": "Rādīt tīmekļvietņu ikonas"
   },
   "faviconDesc": {
     "message": "Attēlot atpazīstamu attēlu pie katra pieteikšanās vienuma."
+  },
+  "faviconDescAlt": {
+    "message": "Parādīt atpazīstamu attēlu pie katra pieteikšanās vienuma. Attiecas uz visiem kontiem, kuros ir notikusi pieteikšanās."
   },
   "enableBadgeCounter": {
     "message": "Rādīt skaita nozīmīti"
@@ -1220,6 +1492,33 @@
   "typeIdentity": {
     "message": "Identitāte"
   },
+  "newItemHeader": {
+    "message": "Jauns/a $TYPE$",
+    "placeholders": {
+      "type": {
+        "content": "$1",
+        "example": "Login"
+      }
+    }
+  },
+  "editItemHeader": {
+    "message": "Labot $TYPE$",
+    "placeholders": {
+      "type": {
+        "content": "$1",
+        "example": "Login"
+      }
+    }
+  },
+  "viewItemHeader": {
+    "message": "Apskatīt $TYPE$",
+    "placeholders": {
+      "type": {
+        "content": "$1",
+        "example": "Login"
+      }
+    }
+  },
   "passwordHistory": {
     "message": "Paroļu vēsture"
   },
@@ -1228,6 +1527,15 @@
   },
   "collections": {
     "message": "Krājumi"
+  },
+  "nCollections": {
+    "message": "$COUNT$ krājumi",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
   },
   "favorites": {
     "message": "Izlase"
@@ -1390,6 +1698,9 @@
   "invalidPin": {
     "message": "Nederīgs PIN kods."
   },
+  "tooManyInvalidPinEntryAttemptsLoggingOut": {
+    "message": "Pārāk daudz nederīgu PIN ievadīšanas mēģinājumu. Atsakās."
+  },
   "unlockWithBiometrics": {
     "message": "Atslēgt ar biometriju"
   },
@@ -1440,11 +1751,11 @@
   "restoreItem": {
     "message": "Atjaunot vienumu"
   },
-  "restoreItemConfirmation": {
-    "message": "Jūs tiešām atjaunot šo vienumu?"
-  },
   "restoredItem": {
     "message": "Vienums atjaunots"
+  },
+  "alreadyHaveAccount": {
+    "message": "Jau ir konts?"
   },
   "vaultTimeoutLogOutConfirmation": {
     "message": "Atteikšanās noņems piekļuvi glabātavai un pieprasīs tiešsaistes pieteikšanos pēc noildzes laika. Vai tiešām izmantot šo iestatījumu?"
@@ -1455,14 +1766,44 @@
   "autoFillAndSave": {
     "message": "Automātiski aizpildīt un saglabāt"
   },
+  "fillAndSave": {
+    "message": "Aizpildīt un saglabāt"
+  },
   "autoFillSuccessAndSavedUri": {
     "message": "Automātiski aizpildīts vienums un saglabāts URI"
   },
   "autoFillSuccess": {
     "message": "Automātiski aizpildīts vienums"
   },
+  "insecurePageWarning": {
+    "message": "Brīdinājums: šī ir nedroša HTTP lapa, un ir iespējams, ka citi var redzēt vai mainīt visu tajā iesniegto informāciju. Šis pieteikšanās vienums sākotnēji tika saglabāts drošā (HTTPS) lapā."
+  },
+  "insecurePageWarningFillPrompt": {
+    "message": "Vai tiešām joprojām aizpildīt šo pieteikšanās vienumu?"
+  },
+  "autofillIframeWarning": {
+    "message": "Veidne ir izvietota citā domēnā, nekā saglabātā pieteikšanās vienuma URI. Jāizvēlas \"Labi\", lai vienalga automātiski aizpildītu, vai \"Atcelt\", lai apturētu."
+  },
+  "autofillIframeWarningTip": {
+    "message": "Lai novērstu šī brīdinājuma turpmāku rādīšanu, jāsaglabā šis URI, $HOSTNAME$, šīs vietnes Bitwarde pieteikšanās vienumā.",
+    "placeholders": {
+      "hostname": {
+        "content": "$1",
+        "example": "www.example.com"
+      }
+    }
+  },
   "setMasterPassword": {
     "message": "Uzstādīt galveno paroli"
+  },
+  "currentMasterPass": {
+    "message": "Pašreizējā galvenā parole"
+  },
+  "newMasterPass": {
+    "message": "Jaunā galvenā parole"
+  },
+  "confirmNewMasterPass": {
+    "message": "Apstiprināt jauno galveno paroli"
   },
   "masterPasswordPolicyInEffect": {
     "message": "Viena vai vairākas apvienības nosacījumos ir norādīts, lai galvenā parole atbilst šādām prasībām:"
@@ -1506,11 +1847,26 @@
   "masterPasswordPolicyRequirementsNotMet": {
     "message": "Jaunā galvenā parole neatbilst nosacījumu prasībām."
   },
+  "receiveMarketingEmailsV2": {
+    "message": "Get advice, announcements, and research opportunities from Bitwarden in your inbox."
+  },
+  "unsubscribe": {
+    "message": "Atteikt abonēšanu"
+  },
+  "atAnyTime": {
+    "message": "jebkurā laikā."
+  },
+  "byContinuingYouAgreeToThe": {
+    "message": "Turpinot tiek sniegta piekrišana"
+  },
+  "and": {
+    "message": "un"
+  },
   "acceptPolicies": {
-    "message": "Atzīmējot šo rūtiņu, Tu piekrīti sekojošajam:"
+    "message": "Ar šīs rūtiņas atzīmēšanu tiek piekrists sekojošajam:"
   },
   "acceptPoliciesRequired": {
-    "message": "Nav apstiprināti izmantošanas nosacījumi un privātuma politika."
+    "message": "Nav apstiprināti izmantošanas noteikumi un privātuma nosacījumi."
   },
   "termsOfService": {
     "message": "Izmantošanas nosacījumi"
@@ -1523,6 +1879,12 @@
   },
   "ok": {
     "message": "Labi"
+  },
+  "errorRefreshingAccessToken": {
+    "message": "Piekļuves pilnvaras atsvaizināšanas kļūda"
+  },
+  "errorRefreshingAccessTokenDesc": {
+    "message": "Netika atrastas atsvaidzināšanas pilnvaras vai API atslēgas. Lūgums mēģināt izrakstīties un atkal pieteikties."
   },
   "desktopSyncVerificationTitle": {
     "message": "Darbvirsmas sinhronizācijas apstiprinājums"
@@ -1572,6 +1934,18 @@
   "biometricsNotSupportedDesc": {
     "message": "Šajā ierīcē netiek atbalstīta pārlūka biometrija."
   },
+  "biometricsNotUnlockedTitle": {
+    "message": "Lietotājs aizslēgts vai izrakstījies"
+  },
+  "biometricsNotUnlockedDesc": {
+    "message": "Lūgums atslēgt šo lietotāju darbvirsmas lietotnē un mēģināt vēlreiz."
+  },
+  "biometricsFailedTitle": {
+    "message": "Biometrija neizdevās"
+  },
+  "biometricsFailedDesc": {
+    "message": "Biometriju nevar pabeigt, jāapsver galvenās paroles izmantošana vai atteikšanās. Ja tas turpinās, lūgums sazināties ar Bitwarden atbalstu."
+  },
   "nativeMessaginPermissionErrorTitle": {
     "message": "Atļauja nav nodrošināta"
   },
@@ -1590,31 +1964,37 @@
   "personalOwnershipPolicyInEffect": {
     "message": "Apvienības nosacījumi ietekmē Tavas īpašumtiesību iespējas."
   },
+  "personalOwnershipPolicyInEffectImports": {
+    "message": "Apvienības nosacījums neļauj ievietot ārējos vienumus savā personīgajā glabātavā."
+  },
   "excludedDomains": {
     "message": "Izņēmuma domēni"
   },
   "excludedDomainsDesc": {
     "message": "Bitwarden nevaicās saglabāt pieteikšanās datus šiem domēniem. Ir jāpārlādē lapa, lai izmaiņas iedarbotos."
   },
+  "excludedDomainsDescAlt": {
+    "message": "Bitwarden nevaicās saglabāt pieteikšanās datus šiem domēniem visiem pieslēgtajiem kontiem. Ir jāpārlādē lapa, lai iedarbotos izmaiņas."
+  },
   "excludedDomainsInvalidDomain": {
     "message": "$DOMAIN$ nav derīgs domēns",
     "placeholders": {
       "domain": {
         "content": "$1",
-        "example": "googlecom"
+        "example": "google.com"
       }
     }
   },
   "send": {
-    "message": "Sūtījums",
+    "message": "Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "searchSends": {
-    "message": "Meklēt Sūtījumus",
+    "message": "Meklēt Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "addSend": {
-    "message": "Pievienot Sūtījumu",
+    "message": "Pievienot Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendTypeText": {
@@ -1624,11 +2004,11 @@
     "message": "Datne"
   },
   "allSends": {
-    "message": "Visi Sūtījumi",
+    "message": "Visi Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "maxAccessCountReached": {
-    "message": "Sasniegts lielākais pieļaujamais piekļuvju skaits",
+    "message": "Sasniegts lielākais pieļaujamais piekļuves reižu skaits",
     "description": "This text will be displayed after a Send has been accessed the maximum amount of times."
   },
   "expired": {
@@ -1641,7 +2021,7 @@
     "message": "Aizsargāts ar paroli"
   },
   "copySendLink": {
-    "message": "Ievietot \"Send\" saiti starpliktuvē",
+    "message": "Ievietot Send saiti starpliktuvē",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "removePassword": {
@@ -1654,11 +2034,11 @@
     "message": "Parole noņemta"
   },
   "deletedSend": {
-    "message": "Sūtījums dzēsts",
+    "message": "Send izdzēsts",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendLink": {
-    "message": "Sūtījuma saite",
+    "message": "Send saite",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "disabled": {
@@ -1668,23 +2048,23 @@
     "message": "Vai tiešām noņemt paroli?"
   },
   "deleteSend": {
-    "message": "Dzēst Sūtījumu",
+    "message": "Izdzēst Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "deleteSendConfirmation": {
-    "message": "Vai tiešām vēlaties dzēst šo Sūtījumu?",
+    "message": "Vai tiešām izdzēst šo Send?",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "editSend": {
-    "message": "Rediģēt Sūtījumu",
+    "message": "Labot Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendTypeHeader": {
-    "message": "Kāds ir šī Sūtījums veids?",
+    "message": "Kāds ir šī Send veids?",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendNameDesc": {
-    "message": "Draudzīgs nosaukums, lai raksturotu šo Sūtījumu.",
+    "message": "Lasāms nosaukums, kas apraksta šo Send.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendFileDesc": {
@@ -1694,14 +2074,14 @@
     "message": "Dzēšanas datums"
   },
   "deletionDateDesc": {
-    "message": "Sūtījums tiks neatgriezeniski dzēsts norādītajā datumā un laikā.",
+    "message": "Send tiks neatgriezeniski izdzēsts norādītajā datumā un laikā.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "expirationDate": {
     "message": "Derīguma beigu datums"
   },
   "expirationDateDesc": {
-    "message": "Ja tas ir iestatīts, piekļuve šim Sūtījumam beigsies norādītajā datumā un laikā.",
+    "message": "Ja iestatīts, piekļuve šim Send beigsies norādītajā datumā un laikā.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "oneDay": {
@@ -1720,59 +2100,59 @@
     "message": "Pielāgots"
   },
   "maximumAccessCount": {
-    "message": "Lielākais pieļaujamais piekļuvju skaits"
+    "message": "Lielākais pieļaujamais piekļuves reižu skaits"
   },
   "maximumAccessCountDesc": {
-    "message": "Ja tas ir iestatīts, lietotāji vairs nevarēs piekļūt šim Sūtījumam, tiklīdz būs sasniegts maksimālais piekļuves skaits.",
+    "message": "Ja iestatīts, lietotāji nevarēs piekļūt šim Send, kad tiks sasniegts lielākais pieļaujamais piekļūšanas reižu skaits.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendPasswordDesc": {
-    "message": "Pēc izvēles pieprasīt paroli, lai lietotāji varētu piekļūt šim Sūtījumam.",
+    "message": "Pēc izvēles pieprasīt paroli, lai lietotāji varētu piekļūt šim Send.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendNotesDesc": {
-    "message": "Privātas piezīmes par šo Sūtījumu.",
+    "message": "Personīgas piezīmes par šo Send.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendDisableDesc": {
-    "message": "Deaktivizēt šo Sūtījumu, lai neviens tam nevarētu piekļūt.",
+    "message": "Izslēgt šo Send, lai neviens tam nevarētu piekļūt.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendShareDesc": {
-    "message": "Saglabāšanas brīdī ievietot šī \"Send\" saiti starpliktuvē.",
+    "message": "Saglabāšanas brīdī ievietot šī Send saiti starpliktuvē.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendTextDesc": {
     "message": "Teksts, kuru ir vēlme nosūtīt."
   },
   "sendHideText": {
-    "message": "Pēc noklusējuma slēpt šī Sūtījuma tekstu.",
+    "message": "Pēc noklusējuma paslēpt šī Send tekstu.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "currentAccessCount": {
     "message": "Pašreizējais piekļuvju skaits"
   },
   "createSend": {
-    "message": "Jauns Sūtījums",
+    "message": "Jauns Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "newPassword": {
     "message": "Jauna parole"
   },
   "sendDisabled": {
-    "message": "Sūtījums noņemts",
+    "message": "Send noņemts",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendDisabledWarning": {
-    "message": "Uzņēmuma nosacījumu dēļ ir iespējams izdzēst tikai esošu \"Send\".",
+    "message": "Uzņēmuma nosacījumu dēļ ir iespējams izdzēst tikai esošu Send.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "createdSend": {
-    "message": "Sūtījums izveidots",
+    "message": "Send izveidots",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "editedSend": {
-    "message": "Sūtījums saglabāts",
+    "message": "Send saglabāts",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendLinuxChromiumFileWarning": {
@@ -1785,14 +2165,14 @@
     "message": "Lai izvēlētos datni, ja tiek izmantots Safari, paplašinājums ir jāatver jaunā logā, klikšķinot uz šī paziņojuma."
   },
   "sendFileCalloutHeader": {
-    "message": "Pirms Jūs sākat"
+    "message": "Pirms sākšanas"
   },
   "sendFirefoxCustomDatePopoutMessage1": {
     "message": "Lai izmantotu kalendāra veida datumu atlasītāju,",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read '**To use a calendar style date picker ** click here to pop out your window.'"
   },
   "sendFirefoxCustomDatePopoutMessage2": {
-    "message": "noklikšķiniet šeit",
+    "message": "klikšķināt šeit",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'To use a calendar style date picker **click here** to pop out your window.'"
   },
   "sendFirefoxCustomDatePopoutMessage3": {
@@ -1818,7 +2198,7 @@
     "message": "Slēpt e-pasta adresi no saņēmējiem."
   },
   "sendOptionsPolicyInEffect": {
-    "message": "Viena vai vairākas organizācijas politikas ietekmē jūsu Sūtījuma opcijas."
+    "message": "Viens vai vairāki apvienības nosacījumi ietekmē Send iespējas."
   },
   "passwordPrompt": {
     "message": "Galvenās paroles pārvaicāšana"
@@ -1827,10 +2207,13 @@
     "message": "Galvenās paroles apstiprināšana"
   },
   "passwordConfirmationDesc": {
-    "message": "Šī darbība ir aizsargāta. Lai turpinātu, ir jāievada galvenā parole, lai apstiprinātu identitāti."
+    "message": "Šī darbība ir aizsargāta. Lai turpinātu, ir jāievada galvenā parole, lai apliecinātu savu identitāti."
   },
   "emailVerificationRequired": {
     "message": "Nepieciešama e-pasta adreses apstiprināšana"
+  },
+  "emailVerifiedV2": {
+    "message": "E-pasta adrese ir apliecināta"
   },
   "emailVerificationRequiredDesc": {
     "message": "Ir nepieciešams apstiprināt e-pasta adresi, lai būtu iespējams izmantot šo iespēju. To var izdarīt tīmekļa glabātavā."
@@ -1844,6 +2227,9 @@
   "updateMasterPasswordWarning": {
     "message": "Apvienības pārvaldnieks nesen nomainīja galveno paroli. Tā ir jāatjaunina, lai varētu piekļūt glabātavai. Turpinot tiks izbeigta pašreizējā sesija un tiks pieprasīta atkārtota pieteikšanās. Esošās sesijas citās ierīcēs var turpināt darboties līdz vienai stundai."
   },
+  "updateWeakMasterPasswordWarning": {
+    "message": "Galvenā parole neatbilst vienam vai vairākiem apvienības nosacījumiem. Ir jāatjaunina galvenā parole, lai varētu piekļūt glabātavai. Turpinot notiks atteikšanās no pašreizējās sesijas, un būs nepieciešams pieteikties no jauna. Citās ierīcēs esošās sesijas var turpināt darboties līdz vienai stundai."
+  },
   "resetPasswordPolicyAutoEnroll": {
     "message": "Automātiska ievietošana sarakstā"
   },
@@ -1853,8 +2239,21 @@
   "selectFolder": {
     "message": "Izvēlēties mapi..."
   },
-  "ssoCompleteRegistration": {
-    "message": "Lai pabeigtu vienotās pieteikšanās uzstādīšanu, ir jānorāda galvenā parole, lai piekļūtu glabātavai un aizsargātu to."
+  "noFoldersFound": {
+    "message": "Nav atrasta neviena mape",
+    "description": "Used as a message within the notification bar when no folders are found"
+  },
+  "orgPermissionsUpdatedMustSetPassword": {
+    "message": "Apvienības atļaujas tika atjauninātas, un tās pieprasa iestatīt galveno paroli.",
+    "description": "Used as a card title description on the set password page to explain why the user is there"
+  },
+  "orgRequiresYouToSetPassword": {
+    "message": "Apvienība pieprasa iestatīt galveno paroli.",
+    "description": "Used as a card title description on the set password page to explain why the user is there"
+  },
+  "verificationRequired": {
+    "message": "Nepieciešams apliecinājums",
+    "description": "Default title for the user verification dialog."
   },
   "hours": {
     "message": "Stundas"
@@ -1872,6 +2271,32 @@
       "minutes": {
         "content": "$2",
         "example": "5"
+      }
+    }
+  },
+  "vaultTimeoutPolicyWithActionInEffect": {
+    "message": "Apvienības nosacījumi ietekmē glabātavas noildzi. Lielākā atļautā glabātavas noildze ir $HOURS$ stunda(s) un $MINUTES$ minūte(s). Kā glabātavas noildzes darbība ir uzstādīta $ACTION$.",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      },
+      "action": {
+        "content": "$3",
+        "example": "Lock"
+      }
+    }
+  },
+  "vaultTimeoutActionPolicyInEffect": {
+    "message": "Apvienības nosacījumos kā glabātavas noildzes darbība ir uzstādīta $ACTION$.",
+    "placeholders": {
+      "action": {
+        "content": "$1",
+        "example": "Lock"
       }
     }
   },
@@ -1921,14 +2346,26 @@
     "message": "Sesijai iestājās noildze. Lūgums mēģināt pieteikties vēlreiz."
   },
   "exportingPersonalVaultTitle": {
-    "message": "Izdod personīgo glabātavu"
+    "message": "Izgūst personīgo glabātavu"
   },
-  "exportingPersonalVaultDescription": {
-    "message": "Tiks izdoti tikai personīgie glabātavas vienumi, kas ir saistīti ar $EMAIL$. Apvienības glabātavas vienumi netiks iekļauti.",
+  "exportingIndividualVaultDescription": {
+    "message": "Tiks izgūti tikai atsevišķi glabātavas vienumi, kas ir saistīti ar $EMAIL$. Apvienības glabātavas vienumi netiks iekļauti. Tiks izgūta tikai glabātavas vienumu informācija, un saistītie pielikumi netiks iekļauti.",
     "placeholders": {
       "email": {
         "content": "$1",
         "example": "name@example.com"
+      }
+    }
+  },
+  "exportingOrganizationVaultTitle": {
+    "message": "Izgūst apvienības glabātavu"
+  },
+  "exportingOrganizationVaultDesc": {
+    "message": "Tiks izgūta tikai apvienības glabātava, kas ir saistīta ar $ORGANIZATION$. Atsevišķu glabātavu vai citu apvienību vienumi netiks iekļauti.",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "ACME Moving Co."
       }
     }
   },
@@ -1964,7 +2401,7 @@
     "message": "Nejaušs vārds"
   },
   "websiteName": {
-    "message": "Tīmekļa vietnes nosaukums"
+    "message": "Tīmekļvietnes nosaukums"
   },
   "whatWouldYouLikeToGenerate": {
     "message": "Ko ir nepieciešams izveidot?"
@@ -1980,6 +2417,108 @@
   },
   "forwardedEmailDesc": {
     "message": "Izveidot e-pastu aizstājvārdu ar ārēju pārvirzīšanas pakalpojumu."
+  },
+  "forwarderError": {
+    "message": "$SERVICENAME$ kļūda: $ERRORMESSAGE$",
+    "description": "Reports an error returned by a forwarding service to the user.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      },
+      "errormessage": {
+        "content": "$2",
+        "example": "Invalid characters in domain name."
+      }
+    }
+  },
+  "forwarderGeneratedBy": {
+    "message": "Izveidoja Bitwarden.",
+    "description": "Displayed with the address on the forwarding service's configuration screen."
+  },
+  "forwarderGeneratedByWithWebsite": {
+    "message": "Tīmekļvietne: $WEBSITE$. Izveidoja Bitwarden.",
+    "description": "Displayed with the address on the forwarding service's configuration screen.",
+    "placeholders": {
+      "WEBSITE": {
+        "content": "$1",
+        "example": "www.example.com"
+      }
+    }
+  },
+  "forwaderInvalidToken": {
+    "message": "Nederīga $SERVICENAME$ API pilnvara",
+    "description": "Displayed when the user's API token is empty or rejected by the forwarding service.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      }
+    }
+  },
+  "forwaderInvalidTokenWithMessage": {
+    "message": "Nederīga $SERVICENAME$ API pilnvara: $ERRORMESSAGE$",
+    "description": "Displayed when the user's API token is rejected by the forwarding service with an error message.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      },
+      "errormessage": {
+        "content": "$2",
+        "example": "Please verify your email address to continue."
+      }
+    }
+  },
+  "forwarderNoAccountId": {
+    "message": "Neizdevās iegūt $SERVICENAME$ aizsegta e-pasta konta Id.",
+    "description": "Displayed when the forwarding service fails to return an account ID.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      }
+    }
+  },
+  "forwarderNoDomain": {
+    "message": "Nederīgs $SERVICENAME$ domēna vārds.",
+    "description": "Displayed when the domain is empty or domain authorization failed at the forwarding service.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      }
+    }
+  },
+  "forwarderNoUrl": {
+    "message": "Nederīgs $SERVICENAME$ URL.",
+    "description": "Displayed when the url of the forwarding service wasn't supplied.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      }
+    }
+  },
+  "forwarderUnknownError": {
+    "message": "Atgadījās nezināma $SERVICENAME$ kļūda.",
+    "description": "Displayed when the forwarding service failed due to an unknown error.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      }
+    }
+  },
+  "forwarderUnknownForwarder": {
+    "message": "Nezināms pārsūtītājs: '$SERVICENAME$'.",
+    "description": "Displayed when the forwarding service is not supported.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "JustTrust.us"
+      }
+    }
   },
   "hostname": {
     "message": "Resursdatora nosaukums",
@@ -2024,8 +2563,8 @@
   "serverVersion": {
     "message": "Servera versija"
   },
-  "selfHosted": {
-    "message": "Pašizvietots"
+  "selfHostedServer": {
+    "message": "pašizvietots"
   },
   "thirdParty": {
     "message": "Trešās puses"
@@ -2073,7 +2612,7 @@
     "message": "Atpazīšanas vārdkopa"
   },
   "fingerprintMatchInfo": {
-    "message": "Jāpārliecinās, ka glabātava ir atslēgta un atpazīšanas vārdkopa ir tāda pati arī citā ierīcē."
+    "message": "Lūgums pārliecināties, ka glabātava ir atslēgta un atpazīšanas vārdkopa ir tāda pati arī citā ierīcē."
   },
   "resendNotification": {
     "message": "Atkārtoti nosūtīt paziņojumu"
@@ -2084,7 +2623,7 @@
   "notificationSentDevice": {
     "message": "Uz ierīci ir nosūtīts paziņojums."
   },
-  "logInInitiated": {
+  "loginInitiated": {
     "message": "Uzsākta pieteikšanās"
   },
   "exposedMasterPassword": {
@@ -2118,13 +2657,13 @@
     }
   },
   "autofillPageLoadPolicyActivated": {
-    "message": "Tavas apvienības nosacījumos ir ieslēgta automātiskā aizpildīšana lapas ielādes brīdī."
+    "message": "Tavas apvienības nosacījumos ir ieslēgta automātiskā aizpilde lapas ielādes brīdī."
   },
   "howToAutofill": {
     "message": "Kā automātiski aizpildīt"
   },
   "autofillSelectInfoWithCommand": {
-    "message": "Jāatlasa vienums šai lapai vai jāizmanto īsceļš: $COMMAND$",
+    "message": "Jāizvēlas šī skata vienums, jāizmanto īsceļš $COMMAND$ vai iestatījumos jāizpēta citas iespējas.",
     "placeholders": {
       "command": {
         "content": "$1",
@@ -2133,7 +2672,7 @@
     }
   },
   "autofillSelectInfoWithoutCommand": {
-    "message": "Jāatlasa vienums šai lapai vai iestatījumos jāuzstāda īsceļš."
+    "message": "Jāizvēlas šī skata vienums vai iestatījumos jāizpēta citas iespējas."
   },
   "gotIt": {
     "message": "Sapratu"
@@ -2162,6 +2701,1127 @@
       "command": {
         "content": "$1",
         "example": "CTRL+Shift+L"
+      }
+    }
+  },
+  "loggingInOn": {
+    "message": "Piesakās"
+  },
+  "opensInANewWindow": {
+    "message": "Atver jaunā logā"
+  },
+  "deviceApprovalRequired": {
+    "message": "Nepieciešams ierīces apstiprinājums. Zemāk jāatlasa apstiprinājuma iespēja:"
+  },
+  "rememberThisDevice": {
+    "message": "Atcerēties šo ierīci"
+  },
+  "uncheckIfPublicDevice": {
+    "message": "Jānoņem atzīme, ja tiek izmantota publiska ierīce"
+  },
+  "approveFromYourOtherDevice": {
+    "message": "Jāapstiprina citā savā ierīcē"
+  },
+  "requestAdminApproval": {
+    "message": "Pieprasīt pārvaldītāja apstiprinājumu"
+  },
+  "approveWithMasterPassword": {
+    "message": "Apstiprināt ar galveno paroli"
+  },
+  "ssoIdentifierRequired": {
+    "message": "Ir nepieciešams apvienības SSO identifikators."
+  },
+  "creatingAccountOn": {
+    "message": "Tiek veidots konts"
+  },
+  "checkYourEmail": {
+    "message": "Jāpārbauda e-pasts"
+  },
+  "followTheLinkInTheEmailSentTo": {
+    "message": "Jāatver saite, kas tika nosūtīta uz e-pasta adresi"
+  },
+  "andContinueCreatingYourAccount": {
+    "message": "un jāturpina sava konta izveide."
+  },
+  "noEmail": {
+    "message": "Nav e-pasta?"
+  },
+  "goBack": {
+    "message": "Atgriezties"
+  },
+  "toEditYourEmailAddress": {
+    "message": ", lai labotu savu e-pasta adresi."
+  },
+  "eu": {
+    "message": "ES",
+    "description": "European Union"
+  },
+  "accessDenied": {
+    "message": "Piekļuve liegta. Nav nepieciešamo atļauju, lai skatītu šo lapu."
+  },
+  "general": {
+    "message": "Vispārīgi"
+  },
+  "display": {
+    "message": "Attēlojums"
+  },
+  "accountSuccessfullyCreated": {
+    "message": "Konts ir veiksmīgi izveidots."
+  },
+  "adminApprovalRequested": {
+    "message": "Pieprasīts pārvaldītāja apstiprinājums"
+  },
+  "adminApprovalRequestSentToAdmins": {
+    "message": "Pieprasījums tika nosūtīts pārvaldītājam."
+  },
+  "youWillBeNotifiedOnceApproved": {
+    "message": "Tiks saņemts paziņojums, tiklīdz būs apstiprināts."
+  },
+  "troubleLoggingIn": {
+    "message": "Neizdodas pieteikties?"
+  },
+  "loginApproved": {
+    "message": "Pieteikšanās apstiprināta"
+  },
+  "userEmailMissing": {
+    "message": "Trūkst lietotāja e-pasta adreses"
+  },
+  "deviceTrusted": {
+    "message": "Ierīce ir uzticama"
+  },
+  "sendsNoItemsTitle": {
+    "message": "Nav spēkā esošu Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendsNoItemsMessage": {
+    "message": "Send ir izmantojams, lai ar ikvienu droši kopīgotu šifrētu informāciju.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "inputRequired": {
+    "message": "Jāievada vērtība."
+  },
+  "required": {
+    "message": "nepieciešams"
+  },
+  "search": {
+    "message": "Meklēt"
+  },
+  "inputMinLength": {
+    "message": "Ievadītajai vērtībai ir jābūt vismaz $COUNT$ rakstzīmes garai.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "8"
+      }
+    }
+  },
+  "inputMaxLength": {
+    "message": "Ievadītās vērtības garums nedrīkst pārsniegt $COUNT$ rakstzīmes.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "20"
+      }
+    }
+  },
+  "inputForbiddenCharacters": {
+    "message": "Šādas rakstzīmes nav atļautas: $CHARACTERS$",
+    "placeholders": {
+      "characters": {
+        "content": "$1",
+        "example": "@, #, $, %"
+      }
+    }
+  },
+  "inputMinValue": {
+    "message": "Ievadītajai vērtībai jābūt vismaz $MIN$.",
+    "placeholders": {
+      "min": {
+        "content": "$1",
+        "example": "8"
+      }
+    }
+  },
+  "inputMaxValue": {
+    "message": "Ievadītā vērtība nedrīkst pārsniegt $MAX$.",
+    "placeholders": {
+      "max": {
+        "content": "$1",
+        "example": "100"
+      }
+    }
+  },
+  "multipleInputEmails": {
+    "message": "1 vai vairākas e-pasta adreses nav derīgas"
+  },
+  "inputTrimValidator": {
+    "message": "Ievadītā vērtība nevar sastāvēt tikai no atstarpēm.",
+    "description": "Notification to inform the user that a form's input can't contain only whitespace."
+  },
+  "inputEmail": {
+    "message": "Ievadītā vērtība nav e-pasta adrese."
+  },
+  "fieldsNeedAttention": {
+    "message": "$COUNT$ augstāk esošajam(iem) laukam(iem) ir jāpievērš uzmanība.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
+  },
+  "selectPlaceholder": {
+    "message": "-- Atlasīt --"
+  },
+  "multiSelectPlaceholder": {
+    "message": "-- Rakstīt, lai atlasītu --"
+  },
+  "multiSelectLoading": {
+    "message": "Iegūst iespējas..."
+  },
+  "multiSelectNotFound": {
+    "message": "Netika atrasti vienumi"
+  },
+  "multiSelectClearAll": {
+    "message": "Notīrīt visu"
+  },
+  "plusNMore": {
+    "message": "+ vēl $QUANTITY$",
+    "placeholders": {
+      "quantity": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "submenu": {
+    "message": "Apakšizvēlne"
+  },
+  "toggleCollapse": {
+    "message": "Pārslēgt sakļaušanu",
+    "description": "Toggling an expand/collapse state."
+  },
+  "filelessImport": {
+    "message": "Ievietot datus Bitwarden?",
+    "description": "Default notification title for triggering a fileless import."
+  },
+  "lpFilelessImport": {
+    "message": "Aizsargāt LastPass datus un ievietot tos Bitwarden?",
+    "description": "LastPass specific notification title for triggering a fileless import."
+  },
+  "lpCancelFilelessImport": {
+    "message": "Saglabāt kā nešifrētu datni",
+    "description": "LastPass specific notification button text for cancelling a fileless import."
+  },
+  "startFilelessImport": {
+    "message": "Ievietot Bitwarden",
+    "description": "Notification button text for starting a fileless import."
+  },
+  "importing": {
+    "message": "Ievieto...",
+    "description": "Notification message for when an import is in progress."
+  },
+  "dataSuccessfullyImported": {
+    "message": "Dati veiksmīgi ievietoti.",
+    "description": "Notification message for when an import has completed successfully."
+  },
+  "dataImportFailed": {
+    "message": "Kļūda ievietošanā. Jāpārbauda konsole, lai iegūtu vairāk informācijas.",
+    "description": "Notification message for when an import has failed."
+  },
+  "importNetworkError": {
+    "message": "Ievietošanas laikā atgadījās tīkla kļūda.",
+    "description": "Notification message for when an import has failed due to a network error."
+  },
+  "aliasDomain": {
+    "message": "Aizstājdomēns"
+  },
+  "passwordRepromptDisabledAutofillOnPageLoad": {
+    "message": "Vienumus ar galvenās paroles pārvaicāšanu nevar automātiski aizpildīt lapas ielādes brīdī. Automātiskā aizpilde lapas ielādes brīdī ir izslēgta.",
+    "description": "Toast message for describing that master password re-prompt cannot be auto-filled on page load."
+  },
+  "autofillOnPageLoadSetToDefault": {
+    "message": "Automātiskā aizpilde lapas ielādes brīdī iestatīta izmantot noklusējuma iestatījumu.",
+    "description": "Toast message for informing the user that auto-fill on page load has been set to the default setting."
+  },
+  "turnOffMasterPasswordPromptToEditField": {
+    "message": "Jāizslēdz galvenās paroles pārvaicāšana, lai labotu šo lauku",
+    "description": "Message appearing below the autofill on load message when master password reprompt is set for a vault item."
+  },
+  "toggleSideNavigation": {
+    "message": "Pārslēgt sānu pārvietošanās joslu"
+  },
+  "skipToContent": {
+    "message": "Pāriet uz saturu"
+  },
+  "bitwardenOverlayButton": {
+    "message": "Bitwarden automātiskās aizpildes izvēlnes poga",
+    "description": "Page title for the iframe containing the overlay button"
+  },
+  "toggleBitwardenVaultOverlay": {
+    "message": "Pārslēgt Bitwarden automātiskās aizpildes izvēlni",
+    "description": "Screen reader and tool tip label for the overlay button"
+  },
+  "bitwardenVault": {
+    "message": "Bitwarden automātiskās aizpildes izvēlne",
+    "description": "Page title in overlay"
+  },
+  "unlockYourAccountToViewMatchingLogins": {
+    "message": "Jāatslēdz savs konts, lai apskatītu atbilstošus pieteikšanās vienumus",
+    "description": "Text to display in overlay when the account is locked."
+  },
+  "unlockAccount": {
+    "message": "Atslēgt kontu",
+    "description": "Button text to display in overlay when the account is locked."
+  },
+  "fillCredentialsFor": {
+    "message": "Aizpildīt pieteikšanās datus",
+    "description": "Screen reader text for when overlay item is in focused"
+  },
+  "partialUsername": {
+    "message": "Daļējs lietotājvārds",
+    "description": "Screen reader text for when a login item is focused where a partial username is displayed. SR will announce this phrase before reading the text of the partial username"
+  },
+  "noItemsToShow": {
+    "message": "Nav vienumu, ko parādīt",
+    "description": "Text to show in overlay if there are no matching items"
+  },
+  "newItem": {
+    "message": "Jauns vienums",
+    "description": "Button text to display in overlay when there are no matching items"
+  },
+  "addNewVaultItem": {
+    "message": "Pievienot jaunu glabātavas vienumu",
+    "description": "Screen reader text (aria-label) for new item button in overlay"
+  },
+  "bitwardenOverlayMenuAvailable": {
+    "message": "Ir pieejama Bitwarden automātiskās aizpildes izvēlne. Jānospiež poga ar bultu uz leju, lai atlasītu.",
+    "description": "Screen reader text for announcing when the overlay opens on the page"
+  },
+  "turnOn": {
+    "message": "Ieslēgt"
+  },
+  "ignore": {
+    "message": "Neņemt vērā"
+  },
+  "importData": {
+    "message": "Ievietot datus",
+    "description": "Used for the header of the import dialog, the import button and within the file-password-prompt"
+  },
+  "importError": {
+    "message": "Ievietošanas kļūda"
+  },
+  "importErrorDesc": {
+    "message": "Ir nepilnības ievietojamajos datos. Lūgums novērst zemāk uzskaitītās kļūdas avota datnē un mēģināt vēlreiz."
+  },
+  "resolveTheErrorsBelowAndTryAgain": {
+    "message": "Jāatrisina zemāk norādītās kļūdas un jāmēģina vēlreiz."
+  },
+  "description": {
+    "message": "Apraksts"
+  },
+  "importSuccess": {
+    "message": "Dati veiksmīgi ievietoti"
+  },
+  "importSuccessNumberOfItems": {
+    "message": "Kopumā tika ievietoti $AMOUNT$ vienumi.",
+    "placeholders": {
+      "amount": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "tryAgain": {
+    "message": "Jāmēģina vēlreiz"
+  },
+  "verificationRequiredForActionSetPinToContinue": {
+    "message": "Šai darbībai ir nepieciešama apliecināšana. Jāiestata PIN, lai turpinātu."
+  },
+  "setPin": {
+    "message": "Iestatīt PIN"
+  },
+  "verifyWithBiometrics": {
+    "message": "Apliecināt ar biometriju"
+  },
+  "awaitingConfirmation": {
+    "message": "Gaida apstiprinājumu"
+  },
+  "couldNotCompleteBiometrics": {
+    "message": "Nevarēja pabeigt biometriju."
+  },
+  "needADifferentMethod": {
+    "message": "Nepieciešams cits veids?"
+  },
+  "useMasterPassword": {
+    "message": "Izmantot galveno paroli"
+  },
+  "usePin": {
+    "message": "Izmantot PIN"
+  },
+  "useBiometrics": {
+    "message": "Izmantot biometriju"
+  },
+  "enterVerificationCodeSentToEmail": {
+    "message": "Jāievada apliecinājuma kods, kas tika nosūtīts e-pastā."
+  },
+  "resendCode": {
+    "message": "Atkārtoti nosūtīt kodu"
+  },
+  "total": {
+    "message": "Kopā"
+  },
+  "importWarning": {
+    "message": "Tiek ievietoti dati apvienībā $ORGANIZATION$. Tie var tikt kopīgoti ar citiem apvienības dalībniekiem. Vai turpināt?",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "duoHealthCheckResultsInNullAuthUrlError": {
+    "message": "Kļūda savienojuma izveidošanā ar Duo pakalpojumu. Jāizmanto cits divpakāpju pieteikšanāš veids vai jāvēršas pie Duo pēc palīdzības."
+  },
+  "launchDuoAndFollowStepsToFinishLoggingIn": {
+    "message": "Jāpalaiž DUO un jāseko soļiem, lai pabeigtu pieteikšanos."
+  },
+  "duoRequiredForAccount": {
+    "message": "Kontam ir nepieciešama Duo divpakāpju pieteikšanās."
+  },
+  "popoutTheExtensionToCompleteLogin": {
+    "message": "Jāatver paplašinājums atsevišķā logā, lai pabeigtu pieteikšanos."
+  },
+  "popoutExtension": {
+    "message": "Atvērt paplašinājumu atsevišķi"
+  },
+  "launchDuo": {
+    "message": "Palaist DUO"
+  },
+  "importFormatError": {
+    "message": "Dati nav pareizi formatēti. Lūgums pārbaudīt ievietošanas datni un mēģināt vēlreiz."
+  },
+  "importNothingError": {
+    "message": "Nekas netika ievietots."
+  },
+  "importEncKeyError": {
+    "message": "Kļūda izguves datnes atšifrēšanā. Izmantotā atslēga neatbilst tai, kas tika izmantota satura izgūšanai."
+  },
+  "invalidFilePassword": {
+    "message": "Nederīga datnes parole, lūgums izmantot to paroli, kas tika ievadīta izgūšanas datnes izveidošanas brīdī."
+  },
+  "importDestination": {
+    "message": "Ievietošanas galamērķis"
+  },
+  "learnAboutImportOptions": {
+    "message": "Uzzināt par ievietošanas iespējām"
+  },
+  "selectImportFolder": {
+    "message": "Atlasīt mapi"
+  },
+  "selectImportCollection": {
+    "message": "Atlasīt krājumu"
+  },
+  "importTargetHint": {
+    "message": "Šī iespēja jāatlasa, ja ir vēlēšanās ievietotās datnes saturu pārvietot uz $DESTINATION$",
+    "description": "Located as a hint under the import target. Will be appended by either folder or collection, depending if the user is importing into an individual or an organizational vault.",
+    "placeholders": {
+      "destination": {
+        "content": "$1",
+        "example": "folder or collection"
+      }
+    }
+  },
+  "importUnassignedItemsError": {
+    "message": "Datne satur nepiešķirtus vienumus."
+  },
+  "selectFormat": {
+    "message": "Atlasīt ievietošanas datnes veidolu"
+  },
+  "selectImportFile": {
+    "message": "Atlasīt ievietošanas datni"
+  },
+  "chooseFile": {
+    "message": "Izvēlēties datni"
+  },
+  "noFileChosen": {
+    "message": "Nav izvēlēta neviena datne"
+  },
+  "orCopyPasteFileContents": {
+    "message": "vai ievietot starpliktuvē un ielīmēt ievietošanas datnes saturu"
+  },
+  "instructionsFor": {
+    "message": "Norādījumi $NAME$",
+    "description": "The title for the import tool instructions.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "LastPass (csv)"
+      }
+    }
+  },
+  "confirmVaultImport": {
+    "message": "Apstiprināt glabātavas satura ievietošanu"
+  },
+  "confirmVaultImportDesc": {
+    "message": "Šī datne ir aizsargāta ar paroli. Lūgums ievadīt datnes paroli, lai ievietotu datus."
+  },
+  "confirmFilePassword": {
+    "message": "Apstiprināt datnes paroli"
+  },
+  "exportSuccess": {
+    "message": "Glabātavas saturs izgūts"
+  },
+  "typePasskey": {
+    "message": "Piekļuves atslēga"
+  },
+  "passkeyNotCopied": {
+    "message": "Piekļuves atslēga netiks ievietota starpliktuvē"
+  },
+  "passkeyNotCopiedAlert": {
+    "message": "Piekļuves atslēga netiks ievietota klonētajā vienumā. Vai turpināt šī vienuma klonēšanu?"
+  },
+  "passkeyFeatureIsNotImplementedForAccountsWithoutMasterPassword": {
+    "message": "Vietne, kurā tika uzsākta darbība, pieprasa pārbaudi. Šī iespēja vēl nav īstenota kontiem, kuriem nav galvenās paroles."
+  },
+  "logInWithPasskey": {
+    "message": "Pieteikties ar piekļuves atslēgu?"
+  },
+  "passkeyAlreadyExists": {
+    "message": "Šai lietotnei jau pastāv piekļuves atslēga."
+  },
+  "noPasskeysFoundForThisApplication": {
+    "message": "Šai lietotnei netika atrastas piekļuves atslēgas."
+  },
+  "noMatchingPasskeyLogin": {
+    "message": "Nav šai vietnei atbilstoša pieteikšanās vienuma."
+  },
+  "confirm": {
+    "message": "Apstiprināt"
+  },
+  "savePasskey": {
+    "message": "Saglabāt piekļuves atslēgu"
+  },
+  "savePasskeyNewLogin": {
+    "message": "Saglabāt piekļuves atslēgu kā jaunu pieteikšanās vienumu"
+  },
+  "choosePasskey": {
+    "message": "Izvēlēties pieteikšanās vienumu, kurā saglabāt šo piekļuves atslēgu"
+  },
+  "passkeyItem": {
+    "message": "Piekļuves atslēgas vienums"
+  },
+  "overwritePasskey": {
+    "message": "Pārrakstīt piekļuves atslēgu?"
+  },
+  "overwritePasskeyAlert": {
+    "message": "Šis vienums jau satur piekļuves atslēgu. Vai tiešām pārrakstīt pašreizējo piekļuves atslēgu?"
+  },
+  "featureNotSupported": {
+    "message": "Iespēja vēl netiek nodrošināta"
+  },
+  "yourPasskeyIsLocked": {
+    "message": "Nepieciešama apstiprinājums, lai izmantotu piekļuves atslēgu. Jāapliecina sava identitāte, lai turpinātu."
+  },
+  "multifactorAuthenticationCancelled": {
+    "message": "Daudzpakāpju pieteikšanās atcelta"
+  },
+  "noLastPassDataFound": {
+    "message": "Netika atrasti LastPass dati"
+  },
+  "incorrectUsernameOrPassword": {
+    "message": "Nepareizs lietotājvārds vai parole"
+  },
+  "incorrectPassword": {
+    "message": "Nepareiza parole"
+  },
+  "incorrectCode": {
+    "message": "Nepareizs kods"
+  },
+  "incorrectPin": {
+    "message": "Nepareizs PIN"
+  },
+  "multifactorAuthenticationFailed": {
+    "message": "Daudzpakāpju pieteikšanās neizdevās"
+  },
+  "includeSharedFolders": {
+    "message": "Iekļaut kopīgotās mapes"
+  },
+  "lastPassEmail": {
+    "message": "LastPass e-pasta adrese"
+  },
+  "importingYourAccount": {
+    "message": "Ievieto kontu..."
+  },
+  "lastPassMFARequired": {
+    "message": "Nepieciešama LastPass daudzpakāpju pieteikšanās"
+  },
+  "lastPassMFADesc": {
+    "message": "Jāievada vienreizējais piekļuves kods no autentificētāja lietotnes"
+  },
+  "lastPassOOBDesc": {
+    "message": "Jāapstiprina pieteikšanās pieprasījums autentificētāja lietotnē vai jāievada vienreizējs piekļuves kods."
+  },
+  "passcode": {
+    "message": "Piekļuves kods"
+  },
+  "lastPassMasterPassword": {
+    "message": "LastPass galvenā parole"
+  },
+  "lastPassAuthRequired": {
+    "message": "Nepieciešama pieteikšanās LastPass"
+  },
+  "awaitingSSO": {
+    "message": "Gaida vienoto pieteikšanos"
+  },
+  "awaitingSSODesc": {
+    "message": "Lūgums turpināt pieteikšanos ar savas apvienības pieteikšanās datiem."
+  },
+  "seeDetailedInstructions": {
+    "message": "Izvērstas norādes ir aplūkojamas mūsu palīdzības vietnē",
+    "description": "This is followed a by a hyperlink to the help website."
+  },
+  "importDirectlyFromLastPass": {
+    "message": "Ievietot tieši no LastPass"
+  },
+  "importFromCSV": {
+    "message": "Ievietot no CSV"
+  },
+  "lastPassTryAgainCheckEmail": {
+    "message": "Jāmēģina vēlreiz vai jālūko pēc e-pasta no LastPass, lai apliecinātu sevi."
+  },
+  "collection": {
+    "message": "Krājums"
+  },
+  "lastPassYubikeyDesc": {
+    "message": "Jāievieto ar LastPass kontu sasaistītā YubiKey datora USB ligzdā, tad jāpieskaras tās pogai."
+  },
+  "switchAccount": {
+    "message": "Pārslēgties starp kontiem"
+  },
+  "switchAccounts": {
+    "message": "Pārslēgties starp kontiem"
+  },
+  "switchToAccount": {
+    "message": "Pārslēgties uz kontu"
+  },
+  "activeAccount": {
+    "message": "Pašlaik izmantotais konts"
+  },
+  "availableAccounts": {
+    "message": "Pieejamie konti"
+  },
+  "accountLimitReached": {
+    "message": "Sasniegti konta ierobežojumi. Jāizrakstās no konta, lai pievienotu citu."
+  },
+  "active": {
+    "message": "izmantots"
+  },
+  "locked": {
+    "message": "aizslēgts"
+  },
+  "unlocked": {
+    "message": "atslēgta"
+  },
+  "server": {
+    "message": "serveris"
+  },
+  "hostedAt": {
+    "message": "izvietots"
+  },
+  "useDeviceOrHardwareKey": {
+    "message": "Jāizmanto sava ierīce vai aparatūras atslēga"
+  },
+  "justOnce": {
+    "message": "Tikai vienreiz"
+  },
+  "alwaysForThisSite": {
+    "message": "Vienmēr šai vietnei"
+  },
+  "domainAddedToExcludedDomains": {
+    "message": "$DOMAIN$ pievienots neiekļautajiem domēniem.",
+    "placeholders": {
+      "domain": {
+        "content": "$1",
+        "example": "google.com"
+      }
+    }
+  },
+  "commonImportFormats": {
+    "message": "Izplatīti veidoli",
+    "description": "Label indicating the most common import formats"
+  },
+  "overrideDefaultBrowserAutofillTitle": {
+    "message": "Padarīt Bitwarden par noklusējuma paroļu pārvaldnieku?",
+    "description": "Dialog title facilitating the ability to override a chrome browser's default autofill behavior"
+  },
+  "overrideDefaultBrowserAutofillDescription": {
+    "message": "Šīs iespējas neņemšana vērā var radīt nesaderības starp Bitwarden automātiskās aizpildes izvēlni un pārlūka.",
+    "description": "Dialog message facilitating the ability to override a chrome browser's default autofill behavior"
+  },
+  "overrideDefaultBrowserAutoFillSettings": {
+    "message": "Padarīt Bitwarden par noklusējuma paroļu pārvaldnieku",
+    "description": "Label for the setting that allows overriding the default browser autofill settings"
+  },
+  "privacyPermissionAdditionNotGrantedTitle": {
+    "message": "Nebija iespējams iestatīt Bitwarden kā noklusējuma paroļu pārvaldnieku",
+    "description": "Title for the dialog that appears when the user has not granted the extension permission to set privacy settings"
+  },
+  "privacyPermissionAdditionNotGrantedDescription": {
+    "message": "Ir nepieciešams Bitwarden nodrošināt pārlūka privātuma atļaujas, lai iestatītu to kā noklusējuma paroļu pārvaldnieku.",
+    "description": "Description for the dialog that appears when the user has not granted the extension permission to set privacy settings"
+  },
+  "makeDefault": {
+    "message": "Padarīt par noklusējumu",
+    "description": "Button text for the setting that allows overriding the default browser autofill settings"
+  },
+  "saveCipherAttemptSuccess": {
+    "message": "Piekļuves informācija veiksmīgi saglabāta.",
+    "description": "Notification message for when saving credentials has succeeded."
+  },
+  "updateCipherAttemptSuccess": {
+    "message": "Piekļuves informācija veiksmīgi atjaunināta.",
+    "description": "Notification message for when updating credentials has succeeded."
+  },
+  "saveCipherAttemptFailed": {
+    "message": "Kļūda piekļuves informācijas saglabāšanā. Jāpārbauda, vai konsolē ir izvērstāka informācija.",
+    "description": "Notification message for when saving credentials has failed."
+  },
+  "success": {
+    "message": "Izdevās"
+  },
+  "removePasskey": {
+    "message": "Noņemt piekļuves atslēgu"
+  },
+  "passkeyRemoved": {
+    "message": "Piekļuves atslēga noņemta"
+  },
+  "autofillSuggestions": {
+    "message": "Ieteikumi automātiskajai aizpildei"
+  },
+  "autofillSuggestionsTip": {
+    "message": "Saglabāt pieteikšanās vienumi, ko automātiski aizpildīt šajā vietnē"
+  },
+  "yourVaultIsEmpty": {
+    "message": "Glabātava ir tukša"
+  },
+  "noItemsMatchSearch": {
+    "message": "Neviens vienums neatbilst meklētajam"
+  },
+  "clearFiltersOrTryAnother": {
+    "message": "Jānotīra atlases vērtības vai jāmēģina cits meklēšanas vaicājums"
+  },
+  "copyInfoTitle": {
+    "message": "Ievietot starpliktuvē informāciju - $ITEMNAME$",
+    "description": "Title for a button that opens a menu with options to copy information from an item.",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret Item"
+      }
+    }
+  },
+  "copyNoteTitle": {
+    "message": "Ievietot starpliktuvē piezīmi - $ITEMNAME$",
+    "description": "Title for a button copies a note to the clipboard.",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret Note Item"
+      }
+    }
+  },
+  "moreOptionsLabel": {
+    "message": "Vairāk iespēju, $ITEMNAME$",
+    "description": "Aria label for a button that opens a menu with more options for an item.",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret Item"
+      }
+    }
+  },
+  "moreOptionsTitle": {
+    "message": "Vairāk iespēju - $ITEMNAME$",
+    "description": "Title for a button that opens a menu with more options for an item.",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret Item"
+      }
+    }
+  },
+  "viewItemTitle": {
+    "message": "Skatīt vienumu - $ITEMNAME$",
+    "description": "Title for a link that opens a view for an item.",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret Item"
+      }
+    }
+  },
+  "autofillTitle": {
+    "message": "Automātiski aizpildīt - $ITEMNAME$",
+    "description": "Title for a button that auto-fills a login item.",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret Item"
+      }
+    }
+  },
+  "noValuesToCopy": {
+    "message": "Nav vērtību, ko ievietot starpliktuvē"
+  },
+  "assignCollections": {
+    "message": "Piešķirt krājumus"
+  },
+  "copyEmail": {
+    "message": "Ievietot starpliktuvē e-pasta adresi"
+  },
+  "copyPhone": {
+    "message": "Ievietot starpliktuvē tālruņa numuru"
+  },
+  "copyAddress": {
+    "message": "Ievietot starpliktuvē adresi"
+  },
+  "adminConsole": {
+    "message": "pārvaldības konsolē,"
+  },
+  "accountSecurity": {
+    "message": "Konta drošība"
+  },
+  "notifications": {
+    "message": "Paziņojumi"
+  },
+  "appearance": {
+    "message": "Izskats"
+  },
+  "errorAssigningTargetCollection": {
+    "message": "Kļūda mērķa krājuma piešķiršanā."
+  },
+  "errorAssigningTargetFolder": {
+    "message": "Kļūda mērķa mapes piešķiršanā."
+  },
+  "viewItemsIn": {
+    "message": "Skatīt $NAME$ vienumus",
+    "description": "Button to view the contents of a folder or collection",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Work"
+      }
+    }
+  },
+  "backTo": {
+    "message": "Atgriezties uz $NAME$",
+    "description": "Navigate back to a previous folder or collection",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Work"
+      }
+    }
+  },
+  "new": {
+    "message": "Jauns"
+  },
+  "removeItem": {
+    "message": "Noņemt $NAME$",
+    "description": "Remove a selected option, such as a folder or collection",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Work"
+      }
+    }
+  },
+  "itemsWithNoFolder": {
+    "message": "Vienumi bez mapes"
+  },
+  "itemDetails": {
+    "message": "Vienuma dati"
+  },
+  "itemName": {
+    "message": "Vienuma nosaukums"
+  },
+  "cannotRemoveViewOnlyCollections": {
+    "message": "Nevar noņemt krājumus ar tiesībām \"Tikai skatīt\": $COLLECTIONS$",
+    "placeholders": {
+      "collections": {
+        "content": "$1",
+        "example": "Work, Personal"
+      }
+    }
+  },
+  "organizationIsDeactivated": {
+    "message": "Apvienība ir atspējota"
+  },
+  "owner": {
+    "message": "Īpašnieks"
+  },
+  "selfOwnershipLabel": {
+    "message": "Tu",
+    "description": "Used as a label to indicate that the user is the owner of an item."
+  },
+  "contactYourOrgAdmin": {
+    "message": "Atspējotu apvienību vienumiem nevar piekļūt. Jāsazinās ar apvienības īpašnieku, lai iegūtu palīdzību."
+  },
+  "additionalInformation": {
+    "message": "Papildu informācija"
+  },
+  "itemHistory": {
+    "message": "Vienuma vēsture"
+  },
+  "lastEdited": {
+    "message": "Pēdējo reizi labots"
+  },
+  "ownerYou": {
+    "message": "Īpašnieks: Tu"
+  },
+  "linked": {
+    "message": "Saistīts"
+  },
+  "copySuccessful": {
+    "message": "Ievietošana starpliktuvē veiksmīga"
+  },
+  "upload": {
+    "message": "Augšupielādēt"
+  },
+  "addAttachment": {
+    "message": "Pievienot pielikumu"
+  },
+  "maxFileSizeSansPunctuation": {
+    "message": "Lielākais pieļaujamais datnes izmērs ir 500 MB"
+  },
+  "deleteAttachmentName": {
+    "message": "Izdzēst pielikumu $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Attachment Name"
+      }
+    }
+  },
+  "downloadAttachmentName": {
+    "message": "Lejupielādēt $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Attachment Name"
+      }
+    }
+  },
+  "permanentlyDeleteAttachmentConfirmation": {
+    "message": "Vai tiešām neatgriezeniski izdzēst šo pielikumu?"
+  },
+  "premium": {
+    "message": "Premium"
+  },
+  "freeOrgsCannotUseAttachments": {
+    "message": "Bezmaksas apvienības nevar izmantot pielikumus"
+  },
+  "filters": {
+    "message": "Atlases"
+  },
+  "personalDetails": {
+    "message": "Personiskā informācija"
+  },
+  "identification": {
+    "message": "Identifikācija"
+  },
+  "contactInfo": {
+    "message": "Saziņas informācija"
+  },
+  "downloadAttachment": {
+    "message": "Lejupielādēt $ITEMNAME$",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Your File"
+      }
+    }
+  },
+  "loginCredentials": {
+    "message": "Login credentials"
+  },
+  "authenticatorKey": {
+    "message": "Authenticator key"
+  },
+  "cardDetails": {
+    "message": "Kartes dati"
+  },
+  "cardBrandDetails": {
+    "message": "$BRAND$ dati",
+    "placeholders": {
+      "brand": {
+        "content": "$1",
+        "example": "Visa"
+      }
+    }
+  },
+  "addAccount": {
+    "message": "Pievienot kontu"
+  },
+  "loading": {
+    "message": "Ielādē"
+  },
+  "assign": {
+    "message": "Assign"
+  },
+  "bulkCollectionAssignmentDialogDescription": {
+    "message": "Only organization members with access to these collections will be able to see the items."
+  },
+  "bulkCollectionAssignmentWarning": {
+    "message": "You have selected $TOTAL_COUNT$ items. You cannot update $READONLY_COUNT$ of the items because you do not have edit permissions.",
+    "placeholders": {
+      "total_count": {
+        "content": "$1",
+        "example": "10"
+      },
+      "readonly_count": {
+        "content": "$2"
+      }
+    }
+  },
+  "addField": {
+    "message": "Pievienot lauku"
+  },
+  "add": {
+    "message": "Pievienot"
+  },
+  "fieldType": {
+    "message": "Lauka veids"
+  },
+  "fieldLabel": {
+    "message": "Lauka iezīme"
+  },
+  "textHelpText": {
+    "message": "Teksta lauki ir izmantojami tādai informācijai kā drošības jautājumi"
+  },
+  "hiddenHelpText": {
+    "message": "Paslēptie lauki ir izmantojami tādai slepenai informācijai kā parole"
+  },
+  "checkBoxHelpText": {
+    "message": "Izvēles rūtiņas ir izmantojamas, ja ir vajadzība automātiski aizpildīt veidlapas izvēles rūtiņu, piemēram, atcerēties e-pasta adresi"
+  },
+  "linkedHelpText": {
+    "message": "Saistītais lauks ir izmantojams, kad noteiktā lapā tiek pieredzētas nepilnības ar automātisko aizpildi."
+  },
+  "linkedLabelHelpText": {
+    "message": "Jāievada lauka HTML id, name, aria-label vai placeholder vērtība."
+  },
+  "editField": {
+    "message": "Labot lauku"
+  },
+  "editFieldLabel": {
+    "message": "Labot $LABEL$",
+    "placeholders": {
+      "label": {
+        "content": "$1",
+        "example": "Custom field"
+      }
+    }
+  },
+  "deleteCustomField": {
+    "message": "Izdzēst $LABEL$",
+    "placeholders": {
+      "label": {
+        "content": "$1",
+        "example": "Custom field"
+      }
+    }
+  },
+  "fieldAdded": {
+    "message": "$LABEL$ pievienots",
+    "placeholders": {
+      "label": {
+        "content": "$1",
+        "example": "Custom field"
+      }
+    }
+  },
+  "reorderToggleButton": {
+    "message": "Pārkārtot $LABEL$. Jāizmanto bultas taustiņš, lai pārvietotu vienumu augšup vai lejup.",
+    "placeholders": {
+      "label": {
+        "content": "$1",
+        "example": "Custom field"
+      }
+    }
+  },
+  "reorderFieldUp": {
+    "message": "$LABEL$ pārvietots augšup, $INDEX$. no $LENGTH$",
+    "placeholders": {
+      "label": {
+        "content": "$1",
+        "example": "Custom field"
+      },
+      "index": {
+        "content": "$2",
+        "example": "1"
+      },
+      "length": {
+        "content": "$3",
+        "example": "3"
+      }
+    }
+  },
+  "selectCollectionsToAssign": {
+    "message": "Select collections to assign"
+  },
+  "personalItemsTransferWarning": {
+    "message": "$PERSONAL_ITEMS_COUNT$ will be permanently transferred to the selected organization. You will no longer own these items.",
+    "placeholders": {
+      "personal_items_count": {
+        "content": "$1",
+        "example": "2 items"
+      }
+    }
+  },
+  "personalItemsWithOrgTransferWarning": {
+    "message": "$PERSONAL_ITEMS_COUNT$ will be permanently transferred to $ORG$. You will no longer own these items.",
+    "placeholders": {
+      "personal_items_count": {
+        "content": "$1",
+        "example": "2 items"
+      },
+      "org": {
+        "content": "$2",
+        "example": "Organization name"
+      }
+    }
+  },
+  "successfullyAssignedCollections": {
+    "message": "Successfully assigned collections"
+  },
+  "nothingSelected": {
+    "message": "You have not selected anything."
+  },
+  "movedItemsToOrg": {
+    "message": "Selected items moved to $ORGNAME$",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Company Name"
+      }
+    }
+  },
+  "reorderFieldDown": {
+    "message": "$LABEL$ pārvietots lejup, $INDEX$. no $LENGTH$",
+    "placeholders": {
+      "label": {
+        "content": "$1",
+        "example": "Custom field"
+      },
+      "index": {
+        "content": "$2",
+        "example": "1"
+      },
+      "length": {
+        "content": "$3",
+        "example": "3"
       }
     }
   }

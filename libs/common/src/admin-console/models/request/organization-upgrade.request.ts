@@ -1,4 +1,4 @@
-import { PlanType } from "../../../billing/enums/plan-type";
+import { PlanType } from "../../../billing/enums";
 
 import { OrganizationKeysRequest } from "./organization-keys.request";
 
@@ -11,4 +11,8 @@ export class OrganizationUpgradeRequest {
   billingAddressCountry: string;
   billingAddressPostalCode: string;
   keys: OrganizationKeysRequest;
+
+  useSecretsManager: boolean;
+  additionalSmSeats: number;
+  additionalServiceAccounts: number;
 }

@@ -1,21 +1,18 @@
 import { Directive, EventEmitter, Input, OnDestroy, OnInit, Output } from "@angular/core";
 import { firstValueFrom, map, Observable, Subject, takeUntil } from "rxjs";
 
-import { I18nService } from "@bitwarden/common/abstractions/i18n.service";
-import { LogService } from "@bitwarden/common/abstractions/log.service";
-import { PlatformUtilsService } from "@bitwarden/common/abstractions/platformUtils.service";
-import { CollectionService } from "@bitwarden/common/admin-console/abstractions/collection.service";
-import {
-  isNotProviderUser,
-  OrganizationService,
-} from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
-import { OrganizationUserStatusType } from "@bitwarden/common/admin-console/enums/organization-user-status-type";
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { OrganizationUserStatusType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
-import { CollectionView } from "@bitwarden/common/admin-console/models/view/collection.view";
-import { Utils } from "@bitwarden/common/misc/utils";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { Checkable, isChecked } from "@bitwarden/common/types/checkable";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
+import { CollectionService } from "@bitwarden/common/vault/abstractions/collection.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import { CollectionView } from "@bitwarden/common/vault/models/view/collection.view";
 
 @Directive()
 export class ShareComponent implements OnInit, OnDestroy {
@@ -38,7 +35,7 @@ export class ShareComponent implements OnInit, OnDestroy {
     protected i18nService: I18nService,
     protected cipherService: CipherService,
     private logService: LogService,
-    protected organizationService: OrganizationService
+    protected organizationService: OrganizationService,
   ) {}
 
   async ngOnInit() {
@@ -54,27 +51,25 @@ export class ShareComponent implements OnInit, OnDestroy {
     const allCollections = await this.collectionService.getAllDecrypted();
     this.writeableCollections = allCollections.map((c) => c).filter((c) => !c.readOnly);
 
-    this.organizations$ = this.organizationService.organizations$.pipe(
+    this.organizations$ = this.organizationService.memberOrganizations$.pipe(
       map((orgs) => {
         return orgs
-          .filter(
-            (o) =>
-              o.enabled && o.status === OrganizationUserStatusType.Confirmed && isNotProviderUser(o)
-          )
+          .filter((o) => o.enabled && o.status === OrganizationUserStatusType.Confirmed)
           .sort(Utils.getSortFunction(this.i18nService, "name"));
-      })
+      }),
     );
 
     this.organizations$.pipe(takeUntil(this._destroy)).subscribe((orgs) => {
       if (this.organizationId == null && orgs.length > 0) {
         this.organizationId = orgs[0].id;
+        this.filterCollections();
       }
     });
 
     const cipherDomain = await this.cipherService.get(this.cipherId);
-    this.cipher = await cipherDomain.decrypt();
-
-    this.filterCollections();
+    this.cipher = await cipherDomain.decrypt(
+      await this.cipherService.getKeyForCipherKeyDecryption(cipherDomain),
+    );
   }
 
   filterCollections() {
@@ -83,7 +78,7 @@ export class ShareComponent implements OnInit, OnDestroy {
       this.collections = [];
     } else {
       this.collections = this.writeableCollections.filter(
-        (c) => c.organizationId === this.organizationId
+        (c) => c.organizationId === this.organizationId,
       );
     }
   }
@@ -94,13 +89,15 @@ export class ShareComponent implements OnInit, OnDestroy {
       this.platformUtilsService.showToast(
         "error",
         this.i18nService.t("errorOccurred"),
-        this.i18nService.t("selectOneCollection")
+        this.i18nService.t("selectOneCollection"),
       );
       return;
     }
 
     const cipherDomain = await this.cipherService.get(this.cipherId);
-    const cipherView = await cipherDomain.decrypt();
+    const cipherView = await cipherDomain.decrypt(
+      await this.cipherService.getKeyForCipherKeyDecryption(cipherDomain),
+    );
     const orgs = await firstValueFrom(this.organizations$);
     const orgName =
       orgs.find((o) => o.id === this.organizationId)?.name ?? this.i18nService.t("organization");
@@ -113,7 +110,7 @@ export class ShareComponent implements OnInit, OnDestroy {
           this.platformUtilsService.showToast(
             "success",
             null,
-            this.i18nService.t("movedItemToOrg", cipherView.name, orgName)
+            this.i18nService.t("movedItemToOrg", cipherView.name, orgName),
           );
         });
       await this.formPromise;

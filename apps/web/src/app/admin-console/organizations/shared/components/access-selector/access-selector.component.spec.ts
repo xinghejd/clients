@@ -2,8 +2,10 @@ import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { FormsModule, ReactiveFormsModule } from "@angular/forms";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
-import { OrganizationUserStatusType } from "@bitwarden/common/admin-console/enums/organization-user-status-type";
-import { OrganizationUserType } from "@bitwarden/common/admin-console/enums/organization-user-type";
+import {
+  OrganizationUserStatusType,
+  OrganizationUserType,
+} from "@bitwarden/common/admin-console/enums";
 import {
   AvatarModule,
   BadgeModule,
@@ -15,7 +17,7 @@ import {
 } from "@bitwarden/components";
 import { SelectItemView } from "@bitwarden/components/src/multi-select/models/select-item-view";
 
-import { PreloadedEnglishI18nModule } from "../../../../../tests/preloaded-english-i18n.module";
+import { PreloadedEnglishI18nModule } from "../../../../../core/tests";
 
 import { AccessSelectorComponent, PermissionMode } from "./access-selector.component";
 import { AccessItemType, CollectionPermission } from "./access-selector.models";
@@ -50,6 +52,8 @@ describe("AccessSelectorComponent", () => {
   let fixture: ComponentFixture<TestableAccessSelectorComponent>;
 
   beforeEach(() => {
+    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     TestBed.configureTestingModule({
       imports: [
         ButtonModule,
@@ -136,7 +140,7 @@ describe("AccessSelectorComponent", () => {
       expect(mockChange.mock.lastCall[0]).toHaveProperty("[0].id", "123");
       expect(mockChange.mock.lastCall[0]).toHaveProperty(
         "[0].permission",
-        CollectionPermission.Edit
+        CollectionPermission.Edit,
       );
     });
 
@@ -201,7 +205,7 @@ describe("AccessSelectorComponent", () => {
           labelName: "Member 1",
           listName: "Member 1 (member1@email.com)",
           email: "member1@email.com",
-          role: OrganizationUserType.Manager,
+          role: OrganizationUserType.User,
           status: OrganizationUserStatusType.Confirmed,
         },
       ];
@@ -244,7 +248,7 @@ describe("AccessSelectorComponent", () => {
         // Assert
         const colHeading = fixture.nativeElement.querySelector("#permissionColHeading");
         expect(!!colHeading).toEqual(shouldShowColumn);
-      }
+      },
     );
   });
 });
