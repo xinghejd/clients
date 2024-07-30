@@ -38,22 +38,6 @@ export class FormControlComponent {
 
   constructor(private i18nService: I18nService) {}
 
-  protected get labelClasses() {
-    return [
-      "tw-transition",
-      "tw-select-none",
-      "tw-mb-0",
-      "tw-inline-flex",
-      "tw-items-baseline",
-    ].concat(this.formControl.disabled ? "tw-cursor-auto" : "tw-cursor-pointer");
-  }
-
-  protected get labelContentClasses() {
-    return ["tw-inline-flex", "tw-flex-col", "tw-font-semibold"].concat(
-      this.formControl.disabled ? "tw-text-muted" : "tw-text-main",
-    );
-  }
-
   get required() {
     return this.formControl.required;
   }
