@@ -2,6 +2,7 @@ import {
   AfterContentChecked,
   Component,
   ContentChild,
+  ElementRef,
   HostBinding,
   HostListener,
   Input,
@@ -26,6 +27,9 @@ export class BitFormFieldComponent implements AfterContentChecked {
   @ContentChild(BitHintComponent) hint: BitHintComponent;
   @ContentChild(BitLabel) label: BitLabel;
 
+  @ViewChild("prefixContainer") prefixContainer: ElementRef<HTMLDivElement>;
+  @ViewChild("suffixContainer") suffixContainer: ElementRef<HTMLDivElement>;
+
   @ViewChild(BitErrorComponent) error: BitErrorComponent;
 
   @Input({ transform: booleanAttribute })
@@ -34,6 +38,9 @@ export class BitFormFieldComponent implements AfterContentChecked {
   /** If `true`, remove the bottom border for `readonly` inputs */
   @Input({ transform: booleanAttribute })
   disableReadOnlyBorder = false;
+
+  protected prefixHasChildren = signal(false);
+  protected suffixHasChildren = signal(false);
 
   get inputBorderClasses(): string {
     const shouldFocusBorderAppear = this.defaultContentIsFocused();
@@ -91,5 +98,8 @@ export class BitFormFieldComponent implements AfterContentChecked {
     } else {
       this.input.ariaDescribedBy = undefined;
     }
+
+    this.prefixHasChildren.set(this.prefixContainer?.nativeElement.childElementCount > 0);
+    this.suffixHasChildren.set(this.suffixContainer?.nativeElement.childElementCount > 0);
   }
 }

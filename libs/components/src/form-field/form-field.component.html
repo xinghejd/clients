@@ -20,25 +20,25 @@
     class="tw-gap-1 tw-bg-background tw-rounded-lg tw-flex tw-min-h-11 [&:not(:has(button:enabled)):has(input:read-only)]:tw-bg-secondary-100 [&:not(:has(button:enabled)):has(textarea:read-only)]:tw-bg-secondary-100"
   >
     <div
-      #prefixSlot
-      [hidden]="prefixSlot.childElementCount === 0"
+      #prefixContainer
       class="tw-flex tw-items-center tw-gap-1 tw-pl-3 tw-py-2"
+      [hidden]="!prefixHasChildren()"
     >
       <ng-container *ngTemplateOutlet="prefixContent"></ng-container>
     </div>
     <div
       class="default-content tw-w-full tw-relative tw-py-2 has-[bit-select]:tw-p-0 has-[bit-multi-select]:tw-p-0 has-[input:read-only:not([hidden])]:tw-bg-secondary-100 has-[textarea:read-only:not([hidden])]:tw-bg-secondary-100"
       [ngClass]="[
-        prefixSlot.childElementCount === 0 ? 'tw-rounded-l-lg tw-pl-3' : '',
-        suffixSlot.childElementCount === 0 ? 'tw-rounded-r-lg tw-pr-3' : '',
+        prefixHasChildren() ? '' : 'tw-rounded-l-lg tw-pl-3',
+        suffixHasChildren() ? '' : 'tw-rounded-r-lg tw-pr-3',
       ]"
     >
       <ng-container *ngTemplateOutlet="defaultContent"></ng-container>
     </div>
     <div
-      #suffixSlot
-      [hidden]="suffixSlot.childElementCount === 0"
+      #suffixContainer
       class="tw-flex tw-items-center tw-gap-1 tw-pr-3 tw-py-2"
+      [hidden]="!suffixHasChildren()"
     >
       <ng-container *ngTemplateOutlet="suffixContent"></ng-container>
     </div>
@@ -90,8 +90,8 @@
       }"
     >
       <div
-        #prefixSlot
-        [hidden]="prefixSlot.childElementCount === 0"
+        #prefixContainer
+        [hidden]="!prefixHasChildren()"
         class="tw-flex tw-items-center tw-gap-1 tw-pl-3 tw-py-2"
       >
         <ng-container *ngTemplateOutlet="prefixContent"></ng-container>
@@ -100,8 +100,8 @@
         <ng-container *ngTemplateOutlet="defaultContent"></ng-container>
       </div>
       <div
-        #suffixSlot
-        [hidden]="suffixSlot.childElementCount === 0"
+        #suffixContainer
+        [hidden]="!suffixHasChildren()"
         class="tw-flex tw-items-center tw-gap-1 tw-pr-3 tw-py-2"
       >
         <ng-container *ngTemplateOutlet="suffixContent"></ng-container>
