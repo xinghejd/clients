@@ -526,7 +526,7 @@ export class BrowserApi {
         target: {
           tabId: tabId,
           allFrames: details.allFrames,
-          frameIds: details.frameId ? [details.frameId] : null,
+          frameIds: typeof details.frameId === "number" ? [details.frameId] : null,
         },
         files: details.file ? [details.file] : null,
         injectImmediately: details.runAt === "document_start",

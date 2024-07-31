@@ -35,7 +35,7 @@ export class AutofillInlineMenuContainer {
   private readonly defaultIframeAttributes: Record<string, string> = {
     src: "",
     title: "",
-    sandbox: "allow-scripts",
+    // sandbox: "allow-scripts",
     allowtransparency: "true",
     tabIndex: "-1",
   };

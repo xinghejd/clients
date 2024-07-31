@@ -20,9 +20,7 @@
 		55E0377B2577FA6F00979016 /* images in Resources */ = {isa = PBXBuildFile; fileRef = 55E037722577FA6F00979016 /* images */; };
 		55E0377C2577FA6F00979016 /* notification in Resources */ = {isa = PBXBuildFile; fileRef = 55E037732577FA6F00979016 /* notification */; };
 		55E0377D2577FA6F00979016 /* content in Resources */ = {isa = PBXBuildFile; fileRef = 55E037742577FA6F00979016 /* content */; };
-		55E0377E2577FA6F00979016 /* vendor.js in Resources */ = {isa = PBXBuildFile; fileRef = 55E037752577FA6F00979016 /* vendor.js */; };
 		55E0377F2577FA6F00979016 /* manifest.json in Resources */ = {isa = PBXBuildFile; fileRef = 55E037762577FA6F00979016 /* manifest.json */; };
-		55E037802577FA6F00979016 /* background.html in Resources */ = {isa = PBXBuildFile; fileRef = 55E037772577FA6F00979016 /* background.html */; };
 		55E037812577FA6F00979016 /* _locales in Resources */ = {isa = PBXBuildFile; fileRef = 55E037782577FA6F00979016 /* _locales */; };
 		55E037822577FA6F00979016 /* overlay in Resources */ = {isa = PBXBuildFile; fileRef = 55E037832577FA6F00979016 /* overlay */; };
 /* End PBXBuildFile section */
@@ -71,9 +69,7 @@
 		55E037722577FA6F00979016 /* images */ = {isa = PBXFileReference; lastKnownFileType = folder; name = images; path = ../../../build/images; sourceTree = "<group>"; };
 		55E037732577FA6F00979016 /* notification */ = {isa = PBXFileReference; lastKnownFileType = folder; name = notification; path = ../../../build/notification; sourceTree = "<group>"; };
 		55E037742577FA6F00979016 /* content */ = {isa = PBXFileReference; lastKnownFileType = folder; name = content; path = ../../../build/content; sourceTree = "<group>"; };
-		55E037752577FA6F00979016 /* vendor.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; name = vendor.js; path = ../../../build/vendor.js; sourceTree = "<group>"; };
 		55E037762577FA6F00979016 /* manifest.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = manifest.json; path = ../../../build/manifest.json; sourceTree = "<group>"; };
-		55E037772577FA6F00979016 /* background.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = background.html; path = ../../../build/background.html; sourceTree = "<group>"; };
 		55E037782577FA6F00979016 /* _locales */ = {isa = PBXFileReference; lastKnownFileType = folder; name = _locales; path = ../../../build/_locales; sourceTree = "<group>"; };
 		55E037832577FA6F00979016 /* overlay */ = {isa = PBXFileReference; lastKnownFileType = folder; name = overlay; path = ../../../build/overlay; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -158,9 +154,7 @@
 				55E037722577FA6F00979016 /* images */,
 				55E037732577FA6F00979016 /* notification */,
 				55E037742577FA6F00979016 /* content */,
-				55E037752577FA6F00979016 /* vendor.js */,
 				55E037762577FA6F00979016 /* manifest.json */,
-				55E037772577FA6F00979016 /* background.html */,
 				55E037782577FA6F00979016 /* _locales */,
 				55E037832577FA6F00979016 /* overlay */,
 			);
@@ -266,12 +260,10 @@
 				55E037812577FA6F00979016 /* _locales in Resources */,
 				55E0377B2577FA6F00979016 /* images in Resources */,
 				55E0377F2577FA6F00979016 /* manifest.json in Resources */,
-				55E037802577FA6F00979016 /* background.html in Resources */,
 				55E0377A2577FA6F00979016 /* background.js in Resources */,
 				55E037792577FA6F00979016 /* popup in Resources */,
 				03100CAF291891F4008E14EF /* encrypt-worker.js in Resources */,
 				55E0377C2577FA6F00979016 /* notification in Resources */,
-				55E0377E2577FA6F00979016 /* vendor.js in Resources */,
 				55E0377D2577FA6F00979016 /* content in Resources */,
 				55E037822577FA6F00979016 /* overlay in Resources */,
 			);
