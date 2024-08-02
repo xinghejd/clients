@@ -526,10 +526,13 @@ describe("OverlayBackground", () => {
           });
 
           it("skips updating the position of either inline menu element if a field is not currently focused", async () => {
-            sendMockExtensionMessage({
-              command: "updateIsFieldCurrentlyFocused",
-              isFieldCurrentlyFocused: false,
-            });
+            sendMockExtensionMessage(
+              {
+                command: "updateIsFieldCurrentlyFocused",
+                isFieldCurrentlyFocused: false,
+              },
+              mock<chrome.runtime.MessageSender>({ frameId: 20 }),
+            );
 
             sendMockExtensionMessage({ command: "triggerAutofillOverlayReposition" }, sender);
             await flushUpdateInlineMenuPromises();
