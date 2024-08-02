@@ -1,6 +1,6 @@
 import { DialogRef } from "@angular/cdk/dialog";
 import { CommonModule } from "@angular/common";
-import { ChangeDetectorRef, Component, OnInit } from "@angular/core";
+import { ChangeDetectorRef, Component, OnDestroy, OnInit } from "@angular/core";
 import { FormBuilder, FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { RouterModule } from "@angular/router";
 import {
@@ -95,7 +95,7 @@ import { AwaitDesktopDialogComponent } from "./await-desktop-dialog.component";
   ],
 })
 // eslint-disable-next-line rxjs-angular/prefer-takeuntil
-export class AccountSecurityComponent implements OnInit {
+export class AccountSecurityComponent implements OnInit, OnDestroy {
   protected readonly VaultTimeoutAction = VaultTimeoutAction;
 
   availableVaultTimeoutActions: VaultTimeoutAction[] = [];
