@@ -1,3 +1,6 @@
 [workspace]
 resolver = "2"
 members = ["napi", "core"]
+
+[patch.crates-io]
+arboard = { git = 'https://github.com/bitwarden/arboard.git', branch = "mac-exclude-from-history" }

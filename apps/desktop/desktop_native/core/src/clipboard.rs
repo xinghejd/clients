@@ -38,7 +38,9 @@ fn clipboard_set(set: Set, _password: bool) -> Set {
 
 #[cfg(target_os = "macos")]
 fn clipboard_set(set: Set, _password: bool) -> Set {
-    set
+    use arboard::SetExtOsx;
+
+    set.exclude_from_history()
 }
 
 #[cfg(test)]
