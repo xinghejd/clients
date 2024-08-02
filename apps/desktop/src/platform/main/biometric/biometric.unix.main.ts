@@ -92,10 +92,11 @@ export default class BiometricUnixMain implements OsBiometricService {
   async osSupportsBiometric(): Promise<boolean> {
     // We assume all linux distros have some polkit implementation
     // that either has bitwarden set up or not, which is reflected in osBiomtricsNeedsSetup.
+    // Snap does not have access at the moment to polkit
     // This could be dynamically detected on dbus in the future.
     // We should check if a libsecret implementation is available on the system
     // because otherwise we cannot offlod the protected userkey to secure storage.
-    return await passwords.isAvailable();
+    return (await passwords.isAvailable()) && !isSnapStore();
   }
 
   async osBiometricsNeedsSetup(): Promise<boolean> {
