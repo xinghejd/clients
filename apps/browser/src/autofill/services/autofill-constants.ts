@@ -1,12 +1,19 @@
 export class AutoFillConstants {
-  static readonly UsernameFieldNames: string[] = [
+  static readonly EmailFieldNames: string[] = [
     // English
-    "username",
-    "user name",
     "email",
     "email address",
     "e-mail",
     "e-mail address",
+    // German
+    "email adresse",
+    "e-mail adresse",
+  ];
+
+  static readonly UsernameFieldNames: string[] = [
+    // English
+    "username",
+    "user name",
     "userid",
     "user id",
     "customer id",
@@ -15,10 +22,9 @@ export class AutoFillConstants {
     // German
     "benutzername",
     "benutzer name",
-    "email adresse",
-    "e-mail adresse",
     "benutzerid",
     "benutzer id",
+    ...AutoFillConstants.EmailFieldNames,
   ];
 
   static readonly TotpFieldNames: string[] = [
@@ -387,6 +393,7 @@ export class IdentityAutoFillConstants {
     "address-line-2",
     "addr-2",
     "street-2",
+    "address-ext",
   ];
 
   static readonly Address3FieldNames: string[] = [
@@ -403,6 +410,7 @@ export class IdentityAutoFillConstants {
     "zip-code",
     "postal-code",
     "post-code",
+    "postcode",
     "address-zip",
     "address-postal",
     "address-code",

@@ -111,6 +111,14 @@ const crypto = {
     ipcRenderer.invoke("crypto.argon2", { password, salt, iterations, memory, parallelism }),
 };
 
+const ephemeralStore = {
+  setEphemeralValue: (key: string, value: string): Promise<void> =>
+    ipcRenderer.invoke("setEphemeralValue", { key, value }),
+  getEphemeralValue: (key: string): Promise<string> => ipcRenderer.invoke("getEphemeralValue", key),
+  removeEphemeralValue: (key: string): Promise<void> =>
+    ipcRenderer.invoke("deleteEphemeralValue", key),
+};
+
 export default {
   versions: {
     app: (): Promise<string> => ipcRenderer.invoke("appVersion"),
@@ -170,6 +178,7 @@ export default {
   powermonitor,
   nativeMessaging,
   crypto,
+  ephemeralStore,
 };
 
 function deviceType(): DeviceType {
