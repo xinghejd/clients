@@ -1137,7 +1137,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       return;
     }
 
-    if (previousFocusedFieldData.filledByCipherType !== focusedFieldData.filledByCipherType) {
+    if (previousFocusedFieldData?.filledByCipherType !== focusedFieldData?.filledByCipherType) {
       const updateAllCipherTypes = focusedFieldData.filledByCipherType !== CipherType.Login;
       this.updateOverlayCiphers(updateAllCipherTypes).catch((error) =>
         this.logService.error(error),
@@ -1450,8 +1450,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       this.updateCurrentAddNewItemIdentity(identity);
     }
 
-    const addNewItemData = this.currentAddNewItemData;
-    this.addNewVaultItemSubject.next(addNewItemData);
+    this.addNewVaultItemSubject.next(this.currentAddNewItemData);
   }
 
   private addingNewLoginItem() {
