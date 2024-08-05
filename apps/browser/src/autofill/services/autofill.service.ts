@@ -658,7 +658,12 @@ export default class AutofillService implements AutofillServiceInterface {
         );
         break;
       case CipherType.Card:
-        fillScript = this.generateCardFillScript(fillScript, pageDetails, filledFields, options);
+        fillScript = await this.generateCardFillScript(
+          fillScript,
+          pageDetails,
+          filledFields,
+          options,
+        );
         break;
       case CipherType.Identity:
         fillScript = await this.generateIdentityFillScript(
@@ -867,12 +872,16 @@ export default class AutofillService implements AutofillServiceInterface {
    * @returns {AutofillScript|null}
    * @private
    */
-  private generateCardFillScript(
+  private async generateCardFillScript(
     fillScript: AutofillScript,
     pageDetails: AutofillPageDetails,
     filledFields: { [id: string]: AutofillField },
     options: GenerateFillScriptOptions,
-  ): AutofillScript | null {
+  ): Promise<AutofillScript | null> {
+    if (await this.configService.getFeatureFlag(FeatureFlag.GenerateCardFillScriptRefactor)) {
+      return this._generateIdentityFillScript(fillScript, pageDetails, filledFields, options);
+    }
+
     if (!options.cipher.card) {
       return null;
     }
