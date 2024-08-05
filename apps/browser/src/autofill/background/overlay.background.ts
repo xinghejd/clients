@@ -42,6 +42,7 @@ import { generateRandomChars } from "../utils";
 import { LockedVaultPendingNotificationsData } from "./abstractions/notification.background";
 import {
   CloseInlineMenuMessage,
+  CurrentAddNewItemData,
   FocusedFieldData,
   InlineMenuButtonPortMessageHandlers,
   InlineMenuCipherData,
@@ -83,6 +84,8 @@ export class OverlayBackground implements OverlayBackgroundInterface {
   private cancelUpdateInlineMenuPositionSubject = new Subject<void>();
   private repositionInlineMenuSubject = new Subject<chrome.runtime.MessageSender>();
   private rebuildSubFrameOffsetsSubject = new Subject<chrome.runtime.MessageSender>();
+  private addNewVaultItemSubject = new Subject<CurrentAddNewItemData>();
+  private currentAddNewItemData: CurrentAddNewItemData;
   private focusedFieldData: FocusedFieldData;
   private isFieldCurrentlyFocused: boolean = false;
   private isFieldCurrentlyFilling: boolean = false;
@@ -185,6 +188,14 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       .pipe(
         throttleTime(100),
         switchMap((sender) => this.rebuildSubFrameOffsets(sender)),
+      )
+      .subscribe();
+    this.addNewVaultItemSubject
+      .pipe(
+        debounceTime(100),
+        switchMap((addNewItemData) =>
+          this.buildCipherAndOpenAddEditVaultItemPopout(addNewItemData),
+        ),
       )
       .subscribe();
 
@@ -1375,13 +1386,11 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       return;
     }
 
-    void BrowserApi.tabSendMessage(
-      sender.tab,
-      { command: "addNewVaultItemFromOverlay", addNewCipherType },
-      {
-        frameId: this.focusedFieldData.frameId || 0,
-      },
-    );
+    this.currentAddNewItemData = { addNewCipherType, sender };
+    void BrowserApi.tabSendMessage(sender.tab, {
+      command: "addNewVaultItemFromOverlay",
+      addNewCipherType,
+    });
   }
 
   /**
@@ -1398,18 +1407,120 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     { addNewCipherType, login, card, identity }: OverlayAddNewItemMessage,
     sender: chrome.runtime.MessageSender,
   ) {
-    if (!addNewCipherType) {
+    if (
+      !this.currentAddNewItemData ||
+      sender.tab.id !== this.currentAddNewItemData.sender.tab.id ||
+      !addNewCipherType ||
+      this.currentAddNewItemData.addNewCipherType !== addNewCipherType
+    ) {
       return;
     }
 
+    if (login && this.addingNewLoginItem()) {
+      this.updateCurrentAddNewItemLogin(login);
+    }
+
+    if (card && this.addingNewCardItem()) {
+      this.updateCurrentAddNewItemCard(card);
+    }
+
+    if (identity && this.addingNewIdentityItem()) {
+      this.updateCurrentAddNewItemIdentity(identity);
+    }
+
+    const addNewItemData = this.currentAddNewItemData;
+    this.addNewVaultItemSubject.next(addNewItemData);
+  }
+
+  private addingNewLoginItem() {
+    return this.currentAddNewItemData.addNewCipherType === CipherType.Login;
+  }
+
+  private addingNewCardItem() {
+    return this.currentAddNewItemData.addNewCipherType === CipherType.Card;
+  }
+
+  private addingNewIdentityItem() {
+    return this.currentAddNewItemData.addNewCipherType === CipherType.Identity;
+  }
+
+  private updateCurrentAddNewItemLogin(login: NewLoginCipherData) {
+    if (!this.currentAddNewItemData.login) {
+      this.currentAddNewItemData.login = login;
+      return;
+    }
+
+    const currentLoginData = this.currentAddNewItemData.login;
+    this.currentAddNewItemData.login = {
+      uri: login.uri || currentLoginData.uri,
+      hostname: login.hostname || currentLoginData.hostname,
+      username: login.username || currentLoginData.username,
+      password: login.password || currentLoginData.password,
+    };
+  }
+
+  private updateCurrentAddNewItemCard(card: NewCardCipherData) {
+    if (!this.currentAddNewItemData.card) {
+      this.currentAddNewItemData.card = card;
+      return;
+    }
+
+    const currentCardData = this.currentAddNewItemData.card;
+    this.currentAddNewItemData.card = {
+      cardholderName: card.cardholderName || currentCardData.cardholderName,
+      number: card.number || currentCardData.number,
+      expirationMonth: card.expirationMonth || currentCardData.expirationMonth,
+      expirationYear: card.expirationYear || currentCardData.expirationYear,
+      expirationDate: card.expirationDate || currentCardData.expirationDate,
+      cvv: card.cvv || currentCardData.cvv,
+    };
+  }
+
+  private updateCurrentAddNewItemIdentity(identity: NewIdentityCipherData) {
+    if (!this.currentAddNewItemData.identity) {
+      this.currentAddNewItemData.identity = identity;
+      return;
+    }
+
+    const currentIdentityData = this.currentAddNewItemData.identity;
+    this.currentAddNewItemData.identity = {
+      title: identity.title || currentIdentityData.title,
+      firstName: identity.firstName || currentIdentityData.firstName,
+      middleName: identity.middleName || currentIdentityData.middleName,
+      lastName: identity.lastName || currentIdentityData.lastName,
+      fullName: identity.fullName || currentIdentityData.fullName,
+      address1: identity.address1 || currentIdentityData.address1,
+      address2: identity.address2 || currentIdentityData.address2,
+      address3: identity.address3 || currentIdentityData.address3,
+      city: identity.city || currentIdentityData.city,
+      state: identity.state || currentIdentityData.state,
+      postalCode: identity.postalCode || currentIdentityData.postalCode,
+      country: identity.country || currentIdentityData.country,
+      company: identity.company || currentIdentityData.company,
+      phone: identity.phone || currentIdentityData.phone,
+      email: identity.email || currentIdentityData.email,
+      username: identity.username || currentIdentityData.username,
+    };
+  }
+
+  private async buildCipherAndOpenAddEditVaultItemPopout({
+    login,
+    card,
+    identity,
+    sender,
+  }: CurrentAddNewItemData) {
     const cipherView: CipherView = this.buildNewVaultItemCipherView({
-      addNewCipherType,
       login,
       card,
       identity,
     });
 
-    if (cipherView) {
+    if (!cipherView) {
+      this.currentAddNewItemData = null;
+      return;
+    }
+
+    try {
       this.closeInlineMenu(sender);
       await this.cipherService.setAddEditCipherInfo({
         cipher: cipherView,
@@ -1418,32 +1529,30 @@ export class OverlayBackground implements OverlayBackgroundInterface {
 
       await this.openAddEditVaultItemPopout(sender.tab, { cipherId: cipherView.id });
       await BrowserApi.sendMessage("inlineAutofillMenuRefreshAddEditCipher");
+    } catch (error) {
+      this.logService.error("Error building cipher and opening add/edit vault item popout", error);
     }
+
+    this.currentAddNewItemData = null;
   }
 
   /**
    * Builds and returns a new cipher view with the provided vault item data.
    *
-   * @param addNewCipherType - The type of cipher to add
    * @param login - The login data captured from the extension message
    * @param card - The card data captured from the extension message
    * @param identity - The identity data captured from the extension message
    */
-  private buildNewVaultItemCipherView({
-    addNewCipherType,
-    login,
-    card,
-    identity,
-  }: OverlayAddNewItemMessage) {
-    if (login && addNewCipherType === CipherType.Login) {
+  private buildNewVaultItemCipherView({ login, card, identity }: OverlayAddNewItemMessage) {
+    if (login && this.addingNewLoginItem()) {
       return this.buildLoginCipherView(login);
     }
 
-    if (card && addNewCipherType === CipherType.Card) {
+    if (card && this.addingNewCardItem()) {
       return this.buildCardCipherView(card);
     }
 
-    if (identity && addNewCipherType === CipherType.Identity) {
+    if (identity && this.addingNewIdentityItem()) {
       return this.buildIdentityCipherView(identity);
     }
   }
