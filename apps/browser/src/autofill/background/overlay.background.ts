@@ -242,14 +242,14 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     const authStatus = await firstValueFrom(this.authService.activeAccountStatus$);
     if (authStatus !== AuthenticationStatus.Unlocked) {
       if (this.focusedFieldData) {
-        void this.closeInlineMenuAfterCiphersUpdate();
+        this.closeInlineMenuAfterCiphersUpdate().catch((e) => this.logService.error(e));
       }
       return;
     }
 
     const currentTab = await BrowserApi.getTabFromCurrentWindowId();
     if (this.focusedFieldData && currentTab?.id !== this.focusedFieldData.tabId) {
-      void this.closeInlineMenuAfterCiphersUpdate();
+      this.closeInlineMenuAfterCiphersUpdate().catch((e) => this.logService.error(e));
     }
 
     this.inlineMenuCiphers = new Map();
@@ -538,10 +538,14 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     };
 
     if (pageDetails.frameId !== 0 && pageDetails.details.fields.length) {
-      void this.buildSubFrameOffsets(pageDetails.tab, pageDetails.frameId, pageDetails.details.url);
-      void BrowserApi.tabSendMessage(pageDetails.tab, {
+      this.buildSubFrameOffsets(
+        pageDetails.tab,
+        pageDetails.frameId,
+        pageDetails.details.url,
+      ).catch((error) => this.logService.error(error));
+      BrowserApi.tabSendMessage(pageDetails.tab, {
         command: "setupRebuildSubFrameOffsetsListeners",
-      });
+      }).catch((error) => this.logService.error(error));
     }
 
     const pageDetailsMap = this.pageDetailsForTab[sender.tab.id];
@@ -631,11 +635,11 @@ export class OverlayBackground implements OverlayBackgroundInterface {
 
       if (!subFrameOffset) {
         subFrameOffsetsForTab.set(frameId, null);
-        void BrowserApi.tabSendMessage(
+        BrowserApi.tabSendMessage(
           tab,
           { command: "getSubFrameOffsetsFromWindowMessage", subFrameId: frameId },
           { frameId },
-        );
+        ).catch((error) => this.logService.error(error));
         return;
       }
 
@@ -667,11 +671,11 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       frameId,
     );
 
-    void BrowserApi.tabSendMessage(
+    BrowserApi.tabSendMessage(
       tab,
       { command: "destroyAutofillInlineMenuListeners" },
       { frameId },
-    );
+    ).catch((error) => this.logService.error(error));
   }
 
   /**
@@ -707,13 +711,15 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     }
 
     if (!this.checkIsInlineMenuButtonVisible()) {
-      void this.toggleInlineMenuHidden(
+      this.toggleInlineMenuHidden(
         { isInlineMenuHidden: false, setTransparentInlineMenu: true },
         sender,
-      );
+      ).catch((error) => this.logService.error(error));
     }
 
-    void this.updateInlineMenuPosition({ overlayElement: AutofillOverlayElement.Button }, sender);
+    this.updateInlineMenuPosition({ overlayElement: AutofillOverlayElement.Button }, sender).catch(
+      (error) => this.logService.error(error),
+    );
 
     const mostRecentlyFocusedFieldHasValue = await BrowserApi.tabSendMessage(
       sender.tab,
@@ -733,7 +739,9 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       return;
     }
 
-    void this.updateInlineMenuPosition({ overlayElement: AutofillOverlayElement.List }, sender);
+    this.updateInlineMenuPosition({ overlayElement: AutofillOverlayElement.List }, sender).catch(
+      (error) => this.logService.error(error),
+    );
   }
 
   /**
@@ -818,7 +826,9 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     const command = "closeAutofillInlineMenu";
     const sendOptions = { frameId: 0 };
     if (forceCloseInlineMenu) {
-      void BrowserApi.tabSendMessage(sender.tab, { command, overlayElement }, sendOptions);
+      BrowserApi.tabSendMessage(sender.tab, { command, overlayElement }, sendOptions).catch(
+        (error) => this.logService.error(error),
+      );
       this.isInlineMenuButtonVisible = false;
       this.isInlineMenuListVisible = false;
       return;
@@ -829,11 +839,11 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     }
 
     if (this.isFieldCurrentlyFilling) {
-      void BrowserApi.tabSendMessage(
+      BrowserApi.tabSendMessage(
         sender.tab,
         { command, overlayElement: AutofillOverlayElement.List },
         sendOptions,
-      );
+      ).catch((error) => this.logService.error(error));
       this.isInlineMenuListVisible = false;
       return;
     }
@@ -851,7 +861,9 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       this.isInlineMenuListVisible = false;
     }
 
-    void BrowserApi.tabSendMessage(sender.tab, { command, overlayElement }, sendOptions);
+    BrowserApi.tabSendMessage(sender.tab, { command, overlayElement }, sendOptions).catch((error) =>
+      this.logService.error(error),
+    );
   }
 
   /**
@@ -1103,11 +1115,11 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     sender: chrome.runtime.MessageSender,
   ) {
     if (this.focusedFieldData && !this.senderFrameHasFocusedField(sender)) {
-      void BrowserApi.tabSendMessage(
+      BrowserApi.tabSendMessage(
         sender.tab,
         { command: "unsetMostRecentlyFocusedField" },
         { frameId: this.focusedFieldData.frameId },
-      );
+      ).catch((error) => this.logService.error(error));
     }
 
     const previousFocusedFieldData = this.focusedFieldData;
@@ -1376,9 +1388,9 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       return;
     }
 
-    void BrowserApi.tabSendMessageData(sender.tab, "redirectAutofillInlineMenuFocusOut", {
+    BrowserApi.tabSendMessageData(sender.tab, "redirectAutofillInlineMenuFocusOut", {
       direction,
-    });
+    }).catch((error) => this.logService.error(error));
   }
 
   /**
@@ -1827,7 +1839,9 @@ export class OverlayBackground implements OverlayBackgroundInterface {
 
     this.resetFocusedFieldSubFrameOffsets(sender);
     this.cancelInlineMenuFadeInAndPositionUpdate();
-    void this.toggleInlineMenuHidden({ isInlineMenuHidden: true }, sender);
+    this.toggleInlineMenuHidden({ isInlineMenuHidden: true }, sender).catch((error) =>
+      this.logService.error(error),
+    );
     this.repositionInlineMenuSubject.next(sender);
   }
 
@@ -2017,14 +2031,14 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       filledByCipherType: this.focusedFieldData?.filledByCipherType,
       showInlineMenuAccountCreation: this.showInlineMenuAccountCreation(),
     });
-    void this.updateInlineMenuPosition(
+    this.updateInlineMenuPosition(
       {
         overlayElement: isInlineMenuListPort
           ? AutofillOverlayElement.List
           : AutofillOverlayElement.Button,
       },
       port.sender,
-    );
+    ).catch((error) => this.logService.error(error));
   };
 
   /**
