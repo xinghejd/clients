@@ -242,14 +242,14 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     const authStatus = await firstValueFrom(this.authService.activeAccountStatus$);
     if (authStatus !== AuthenticationStatus.Unlocked) {
       if (this.focusedFieldData) {
-        this.closeInlineMenuAfterCiphersUpdate().catch((e) => this.logService.error(e));
+        this.closeInlineMenuAfterCiphersUpdate().catch((error) => this.logService.error(error));
       }
       return;
     }
 
     const currentTab = await BrowserApi.getTabFromCurrentWindowId();
     if (this.focusedFieldData && currentTab?.id !== this.focusedFieldData.tabId) {
-      this.closeInlineMenuAfterCiphersUpdate().catch((e) => this.logService.error(e));
+      this.closeInlineMenuAfterCiphersUpdate().catch((error) => this.logService.error(error));
     }
 
     this.inlineMenuCiphers = new Map();
@@ -1438,33 +1438,48 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       return;
     }
 
-    if (login && this.addingNewLoginItem()) {
+    if (login && this.isAddingNewLogin()) {
       this.updateCurrentAddNewItemLogin(login);
     }
 
-    if (card && this.addingNewCardItem()) {
+    if (card && this.isAddingNewCard()) {
       this.updateCurrentAddNewItemCard(card);
     }
 
-    if (identity && this.addingNewIdentityItem()) {
+    if (identity && this.isAddingNewIdentity()) {
       this.updateCurrentAddNewItemIdentity(identity);
     }
 
     this.addNewVaultItemSubject.next(this.currentAddNewItemData);
   }
 
-  private addingNewLoginItem() {
+  /**
+   * Identifies if the current add new item data is for adding a new login.
+   */
+  private isAddingNewLogin() {
     return this.currentAddNewItemData.addNewCipherType === CipherType.Login;
   }
 
-  private addingNewCardItem() {
+  /**
+   * Identifies if the current add new item data is for adding a new card.
+   */
+  private isAddingNewCard() {
     return this.currentAddNewItemData.addNewCipherType === CipherType.Card;
   }
 
-  private addingNewIdentityItem() {
+  /**
+   * Identifies if the current add new item data is for adding a new identity.
+   */
+  private isAddingNewIdentity() {
     return this.currentAddNewItemData.addNewCipherType === CipherType.Identity;
   }
 
+  /**
+   * Updates the current add new item data with the provided login data. If the
+   * login data is already present, the data will be merged with the existing data.
+   *
+   * @param login - The login data captured from the extension message
+   */
   private updateCurrentAddNewItemLogin(login: NewLoginCipherData) {
     if (!this.currentAddNewItemData.login) {
       this.currentAddNewItemData.login = login;
@@ -1480,6 +1495,12 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     };
   }
 
+  /**
+   * Updates the current add new item data with the provided card data. If the
+   * card data is already present, the data will be merged with the existing data.
+   *
+   * @param card - The card data captured from the extension message
+   */
   private updateCurrentAddNewItemCard(card: NewCardCipherData) {
     if (!this.currentAddNewItemData.card) {
       this.currentAddNewItemData.card = card;
@@ -1497,6 +1518,12 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     };
   }
 
+  /**
+   * Updates the current add new item data with the provided identity data. If the
+   * identity data is already present, the data will be merged with the existing data.
+   *
+   * @param identity - The identity data captured from the extension message
+   */
   private updateCurrentAddNewItemIdentity(identity: NewIdentityCipherData) {
     if (!this.currentAddNewItemData.identity) {
       this.currentAddNewItemData.identity = identity;
@@ -1524,6 +1551,14 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     };
   }
 
+  /**
+   * Handles building a new cipher and opening the add/edit vault item popout.
+   *
+   * @param login - The login data captured from the extension message
+   * @param card - The card data captured from the extension message
+   * @param identity - The identity data captured from the extension message
+   * @param sender - The sender of the extension message
+   */
   private async buildCipherAndOpenAddEditVaultItemPopout({
     login,
     card,
@@ -1565,15 +1600,15 @@ export class OverlayBackground implements OverlayBackgroundInterface {
    * @param identity - The identity data captured from the extension message
    */
   private buildNewVaultItemCipherView({ login, card, identity }: OverlayAddNewItemMessage) {
-    if (login && this.addingNewLoginItem()) {
+    if (login && this.isAddingNewLogin()) {
       return this.buildLoginCipherView(login);
     }
 
-    if (card && this.addingNewCardItem()) {
+    if (card && this.isAddingNewCard()) {
       return this.buildCardCipherView(card);
     }
 
-    if (identity && this.addingNewIdentityItem()) {
+    if (identity && this.isAddingNewIdentity()) {
       return this.buildIdentityCipherView(identity);
     }
   }
