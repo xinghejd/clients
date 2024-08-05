@@ -113,6 +113,7 @@ export const ENVIRONMENT_DISK = new StateDefinition("environment", "disk");
 export const ENVIRONMENT_MEMORY = new StateDefinition("environment", "memory");
 export const THEMING_DISK = new StateDefinition("theming", "disk", { web: "disk-local" });
 export const TRANSLATION_DISK = new StateDefinition("translation", "disk", { web: "disk-local" });
+export const TASK_SCHEDULER_DISK = new StateDefinition("taskScheduler", "disk");
 
 // Secrets Manager
 
@@ -165,3 +166,4 @@ export const PREMIUM_BANNER_DISK_LOCAL = new StateDefinition("premiumBannerRepro
   web: "disk-local",
 });
 export const BANNERS_DISMISSED_DISK = new StateDefinition("bannersDismissed", "disk");
+export const VAULT_BROWSER_UI_ONBOARDING = new StateDefinition("vaultBrowserUiOnboarding", "disk");
