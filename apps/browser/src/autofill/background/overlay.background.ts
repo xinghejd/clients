@@ -330,7 +330,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
   private async getInlineMenuCipherData(): Promise<InlineMenuCipherData[]> {
     const showFavicons = await firstValueFrom(this.domainSettingsService.showFavicons$);
     const inlineMenuCiphersArray = Array.from(this.inlineMenuCiphers);
-    let inlineMenuCipherData: InlineMenuCipherData[] = [];
+    let inlineMenuCipherData: InlineMenuCipherData[];
 
     if (this.showInlineMenuAccountCreation()) {
       inlineMenuCipherData = this.buildInlineMenuAccountCreationCiphers(
@@ -1119,7 +1119,17 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       !this.focusedFieldData.showInlineMenuAccountCreation;
 
     if (accountCreationFieldBlurred || this.showInlineMenuAccountCreation()) {
-      void this.updateIdentityCiphersOnLoginField(previousFocusedFieldData);
+      this.updateIdentityCiphersOnLoginField(previousFocusedFieldData).catch((error) =>
+        this.logService.error(error),
+      );
+      return;
+    }
+
+    if (previousFocusedFieldData.filledByCipherType !== focusedFieldData.filledByCipherType) {
+      const updateAllCipherTypes = focusedFieldData.filledByCipherType !== CipherType.Login;
+      this.updateOverlayCiphers(updateAllCipherTypes).catch((error) =>
+        this.logService.error(error),
+      );
     }
   }
 
@@ -1387,10 +1397,10 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     }
 
     this.currentAddNewItemData = { addNewCipherType, sender };
-    void BrowserApi.tabSendMessage(sender.tab, {
+    BrowserApi.tabSendMessage(sender.tab, {
       command: "addNewVaultItemFromOverlay",
       addNewCipherType,
-    });
+    }).catch((error) => this.logService.error(error));
   }
 
   /**
