@@ -1611,6 +1611,25 @@ describe("OverlayBackground", () => {
       });
     });
 
+    describe("updateIsFieldCurrentlyFocused message handler", () => {
+      it("skips updating the isFiledCurrentlyFocused value when the focused field data is populated and the sender frame id does not equal the focused field's frame id", async () => {
+        const focusedFieldData = createFocusedFieldDataMock();
+        sendMockExtensionMessage(
+          { command: "updateFocusedFieldData", focusedFieldData },
+          mock<chrome.runtime.MessageSender>({ tab: { id: 1 }, frameId: 10 }),
+        );
+        overlayBackground["isFieldCurrentlyFocused"] = true;
+
+        sendMockExtensionMessage(
+          { command: "updateIsFieldCurrentlyFocused", isFieldCurrentlyFocused: false },
+          mock<chrome.runtime.MessageSender>({ tab: { id: 1 }, frameId: 20 }),
+        );
+        await flushPromises();
+
+        expect(overlayBackground["isFieldCurrentlyFocused"]).toBe(true);
+      });
+    });
+
     describe("checkIsFieldCurrentlyFocused message handler", () => {
       it("returns true when a form field is currently focused", async () => {
         sendMockExtensionMessage({
