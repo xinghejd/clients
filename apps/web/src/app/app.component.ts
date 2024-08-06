@@ -15,6 +15,7 @@ import {
 } from "rxjs";
 
 import { LogoutReason } from "@bitwarden/auth/common";
+import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { EventUploadService } from "@bitwarden/common/abstractions/event/event-upload.service";
 import { NotificationsService } from "@bitwarden/common/abstractions/notifications.service";
 import { SearchService } from "@bitwarden/common/abstractions/search.service";
@@ -27,6 +28,7 @@ import { KeyConnectorService } from "@bitwarden/common/auth/abstractions/key-con
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { PaymentMethodWarningsServiceAbstraction as PaymentMethodWarningService } from "@bitwarden/common/billing/abstractions/payment-method-warnings-service.abstraction";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
 import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
@@ -34,6 +36,8 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { BiometricStateService } from "@bitwarden/common/platform/biometrics/biometric-state.service";
+import { DefaultWebPushNotificationsApiService } from "@bitwarden/common/platform/services/notifications/web-push-notifications-api.service";
+import { WebPushNotificationsService } from "@bitwarden/common/platform/services/notifications/web-push-notifications.service";
 import { StateEventRunnerService } from "@bitwarden/common/platform/state";
 import { SyncService } from "@bitwarden/common/platform/sync";
 import { UserId } from "@bitwarden/common/types/guid";
@@ -101,6 +105,8 @@ export class AppComponent implements OnDestroy, OnInit {
     private paymentMethodWarningService: PaymentMethodWarningService,
     private organizationService: InternalOrganizationServiceAbstraction,
     private accountService: AccountService,
+    private apiService: ApiService,
+    private appIdService: AppIdService,
   ) {}
 
   ngOnInit() {
@@ -116,6 +122,22 @@ export class AppComponent implements OnDestroy, OnInit {
       window.onscroll = () => this.recordActivity();
       window.onkeypress = () => this.recordActivity();
     });
+
+    void navigator.serviceWorker
+      .register(
+        new URL(
+          /* webpackChunkName: 'service-worker' */
+          "@bitwarden/common/platform/services/notifications/service.worker.ts",
+          import.meta.url,
+        ),
+      )
+      .then((registration) => {
+        new WebPushNotificationsService(
+          registration,
+          new DefaultWebPushNotificationsApiService(this.apiService, this.appIdService),
+          this.configService,
+        );
+      });
 
     /// ############ DEPRECATED ############
     /// Please do not use the AppComponent to send events between services.

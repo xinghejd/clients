@@ -116,6 +116,8 @@ import { FileUploadService } from "@bitwarden/common/platform/services/file-uplo
 import { KeyGenerationService } from "@bitwarden/common/platform/services/key-generation.service";
 import { MigrationBuilderService } from "@bitwarden/common/platform/services/migration-builder.service";
 import { MigrationRunner } from "@bitwarden/common/platform/services/migration-runner";
+import { DefaultWebPushNotificationsApiService } from "@bitwarden/common/platform/services/notifications/web-push-notifications-api.service";
+import { WebPushNotificationsService } from "@bitwarden/common/platform/services/notifications/web-push-notifications.service";
 import { SystemService } from "@bitwarden/common/platform/services/system.service";
 import { UserAutoUnlockKeyService } from "@bitwarden/common/platform/services/user-auto-unlock-key.service";
 import { WebCryptoFunctionService } from "@bitwarden/common/platform/services/web-crypto-function.service";
@@ -280,6 +282,7 @@ export default class MainBackground {
   exportService: VaultExportServiceAbstraction;
   searchService: SearchServiceAbstraction;
   notificationsService: NotificationsServiceAbstraction;
+  webPushNotificationsService: WebPushNotificationsService;
   stateService: StateServiceAbstraction;
   userNotificationSettingsService: UserNotificationSettingsServiceAbstraction;
   autofillSettingsService: AutofillSettingsServiceAbstraction;
@@ -937,6 +940,27 @@ export default class MainBackground {
       this.authService,
       this.messagingService,
     );
+    if (BrowserApi.isManifestVersion(3)) {
+      this.webPushNotificationsService = new WebPushNotificationsService(
+        (self as any).registration as ServiceWorkerRegistration,
+        new DefaultWebPushNotificationsApiService(this.apiService, this.appIdService),
+        this.configService,
+      );
+    } else {
+      const websocket = new WebSocket("wss://push.services.mozilla.com");
+      websocket.onopen = (e) => {
+        this.logService.debug("Websocket opened", e);
+        websocket.send(
+          JSON.stringify({
+            messageType: "hello",
+            uaid: "",
+            channel_ids: [],
+            status: 0,
+            use_webpush: true,
+          }),
+        );
+      };
+    }
 
     this.fido2UserInterfaceService = new BrowserFido2UserInterfaceService(this.authService);
     this.fido2AuthenticatorService = new Fido2AuthenticatorService(
@@ -1184,6 +1208,10 @@ export default class MainBackground {
     await this.idleBackground.init();
     this.webRequestBackground?.startListening();
     this.syncServiceListener?.listener$().subscribe();
+
+    if (this.webPushNotificationsService) {
+      await this.webPushNotificationsService.init();
+    }
 
     return new Promise<void>((resolve) => {
       setTimeout(async () => {

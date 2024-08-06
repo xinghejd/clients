@@ -61,7 +61,8 @@
     "idle",
     "webRequest",
     "webRequestBlocking",
-    "webNavigation"
+    "webNavigation",
+    "notifications"
   ],
   "optional_permissions": ["nativeMessaging", "privacy"],
   "content_security_policy": "script-src 'self' 'wasm-unsafe-eval'; object-src 'self'",

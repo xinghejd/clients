@@ -39,6 +39,7 @@
     }
   ],
   "background": {
+    "page": "background.html",
     "service_worker": "background.js",
     "type": "module"
   },
@@ -63,7 +64,8 @@
     "offscreen",
     "webRequest",
     "webRequestAuthProvider",
-    "webNavigation"
+    "webNavigation",
+    "notifications"
   ],
   "optional_permissions": ["nativeMessaging", "privacy"],
   "host_permissions": ["https://*/*", "http://*/*"],

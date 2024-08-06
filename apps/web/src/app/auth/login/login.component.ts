@@ -216,4 +216,13 @@ export class LoginComponent extends BaseLoginComponent implements OnInit {
         this.enforcedPasswordPolicyOptions = enforcedPasswordPolicyOptions;
       });
   }
+
+  async requestPermission() {
+    if (self.Notification.permission !== "granted") {
+      const p = await self.Notification.requestPermission();
+      if (p !== "granted") {
+        await this.requestPermission();
+      }
+    }
+  }
 }

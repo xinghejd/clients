@@ -9,6 +9,11 @@ import {
 
 const dayInMilliseconds = 24 * 3600 * 1000;
 
+export enum PushTechnology {
+  SignalR = 0,
+  WebPush = 1,
+}
+
 export class ServerConfig {
   version: string;
   gitHash: string;
@@ -16,6 +21,10 @@ export class ServerConfig {
   environment?: EnvironmentServerConfigData;
   utcDate: Date;
   featureStates: { [key: string]: AllowedFeatureFlagTypes } = {};
+  push: {
+    pushTechnology: PushTechnology;
+    vapidPublicKey?: string;
+  };
 
   constructor(serverConfigData: ServerConfigData) {
     this.version = serverConfigData.version;
@@ -24,6 +33,15 @@ export class ServerConfig {
     this.utcDate = new Date(serverConfigData.utcDate);
     this.environment = serverConfigData.environment;
     this.featureStates = serverConfigData.featureStates;
+    this.push =
+      serverConfigData.push == null
+        ? {
+            pushTechnology: PushTechnology.SignalR,
+          }
+        : {
+            pushTechnology: serverConfigData.push.pushTechnology,
+            vapidPublicKey: serverConfigData.push.vapidPublicKey,
+          };
 
     if (this.server?.name == null && this.server?.url == null) {
       this.server = null;
