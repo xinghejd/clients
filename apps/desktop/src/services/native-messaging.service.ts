@@ -131,8 +131,12 @@ export class NativeMessagingService {
       return;
     }
 
-    if (Math.abs(message.timestamp - Date.now()) > MessageValidTimeout) {
-      this.logService.error("NativeMessage is to old, ignoring.");
+    // Check to prevent replay of old messages. This is disabled in dev mode
+    if (
+      Math.abs(message.timestamp - Date.now()) > MessageValidTimeout &&
+      !this.platformUtilService.isDev()
+    ) {
+      this.logService.error("NativeMessage is too old, ignoring.");
       return;
     }
 
