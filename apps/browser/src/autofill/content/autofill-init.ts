@@ -33,14 +33,14 @@ class AutofillInit implements AutofillInitInterface {
    * CollectAutofillContentService and InsertAutofillContentService classes.
    *
    * @param autofillOverlayContentService - The autofill overlay content service, potentially undefined.
-   * @param inlineMenuElements - The inline menu elements, potentially undefined.
+   * @param inlineMenuContentService - The inline menu content service, potentially undefined.
    */
   constructor(
     autofillOverlayContentService?: AutofillOverlayContentService,
-    inlineMenuElements?: AutofillInlineMenuContentService,
+    inlineMenuContentService?: AutofillInlineMenuContentService,
   ) {
     this.autofillOverlayContentService = autofillOverlayContentService;
-    this.autofillInlineMenuContentService = inlineMenuElements;
+    this.autofillInlineMenuContentService = inlineMenuContentService;
     this.domElementVisibilityService = new DomElementVisibilityService(
       this.autofillInlineMenuContentService,
     );

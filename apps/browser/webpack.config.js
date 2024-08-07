@@ -130,6 +130,16 @@ const plugins = [
     filename: "overlay/list.html",
     chunks: ["overlay/list"],
   }),
+  new HtmlWebpackPlugin({
+    template: "./src/autofill/overlay/notification/pages/bar/notification-bar.html",
+    filename: "overlay/notification-bar.html",
+    chunks: ["overlay/notification-bar"],
+  }),
+  new HtmlWebpackPlugin({
+    template: "./src/autofill/overlay/notification/pages/container/notification-container.html",
+    filename: "overlay/notification-container.html",
+    chunks: ["overlay/notification-container"],
+  }),
   new CopyWebpackPlugin({
     patterns: [
       manifestVersion == 3
@@ -195,6 +205,10 @@ const mainConfig = {
       "./src/autofill/deprecated/overlay/pages/button/bootstrap-autofill-overlay-button.deprecated.ts",
     "overlay/list":
       "./src/autofill/deprecated/overlay/pages/list/bootstrap-autofill-overlay-list.deprecated.ts",
+    "overlay/notification-bar":
+      "./src/autofill/overlay/notification/pages/bar/bootstrap-overlay-notification-bar.ts",
+    "overlay/notification-container":
+      "./src/autofill/overlay/notification/pages/container/bootstrap-overlay-notification-container.ts",
     "encrypt-worker": "../../libs/common/src/platform/services/cryptography/encrypt.worker.ts",
     "content/lp-fileless-importer": "./src/tools/content/lp-fileless-importer.ts",
     "content/send-on-installed-message": "./src/vault/content/send-on-installed-message.ts",
