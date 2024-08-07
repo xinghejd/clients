@@ -20,7 +20,7 @@ import { CheckboxModule } from "./checkbox.module";
 const template = /*html*/ `
   <form [formGroup]="formObj">
     <bit-form-control>
-      <input type="checkbox" bitCheckbox formControlName="checkbox">
+      <input type="checkbox" bitCheckbox formControlName="checkbox" />
       <bit-label>Click me</bit-label>
     </bit-form-control>
   </form>
@@ -133,7 +133,7 @@ export const Hint: Story = {
     template: /*html*/ `
       <form [formGroup]="formObj">
         <bit-form-control>
-          <input type="checkbox" bitCheckbox formControlName="checkbox">
+          <input type="checkbox" bitCheckbox formControlName="checkbox" />
           <bit-label>Really long value that never ends.</bit-label>
           <bit-hint>
             Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur iaculis consequat enim vitae elementum.
@@ -181,15 +181,15 @@ export const Custom: Story = {
       <div class="tw-flex tw-flex-col tw-w-32">
         <label class="tw-text-main tw-flex tw-bg-secondary-300 tw-p-2">
           A-Z
-          <input class="tw-ml-auto focus-visible:tw-ring-offset-secondary-300" type="checkbox" bitCheckbox>
+          <input class="tw-ml-auto focus-visible:tw-ring-offset-secondary-300" type="checkbox" bitCheckbox />
         </label>
         <label class="tw-text-main tw-flex tw-bg-secondary-300 tw-p-2">
           a-z
-          <input class="tw-ml-auto focus-visible:tw-ring-offset-secondary-300" type="checkbox" bitCheckbox>
+          <input class="tw-ml-auto focus-visible:tw-ring-offset-secondary-300" type="checkbox" bitCheckbox />
         </label>
         <label class="tw-text-main tw-flex tw-bg-secondary-300 tw-p-2">
           0-9
-          <input class="tw-ml-auto focus-visible:tw-ring-offset-secondary-300" type="checkbox" bitCheckbox>
+          <input class="tw-ml-auto focus-visible:tw-ring-offset-secondary-300" type="checkbox" bitCheckbox />
         </label>
       </div>
     `,
