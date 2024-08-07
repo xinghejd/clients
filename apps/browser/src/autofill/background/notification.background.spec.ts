@@ -18,7 +18,7 @@ import { CipherService } from "@bitwarden/common/vault/services/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/services/folder/folder.service";
 
 import { BrowserApi } from "../../platform/browser/browser-api";
-import { NotificationQueueMessageType } from "../enums/notification-queue-message-type.enum";
+import { NotificationMessageType } from "../enums/notification-queue-message-type.enum";
 import { FormData } from "../services/abstractions/autofill.service";
 import AutofillService from "../services/autofill.service";
 import { createAutofillPageDetailsMock, createChromeTabMock } from "../spec/autofill-mocks";
@@ -761,7 +761,7 @@ describe("NotificationBackground", () => {
           notificationBackground["notificationQueue"] = [
             mock<AddUnlockVaultQueueMessage>({
               tab,
-              type: NotificationQueueMessageType.UnlockVault,
+              type: NotificationMessageType.UnlockVault,
             }),
           ];
 
@@ -783,7 +783,7 @@ describe("NotificationBackground", () => {
           };
           notificationBackground["notificationQueue"] = [
             mock<AddLoginQueueMessage>({
-              type: NotificationQueueMessageType.AddLogin,
+              type: NotificationMessageType.AddLogin,
               tab,
               domain: "another.com",
             }),
@@ -804,7 +804,7 @@ describe("NotificationBackground", () => {
             folder: "folder-id",
           };
           const queueMessage = mock<AddChangePasswordQueueMessage>({
-            type: NotificationQueueMessageType.ChangePassword,
+            type: NotificationMessageType.ChangePassword,
             tab,
             domain: "example.com",
             newPassword: "newPassword",
@@ -839,7 +839,7 @@ describe("NotificationBackground", () => {
             folder: "folder-id",
           };
           const queueMessage = mock<AddLoginQueueMessage>({
-            type: NotificationQueueMessageType.AddLogin,
+            type: NotificationMessageType.AddLogin,
             tab,
             domain: "example.com",
             username: "test",
@@ -874,7 +874,7 @@ describe("NotificationBackground", () => {
             folder: "folder-id",
           };
           const queueMessage = mock<AddChangePasswordQueueMessage>({
-            type: NotificationQueueMessageType.ChangePassword,
+            type: NotificationMessageType.ChangePassword,
             tab,
             domain: "example.com",
             newPassword: "newPassword",
@@ -920,7 +920,7 @@ describe("NotificationBackground", () => {
             folder: "folder-id",
           };
           const queueMessage = mock<AddLoginQueueMessage>({
-            type: NotificationQueueMessageType.AddLogin,
+            type: NotificationMessageType.AddLogin,
             tab,
             domain: "example.com",
             username: "test",
@@ -959,7 +959,7 @@ describe("NotificationBackground", () => {
             folder: "folder-id",
           };
           const queueMessage = mock<AddLoginQueueMessage>({
-            type: NotificationQueueMessageType.AddLogin,
+            type: NotificationMessageType.AddLogin,
             tab,
             domain: "example.com",
             username: "test",
@@ -998,7 +998,7 @@ describe("NotificationBackground", () => {
             folder: "folder-id",
           };
           const queueMessage = mock<AddLoginQueueMessage>({
-            type: NotificationQueueMessageType.AddLogin,
+            type: NotificationMessageType.AddLogin,
             tab,
             domain: "example.com",
             username: "test",
@@ -1043,7 +1043,7 @@ describe("NotificationBackground", () => {
             folder: "folder-id",
           };
           const queueMessage = mock<AddChangePasswordQueueMessage>({
-            type: NotificationQueueMessageType.ChangePassword,
+            type: NotificationMessageType.ChangePassword,
             tab,
             domain: "example.com",
             newPassword: "newPassword",
@@ -1102,7 +1102,7 @@ describe("NotificationBackground", () => {
         const sender = mock<chrome.runtime.MessageSender>({ tab });
         const message: NotificationBackgroundExtensionMessage = { command: "bgNeverSave" };
         notificationBackground["notificationQueue"] = [
-          mock<AddUnlockVaultQueueMessage>({ type: NotificationQueueMessageType.UnlockVault, tab }),
+          mock<AddUnlockVaultQueueMessage>({ type: NotificationMessageType.UnlockVault, tab }),
         ];
 
         sendMockExtensionMessage(message, sender);
@@ -1117,7 +1117,7 @@ describe("NotificationBackground", () => {
         const message: NotificationBackgroundExtensionMessage = { command: "bgNeverSave" };
         notificationBackground["notificationQueue"] = [
           mock<AddLoginQueueMessage>({
-            type: NotificationQueueMessageType.AddLogin,
+            type: NotificationMessageType.AddLogin,
             tab,
             domain: "another.com",
           }),
@@ -1134,12 +1134,12 @@ describe("NotificationBackground", () => {
         const sender = mock<chrome.runtime.MessageSender>({ tab });
         const message: NotificationBackgroundExtensionMessage = { command: "bgNeverSave" };
         const firstNotification = mock<AddLoginQueueMessage>({
-          type: NotificationQueueMessageType.AddLogin,
+          type: NotificationMessageType.AddLogin,
           tab,
           domain: "example.com",
         });
         const secondNotification = mock<AddLoginQueueMessage>({
-          type: NotificationQueueMessageType.AddLogin,
+          type: NotificationMessageType.AddLogin,
           tab: createChromeTabMock({ id: 3 }),
           domain: "another.com",
         });

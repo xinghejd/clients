@@ -1,11 +1,9 @@
-const NotificationQueueMessageType = {
+export const NotificationMessageType = {
   AddLogin: "add",
   ChangePassword: "change",
   UnlockVault: "unlock",
   RequestFilelessImport: "fileless-import",
 } as const;
 
-type NotificationQueueMessageTypes =
-  (typeof NotificationQueueMessageType)[keyof typeof NotificationQueueMessageType];
-
-export { NotificationQueueMessageType, NotificationQueueMessageTypes };
+export type NotificationMessageTypes =
+  (typeof NotificationMessageType)[keyof typeof NotificationMessageType];

@@ -28,7 +28,7 @@ import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
 import { openUnlockPopout } from "../../auth/popup/utils/auth-popout-window";
 import { BrowserApi } from "../../platform/browser/browser-api";
 import { openAddEditVaultItemPopout } from "../../vault/popup/utils/vault-popout-window";
-import { NotificationQueueMessageType } from "../enums/notification-queue-message-type.enum";
+import { NotificationMessageType } from "../enums/notification-queue-message-type.enum";
 import { AutofillService } from "../services/abstractions/autofill.service";
 
 import {
@@ -190,10 +190,10 @@ export default class NotificationBackground {
     };
 
     switch (notificationType) {
-      case NotificationQueueMessageType.AddLogin:
+      case NotificationMessageType.AddLogin:
         typeData.removeIndividualVault = await this.removeIndividualVault();
         break;
-      case NotificationQueueMessageType.RequestFilelessImport:
+      case NotificationMessageType.RequestFilelessImport:
         typeData.importType = (
           notificationQueueMessage as AddRequestFilelessImportQueueMessage
         ).importType;
@@ -288,7 +288,7 @@ export default class NotificationBackground {
     // remove any old messages for this tab
     this.removeTabFromNotificationQueue(tab);
     const message: AddLoginQueueMessage = {
-      type: NotificationQueueMessageType.AddLogin,
+      type: NotificationMessageType.AddLogin,
       username: loginInfo.username,
       password: loginInfo.password,
       domain: loginDomain,
@@ -418,7 +418,7 @@ export default class NotificationBackground {
     // remove any old messages for this tab
     this.removeTabFromNotificationQueue(tab);
     const message: AddChangePasswordQueueMessage = {
-      type: NotificationQueueMessageType.ChangePassword,
+      type: NotificationMessageType.ChangePassword,
       cipherId: cipherId,
       newPassword: newPassword,
       domain: loginDomain,
@@ -433,7 +433,7 @@ export default class NotificationBackground {
   private async pushUnlockVaultToQueue(loginDomain: string, tab: chrome.tabs.Tab) {
     this.removeTabFromNotificationQueue(tab);
     const message: AddUnlockVaultQueueMessage = {
-      type: NotificationQueueMessageType.UnlockVault,
+      type: NotificationMessageType.UnlockVault,
       domain: loginDomain,
       tab: tab,
       expires: new Date(new Date().getTime() + 0.5 * 60000), // 30 seconds
@@ -458,7 +458,7 @@ export default class NotificationBackground {
   ) {
     this.removeTabFromNotificationQueue(tab);
     const message: AddRequestFilelessImportQueueMessage = {
-      type: NotificationQueueMessageType.RequestFilelessImport,
+      type: NotificationMessageType.RequestFilelessImport,
       domain: loginDomain,
       tab,
       expires: new Date(new Date().getTime() + 0.5 * 60000), // 30 seconds
@@ -514,8 +514,8 @@ export default class NotificationBackground {
       const queueMessage = this.notificationQueue[i];
       if (
         queueMessage.tab.id !== tab.id ||
-        (queueMessage.type !== NotificationQueueMessageType.AddLogin &&
-          queueMessage.type !== NotificationQueueMessageType.ChangePassword)
+        (queueMessage.type !== NotificationMessageType.AddLogin &&
+          queueMessage.type !== NotificationMessageType.ChangePassword)
       ) {
         continue;
       }
@@ -527,7 +527,7 @@ export default class NotificationBackground {
 
       this.notificationQueue.splice(i, 1);
 
-      if (queueMessage.type === NotificationQueueMessageType.ChangePassword) {
+      if (queueMessage.type === NotificationMessageType.ChangePassword) {
         const cipherView = await this.getDecryptedCipherById(queueMessage.cipherId);
         await this.updatePassword(cipherView, queueMessage.newPassword, edit, tab);
         return;
@@ -649,7 +649,7 @@ export default class NotificationBackground {
       const queueMessage = this.notificationQueue[i];
       if (
         queueMessage.tab.id !== tab.id ||
-        queueMessage.type !== NotificationQueueMessageType.AddLogin
+        queueMessage.type !== NotificationMessageType.AddLogin
       ) {
         continue;
       }

@@ -2,11 +2,11 @@ import { NeverDomains } from "@bitwarden/common/models/domain/domain-service";
 import { ServerConfig } from "@bitwarden/common/platform/abstractions/config/server-config";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 
-import { NotificationQueueMessageTypes } from "../../enums/notification-queue-message-type.enum";
+import { NotificationMessageTypes } from "../../enums/notification-queue-message-type.enum";
 import AutofillPageDetails from "../../models/autofill-page-details";
 
 interface NotificationQueueMessage {
-  type: NotificationQueueMessageTypes;
+  type: NotificationMessageTypes;
   domain: string;
   tab: chrome.tabs.Tab;
   expires: Date;
@@ -90,8 +90,6 @@ type NotificationBackgroundExtensionMessage = {
   notificationType?: string;
 };
 
-type SaveOrUpdateCipherResult = undefined | { error: string };
-
 type BackgroundMessageParam = { message: NotificationBackgroundExtensionMessage };
 type BackgroundSenderParam = { sender: chrome.runtime.MessageSender };
 type BackgroundOnMessageHandlerParams = BackgroundMessageParam & BackgroundSenderParam;
@@ -129,7 +127,6 @@ export {
   ChangePasswordMessageData,
   UnlockVaultMessageData,
   AddLoginMessageData,
-  SaveOrUpdateCipherResult,
   NotificationBackgroundExtensionMessage,
   NotificationBackgroundExtensionMessageHandlers,
 };
