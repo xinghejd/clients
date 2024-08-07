@@ -452,6 +452,9 @@ export default class MainBackground {
         return new ForegroundMemoryStorageService();
       }
 
+      // For local backed session storage, we expect that the encrypted data on disk will persist longer than the encryption key in memory
+      // and failures to decrypt because of that are completely expected. For this reason, we pass in `false` to the `EncryptServiceImplementation`
+      // so that MAC failures are not logged.
       return new LocalBackedSessionStorageService(
         sessionKey,
         this.storageService,
@@ -849,6 +852,7 @@ export default class MainBackground {
         this.sendService,
         this.sendApiService,
         messageListener,
+        this.stateProvider,
       );
     } else {
       this.syncService = new DefaultSyncService(
@@ -876,6 +880,7 @@ export default class MainBackground {
         this.billingAccountProfileStateService,
         this.tokenService,
         this.authService,
+        this.stateProvider,
       );
 
       this.syncServiceListener = new SyncServiceListener(
@@ -1047,6 +1052,7 @@ export default class MainBackground {
         this.logService,
         this.authService,
         this.biometricStateService,
+        this.accountService,
       );
       this.commandsBackground = new CommandsBackground(
         this,
@@ -1358,7 +1364,6 @@ export default class MainBackground {
     );
 
     await Promise.all([
-      this.syncService.setLastSync(new Date(0), userBeingLoggedOut),
       this.cryptoService.clearKeys(userBeingLoggedOut),
       this.cipherService.clear(userBeingLoggedOut),
       this.folderService.clear(userBeingLoggedOut),

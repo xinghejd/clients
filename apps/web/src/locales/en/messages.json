@@ -4145,8 +4145,9 @@
   "minimumNumberOfWords": {
     "message": "Minimum number of words"
   },
-  "defaultType": {
-    "message": "Default type"
+  "overridePasswordTypePolicy": {
+    "message": "Password Type",
+    "description": "Name of the password generator policy that overrides the user's password/passphrase selection."
   },
   "userPreference": {
     "message": "User preference"
@@ -8793,6 +8794,12 @@
   },
   "purchasedSeatsRemoved": {
     "message": "purchased seats removed"
+  },
+  "fileSends": {
+    "message": "File Sends"
+  },
+  "textSends": {
+    "message": "Text Sends"
   },
   "includesXMembers": {
     "message": "for $COUNT$ member",

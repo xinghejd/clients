@@ -83,7 +83,7 @@ export const ScrollingContent: Story = {
   },
 };
 
-export const TextOverlow: Story = {
+export const TextOverflow: Story = {
   render: (args) => ({
     props: args,
     template: `

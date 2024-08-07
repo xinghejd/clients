@@ -2000,6 +2000,12 @@
   "nativeMessagingWrongUserTitle": {
     "message": "Account missmatch"
   },
+  "nativeMessagingWrongUserKeyDesc": {
+    "message": "Biometric unlock failed. The biometric secret key failed to unlock the vault. Please try to set up biometrics again."
+  },
+  "nativeMessagingWrongUserKeyTitle": {
+    "message": "Biometric key missmatch"
+  },
   "biometricsNotEnabledTitle": {
     "message": "Biometrics not set up"
   },
@@ -4090,6 +4096,12 @@
   },
   "itemLocation": {
     "message": "Item Location"
+  },
+  "fileSends": {
+    "message": "File Sends"
+  },
+  "textSends": {
+    "message": "Text Sends"
   },
   "bitwardenNewLook": {
     "message": "Bitwarden has a new look!"
