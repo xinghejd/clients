@@ -10,6 +10,8 @@ import {
   AutoFillConstants,
   CreditCardAutoFillConstants,
   IdentityAutoFillConstants,
+  SubmitChangePasswordButtonNames,
+  SubmitLoginButtonNames,
 } from "./autofill-constants";
 
 export class InlineMenuFieldQualificationService
@@ -1000,6 +1002,32 @@ export class InlineMenuFieldQualificationService
     }
 
     return false;
+  }
+
+  isElementLoginSubmitButton = (element: HTMLElement): boolean => {
+    const keywordValues = this.getSubmitButtonKeywords(element);
+    return SubmitLoginButtonNames.some((keyword) => keywordValues.indexOf(keyword) > -1);
+  };
+
+  isElementChangePasswordSubmitButton = (element: HTMLElement): boolean => {
+    const keywordValues = this.getSubmitButtonKeywords(element);
+    return SubmitChangePasswordButtonNames.some((keyword) => keywordValues.indexOf(keyword) > -1);
+  };
+
+  private getSubmitButtonKeywords(element: HTMLElement): string {
+    return [
+      element.textContent,
+      element.getAttribute("value"),
+      element.getAttribute("aria-label"),
+      element.getAttribute("aria-labelledby"),
+      element.getAttribute("aria-describedby"),
+      element.getAttribute("title"),
+      element.getAttribute("id"),
+      element.getAttribute("name"),
+      element.getAttribute("class"),
+    ]
+      .join(",")
+      .toLowerCase();
   }
 
   /**

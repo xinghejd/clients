@@ -4,6 +4,7 @@ import AutofillPageDetails from "../models/autofill-page-details";
 import AutofillScript from "../models/autofill-script";
 import { AutofillInlineMenuContentService } from "../overlay/inline-menu/content/autofill-inline-menu-content.service";
 import { AutofillOverlayContentService } from "../services/autofill-overlay-content.service";
+import { DomQueryService } from "../services/dom-query.service";
 import {
   flushPromises,
   mockQuerySelectorAllDefinedCall,
@@ -14,6 +15,7 @@ import { AutofillExtensionMessage } from "./abstractions/autofill-init";
 import AutofillInit from "./autofill-init";
 
 describe("AutofillInit", () => {
+  let domQueryService: DomQueryService;
   let inlineMenuElements: MockProxy<AutofillInlineMenuContentService>;
   let autofillOverlayContentService: MockProxy<AutofillOverlayContentService>;
   let autofillInit: AutofillInit;
@@ -27,9 +29,14 @@ describe("AutofillInit", () => {
         addListener: jest.fn(),
       },
     });
+    domQueryService = mock<DomQueryService>();
     inlineMenuElements = mock<AutofillInlineMenuContentService>();
     autofillOverlayContentService = mock<AutofillOverlayContentService>();
-    autofillInit = new AutofillInit(autofillOverlayContentService, inlineMenuElements);
+    autofillInit = new AutofillInit(
+      domQueryService,
+      autofillOverlayContentService,
+      inlineMenuElements,
+    );
     sendExtensionMessageSpy = jest
       .spyOn(autofillInit as any, "sendExtensionMessage")
       .mockImplementation();

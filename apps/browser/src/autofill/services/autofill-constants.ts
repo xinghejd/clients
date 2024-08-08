@@ -812,7 +812,7 @@ export class IdentityAutoFillConstants {
   };
 }
 
-export const SubmitLoginButtonNames: Set<string> = new Set([
+export const SubmitLoginButtonNames: string[] = [
   "login",
   "log in",
   "log-in",
@@ -823,9 +823,9 @@ export const SubmitLoginButtonNames: Set<string> = new Set([
   "continue",
   "next",
   "go",
-]);
+];
 
-export const SubmitChangePasswordButtonNames: Set<string> = new Set([
+export const SubmitChangePasswordButtonNames: string[] = [
   "change",
   "save",
   "save password",
@@ -835,4 +835,4 @@ export const SubmitChangePasswordButtonNames: Set<string> = new Set([
   "change-password",
   "reset password",
   "reset-password",
-]);
+];

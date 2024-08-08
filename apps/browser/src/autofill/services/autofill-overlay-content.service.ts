@@ -413,12 +413,14 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
       return;
     }
 
-    this.setupSubmitButtonClickEventListeners(formFieldElement);
+    this.findClosestSubmitButton(formFieldElement);
   }
 
   private setupFormSubmissionEventListeners(form: HTMLFormElement) {
     form.addEventListener(EVENTS.SUBMIT, this.handleFormSubmitEvent);
   }
+
+  private findClosestSubmitButton(formFieldElement: ElementWithOpId<FormFieldElement>) {}
 
   private setupSubmitButtonClickEventListeners(
     formFieldElement: ElementWithOpId<FormFieldElement>,

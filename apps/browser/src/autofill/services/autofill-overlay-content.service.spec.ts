@@ -19,11 +19,13 @@ import { ElementWithOpId, FillableFormFieldElement, FormFieldElement } from "../
 
 import { AutoFillConstants } from "./autofill-constants";
 import { AutofillOverlayContentService } from "./autofill-overlay-content.service";
+import { DomQueryService } from "./dom-query.service";
 import { InlineMenuFieldQualificationService } from "./inline-menu-field-qualification.service";
 
 const defaultWindowReadyState = document.readyState;
 const defaultDocumentVisibilityState = document.visibilityState;
 describe("AutofillOverlayContentService", () => {
+  let domQueryService: DomQueryService;
   let autofillInit: AutofillInit;
   let inlineMenuFieldQualificationService: InlineMenuFieldQualificationService;
   let autofillOverlayContentService: AutofillOverlayContentService;
@@ -35,7 +37,8 @@ describe("AutofillOverlayContentService", () => {
     autofillOverlayContentService = new AutofillOverlayContentService(
       inlineMenuFieldQualificationService,
     );
-    autofillInit = new AutofillInit(autofillOverlayContentService);
+    domQueryService = new DomQueryService();
+    autofillInit = new AutofillInit(domQueryService, autofillOverlayContentService);
     autofillInit.init();
     sendExtensionMessageSpy = jest
       .spyOn(autofillOverlayContentService as any, "sendExtensionMessage")
