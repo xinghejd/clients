@@ -52,6 +52,8 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
   private formFieldElements: Map<ElementWithOpId<FormFieldElement>, AutofillField> = new Map();
   private hiddenFormFieldElements: WeakMap<ElementWithOpId<FormFieldElement>, AutofillField> =
     new WeakMap();
+  private formElements: Set<HTMLFormElement> = new Set();
+  private submitElements: Set<HTMLElement> = new Set(); // TODO: Refine this typing to incorporate input or button elements
   private ignoredFieldTypes: Set<string> = new Set(AutoFillConstants.ExcludedInlineMenuTypes);
   private userFilledFields: Record<string, FillableFormFieldElement> = {};
   private authStatus: AuthenticationStatus;
@@ -396,6 +398,36 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
       delete this.eventHandlersMemo[memoIndex];
     }
   }
+
+  private setupFieldSubmittedEventListeners(
+    formFieldElement: ElementWithOpId<FormFieldElement>,
+    autofillFieldData: AutofillField,
+  ) {
+    if (!elementIsFillableFormField(formFieldElement)) {
+      return;
+    }
+
+    if (autofillFieldData.form) {
+      this.formElements.add(formFieldElement.form);
+      this.setupFormSubmissionEventListeners(formFieldElement.form);
+      return;
+    }
+
+    this.setupSubmitButtonClickEventListeners(formFieldElement);
+  }
+
+  private setupFormSubmissionEventListeners(form: HTMLFormElement) {
+    form.addEventListener(EVENTS.SUBMIT, this.handleFormSubmitEvent);
+  }
+
+  private setupSubmitButtonClickEventListeners(
+    formFieldElement: ElementWithOpId<FormFieldElement>,
+  ) {}
+
+  private handleFormSubmitEvent = async () => {
+    // TODO: Determine logic here
+    // console.log("submission", this.userFilledFields);
+  };
 
   /**
    * Helper method that facilitates registration of an event handler to a form field element.
@@ -1001,6 +1033,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     }
 
     this.setupFormFieldElementEventListeners(formFieldElement);
+    this.setupFieldSubmittedEventListeners(formFieldElement, autofillFieldData);
 
     if (
       globalThis.document.hasFocus() &&

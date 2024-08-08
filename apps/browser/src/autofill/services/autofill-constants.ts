@@ -811,3 +811,28 @@ export class IdentityAutoFillConstants {
     saskatchewan: "SK",
   };
 }
+
+export const SubmitLoginButtonNames: Set<string> = new Set([
+  "login",
+  "log in",
+  "log-in",
+  "signin",
+  "sign in",
+  "sign-in",
+  "submit",
+  "continue",
+  "next",
+  "go",
+]);
+
+export const SubmitChangePasswordButtonNames: Set<string> = new Set([
+  "change",
+  "save",
+  "save password",
+  "update password",
+  "update-password",
+  "change password",
+  "change-password",
+  "reset password",
+  "reset-password",
+]);

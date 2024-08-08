@@ -23,6 +23,7 @@ export const EVENTS = {
   VISIBILITYCHANGE: "visibilitychange",
   MOUSEENTER: "mouseenter",
   MOUSELEAVE: "mouseleave",
+  SUBMIT: "submit",
 } as const;
 
 export const ClearClipboardDelay = {
