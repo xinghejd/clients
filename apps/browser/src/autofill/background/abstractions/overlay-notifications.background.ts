@@ -29,7 +29,7 @@ export type ActiveFormSubmissionRequests = Set<chrome.webRequest.ResourceRequest
 
 export type ModifyLoginCipherFormData = Map<
   chrome.tabs.Tab["id"],
-  { uri: string; addCipher: AddLoginCipherData; updateCipher: UpdateLoginCipherData }
+  { uri: string; addLogin: AddLoginCipherData; updateLogin: UpdateLoginCipherData }
 >;
 
 export type OverlayNotificationsExtensionMessage = {

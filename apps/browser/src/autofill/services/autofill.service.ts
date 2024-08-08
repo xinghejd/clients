@@ -177,6 +177,7 @@ export default class AutofillService implements AutofillServiceInterface {
       const inlineMenuPositioningImprovements = await this.configService.getFeatureFlag(
         FeatureFlag.InlineMenuPositioningImprovements,
       );
+      // CG TODO: Need to incorporate logic that allows to selectively inject the overlay notifications and inline menu depending on user settings
       mainAutofillScript = inlineMenuPositioningImprovements
         ? "bootstrap-autofill-overlay.js"
         : "bootstrap-legacy-autofill-overlay.js";

@@ -131,12 +131,12 @@ const plugins = [
     chunks: ["overlay/list"],
   }),
   new HtmlWebpackPlugin({
-    template: "./src/autofill/overlay/notification/pages/bar/notification-bar.html",
+    template: "./src/autofill/overlay/notifications/pages/bar/notification-bar.html",
     filename: "overlay/notification-bar.html",
     chunks: ["overlay/notification-bar"],
   }),
   new HtmlWebpackPlugin({
-    template: "./src/autofill/overlay/notification/pages/container/notification-container.html",
+    template: "./src/autofill/overlay/notifications/pages/container/notification-container.html",
     filename: "overlay/notification-container.html",
     chunks: ["overlay/notification-container"],
   }),
@@ -186,6 +186,10 @@ const mainConfig = {
       "./src/autofill/content/trigger-autofill-script-injection.ts",
     "content/bootstrap-autofill": "./src/autofill/content/bootstrap-autofill.ts",
     "content/bootstrap-autofill-overlay": "./src/autofill/content/bootstrap-autofill-overlay.ts",
+    "content/bootstrap-autofill-overlay-menu":
+      "./src/autofill/content/bootstrap-autofill-overlay-menu.ts",
+    "content/bootstrap-autofill-overlay-notifications":
+      "./src/autofill/content/bootstrap-autofill-overlay-notifications.ts",
     "content/bootstrap-legacy-autofill-overlay":
       "./src/autofill/deprecated/content/bootstrap-legacy-autofill-overlay.ts",
     "content/autofiller": "./src/autofill/content/autofiller.ts",
@@ -206,9 +210,9 @@ const mainConfig = {
     "overlay/list":
       "./src/autofill/deprecated/overlay/pages/list/bootstrap-autofill-overlay-list.deprecated.ts",
     "overlay/notification-bar":
-      "./src/autofill/overlay/notification/pages/bar/bootstrap-overlay-notification-bar.ts",
+      "./src/autofill/overlay/notifications/pages/bar/bootstrap-overlay-notification-bar.ts",
     "overlay/notification-container":
-      "./src/autofill/overlay/notification/pages/container/bootstrap-overlay-notification-container.ts",
+      "./src/autofill/overlay/notifications/pages/container/bootstrap-overlay-notification-container.ts",
     "encrypt-worker": "../../libs/common/src/platform/services/cryptography/encrypt.worker.ts",
     "content/lp-fileless-importer": "./src/tools/content/lp-fileless-importer.ts",
     "content/send-on-installed-message": "./src/vault/content/send-on-installed-message.ts",
