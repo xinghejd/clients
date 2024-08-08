@@ -4,7 +4,7 @@ import { Input, HostBinding, Component } from "@angular/core";
 import { ButtonLikeAbstraction, ButtonType } from "../shared/button-like.abstraction";
 
 const focusRing = [
-  "focus-visible:tw-ring",
+  "focus-visible:tw-ring-2",
   "focus-visible:tw-ring-offset-2",
   "focus-visible:tw-ring-primary-500",
   "focus-visible:tw-z-10",

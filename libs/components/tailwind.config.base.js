@@ -107,6 +107,7 @@ module.exports = {
         700: rgba("--color-primary-700"),
       },
       secondary: {
+        300: rgba("--color-secondary-300"),
         700: rgba("--color-secondary-700"),
       },
     },

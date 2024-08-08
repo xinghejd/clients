@@ -1,7 +1,7 @@
 @import "./reset.css";
 
 :root {
-  --color-transparent-hover: rgb(0 0 0 / 0.03);
+  --color-transparent-hover: rgb(0 0 0 / 0.02);
 
   --color-background: 255 255 255;
   --color-background-alt: 246 247 249;
@@ -52,7 +52,7 @@
 }
 
 .theme_dark {
-  --color-transparent-hover: rgb(255 255 255 / 0.12);
+  --color-transparent-hover: rgb(255 255 255 / 0.02);
 
   --color-background: 32 39 51;
   --color-background-alt: 18 26 39;
