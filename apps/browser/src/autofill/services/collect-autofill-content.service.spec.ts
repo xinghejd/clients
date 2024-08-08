@@ -254,7 +254,7 @@ describe("CollectAutofillContentService", () => {
         .mockResolvedValue(true);
       const setupAutofillOverlayListenerOnFieldSpy = jest.spyOn(
         collectAutofillContentService["autofillOverlayContentService"],
-        "setupInlineMenu",
+        "setupOverlayListeners",
       );
 
       await collectAutofillContentService.getPageDetails();
@@ -2568,7 +2568,7 @@ describe("CollectAutofillContentService", () => {
       );
       setupAutofillOverlayListenerOnFieldSpy = jest.spyOn(
         collectAutofillContentService["autofillOverlayContentService"],
-        "setupInlineMenu",
+        "setupOverlayListeners",
       );
     });
 

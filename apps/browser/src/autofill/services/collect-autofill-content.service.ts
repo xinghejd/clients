@@ -122,7 +122,7 @@ class CollectAutofillContentService implements CollectAutofillContentServiceInte
 
     this.domRecentlyMutated = false;
     const pageDetails = this.getFormattedPageDetails(autofillFormsData, autofillFieldsData);
-    this.setupInlineMenuListeners(pageDetails);
+    this.setupOverlayListeners(pageDetails);
 
     return pageDetails;
   }
@@ -286,7 +286,7 @@ class CollectAutofillContentService implements CollectAutofillContentServiceInte
       autofillField.viewable = await this.domElementVisibilityService.isFormFieldViewable(element);
 
       if (!previouslyViewable && autofillField.viewable) {
-        this.setupInlineMenu(element, autofillField);
+        this.setupOverlayOnField(element, autofillField);
       }
     });
   }
@@ -1390,7 +1390,7 @@ class CollectAutofillContentService implements CollectAutofillContentServiceInte
       }
 
       cachedAutofillFieldElement.viewable = true;
-      this.setupInlineMenu(formFieldElement, cachedAutofillFieldElement);
+      this.setupOverlayOnField(formFieldElement, cachedAutofillFieldElement);
 
       this.intersectionObserver?.unobserve(entry.target);
     }
@@ -1401,13 +1401,13 @@ class CollectAutofillContentService implements CollectAutofillContentServiceInte
    *
    * @param pageDetails - The page details to use for the inline menu listeners
    */
-  private setupInlineMenuListeners(pageDetails: AutofillPageDetails) {
+  private setupOverlayListeners(pageDetails: AutofillPageDetails) {
     if (!this.autofillOverlayContentService) {
       return;
     }
 
     this.autofillFieldElements.forEach((autofillField, formFieldElement) => {
-      this.setupInlineMenu(formFieldElement, autofillField, pageDetails);
+      this.setupOverlayOnField(formFieldElement, autofillField, pageDetails);
     });
   }
 
@@ -1418,7 +1418,7 @@ class CollectAutofillContentService implements CollectAutofillContentServiceInte
    * @param autofillField - The metadata for the form field
    * @param pageDetails - The page details to use for the inline menu listeners
    */
-  private setupInlineMenu(
+  private setupOverlayOnField(
     formFieldElement: ElementWithOpId<FormFieldElement>,
     autofillField: AutofillField,
     pageDetails?: AutofillPageDetails,
@@ -1434,7 +1434,7 @@ class CollectAutofillContentService implements CollectAutofillContentServiceInte
         this.getFormattedAutofillFieldsData(),
       );
 
-    void this.autofillOverlayContentService.setupInlineMenu(
+    void this.autofillOverlayContentService.setupOverlayListeners(
       formFieldElement,
       autofillField,
       autofillPageDetails,

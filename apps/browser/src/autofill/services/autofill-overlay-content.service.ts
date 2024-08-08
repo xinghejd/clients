@@ -26,6 +26,7 @@ import {
 } from "../enums/autofill-overlay.enum";
 import AutofillField from "../models/autofill-field";
 import AutofillPageDetails from "../models/autofill-page-details";
+import { OverlayNotificationsContentService } from "../overlay/notifications/abstractions/overlay-notifications-content.service";
 import { ElementWithOpId, FillableFormFieldElement, FormFieldElement } from "../types";
 import {
   elementIsFillableFormField,
@@ -126,10 +127,14 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
       this.inlineMenuFieldQualificationService.isFieldForIdentityEmail,
     [AutofillFieldQualifier.identityUsername]:
       this.inlineMenuFieldQualificationService.isFieldForIdentityUsername,
-    [AutofillFieldQualifier.password]: this.inlineMenuFieldQualificationService.isNewPasswordField,
+    [AutofillFieldQualifier.newPassword]:
+      this.inlineMenuFieldQualificationService.isNewPasswordField,
   };
 
-  constructor(private inlineMenuFieldQualificationService: InlineMenuFieldQualificationService) {}
+  constructor(
+    private inlineMenuFieldQualificationService: InlineMenuFieldQualificationService,
+    private overlayNotificationsContentService?: OverlayNotificationsContentService,
+  ) {}
 
   /**
    * Initializes the autofill overlay content service by setting up the mutation observers.
@@ -160,7 +165,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
    * @param autofillFieldData - Autofill field data captured from the form field element.
    * @param pageDetails - The collected page details from the tab.
    */
-  async setupInlineMenu(
+  async setupOverlayListeners(
     formFieldElement: ElementWithOpId<FormFieldElement>,
     autofillFieldData: AutofillField,
     pageDetails: AutofillPageDetails,
@@ -176,7 +181,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
       return;
     }
 
-    await this.setupInlineMenuOnQualifiedField(formFieldElement, autofillFieldData);
+    await this.setupOverlayListenersOnQualifiedField(formFieldElement, autofillFieldData);
   }
 
   /**
@@ -250,11 +255,13 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
    */
   async addNewVaultItem({ addNewCipherType }: AutofillExtensionMessage) {
     const command = "autofillOverlayAddNewVaultItem";
+    const password =
+      this.userFilledFields["newPassword"]?.value || this.userFilledFields["password"]?.value;
 
     if (addNewCipherType === CipherType.Login) {
       const login: NewLoginCipherData = {
         username: this.userFilledFields["username"]?.value || "",
-        password: this.userFilledFields["password"]?.value || "",
+        password: password || "",
         uri: globalThis.document.URL,
         hostname: globalThis.document.location.hostname,
       };
@@ -971,7 +978,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
       autofillFieldData.readonly = getAttributeBoolean(formFieldElement, "disabled");
       autofillFieldData.disabled = getAttributeBoolean(formFieldElement, "disabled");
       autofillFieldData.viewable = true;
-      void this.setupInlineMenuOnQualifiedField(formFieldElement, autofillFieldData);
+      void this.setupOverlayListenersOnQualifiedField(formFieldElement, autofillFieldData);
     }
 
     this.removeHiddenFieldFallbackListener(formFieldElement);
@@ -983,7 +990,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
    * @param formFieldElement - The form field element to set up the inline menu on.
    * @param autofillFieldData - Autofill field data captured from the form field element.
    */
-  private async setupInlineMenuOnQualifiedField(
+  private async setupOverlayListenersOnQualifiedField(
     formFieldElement: ElementWithOpId<FormFieldElement>,
     autofillFieldData: AutofillField,
   ) {
