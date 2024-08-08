@@ -528,6 +528,9 @@
   "yourAccountIsLocked": {
     "message": "Your account is locked"
   },
+  "or": {
+    "message": "or"
+  },
   "unlock": {
     "message": "Unlock"
   },
