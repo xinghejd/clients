@@ -33,6 +33,7 @@ export class InlineMenuFieldQualificationService
   private currentPasswordAutocompleteValue = "current-password";
   private newPasswordAutoCompleteValue = "new-password";
   private autofillFieldKeywordsMap: AutofillKeywordsMap = new WeakMap();
+  private submitButtonFieldKeywordsMap: WeakMap<HTMLElement, string> = new WeakMap();
   private autocompleteDisabledValues = new Set(["off", "false"]);
   private newFieldKeywords = new Set(["new", "change", "neue", "ändern"]);
   private accountCreationFieldKeywords = [
@@ -1015,19 +1016,24 @@ export class InlineMenuFieldQualificationService
   };
 
   private getSubmitButtonKeywords(element: HTMLElement): string {
-    return [
-      element.textContent,
-      element.getAttribute("value"),
-      element.getAttribute("aria-label"),
-      element.getAttribute("aria-labelledby"),
-      element.getAttribute("aria-describedby"),
-      element.getAttribute("title"),
-      element.getAttribute("id"),
-      element.getAttribute("name"),
-      element.getAttribute("class"),
-    ]
-      .join(",")
-      .toLowerCase();
+    if (!this.submitButtonFieldKeywordsMap.has(element)) {
+      const keywords = [
+        element.textContent,
+        element.getAttribute("value"),
+        element.getAttribute("aria-label"),
+        element.getAttribute("aria-labelledby"),
+        element.getAttribute("aria-describedby"),
+        element.getAttribute("title"),
+        element.getAttribute("id"),
+        element.getAttribute("name"),
+        element.getAttribute("class"),
+      ]
+        .join(",")
+        .toLowerCase();
+      this.submitButtonFieldKeywordsMap.set(element, keywords);
+    }
+
+    return this.submitButtonFieldKeywordsMap.get(element);
   }
 
   /**
