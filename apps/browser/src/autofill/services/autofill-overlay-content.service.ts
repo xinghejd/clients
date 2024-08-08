@@ -407,30 +407,72 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     formFieldElement: ElementWithOpId<FormFieldElement>,
     autofillFieldData: AutofillField,
   ) {
-    if (!elementIsFillableFormField(formFieldElement)) {
+    if (
+      !elementIsFillableFormField(formFieldElement) ||
+      autofillFieldData.filledByCipherType === CipherType.Card
+    ) {
       return;
     }
 
-    if (autofillFieldData.form) {
+    if (autofillFieldData.form && !this.formElements.has(formFieldElement.form)) {
       this.formElements.add(formFieldElement.form);
-      this.setupFormSubmissionEventListeners(formFieldElement.form);
+      this.setupFormSubmissionEventListeners(formFieldElement);
+    }
+
+    this.setupSubmitButtonClickEventListeners(formFieldElement);
+  }
+
+  private setupFormSubmissionEventListeners(formFieldElement: FillableFormFieldElement) {
+    formFieldElement.form.addEventListener(EVENTS.SUBMIT, this.handleFormFieldSubmitEvent);
+  }
+
+  private setupSubmitButtonClickEventListeners(formFieldElement: FillableFormFieldElement) {
+    const closesSubmitButton = this.findClosestSubmitButton(formFieldElement);
+    if (!closesSubmitButton || this.submitElements.has(closesSubmitButton)) {
       return;
     }
 
-    this.findClosestSubmitButton(formFieldElement);
+    this.submitElements.add(closesSubmitButton);
+    closesSubmitButton.addEventListener(EVENTS.CLICK, this.handleFormFieldSubmitEvent);
   }
 
-  private setupFormSubmissionEventListeners(form: HTMLFormElement) {
-    form.addEventListener(EVENTS.SUBMIT, this.handleFormSubmitEvent);
+  private findClosestSubmitButton(formFieldElement: FillableFormFieldElement): HTMLElement | null {
+    let currentElement: HTMLElement = formFieldElement;
+
+    while (currentElement && currentElement.tagName !== "HTML") {
+      const genericSubmitElement = this.domQueryService.deepQueryElements<HTMLButtonElement>(
+        currentElement,
+        "[type='submit']",
+      );
+      if (genericSubmitElement[0]) {
+        return genericSubmitElement[0];
+      }
+
+      const buttons = this.domQueryService.deepQueryElements<HTMLButtonElement>(
+        currentElement,
+        "button",
+      );
+      for (let i = 0; i < buttons.length; i++) {
+        if (
+          this.inlineMenuFieldQualificationService.isElementLoginSubmitButton(buttons[i]) ||
+          this.inlineMenuFieldQualificationService.isElementLoginSubmitButton(buttons[i])
+        ) {
+          return buttons[i];
+        }
+      }
+
+      if (!currentElement.parentElement && currentElement.getRootNode() instanceof ShadowRoot) {
+        currentElement = (currentElement.getRootNode() as ShadowRoot).host as any;
+        continue;
+      }
+
+      currentElement = currentElement.parentElement;
+    }
+
+    return null;
   }
 
-  private findClosestSubmitButton(formFieldElement: ElementWithOpId<FormFieldElement>) {}
-
-  private setupSubmitButtonClickEventListeners(
-    formFieldElement: ElementWithOpId<FormFieldElement>,
-  ) {}
-
-  private handleFormSubmitEvent = async () => {
+  private handleFormFieldSubmitEvent = async () => {
     // TODO: Determine logic here
     // console.log("submission", this.userFilledFields);
   };
