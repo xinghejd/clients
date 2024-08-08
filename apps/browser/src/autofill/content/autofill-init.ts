@@ -2,6 +2,7 @@ import { EVENTS } from "@bitwarden/common/autofill/constants";
 
 import AutofillPageDetails from "../models/autofill-page-details";
 import { AutofillInlineMenuContentService } from "../overlay/inline-menu/abstractions/autofill-inline-menu-content.service";
+import { OverlayNotificationsContentService } from "../overlay/notifications/abstractions/overlay-notifications-content.service";
 import { AutofillOverlayContentService } from "../services/abstractions/autofill-overlay-content.service";
 import CollectAutofillContentService from "../services/collect-autofill-content.service";
 import DomElementVisibilityService from "../services/dom-element-visibility.service";
@@ -18,6 +19,9 @@ class AutofillInit implements AutofillInitInterface {
   private readonly sendExtensionMessage = sendExtensionMessage;
   private readonly autofillOverlayContentService: AutofillOverlayContentService | undefined;
   private readonly autofillInlineMenuContentService: AutofillInlineMenuContentService | undefined;
+  private readonly overlayNotificationsContentService:
+    | OverlayNotificationsContentService
+    | undefined;
   private readonly domElementVisibilityService: DomElementVisibilityService;
   private readonly collectAutofillContentService: CollectAutofillContentService;
   private readonly insertAutofillContentService: InsertAutofillContentService;
@@ -38,9 +42,11 @@ class AutofillInit implements AutofillInitInterface {
   constructor(
     autofillOverlayContentService?: AutofillOverlayContentService,
     inlineMenuContentService?: AutofillInlineMenuContentService,
+    overlayNotificationsContentService?: OverlayNotificationsContentService,
   ) {
     this.autofillOverlayContentService = autofillOverlayContentService;
     this.autofillInlineMenuContentService = inlineMenuContentService;
+    this.overlayNotificationsContentService = overlayNotificationsContentService;
     this.domElementVisibilityService = new DomElementVisibilityService(
       this.autofillInlineMenuContentService,
     );

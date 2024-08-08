@@ -26,7 +26,6 @@ import {
 } from "../enums/autofill-overlay.enum";
 import AutofillField from "../models/autofill-field";
 import AutofillPageDetails from "../models/autofill-page-details";
-import { OverlayNotificationsContentService } from "../overlay/notifications/abstractions/overlay-notifications-content.service";
 import { ElementWithOpId, FillableFormFieldElement, FormFieldElement } from "../types";
 import {
   elementIsFillableFormField,
@@ -131,10 +130,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
       this.inlineMenuFieldQualificationService.isNewPasswordField,
   };
 
-  constructor(
-    private inlineMenuFieldQualificationService: InlineMenuFieldQualificationService,
-    private overlayNotificationsContentService?: OverlayNotificationsContentService,
-  ) {}
+  constructor(private inlineMenuFieldQualificationService: InlineMenuFieldQualificationService) {}
 
   /**
    * Initializes the autofill overlay content service by setting up the mutation observers.

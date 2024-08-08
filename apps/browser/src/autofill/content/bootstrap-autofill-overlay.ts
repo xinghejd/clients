@@ -9,19 +9,21 @@ import AutofillInit from "./autofill-init";
 (function (windowContext) {
   if (!windowContext.bitwardenAutofillInit) {
     const inlineMenuFieldQualificationService = new InlineMenuFieldQualificationService();
-    const overlayNotificationsContentService = new OverlayNotificationsContentService();
     const autofillOverlayContentService = new AutofillOverlayContentService(
       inlineMenuFieldQualificationService,
-      overlayNotificationsContentService,
     );
+
     let inlineMenuElements: AutofillInlineMenuContentService;
+    let overlayNotificationsContentService: OverlayNotificationsContentService;
     if (globalThis.self === globalThis.top) {
       inlineMenuElements = new AutofillInlineMenuContentService();
+      overlayNotificationsContentService = new OverlayNotificationsContentService();
     }
 
     windowContext.bitwardenAutofillInit = new AutofillInit(
       autofillOverlayContentService,
       inlineMenuElements,
+      overlayNotificationsContentService,
     );
     setupAutofillInitDisconnectAction(windowContext);
 
