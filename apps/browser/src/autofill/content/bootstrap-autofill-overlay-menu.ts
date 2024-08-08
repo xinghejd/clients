@@ -11,6 +11,7 @@ import AutofillInit from "./autofill-init";
     const domQueryService = new DomQueryService();
     const inlineMenuFieldQualificationService = new InlineMenuFieldQualificationService();
     const autofillOverlayContentService = new AutofillOverlayContentService(
+      domQueryService,
       inlineMenuFieldQualificationService,
     );
     let inlineMenuElements: AutofillInlineMenuContentService;

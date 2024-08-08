@@ -41,6 +41,7 @@ import {
   OpenAutofillInlineMenuOptions,
   SubFrameDataFromWindowMessage,
 } from "./abstractions/autofill-overlay-content.service";
+import { DomQueryService } from "./abstractions/dom-query.service";
 import { InlineMenuFieldQualificationService } from "./abstractions/inline-menu-field-qualifications.service";
 import { AutoFillConstants } from "./autofill-constants";
 
@@ -132,7 +133,10 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
       this.inlineMenuFieldQualificationService.isNewPasswordField,
   };
 
-  constructor(private inlineMenuFieldQualificationService: InlineMenuFieldQualificationService) {}
+  constructor(
+    private domQueryService: DomQueryService,
+    private inlineMenuFieldQualificationService: InlineMenuFieldQualificationService,
+  ) {}
 
   /**
    * Initializes the autofill overlay content service by setting up the mutation observers.

@@ -34,10 +34,11 @@ describe("AutofillOverlayContentService", () => {
 
   beforeEach(() => {
     inlineMenuFieldQualificationService = new InlineMenuFieldQualificationService();
+    domQueryService = new DomQueryService();
     autofillOverlayContentService = new AutofillOverlayContentService(
+      domQueryService,
       inlineMenuFieldQualificationService,
     );
-    domQueryService = new DomQueryService();
     autofillInit = new AutofillInit(domQueryService, autofillOverlayContentService);
     autofillInit.init();
     sendExtensionMessageSpy = jest

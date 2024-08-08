@@ -33,8 +33,6 @@ import { DomElementVisibilityService } from "./abstractions/dom-element-visibili
 
 class CollectAutofillContentService implements CollectAutofillContentServiceInterface {
   private readonly sendExtensionMessage = sendExtensionMessage;
-  private readonly domElementVisibilityService: DomElementVisibilityService;
-  private readonly autofillOverlayContentService: AutofillOverlayContentService;
   private readonly getAttributeBoolean = getAttributeBoolean;
   private readonly getPropertyOrAttribute = getPropertyOrAttribute;
   private noFieldsFound = false;
@@ -61,12 +59,9 @@ class CollectAutofillContentService implements CollectAutofillContentServiceInte
   private useTreeWalkerStrategyFlagSet = true;
 
   constructor(
-    domElementVisibilityService: DomElementVisibilityService,
-    autofillOverlayContentService?: AutofillOverlayContentService,
+    private domElementVisibilityService: DomElementVisibilityService,
+    private autofillOverlayContentService?: AutofillOverlayContentService,
   ) {
-    this.domElementVisibilityService = domElementVisibilityService;
-    this.autofillOverlayContentService = autofillOverlayContentService;
-
     let inputQuery = "input:not([data-bwignore])";
     for (const type of this.ignoredInputTypes) {
       inputQuery += `:not([type="${type}"])`;

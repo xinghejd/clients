@@ -15,6 +15,7 @@ import { InlineMenuFieldQualificationService } from "./abstractions/inline-menu-
 import { AutofillOverlayContentService } from "./autofill-overlay-content.service";
 import CollectAutofillContentService from "./collect-autofill-content.service";
 import DomElementVisibilityService from "./dom-element-visibility.service";
+import { DomQueryService } from "./dom-query.service";
 
 const mockLoginForm = `
   <div id="root">
@@ -30,7 +31,9 @@ const waitForIdleCallback = () => new Promise((resolve) => globalThis.requestIdl
 describe("CollectAutofillContentService", () => {
   const domElementVisibilityService = new DomElementVisibilityService();
   const inlineMenuFieldQualificationService = mock<InlineMenuFieldQualificationService>();
+  const domQueryService = new DomQueryService();
   const autofillOverlayContentService = new AutofillOverlayContentService(
+    domQueryService,
     inlineMenuFieldQualificationService,
   );
   let collectAutofillContentService: CollectAutofillContentService;
