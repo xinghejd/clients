@@ -62,13 +62,15 @@ export class IndividualVaultExportService
     const dataJson = await this.getDecryptedExport("json");
     zip.file("data.json", dataJson);
 
+    const attachmentsFolder = zip.folder("attachments");
+
     // attachments
     for (const cipher of await this.cipherService.getAllDecrypted()) {
       if (!cipher.attachments || cipher.attachments.length === 0 || cipher.deletedDate != null) {
         continue;
       }
 
-      const cipherFolder = zip.folder(cipher.id);
+      const cipherFolder = attachmentsFolder.folder(cipher.id);
       for (const attachment of cipher.attachments) {
         const response = await fetch(new Request(attachment.url, { cache: "no-store" }));
         const encBuf = await EncArrayBuffer.fromResponse(response);
