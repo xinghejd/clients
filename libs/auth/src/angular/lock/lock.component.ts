@@ -20,7 +20,7 @@ import {
   MasterPasswordVerification,
   MasterPasswordVerificationResponse,
 } from "@bitwarden/common/auth/types/verification";
-import { DeviceType } from "@bitwarden/common/enums";
+import { ClientType, DeviceType } from "@bitwarden/common/enums";
 import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
 import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
@@ -76,6 +76,8 @@ export class LockV2Component implements OnInit, OnDestroy {
 
   activeAccount: { id: UserId | undefined } & AccountInfo;
 
+  clientType: ClientType;
+
   // TODO: is there a better way to do this?
   // unlockOpts: UnlockOptions = {
   //   masterPassword: false,
@@ -88,9 +90,7 @@ export class LockV2Component implements OnInit, OnDestroy {
   private invalidPinAttempts = 0;
 
   supportsBiometric: boolean;
-  biometricLock: boolean;
-
-  // email: string;
+  biometricLockSet: boolean;
 
   masterPasswordEnabled = false;
   masterPassword = "";
@@ -167,13 +167,13 @@ export class LockV2Component implements OnInit, OnDestroy {
       .subscribe();
 
     // Identify client
-    const clientType = this.platformUtilsService.getClientType();
+    this.clientType = this.platformUtilsService.getClientType();
 
-    if (clientType === "desktop") {
+    if (this.clientType === "desktop") {
       await this.desktopOnInit();
     }
 
-    if (clientType === "browser") {
+    if (this.clientType === "browser") {
       await this.extensionOnInit();
     }
   }
@@ -187,16 +187,14 @@ export class LockV2Component implements OnInit, OnDestroy {
     this.masterPasswordEnabled = await this.userVerificationService.hasMasterPassword();
 
     // TODO: do we even need this?
+    // Only desktop uses this
     this.supportsBiometric = await this.platformUtilsService.supportsBiometric();
 
-    // TODO: This really should be biometricsLockSet, or biometricsUnlockEnabled or something.
-    this.biometricLock =
+    // TODO: This really should be biometricsLockSet, or biometricUnlockAvailable or something.
+    this.biometricLockSet =
       (await this.vaultTimeoutSettingsService.isBiometricLockSet()) &&
       ((await this.cryptoService.hasUserKeyStored(KeySuffixOptions.Biometric)) ||
         !this.platformUtilsService.supportsSecureStorage());
-
-    // This is redundant.
-    // this.email = activeAccount.email;
 
     this.webVaultHostname = (await this.environmentService.getEnvironment()).getHostname();
   }
@@ -232,7 +230,7 @@ export class LockV2Component implements OnInit, OnDestroy {
   }
 
   async unlockBiometric(): Promise<boolean> {
-    if (!this.biometricLock) {
+    if (!this.biometricLockSet) {
       return;
     }
 
@@ -564,7 +562,7 @@ export class LockV2Component implements OnInit, OnDestroy {
     window.setTimeout(async () => {
       this.focusInput();
       if (
-        this.biometricLock &&
+        this.biometricLockSet &&
         autoBiometricsPrompt &&
         this.isInitialLockScreen &&
         (await this.authService.getAuthStatus()) === AuthenticationStatus.Locked
@@ -575,7 +573,7 @@ export class LockV2Component implements OnInit, OnDestroy {
   }
 
   private async extensionUnlockBiometric(): Promise<boolean> {
-    if (!this.biometricLock) {
+    if (!this.biometricLockSet) {
       return;
     }
 
