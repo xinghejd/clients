@@ -6,7 +6,6 @@ import { firstValueFrom, Subject, switchMap, take, takeUntil } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { VaultTimeoutSettingsService } from "@bitwarden/common/abstractions/vault-timeout/vault-timeout-settings.service";
-import { VaultTimeoutService } from "@bitwarden/common/abstractions/vault-timeout/vault-timeout.service";
 import { InternalPolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/models/domain/master-password-policy-options";
 import { AccountInfo, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -128,7 +127,6 @@ export class LockV2Component implements OnInit, OnDestroy {
   constructor(
     private accountService: AccountService,
     private authService: AuthService,
-    private vaultTimeoutService: VaultTimeoutService,
     private vaultTimeoutSettingsService: VaultTimeoutSettingsService,
     private pinService: PinServiceAbstraction,
     private userVerificationService: UserVerificationService,
@@ -204,9 +202,11 @@ export class LockV2Component implements OnInit, OnDestroy {
   }
 
   private setEmailAsPageSubtitle(email: string) {
-    // This doesn't work until we can pass whether we want the value translated or not.
     this.anonLayoutWrapperDataService.setAnonLayoutWrapperData({
-      pageSubtitle: email,
+      pageSubtitle: {
+        subtitle: email,
+        translate: false,
+      },
     });
   }
 
