@@ -147,6 +147,7 @@ export class ExportComponent implements OnInit, OnDestroy, AfterViewInit {
     { name: ".json", value: "json" },
     { name: ".csv", value: "csv" },
     { name: ".json (Encrypted)", value: "encrypted_json" },
+    { name: ".zip (With Attachments)", value: "zip" },
   ];
 
   private destroy$ = new Subject<void>();
@@ -257,7 +258,12 @@ export class ExportComponent implements OnInit, OnDestroy, AfterViewInit {
   protected async doExport() {
     try {
       const data = await this.getExportData();
-      this.downloadFile(data);
+      if (typeof data === "string") {
+        this.downloadTextFile(data);
+      } else {
+        this.downloadZipFile(data);
+      }
+
       this.toastService.showToast({
         variant: "success",
         title: null,
@@ -338,7 +344,7 @@ export class ExportComponent implements OnInit, OnDestroy, AfterViewInit {
     return true;
   }
 
-  protected async getExportData(): Promise<string> {
+  protected async getExportData(): Promise<string | Blob> {
     return Utils.isNullOrWhitespace(this.organizationId)
       ? this.exportService.getExport(this.format, this.filePassword)
       : this.exportService.getOrganizationExport(
@@ -407,12 +413,21 @@ export class ExportComponent implements OnInit, OnDestroy, AfterViewInit {
     }
   }
 
-  private downloadFile(csv: string): void {
+  private downloadTextFile(csv: string): void {
     const fileName = this.getFileName();
     this.fileDownloadService.download({
       fileName: fileName,
       blobData: csv,
       blobOptions: { type: "text/plain" },
+    });
+  }
+
+  private downloadZipFile(blob: Blob): void {
+    const fileName = this.getFileName();
+    this.fileDownloadService.download({
+      fileName: fileName,
+      blobData: blob,
+      blobOptions: { type: "application/zip" },
     });
   }
 }
