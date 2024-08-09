@@ -147,7 +147,6 @@ export class ExportComponent implements OnInit, OnDestroy, AfterViewInit {
     { name: ".json", value: "json" },
     { name: ".csv", value: "csv" },
     { name: ".json (Encrypted)", value: "encrypted_json" },
-    { name: ".zip (With Attachments)", value: "zip" },
   ];
 
   private destroy$ = new Subject<void>();
@@ -199,6 +198,8 @@ export class ExportComponent implements OnInit, OnDestroy, AfterViewInit {
 
       this.onlyManagedCollections = false;
       return;
+    } else {
+      this.formatOptions.push({ name: ".zip (With Attachments)", value: "zip" });
     }
 
     this.organizations$ = combineLatest({
