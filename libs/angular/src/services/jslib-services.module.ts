@@ -297,7 +297,6 @@ import {
   REFRESH_ACCESS_TOKEN_ERROR_CALLBACK,
 } from "./injection-tokens";
 import { ModalService } from "./modal.service";
-import { FileDownloadService } from "@bitwarden/common/platform/abstractions/file-download/file-download.service";
 
 /**
  * Provider definitions used in the ngModule.
