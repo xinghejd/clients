@@ -586,14 +586,14 @@ export class LockV2Component implements OnInit, OnDestroy {
     try {
       success = await this.unlockBiometric();
     } catch (e) {
-      // TODO: these errors are only used in the extension
-      // Must move logic into services.
-      // const error = BiometricErrors[e?.message as BiometricErrorTypes];
-      // if (error == null) {
-      //   this.logService.error("Unknown error: " + e);
-      //   return false;
-      // }
-      // this.biometricError = this.i18nService.t(error.description);
+      const biometricError = this.lockComponentService.getBiometricsError(e);
+
+      if (biometricError) {
+        this.biometricError = this.i18nService.t(biometricError);
+      }
+
+      this.logService.error("Unknown error: " + e);
+      return false;
     } finally {
       this.pendingBiometric = false;
     }

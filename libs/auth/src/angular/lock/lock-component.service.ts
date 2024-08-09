@@ -7,6 +7,7 @@ import { UserId } from "@bitwarden/common/types/guid";
 export abstract class LockComponentService {
   // Extension
   abstract isFido2Session(): Promise<boolean>;
+  abstract getBiometricsError(error: any): string | null;
 
   // Desktop only
   abstract isWindowVisible(): Promise<boolean>;

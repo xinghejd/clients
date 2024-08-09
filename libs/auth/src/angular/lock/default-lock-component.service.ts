@@ -5,6 +5,10 @@ import { LockComponentService } from "./lock-component.service";
 export class DefaultLockComponentService implements LockComponentService {
   constructor() {}
 
+  getBiometricsError(error: any): string | null {
+    return null;
+  }
+
   async isFido2Session(): Promise<boolean> {
     return false;
   }
