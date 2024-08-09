@@ -79,8 +79,10 @@ import { AddEditV2Component } from "../vault/popup/components/vault-v2/add-edit/
 import { AssignCollections } from "../vault/popup/components/vault-v2/assign-collections/assign-collections.component";
 import { AttachmentsV2Component } from "../vault/popup/components/vault-v2/attachments/attachments-v2.component";
 import { ViewV2Component } from "../vault/popup/components/vault-v2/view-v2/view-v2.component";
+import { AppearanceV2Component } from "../vault/popup/settings/appearance-v2.component";
 import { AppearanceComponent } from "../vault/popup/settings/appearance.component";
 import { FolderAddEditComponent } from "../vault/popup/settings/folder-add-edit.component";
+import { FoldersV2Component } from "../vault/popup/settings/folders-v2.component";
 import { FoldersComponent } from "../vault/popup/settings/folders.component";
 import { SyncComponent } from "../vault/popup/settings/sync.component";
 import { VaultSettingsV2Component } from "../vault/popup/settings/vault-settings-v2.component";
@@ -303,12 +305,11 @@ const routes: Routes = [
     canActivate: [authGuard],
     data: { state: "vault-settings" },
   }),
-  {
+  ...extensionRefreshSwap(FoldersComponent, FoldersV2Component, {
     path: "folders",
-    component: FoldersComponent,
     canActivate: [authGuard],
     data: { state: "folders" },
-  },
+  }),
   {
     path: "add-folder",
     component: FolderAddEditComponent,
@@ -339,12 +340,11 @@ const routes: Routes = [
     canActivate: [authGuard],
     data: { state: "premium" },
   },
-  {
+  ...extensionRefreshSwap(AppearanceComponent, AppearanceV2Component, {
     path: "appearance",
-    component: AppearanceComponent,
     canActivate: [authGuard],
     data: { state: "appearance" },
-  },
+  }),
   ...extensionRefreshSwap(AddEditComponent, AddEditV2Component, {
     path: "clone-cipher",
     canActivate: [authGuard],
