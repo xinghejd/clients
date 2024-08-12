@@ -1,6 +1,8 @@
+import { Observable, of } from "rxjs";
+
 import { UserId } from "@bitwarden/common/types/guid";
 
-import { LockComponentService } from "./lock-component.service";
+import { LockComponentService, UnlockOptions } from "./lock-component.service";
 
 export class DefaultLockComponentService implements LockComponentService {
   constructor() {}
@@ -19,5 +21,18 @@ export class DefaultLockComponentService implements LockComponentService {
 
   async biometricsEnabled(userId: UserId): Promise<boolean> {
     return false;
+  }
+
+  getAvailableUnlockOptions$(userId: UserId): Observable<UnlockOptions> {
+    const unlockOpts: UnlockOptions = {
+      masterPasswordEnabled: false,
+      pinEnabled: false,
+      biometrics: {
+        enabled: false,
+        disableReason: null,
+      },
+    };
+
+    return of(unlockOpts);
   }
 }

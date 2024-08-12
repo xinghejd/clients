@@ -1285,7 +1285,7 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: LockComponentService,
     useClass: DefaultLockComponentService,
-    deps: [],
+    deps: [UserDecryptionOptionsServiceAbstraction],
   }),
   safeProvider({
     provide: RegisterRouteService,
