@@ -5,9 +5,10 @@ import CopyWebpackPlugin from "copy-webpack-plugin";
 import nodeExternals from "webpack-node-externals";
 import TsconfigPathsPlugin from "tsconfig-paths-webpack-plugin";
 import * as config from "./config/config.js";
+import { fileURLToPath } from "url";
 
-import * as url from "url";
-const __dirname = url.fileURLToPath(new URL(".", import.meta.url));
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 if (process.env.NODE_ENV == null) {
   process.env.NODE_ENV = "development";
@@ -51,7 +52,8 @@ const plugins = [
   }),
 ];
 
-const webpackConfig = {
+/** @type {webpack.Configuration} */
+export default {
   mode: ENV,
   target: "node",
   devtool: ENV === "development" ? "eval-source-map" : "source-map",
@@ -74,15 +76,25 @@ const webpackConfig = {
   output: {
     filename: "[name].js",
     path: path.resolve(__dirname, "build"),
+    chunkFormat: "module",
   },
-  module: { rules: moduleRules },
+  experiments: {
+    outputModule: true,
+  },
+  module: {
+    rules: moduleRules,
+    parser: {
+      javascript: {
+        importMeta: false,
+      },
+    },
+  },
   plugins: plugins,
   externals: [
     nodeExternals({
       modulesDir: "../../node_modules",
       allowlist: [/@bitwarden/],
+      importType: "module",
     }),
   ],
 };
-
-export default webpackConfig;

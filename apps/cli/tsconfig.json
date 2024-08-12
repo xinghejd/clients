@@ -2,8 +2,13 @@
   "compilerOptions": {
     "pretty": true,
     "moduleResolution": "node",
+<<<<<<< Updated upstream
     "target": "ES2016",
     "module": "ESNext",
+=======
+    "target": "es2020",
+    "module": "esnext",
+>>>>>>> Stashed changes
     "noImplicitAny": true,
     "allowSyntheticDefaultImports": true,
     "emitDecoratorMetadata": true,
@@ -19,7 +24,8 @@
       "@bitwarden/importer/core": ["../../libs/importer/src"],
       "@bitwarden/exporter/*": ["../../libs/exporter/src/*"],
       "@bitwarden/node/*": ["../../libs/node/src/*"]
-    }
+    },
+    "resolveJsonModule": true
   },
   "include": ["src", "src/**/*.spec.ts"]
 }

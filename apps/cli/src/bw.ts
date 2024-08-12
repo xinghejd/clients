@@ -124,7 +124,7 @@ import { VaultProgram } from "./vault.program";
 global.DOMParser = new jsdom.JSDOM().window.DOMParser;
 
 // eslint-disable-next-line
-const packageJson = require("../package.json");
+const packageJson = import("../package.json", { assert: { type: "json" } });
 
 export class Main {
   messagingService: NoopMessagingService;

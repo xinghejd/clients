@@ -1,4 +1,4 @@
-import * as lunr from "lunr";
+import lunr from "lunr";
 
 import { SearchService as SearchServiceAbstraction } from "../abstractions/search.service";
 import { I18nService } from "../platform/abstractions/i18n.service";
