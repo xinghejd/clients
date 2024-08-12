@@ -2,13 +2,8 @@
   "compilerOptions": {
     "pretty": true,
     "moduleResolution": "node",
-<<<<<<< Updated upstream
-    "target": "ES2016",
-    "module": "ESNext",
-=======
     "target": "es2020",
     "module": "esnext",
->>>>>>> Stashed changes
     "noImplicitAny": true,
     "allowSyntheticDefaultImports": true,
     "emitDecoratorMetadata": true,
