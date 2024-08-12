@@ -1,17 +1,20 @@
-const path = require("path");
-const webpack = require("webpack");
-const { CleanWebpackPlugin } = require("clean-webpack-plugin");
-const CopyWebpackPlugin = require("copy-webpack-plugin");
-const nodeExternals = require("webpack-node-externals");
-const TsconfigPathsPlugin = require("tsconfig-paths-webpack-plugin");
-const config = require("./config/config");
+import path from "path";
+import webpack from "webpack";
+import { CleanWebpackPlugin } from "clean-webpack-plugin";
+import CopyWebpackPlugin from "copy-webpack-plugin";
+import nodeExternals from "webpack-node-externals";
+import TsconfigPathsPlugin from "tsconfig-paths-webpack-plugin";
+import * as config from "./config/config.js";
+
+import * as url from "url";
+const __dirname = url.fileURLToPath(new URL(".", import.meta.url));
 
 if (process.env.NODE_ENV == null) {
   process.env.NODE_ENV = "development";
 }
 const ENV = (process.env.ENV = process.env.NODE_ENV);
 
-const envConfig = config.load(ENV);
+const envConfig = await config.load(ENV);
 config.log(envConfig);
 
 const moduleRules = [
@@ -82,4 +85,4 @@ const webpackConfig = {
   ],
 };
 
-module.exports = webpackConfig;
+export default webpackConfig;

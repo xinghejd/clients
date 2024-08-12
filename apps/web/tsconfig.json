@@ -2,7 +2,7 @@
   "extends": "../../libs/shared/tsconfig",
   "compilerOptions": {
     "baseUrl": ".",
-    "module": "ES2020",
+    "module": "ESNext",
     "resolveJsonModule": true,
     "paths": {
       "@bitwarden/admin-console": ["../../libs/admin-console/src"],

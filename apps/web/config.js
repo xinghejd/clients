@@ -1,7 +1,7 @@
-function load(envName) {
-  const base = require("./config/base.json");
-  const env = loadConfig(envName);
-  const local = loadConfig("local");
+export async function load(envName) {
+  const base = (await import("./config/base.json", { assert: { type: "json" } })).default;
+  const env = await loadConfig(envName);
+  const local = await loadConfig("local");
 
   return {
     ...base,
@@ -25,16 +25,16 @@ function load(envName) {
   };
 }
 
-function log(configObj) {
+export function log(configObj) {
   const repeatNum = 50;
   console.log(`${"=".repeat(repeatNum)}\nenvConfig`);
   console.log(JSON.stringify(configObj, null, 2));
   console.log(`${"=".repeat(repeatNum)}`);
 }
 
-function loadConfig(configName) {
+async function loadConfig(configName) {
   try {
-    return require(`./config/${configName}.json`);
+    return (await import(`./config/${configName}.json`, { assert: { type: "json" } })).default;
   } catch (e) {
     if (e instanceof Error && e.code === "MODULE_NOT_FOUND") {
       return {};
@@ -43,8 +43,3 @@ function loadConfig(configName) {
     }
   }
 }
-
-module.exports = {
-  load,
-  log,
-};

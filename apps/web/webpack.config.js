@@ -1,23 +1,26 @@
-const fs = require("fs");
-const path = require("path");
+import { existsSync, readFileSync } from "fs";
+import { resolve as _resolve } from "path";
+import * as url from "url";
+import { createRequire } from "node:module";
+const require = createRequire(import.meta.url);
 
-const { AngularWebpackPlugin } = require("@ngtools/webpack");
-const { CleanWebpackPlugin } = require("clean-webpack-plugin");
-const CopyWebpackPlugin = require("copy-webpack-plugin");
-const HtmlWebpackInjector = require("html-webpack-injector");
-const HtmlWebpackPlugin = require("html-webpack-plugin");
-const MiniCssExtractPlugin = require("mini-css-extract-plugin");
-const TerserPlugin = require("terser-webpack-plugin");
-const webpack = require("webpack");
+import { AngularWebpackPlugin } from "@ngtools/webpack";
+import { CleanWebpackPlugin } from "clean-webpack-plugin";
+import CopyWebpackPlugin from "copy-webpack-plugin";
+import HtmlWebpackInjector from "html-webpack-injector";
+import HtmlWebpackPlugin from "html-webpack-plugin";
+import MiniCssExtractPlugin from "mini-css-extract-plugin";
+import TerserPlugin from "terser-webpack-plugin";
+import webpack from "webpack";
 
-const config = require("./config.js");
-const pjson = require("./package.json");
+import * as config from "./config.js";
+import pkgConfig from "./package.json" assert { type: "json" };
 
 const ENV = process.env.ENV == null ? "development" : process.env.ENV;
 const NODE_ENV = process.env.NODE_ENV == null ? "development" : process.env.NODE_ENV;
 const LOGGING = process.env.LOGGING != "false";
 
-const envConfig = config.load(ENV);
+const envConfig = await config.load(ENV);
 if (LOGGING) {
   config.log(envConfig);
 }
@@ -150,7 +153,7 @@ const plugins = [
       {
         from: "./src/version.json",
         transform(content, path) {
-          return content.toString().replace("process.env.APPLICATION_VERSION", pjson.version);
+          return content.toString().replace("process.env.APPLICATION_VERSION", pkgConfig.version);
         },
       },
     ],
@@ -165,7 +168,7 @@ const plugins = [
   new webpack.EnvironmentPlugin({
     ENV: ENV,
     NODE_ENV: NODE_ENV === "production" ? "production" : "development",
-    APPLICATION_VERSION: pjson.version,
+    APPLICATION_VERSION: pkgConfig.version,
     CACHE_TAG: Math.random().toString(36).substring(7),
     URLS: envConfig["urls"] ?? {},
     STRIPE_KEY: envConfig["stripeKey"] ?? "",
@@ -182,7 +185,7 @@ const plugins = [
 ];
 
 // ref: https://webpack.js.org/configuration/dev-server/#devserver
-let certSuffix = fs.existsSync("dev-server.local.pem") ? ".local" : ".shared";
+let certSuffix = existsSync("dev-server.local.pem") ? ".local" : ".shared";
 const devServer =
   NODE_ENV !== "development"
     ? {}
@@ -190,8 +193,8 @@ const devServer =
         server: {
           type: "https",
           options: {
-            key: fs.readFileSync("dev-server" + certSuffix + ".pem"),
-            cert: fs.readFileSync("dev-server" + certSuffix + ".pem"),
+            key: readFileSync("dev-server" + certSuffix + ".pem"),
+            cert: readFileSync("dev-server" + certSuffix + ".pem"),
           },
         },
         // host: '192.168.1.9',
@@ -357,7 +360,6 @@ const webpackConfig = {
   resolve: {
     extensions: [".ts", ".js"],
     symlinks: false,
-    modules: [path.resolve("../../node_modules")],
     fallback: {
       buffer: false,
       util: require.resolve("util/"),
@@ -370,7 +372,7 @@ const webpackConfig = {
   },
   output: {
     filename: "[name].[contenthash].js",
-    path: path.resolve(__dirname, "build"),
+    path: url.fileURLToPath(new URL("build", import.meta.url)),
   },
   module: {
     noParse: /\.wasm$/,
@@ -379,4 +381,4 @@ const webpackConfig = {
   plugins: plugins,
 };
 
-module.exports = webpackConfig;
+export default webpackConfig;

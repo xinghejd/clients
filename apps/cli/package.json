@@ -16,6 +16,7 @@
     "url": "https://github.com/bitwarden/clients"
   },
   "license": "GPL-3.0-only",
+  "type": "module",
   "scripts": {
     "clean": "rimraf dist",
     "build": "webpack",

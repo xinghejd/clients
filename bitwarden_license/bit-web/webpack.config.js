@@ -1,6 +1,6 @@
-const { AngularWebpackPlugin } = require("@ngtools/webpack");
+import { AngularWebpackPlugin } from "@ngtools/webpack";
 
-const webpackConfig = require("../../apps/web/webpack.config");
+import webpackConfig from "../../apps/web/webpack.config.js";
 
 webpackConfig.entry["app/main"] = "../../bitwarden_license/bit-web/src/main.ts";
 webpackConfig.plugins[webpackConfig.plugins.length - 1] = new AngularWebpackPlugin({
@@ -9,4 +9,4 @@ webpackConfig.plugins[webpackConfig.plugins.length - 1] = new AngularWebpackPlug
   sourceMap: true,
 });
 
-module.exports = webpackConfig;
+export default webpackConfig;

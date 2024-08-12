@@ -12,6 +12,7 @@
     "url": "https://github.com/bitwarden/clients/issues"
   },
   "homepage": "https://bitwarden.com",
+  "type": "module",
   "scripts": {
     "prepare": "husky",
     "lint": "eslint . --cache --cache-strategy content && prettier --check .",
