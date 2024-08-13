@@ -1,0 +1,24 @@
+<bit-dialog dialogSize="large">
+  <span bitDialogTitle>
+    {{ headerText }}
+  </span>
+  <ng-container bitDialogContent>
+    <vault-cipher-form
+      *ngIf="!loading"
+      formId="cipherForm"
+      [config]="config"
+      (cipherSaved)="onCipherSaved($event)"
+      [submitBtn]="submitBtn"
+    >
+      <!-- <app-open-attachments
+        slot="attachment-button"
+        [cipherId]="originalCipherId"
+      ></app-open-attachments> -->
+    </vault-cipher-form>
+  </ng-container>
+  <ng-container bitDialogFooter>
+    <button bitButton type="submit" form="cipherForm" buttonType="primary" #submitBtn>
+      {{ "save" | i18n }}
+    </button>
+  </ng-container>
+</bit-dialog>

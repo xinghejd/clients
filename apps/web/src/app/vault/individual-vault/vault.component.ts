@@ -60,6 +60,11 @@ import { CollectionView } from "@bitwarden/common/vault/models/view/collection.v
 import { ServiceUtils } from "@bitwarden/common/vault/service-utils";
 import { DialogService, Icons, ToastService } from "@bitwarden/components";
 import { CollectionAssignmentResult, PasswordRepromptService } from "@bitwarden/vault";
+import {
+  AddEditCipherDialogParams,
+  AddEditCipherDialogResult,
+  openAddEditCipherDialog,
+} from "./add-edit-v2.component";
 
 import { SharedModule } from "../../shared/shared.module";
 import { AssignCollectionsWebComponent } from "../components/assign-collections";
@@ -587,22 +592,24 @@ export class VaultComponent implements OnInit, OnDestroy {
   }
 
   async addCipher(cipherType?: CipherType) {
-    const component = await this.editCipher(null);
-    component.type = cipherType || this.activeFilter.cipherType;
-    if (this.activeFilter.organizationId !== "MyVault") {
-      component.organizationId = this.activeFilter.organizationId;
-      component.collections = (
-        await firstValueFrom(this.vaultFilterService.filteredCollections$)
-      ).filter((c) => !c.readOnly && c.id != null);
-    }
-    const selectedColId = this.activeFilter.collectionId;
-    if (selectedColId !== "AllCollections") {
-      component.organizationId = component.collections.find(
-        (collection) => collection.id === selectedColId,
-      )?.organizationId;
-      component.collectionIds = [selectedColId];
-    }
-    component.folderId = this.activeFilter.folderId;
+    console.log("addCipher");
+    //const component = await this.editCipher(null);
+    //console.log(component);
+    // component.type = cipherType || this.activeFilter.cipherType;
+    // if (this.activeFilter.organizationId !== "MyVault") {
+    //   component.organizationId = this.activeFilter.organizationId;
+    //   component.collections = (
+    //     await firstValueFrom(this.vaultFilterService.filteredCollections$)
+    //   ).filter((c) => !c.readOnly && c.id != null);
+    // }
+    // const selectedColId = this.activeFilter.collectionId;
+    // if (selectedColId !== "AllCollections") {
+    //   component.organizationId = component.collections.find(
+    //     (collection) => collection.id === selectedColId,
+    //   )?.organizationId;
+    //   component.collectionIds = [selectedColId];
+    // }
+    // component.folderId = this.activeFilter.folderId;
   }
 
   async navigateToCipher(cipher: CipherView) {
@@ -615,45 +622,43 @@ export class VaultComponent implements OnInit, OnDestroy {
 
   async editCipherId(id: string) {
     const cipher = await this.cipherService.get(id);
-    // if cipher exists (cipher is null when new) and MP reprompt
-    // is on for this cipher, then show password reprompt
+
     if (
       cipher &&
       cipher.reprompt !== 0 &&
       !(await this.passwordRepromptService.showPasswordPrompt())
     ) {
-      // didn't pass password prompt, so don't open add / edit modal
       this.go({ cipherId: null, itemId: null });
       return;
     }
 
-    const [modal, childComponent] = await this.modalService.openViewRef(
-      AddEditComponent,
-      this.cipherAddEditModalRef,
-      (comp) => {
-        comp.cipherId = id;
-        comp.onSavedCipher.pipe(takeUntil(this.destroy$)).subscribe(() => {
-          modal.close();
-          this.refresh();
-        });
-        comp.onDeletedCipher.pipe(takeUntil(this.destroy$)).subscribe(() => {
-          modal.close();
-          this.refresh();
-        });
-        comp.onRestoredCipher.pipe(takeUntil(this.destroy$)).subscribe(() => {
-          modal.close();
-          this.refresh();
-        });
-      },
-    );
+    console.log("getKeyForCipherKeyDecryption");
+    const key = await this.cipherService.getKeyForCipherKeyDecryption(cipher);
+    const cipherView = await cipher.decrypt(key);
 
-    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    modal.onClosedPromise().then(() => {
-      this.go({ cipherId: null, itemId: null });
+    const dialogRef = openAddEditCipherDialog(this.dialogService, {
+      data: {
+        cipher: cipherView,
+      },
     });
 
-    return childComponent;
+    const result = await lastValueFrom(dialogRef.closed);
+
+    if (result === AddEditCipherDialogResult.deleted) {
+      this.refresh();
+    }
+
+    if (result === AddEditCipherDialogResult.edited) {
+      this.refresh();
+    }
+
+    if (result === AddEditCipherDialogResult.added) {
+      this.refresh();
+    }
+
+    this.go({ cipherId: null, itemId: null });
+
+    return dialogRef;
   }
 
   async addCollection() {
@@ -803,7 +808,7 @@ export class VaultComponent implements OnInit, OnDestroy {
     }
 
     const component = await this.editCipher(cipher);
-    component.cloneMode = true;
+    // component.cloneMode = true;
   }
 
   async restore(c: CipherView): Promise<boolean> {
