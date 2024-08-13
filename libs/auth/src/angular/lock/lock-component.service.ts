@@ -12,7 +12,7 @@ export type UnlockOptions = {
   masterPasswordEnabled: boolean;
   pinEnabled: boolean;
   biometrics: {
-    enabled: false;
+    enabled: boolean;
     disableReason: BiometricsDisableReason | null;
   };
 };
