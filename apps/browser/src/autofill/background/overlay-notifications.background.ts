@@ -28,7 +28,9 @@ export class OverlayNotificationsBackground implements OverlayNotificationsBackg
   private notifications: OverlayNotifications = new Map();
   private activeFormSubmissionRequests: ActiveFormSubmissionRequests = new Set();
   private modifyLoginCipherFormData: ModifyLoginCipherFormData = new Map();
-  private readonly extensionMessageHandlers: OverlayNotificationsExtensionMessageHandlers = {};
+  private readonly extensionMessageHandlers: OverlayNotificationsExtensionMessageHandlers = {
+    formFieldSubmitted: ({ message, sender }) => this.handleFormFieldSubmitted(message, sender),
+  };
 
   constructor(
     private logService: LogService,
@@ -47,6 +49,13 @@ export class OverlayNotificationsBackground implements OverlayNotificationsBackg
     this.setupExtensionListeners();
   }
 
+  private handleFormFieldSubmitted(
+    message: OverlayNotificationsExtensionMessage,
+    sender: chrome.runtime.MessageSender,
+  ) {
+    // console.log(message, sender);
+  }
+
   private setupExtensionListeners() {
     const requestFilter: chrome.webRequest.RequestFilter = {
       urls: ["<all_urls>"],
@@ -58,14 +67,32 @@ export class OverlayNotificationsBackground implements OverlayNotificationsBackg
   }
 
   private handleOnBeforeRequestEvent = (details: chrome.webRequest.WebRequestDetails) => {
-    if (this.requestHostIsInvalid(details) || !this.modifyLoginCipherFormData.has(details.tabId)) {
+    if (this.requestHostIsInvalid(details) || details.method !== "POST") {
       return;
     }
 
     // console.log("onBeforeRequest", details);
+    BrowserApi.tabSendMessage({ id: details.tabId } as chrome.tabs.Tab, {
+      command: "gatherFormDataForNotification",
+    })
+      .then((response: any) => {
+        if (response) {
+          this.modifyLoginCipherFormData.set(details.tabId, {
+            uri: response.uri,
+            addLogin: { username: response.username, password: response.password },
+            updateLogin: {
+              username: response.username,
+              currentPassword: response.password,
+              newPassword: response.newPassword,
+            },
+          });
+        }
+      })
+      .catch((error) => this.logService.error(error));
   };
 
   private handleOnCompletedRequestEvent = (details: chrome.webRequest.WebRequestDetails) => {
+    // console.log("onCompleted", details, this.modifyLoginCipherFormData);
     if (
       this.requestHostIsInvalid(details) ||
       !this.activeFormSubmissionRequests.has(details.requestId) ||
@@ -73,8 +100,6 @@ export class OverlayNotificationsBackground implements OverlayNotificationsBackg
     ) {
       return;
     }
-
-    // console.log("onCompleted", details);
   };
 
   private requestHostIsInvalid = (details: chrome.webRequest.WebRequestDetails) => {

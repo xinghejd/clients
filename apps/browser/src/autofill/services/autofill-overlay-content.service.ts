@@ -82,6 +82,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     checkMostRecentlyFocusedFieldHasValue: () => this.mostRecentlyFocusedFieldHasValue(),
     setupRebuildSubFrameOffsetsListeners: () => this.setupRebuildSubFrameOffsetsListeners(),
     destroyAutofillInlineMenuListeners: () => this.destroy(),
+    gatherFormDataForNotification: () => this.gatherFormDataForNotification(),
   };
   private readonly cardFieldQualifiers: Record<string, CallableFunction> = {
     [AutofillFieldQualifier.cardholderName]:
@@ -137,6 +138,15 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     private domQueryService: DomQueryService,
     private inlineMenuFieldQualificationService: InlineMenuFieldQualificationService,
   ) {}
+
+  private gatherFormDataForNotification() {
+    return {
+      uri: globalThis.document.URL,
+      username: this.userFilledFields["username"]?.value || "",
+      password: this.userFilledFields["password"]?.value || "",
+      newPassword: this.userFilledFields["newPassword"]?.value || "",
+    };
+  }
 
   /**
    * Initializes the autofill overlay content service by setting up the mutation observers.
@@ -433,7 +443,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     }
 
     this.submitElements.add(closesSubmitButton);
-    closesSubmitButton.addEventListener(EVENTS.CLICK, this.handleFormFieldSubmitEvent);
+    globalThis.document.addEventListener(EVENTS.CLICK, this.handleFormFieldSubmitEvent);
   }
 
   private findClosestSubmitButton(formFieldElement: FillableFormFieldElement): HTMLElement | null {
@@ -450,7 +460,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
 
       const buttons = this.domQueryService.deepQueryElements<HTMLButtonElement>(
         currentElement,
-        "button",
+        "button, [type='button']",
       );
       for (let i = 0; i < buttons.length; i++) {
         if (
@@ -472,9 +482,20 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     return null;
   }
 
-  private handleFormFieldSubmitEvent = async () => {
+  private handleFormFieldSubmitEvent = async (event: MouseEvent) => {
+    if (!this.submitElements.has(event.target as HTMLElement)) {
+      return;
+    }
+
     // TODO: Determine logic here
     // console.log("submission", this.userFilledFields);
+
+    void this.sendExtensionMessage("formFieldSubmitted", {
+      uri: globalThis.document.URL,
+      username: this.userFilledFields["username"]?.value || "",
+      password: this.userFilledFields["password"]?.value || "",
+      newPassword: this.userFilledFields["newPassword"]?.value || "",
+    });
   };
 
   /**

@@ -381,7 +381,9 @@ export class InlineMenuFieldQualificationService
     // If the provided field is set with an autocomplete of "username", we should assume that
     // the page developer intends for this field to be interpreted as a username field.
     if (this.fieldContainsAutocompleteValues(field, this.loginUsernameAutocompleteValues)) {
-      const newPasswordFieldsInPageDetails = pageDetails.fields.filter(this.isNewPasswordField);
+      const newPasswordFieldsInPageDetails = pageDetails.fields.filter(
+        (field) => field.viewable && this.isNewPasswordField(field),
+      );
       return newPasswordFieldsInPageDetails.length === 0;
     }
 

@@ -13,7 +13,11 @@ export type AddLoginCipherNotification = OverlayNotification &
     uri: string;
   };
 
-export type UpdateLoginCipherData = { currentPassword: string; newPassword: string };
+export type UpdateLoginCipherData = {
+  username: string;
+  currentPassword: string;
+  newPassword: string;
+};
 
 export type UpdateLoginCipherNotification = OverlayNotification &
   UpdateLoginCipherData & {
@@ -34,6 +38,10 @@ export type ModifyLoginCipherFormData = Map<
 
 export type OverlayNotificationsExtensionMessage = {
   command: string;
+  uri?: string;
+  username?: string;
+  password?: string;
+  newPassword?: string;
 };
 
 type OverlayNotificationsMessageParams = { message: OverlayNotificationsExtensionMessage };
@@ -42,7 +50,8 @@ type OverlayNotificationsMessageHandlersParams = OverlayNotificationsMessagePara
   OverlayNotificationSenderParams;
 
 export type OverlayNotificationsExtensionMessageHandlers = {
-  [key: string]: ({ message, sender }: OverlayNotificationsMessageHandlersParams) => Promise<any>;
+  [key: string]: ({ message, sender }: OverlayNotificationsMessageHandlersParams) => any;
+  formFieldSubmitted: ({ message, sender }: OverlayNotificationsMessageHandlersParams) => void;
 };
 
 export interface OverlayNotificationsBackground {
