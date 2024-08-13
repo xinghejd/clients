@@ -1,6 +1,48 @@
-// TODO: what is going on here.
-import { DefaultLockComponentService, LockComponentService } from "@bitwarden/auth/angular";
+import { inject, Injectable } from "@angular/core";
+import { map, Observable } from "rxjs";
 
-export class WebLockComponentService
-  extends DefaultLockComponentService
-  implements LockComponentService {}
+import { LockComponentService, UnlockOptions } from "@bitwarden/auth/angular";
+import {
+  UserDecryptionOptions,
+  UserDecryptionOptionsServiceAbstraction,
+} from "@bitwarden/auth/common";
+import { UserId } from "@bitwarden/common/types/guid";
+
+@Injectable({ providedIn: "root" })
+export class WebLockComponentService implements LockComponentService {
+  private readonly userDecryptionOptionsService = inject(UserDecryptionOptionsServiceAbstraction);
+
+  constructor() {}
+
+  getBiometricsError(error: any): string | null {
+    return null;
+  }
+
+  async isFido2Session(): Promise<boolean> {
+    return false;
+  }
+
+  async isWindowVisible(): Promise<boolean> {
+    return false;
+  }
+
+  async biometricsEnabled(userId: UserId): Promise<boolean> {
+    return false;
+  }
+
+  getAvailableUnlockOptions$(userId: UserId): Observable<UnlockOptions> {
+    return this.userDecryptionOptionsService.userDecryptionOptionsById$(userId).pipe(
+      map((userDecryptionOptions: UserDecryptionOptions) => {
+        const unlockOpts: UnlockOptions = {
+          masterPasswordEnabled: userDecryptionOptions.hasMasterPassword,
+          pinEnabled: false,
+          biometrics: {
+            enabled: false,
+            disableReason: null,
+          },
+        };
+        return unlockOpts;
+      }),
+    );
+  }
+}

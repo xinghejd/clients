@@ -22,6 +22,7 @@ import { LockComponentService, SetPasswordJitService } from "@bitwarden/auth/ang
 import {
   InternalUserDecryptionOptionsServiceAbstraction,
   PinServiceAbstraction,
+  UserDecryptionOptionsServiceAbstraction,
 } from "@bitwarden/auth/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { VaultTimeoutSettingsService } from "@bitwarden/common/abstractions/vault-timeout/vault-timeout-settings.service";
@@ -268,7 +269,7 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: LockComponentService,
     useClass: DesktopLockComponentService,
-    deps: [],
+    deps: [UserDecryptionOptionsServiceAbstraction],
   }),
   safeProvider({
     provide: CLIENT_TYPE,

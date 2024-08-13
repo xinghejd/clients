@@ -1,29 +1,28 @@
 import { map, Observable } from "rxjs";
 
-import {
-  DefaultLockComponentService,
-  LockComponentService,
-  UnlockOptions,
-} from "@bitwarden/auth/angular";
+import { LockComponentService, UnlockOptions } from "@bitwarden/auth/angular";
 import {
   UserDecryptionOptions,
   UserDecryptionOptionsServiceAbstraction,
 } from "@bitwarden/auth/common";
 import { UserId } from "@bitwarden/common/types/guid";
 
-export class DesktopLockComponentService
-  extends DefaultLockComponentService
-  implements LockComponentService
-{
-  constructor(private userDecryptionOptionsService: UserDecryptionOptionsServiceAbstraction) {
-    super();
+export class DesktopLockComponentService implements LockComponentService {
+  constructor(private userDecryptionOptionsService: UserDecryptionOptionsServiceAbstraction) {}
+
+  getBiometricsError(error: any): string | null {
+    return null;
   }
 
-  override async isWindowVisible(): Promise<boolean> {
+  async isFido2Session(): Promise<boolean> {
+    return false;
+  }
+
+  async isWindowVisible(): Promise<boolean> {
     return ipc.platform.isWindowVisible();
   }
 
-  override async biometricsEnabled(userId: UserId): Promise<boolean> {
+  async biometricsEnabled(userId: UserId): Promise<boolean> {
     return await ipc.platform.biometric.enabled(userId);
   }
 
