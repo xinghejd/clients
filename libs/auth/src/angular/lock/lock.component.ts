@@ -49,10 +49,15 @@ import { LockComponentService } from "./lock-component.service";
 
 // TODO: investigate this approach. It seems like a good way to handle the different unlock options.
 // See user verification form input for example.
+
+// This should be reactively served out of the LockComponentService
 // type UnlockOptions = {
-//   masterPassword: boolean;
-//   pin: boolean;
-//   biometrics: boolean;
+//   masterPasswordEnabled: boolean;
+//   pinEnabled: boolean;
+//   biometrics: {
+//    enabled: false,
+//    disableReason:  string union type or string enum
+//   },;
 // };
 
 const BroadcasterSubscriptionId = "LockComponent";
@@ -77,12 +82,16 @@ export class LockV2Component implements OnInit, OnDestroy {
   activeAccount: { id: UserId | undefined } & AccountInfo;
 
   clientType: ClientType;
+  ClientType = ClientType;
 
   // TODO: is there a better way to do this?
   // unlockOpts: UnlockOptions = {
   //   masterPassword: false,
   //   pin: false,
-  //   biometrics: false,
+  //   biometrics: {
+  //    enabled: false,
+  //    disableReason:  string union type or string enum
+  //   },
   // };
 
   pinEnabled = false;
@@ -186,11 +195,9 @@ export class LockV2Component implements OnInit, OnDestroy {
 
     this.masterPasswordEnabled = await this.userVerificationService.hasMasterPassword();
 
-    // TODO: do we even need this?
     // Only desktop uses this
     this.supportsBiometric = await this.platformUtilsService.supportsBiometric();
 
-    // TODO: This really should be biometricsLockSet, or biometricUnlockAvailable or something.
     this.biometricLockSet =
       (await this.vaultTimeoutSettingsService.isBiometricLockSet()) &&
       ((await this.cryptoService.hasUserKeyStored(KeySuffixOptions.Biometric)) ||
