@@ -18,7 +18,6 @@ export type InitAutofillInlineMenuListMessage = AutofillInlineMenuListMessage & 
   ciphers?: InlineMenuCipherData[];
   filledByCipherType?: CipherType;
   showInlineMenuAccountCreation?: boolean;
-  showPasskeysLabels?: boolean;
   portKey: string;
 };
 

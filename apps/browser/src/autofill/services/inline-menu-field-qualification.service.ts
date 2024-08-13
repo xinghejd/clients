@@ -20,11 +20,9 @@ export class InlineMenuFieldQualificationService
   private usernameFieldTypes = new Set(["text", "email", "number", "tel"]);
   private usernameAutocompleteValue = "username";
   private emailAutocompleteValue = "email";
-  private webAuthnAutocompleteValue = "webauthn";
   private loginUsernameAutocompleteValues = new Set([
     this.usernameAutocompleteValue,
     this.emailAutocompleteValue,
-    this.webAuthnAutocompleteValue,
   ]);
   private fieldIgnoreListString = AutoFillConstants.FieldIgnoreList.join(",");
   private passwordFieldExcludeListString = AutoFillConstants.PasswordFieldExcludeList.join(",");

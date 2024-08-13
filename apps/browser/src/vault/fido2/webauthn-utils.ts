@@ -111,7 +111,6 @@ export class WebauthnUtils {
       rpId: keyOptions.rpId,
       userVerification: keyOptions.userVerification,
       timeout: keyOptions.timeout,
-      mediation: options.mediation,
       fallbackSupported,
     };
   }

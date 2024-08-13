@@ -234,15 +234,10 @@ export class Fido2AuthenticatorService implements Fido2AuthenticatorServiceAbstr
         throw new Fido2AuthenticatorError(Fido2AuthenticatorErrorCode.NotAllowed);
       }
 
-      let response;
-      if (this.requiresUserVerificationPrompt(params, cipherOptions)) {
-        response = await userInterfaceSession.pickCredential({
-          cipherIds: cipherOptions.map((cipher) => cipher.id),
-          userVerification: params.requireUserVerification,
-        });
-      } else {
-        response = { cipherId: cipherOptions[0].id, userVerified: false };
-      }
+      const response = await userInterfaceSession.pickCredential({
+        cipherIds: cipherOptions.map((cipher) => cipher.id),
+        userVerification: params.requireUserVerification,
+      });
       const selectedCipherId = response.cipherId;
       const userVerified = response.userVerified;
       const selectedCipher = cipherOptions.find((c) => c.id === selectedCipherId);
@@ -313,24 +308,6 @@ export class Fido2AuthenticatorService implements Fido2AuthenticatorServiceAbstr
     } finally {
       userInterfaceSession.close();
     }
-  }
-
-  private requiresUserVerificationPrompt(
-    params: Fido2AuthenticatorGetAssertionParams,
-    cipherOptions: CipherView[],
-  ): boolean {
-    return (
-      params.requireUserVerification ||
-      !params.assumeUserPresence ||
-      cipherOptions.length > 1 ||
-      cipherOptions.length === 0 ||
-      cipherOptions.some((cipher) => cipher.reprompt !== CipherRepromptType.None)
-    );
-  }
-
-  async silentCredentialDiscovery(rpId: string): Promise<Fido2CredentialView[]> {
-    const credentials = await this.findCredentialsByRp(rpId);
-    return credentials.map((c) => c.login.fido2Credentials[0]);
   }
 
   /** Finds existing crendetials and returns the `cipherId` for each one */
