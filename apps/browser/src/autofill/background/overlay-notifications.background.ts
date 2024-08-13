@@ -26,10 +26,12 @@ export class OverlayNotificationsBackground implements OverlayNotificationsBackg
   private openUnlockPopout = openUnlockPopout;
   private openAddEditVaultItemPopout = openAddEditVaultItemPopout;
   private notifications: OverlayNotifications = new Map();
+  private websiteOriginsWithFields: Set<string> = new Set();
   private activeFormSubmissionRequests: ActiveFormSubmissionRequests = new Set();
   private modifyLoginCipherFormData: ModifyLoginCipherFormData = new Map();
   private readonly extensionMessageHandlers: OverlayNotificationsExtensionMessageHandlers = {
-    formFieldSubmitted: ({ message, sender }) => this.handleFormFieldSubmitted(message, sender),
+    collectPageDetailsResponse: ({ message, sender }) =>
+      this.handleCollectPageDetailsResponse(message, sender),
   };
 
   constructor(
@@ -49,42 +51,67 @@ export class OverlayNotificationsBackground implements OverlayNotificationsBackg
     this.setupExtensionListeners();
   }
 
-  private handleFormFieldSubmitted(
+  private handleCollectPageDetailsResponse(
     message: OverlayNotificationsExtensionMessage,
     sender: chrome.runtime.MessageSender,
   ) {
-    // console.log(message, sender);
+    const originMatchPattern = `${sender.origin}/*`;
+    if (!message.details?.fields?.length) {
+      this.clearWebRequestsListenersOnWebsiteOrigin(originMatchPattern);
+      return;
+    }
+
+    if (this.websiteOriginsWithFields.has(originMatchPattern)) {
+      return;
+    }
+
+    this.websiteOriginsWithFields.add(originMatchPattern);
+
+    const requestFilter: chrome.webRequest.RequestFilter = {
+      urls: Array.from(this.websiteOriginsWithFields),
+      types: ["main_frame", "sub_frame", "xmlhttprequest"],
+    };
+    this.removeWebRequestListeners();
+    chrome.webRequest.onBeforeRequest.addListener(this.handleOnBeforeRequestEvent, requestFilter);
+    chrome.webRequest.onCompleted.addListener(this.handleOnCompletedRequestEvent, requestFilter);
+  }
+
+  private clearWebRequestsListenersOnWebsiteOrigin(originMatchPattern: string) {
+    if (!this.websiteOriginsWithFields.has(originMatchPattern)) {
+      return;
+    }
+
+    this.websiteOriginsWithFields.delete(originMatchPattern);
+    this.removeWebRequestListeners();
+  }
+
+  private removeWebRequestListeners() {
+    chrome.webRequest.onBeforeRequest.removeListener(this.handleOnBeforeRequestEvent);
+    chrome.webRequest.onCompleted.removeListener(this.handleOnCompletedRequestEvent);
   }
 
   private setupExtensionListeners() {
-    const requestFilter: chrome.webRequest.RequestFilter = {
-      urls: ["<all_urls>"],
-      types: ["main_frame", "sub_frame", "xmlhttprequest"],
-    };
-    chrome.webRequest.onBeforeRequest.addListener(this.handleOnBeforeRequestEvent, requestFilter);
-    chrome.webRequest.onCompleted.addListener(this.handleOnCompletedRequestEvent, requestFilter);
     BrowserApi.messageListener("overlay-notifications", this.handleExtensionMessage);
   }
 
   private handleOnBeforeRequestEvent = (details: chrome.webRequest.WebRequestDetails) => {
-    if (this.requestHostIsInvalid(details) || details.method !== "POST") {
+    if (this.requestHostIsInvalid(details) || details.tabId < 0 || details.method !== "POST") {
       return;
     }
 
     // console.log("onBeforeRequest", details);
+    this.activeFormSubmissionRequests.add(details.requestId);
     BrowserApi.tabSendMessage({ id: details.tabId } as chrome.tabs.Tab, {
       command: "gatherFormDataForNotification",
     })
       .then((response: any) => {
         if (response) {
+          const { uri, username, password, newPassword } = response;
           this.modifyLoginCipherFormData.set(details.tabId, {
-            uri: response.uri,
-            addLogin: { username: response.username, password: response.password },
-            updateLogin: {
-              username: response.username,
-              currentPassword: response.password,
-              newPassword: response.newPassword,
-            },
+            uri: uri,
+            username: username,
+            password: password,
+            newPassword: newPassword,
           });
         }
       })
@@ -92,13 +119,15 @@ export class OverlayNotificationsBackground implements OverlayNotificationsBackg
   };
 
   private handleOnCompletedRequestEvent = (details: chrome.webRequest.WebRequestDetails) => {
-    // console.log("onCompleted", details, this.modifyLoginCipherFormData);
     if (
       this.requestHostIsInvalid(details) ||
-      !this.activeFormSubmissionRequests.has(details.requestId) ||
-      !this.notifications.has(details.tabId)
+      !this.activeFormSubmissionRequests.has(details.requestId)
     ) {
       return;
+    }
+
+    if (this.modifyLoginCipherFormData.has(details.tabId)) {
+      // console.log("onCompleted", details, this.modifyLoginCipherFormData.get(details.tabId));
     }
   };
 

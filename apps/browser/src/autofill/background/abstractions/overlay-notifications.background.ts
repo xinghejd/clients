@@ -1,4 +1,5 @@
 import { NotificationMessageTypes } from "../../enums/notification-queue-message-type.enum";
+import AutofillPageDetails from "../../models/autofill-page-details";
 
 export type OverlayNotification = {
   type: NotificationMessageTypes;
@@ -33,7 +34,7 @@ export type ActiveFormSubmissionRequests = Set<chrome.webRequest.ResourceRequest
 
 export type ModifyLoginCipherFormData = Map<
   chrome.tabs.Tab["id"],
-  { uri: string; addLogin: AddLoginCipherData; updateLogin: UpdateLoginCipherData }
+  { uri: string; username: string; password: string; newPassword: string }
 >;
 
 export type OverlayNotificationsExtensionMessage = {
@@ -42,6 +43,7 @@ export type OverlayNotificationsExtensionMessage = {
   username?: string;
   password?: string;
   newPassword?: string;
+  details?: AutofillPageDetails;
 };
 
 type OverlayNotificationsMessageParams = { message: OverlayNotificationsExtensionMessage };
@@ -51,7 +53,10 @@ type OverlayNotificationsMessageHandlersParams = OverlayNotificationsMessagePara
 
 export type OverlayNotificationsExtensionMessageHandlers = {
   [key: string]: ({ message, sender }: OverlayNotificationsMessageHandlersParams) => any;
-  formFieldSubmitted: ({ message, sender }: OverlayNotificationsMessageHandlersParams) => void;
+  collectPageDetailsResponse: ({
+    message,
+    sender,
+  }: OverlayNotificationsMessageHandlersParams) => void;
 };
 
 export interface OverlayNotificationsBackground {

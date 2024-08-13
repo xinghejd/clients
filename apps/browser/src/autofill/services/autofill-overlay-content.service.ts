@@ -53,8 +53,6 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
   private formFieldElements: Map<ElementWithOpId<FormFieldElement>, AutofillField> = new Map();
   private hiddenFormFieldElements: WeakMap<ElementWithOpId<FormFieldElement>, AutofillField> =
     new WeakMap();
-  private formElements: Set<HTMLFormElement> = new Set();
-  private submitElements: Set<HTMLElement> = new Set(); // TODO: Refine this typing to incorporate input or button elements
   private ignoredFieldTypes: Set<string> = new Set(AutoFillConstants.ExcludedInlineMenuTypes);
   private userFilledFields: Record<string, FillableFormFieldElement> = {};
   private authStatus: AuthenticationStatus;
@@ -412,91 +410,6 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
       delete this.eventHandlersMemo[memoIndex];
     }
   }
-
-  private setupFieldSubmittedEventListeners(
-    formFieldElement: ElementWithOpId<FormFieldElement>,
-    autofillFieldData: AutofillField,
-  ) {
-    if (
-      !elementIsFillableFormField(formFieldElement) ||
-      autofillFieldData.filledByCipherType === CipherType.Card
-    ) {
-      return;
-    }
-
-    if (autofillFieldData.form && !this.formElements.has(formFieldElement.form)) {
-      this.formElements.add(formFieldElement.form);
-      this.setupFormSubmissionEventListeners(formFieldElement);
-    }
-
-    this.setupSubmitButtonClickEventListeners(formFieldElement);
-  }
-
-  private setupFormSubmissionEventListeners(formFieldElement: FillableFormFieldElement) {
-    formFieldElement.form.addEventListener(EVENTS.SUBMIT, this.handleFormFieldSubmitEvent);
-  }
-
-  private setupSubmitButtonClickEventListeners(formFieldElement: FillableFormFieldElement) {
-    const closesSubmitButton = this.findClosestSubmitButton(formFieldElement);
-    if (!closesSubmitButton || this.submitElements.has(closesSubmitButton)) {
-      return;
-    }
-
-    this.submitElements.add(closesSubmitButton);
-    globalThis.document.addEventListener(EVENTS.CLICK, this.handleFormFieldSubmitEvent);
-  }
-
-  private findClosestSubmitButton(formFieldElement: FillableFormFieldElement): HTMLElement | null {
-    let currentElement: HTMLElement = formFieldElement;
-
-    while (currentElement && currentElement.tagName !== "HTML") {
-      const genericSubmitElement = this.domQueryService.deepQueryElements<HTMLButtonElement>(
-        currentElement,
-        "[type='submit']",
-      );
-      if (genericSubmitElement[0]) {
-        return genericSubmitElement[0];
-      }
-
-      const buttons = this.domQueryService.deepQueryElements<HTMLButtonElement>(
-        currentElement,
-        "button, [type='button']",
-      );
-      for (let i = 0; i < buttons.length; i++) {
-        if (
-          this.inlineMenuFieldQualificationService.isElementLoginSubmitButton(buttons[i]) ||
-          this.inlineMenuFieldQualificationService.isElementLoginSubmitButton(buttons[i])
-        ) {
-          return buttons[i];
-        }
-      }
-
-      if (!currentElement.parentElement && currentElement.getRootNode() instanceof ShadowRoot) {
-        currentElement = (currentElement.getRootNode() as ShadowRoot).host as any;
-        continue;
-      }
-
-      currentElement = currentElement.parentElement;
-    }
-
-    return null;
-  }
-
-  private handleFormFieldSubmitEvent = async (event: MouseEvent) => {
-    if (!this.submitElements.has(event.target as HTMLElement)) {
-      return;
-    }
-
-    // TODO: Determine logic here
-    // console.log("submission", this.userFilledFields);
-
-    void this.sendExtensionMessage("formFieldSubmitted", {
-      uri: globalThis.document.URL,
-      username: this.userFilledFields["username"]?.value || "",
-      password: this.userFilledFields["password"]?.value || "",
-      newPassword: this.userFilledFields["newPassword"]?.value || "",
-    });
-  };
 
   /**
    * Helper method that facilitates registration of an event handler to a form field element.
@@ -1102,7 +1015,6 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     }
 
     this.setupFormFieldElementEventListeners(formFieldElement);
-    this.setupFieldSubmittedEventListeners(formFieldElement, autofillFieldData);
 
     if (
       globalThis.document.hasFocus() &&
