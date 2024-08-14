@@ -5,7 +5,7 @@ import { AutofillInlineMenuContentService } from "../overlay/inline-menu/abstrac
 import { OverlayNotificationsContentService } from "../overlay/notifications/abstractions/overlay-notifications-content.service";
 import { AutofillOverlayContentService } from "../services/abstractions/autofill-overlay-content.service";
 import { DomQueryService } from "../services/abstractions/dom-query.service";
-import CollectAutofillContentService from "../services/collect-autofill-content.service";
+import { CollectAutofillContentService } from "../services/collect-autofill-content.service";
 import DomElementVisibilityService from "../services/dom-element-visibility.service";
 import InsertAutofillContentService from "../services/insert-autofill-content.service";
 import { sendExtensionMessage } from "../utils";

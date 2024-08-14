@@ -31,13 +31,13 @@ import {
 } from "./abstractions/collect-autofill-content.service";
 import { DomElementVisibilityService } from "./abstractions/dom-element-visibility.service";
 
-class CollectAutofillContentService implements CollectAutofillContentServiceInterface {
+export class CollectAutofillContentService implements CollectAutofillContentServiceInterface {
   private readonly sendExtensionMessage = sendExtensionMessage;
   private readonly getAttributeBoolean = getAttributeBoolean;
   private readonly getPropertyOrAttribute = getPropertyOrAttribute;
   private noFieldsFound = false;
   private domRecentlyMutated = true;
-  private autofillFormElements: AutofillFormElements = new Map();
+  private _autofillFormElements: AutofillFormElements = new Map();
   private autofillFieldElements: AutofillFieldElements = new Map();
   private currentLocationHref = "";
   private intersectionObserver: IntersectionObserver;
@@ -72,6 +72,10 @@ class CollectAutofillContentService implements CollectAutofillContentServiceInte
     //   (useTreeWalkerStrategyFlag) =>
     //     (this.useTreeWalkerStrategyFlagSet = !!useTreeWalkerStrategyFlag?.result),
     // );
+  }
+
+  get autofillFormElements(): AutofillFormElements {
+    return this._autofillFormElements;
   }
 
   /**
@@ -297,14 +301,14 @@ class CollectAutofillContentService implements CollectAutofillContentServiceInte
       const formElement = formElements[index] as ElementWithOpId<HTMLFormElement>;
       formElement.opid = `__form__${index}`;
 
-      const existingAutofillForm = this.autofillFormElements.get(formElement);
+      const existingAutofillForm = this._autofillFormElements.get(formElement);
       if (existingAutofillForm) {
         existingAutofillForm.opid = formElement.opid;
-        this.autofillFormElements.set(formElement, existingAutofillForm);
+        this._autofillFormElements.set(formElement, existingAutofillForm);
         continue;
       }
 
-      this.autofillFormElements.set(formElement, {
+      this._autofillFormElements.set(formElement, {
         opid: formElement.opid,
         htmlAction: this.getFormActionAttribute(formElement),
         htmlName: this.getPropertyOrAttribute(formElement, "name"),
@@ -335,7 +339,7 @@ class CollectAutofillContentService implements CollectAutofillContentServiceInte
    */
   private getFormattedAutofillFormsData(): Record<string, AutofillForm> {
     const autofillForms: Record<string, AutofillForm> = {};
-    const autofillFormElements = Array.from(this.autofillFormElements);
+    const autofillFormElements = Array.from(this._autofillFormElements);
     for (let index = 0; index < autofillFormElements.length; index++) {
       const [formElement, autofillForm] = autofillFormElements[index];
       autofillForms[formElement.opid] = autofillForm;
@@ -1037,7 +1041,7 @@ class CollectAutofillContentService implements CollectAutofillContentServiceInte
     }
     this.noFieldsFound = false;
 
-    this.autofillFormElements.clear();
+    this._autofillFormElements.clear();
     this.autofillFieldElements.clear();
 
     this.updateAutofillElementsAfterMutation();
@@ -1173,8 +1177,8 @@ class CollectAutofillContentService implements CollectAutofillContentServiceInte
   private deleteCachedAutofillElement(
     element: ElementWithOpId<HTMLFormElement> | ElementWithOpId<FormFieldElement>,
   ) {
-    if (elementIsFormElement(element) && this.autofillFormElements.has(element)) {
-      this.autofillFormElements.delete(element);
+    if (elementIsFormElement(element) && this._autofillFormElements.has(element)) {
+      this._autofillFormElements.delete(element);
       return;
     }
 
@@ -1211,7 +1215,7 @@ class CollectAutofillContentService implements CollectAutofillContentServiceInte
     }
 
     const attributeName = mutation.attributeName?.toLowerCase();
-    const autofillForm = this.autofillFormElements.get(
+    const autofillForm = this._autofillFormElements.get(
       targetElement as ElementWithOpId<HTMLFormElement>,
     );
 
@@ -1266,8 +1270,8 @@ class CollectAutofillContentService implements CollectAutofillContentServiceInte
     }
 
     updateActions[attributeName]();
-    if (this.autofillFormElements.has(element)) {
-      this.autofillFormElements.set(element, dataTarget);
+    if (this._autofillFormElements.has(element)) {
+      this._autofillFormElements.set(element, dataTarget);
     }
   }
 
@@ -1457,7 +1461,7 @@ class CollectAutofillContentService implements CollectAutofillContentServiceInte
    *
    * @deprecated - This method remains as a fallback in the case that the deepQuery implementation fails.
    */
-  private queryAllTreeWalkerNodes(
+  queryAllTreeWalkerNodes(
     rootNode: Node,
     filterCallback: CallableFunction,
     isObservingShadowRoot = true,
@@ -1592,5 +1596,3 @@ class CollectAutofillContentService implements CollectAutofillContentServiceInte
     return Boolean(this.deepQueryElements(document, `input[type="password"]`)?.length);
   }
 }
-
-export default CollectAutofillContentService;
