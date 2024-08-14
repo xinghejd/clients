@@ -187,17 +187,27 @@ export class FolderService implements InternalFolderServiceAbstraction {
       throw new Error("New user key is required for rotation.");
     }
 
-    let encryptedFolders: FolderWithIdRequest[] = [];
-    const folders = await firstValueFrom(this.folderViews$);
-    if (!folders) {
-      return encryptedFolders;
+    const existingEncryptedFolders = await firstValueFrom(
+      this.stateProvider.getUser(userId, FOLDER_ENCRYPTED_FOLDERS).state$,
+    );
+
+    if (existingEncryptedFolders == null) {
+      throw new Error("Folders must have been retrieved from sync before rotating data.");
     }
-    encryptedFolders = await Promise.all(
-      folders.map(async (folder) => {
-        const encryptedFolder = await this.encrypt(folder, newUserKey);
+
+    const decryptedFolders = await Promise.all(
+      Object.values(existingEncryptedFolders).map((encryptedFolder) =>
+        new Folder(encryptedFolder).decrypt(originalUserKey),
+      ),
+    );
+
+    const newEncryptedFolders = await Promise.all(
+      decryptedFolders.map(async (decryptedFolder) => {
+        const encryptedFolder = await this.encrypt(decryptedFolder, newUserKey);
         return new FolderWithIdRequest(encryptedFolder);
       }),
     );
-    return encryptedFolders;
+
+    return newEncryptedFolders;
   }
 }

@@ -2,6 +2,7 @@ import { Jsonify } from "type-fest";
 
 import Domain from "../../../platform/models/domain/domain-base";
 import { EncString } from "../../../platform/models/domain/enc-string";
+import { UserKey } from "../../../types/key";
 import { FolderData } from "../data/folder.data";
 import { FolderView } from "../view/folder.view";
 
@@ -29,13 +30,14 @@ export class Folder extends Domain {
     this.revisionDate = obj.revisionDate != null ? new Date(obj.revisionDate) : null;
   }
 
-  decrypt(): Promise<FolderView> {
+  decrypt(key?: UserKey): Promise<FolderView> {
     return this.decryptObj(
       new FolderView(this),
       {
         name: null,
       },
       null,
+      key,
     );
   }
 
