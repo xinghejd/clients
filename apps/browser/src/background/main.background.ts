@@ -1100,15 +1100,8 @@ export default class MainBackground {
 
       this.overlayNotificationsBackground = new OverlayNotificationsBackground(
         this.logService,
-        this.authService,
-        this.configService,
-        this.cipherService,
-        this.policyService,
-        this.folderService,
-        this.themeStateService,
-        this.environmentService,
         this.domainSettingsService,
-        this.userNotificationSettingsService,
+        this.notificationBackground,
       );
 
       this.filelessImporterBackground = new FilelessImporterBackground(

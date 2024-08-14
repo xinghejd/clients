@@ -60,8 +60,9 @@ export default class NotificationBackground {
     bgCloseNotificationBar: ({ sender }) => this.handleCloseNotificationBarMessage(sender),
     bgAdjustNotificationBar: ({ message, sender }) =>
       this.handleAdjustNotificationBarMessage(message, sender),
-    bgAddLogin: ({ message, sender }) => this.addLogin(message, sender),
-    bgChangedPassword: ({ message, sender }) => this.changedPassword(message, sender),
+    // TODO: These handlers can likely still be registered, we'd want to handle the change for this within the content script
+    // bgAddLogin: ({ message, sender }) => this.addLogin(message, sender),
+    // bgChangedPassword: ({ message, sender }) => this.changedPassword(message, sender),
     bgRemoveTabFromNotificationQueue: ({ sender }) =>
       this.removeTabFromNotificationQueue(sender.tab),
     bgSaveCipher: ({ message, sender }) => this.handleSaveCipherMessage(message, sender),
@@ -228,7 +229,7 @@ export default class NotificationBackground {
    * @param message - The message to add to the queue
    * @param sender - The contextual sender of the message
    */
-  private async addLogin(
+  async addLogin(
     message: NotificationBackgroundExtensionMessage,
     sender: chrome.runtime.MessageSender,
   ) {
@@ -308,7 +309,7 @@ export default class NotificationBackground {
    * @param message - The message to add to the queue
    * @param sender - The contextual sender of the message
    */
-  private async changedPassword(
+  async changedPassword(
     message: NotificationBackgroundExtensionMessage,
     sender: chrome.runtime.MessageSender,
   ) {
