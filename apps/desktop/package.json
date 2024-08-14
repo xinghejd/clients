@@ -34,7 +34,7 @@
     "clean:dist": "rimraf ./dist",
     "pack:dir": "npm run clean:dist && electron-builder --dir -p never",
     "pack:lin": "npm run clean:dist && electron-builder --linux --x64 -p never",
-    "pack:lin:vgrassia": "DEBUG='@malept/flatpak-bundler' npm run clean:dist && electron-builder --linux flatpak --x64 -p never",
+    "pack:lin:vgrassia": "npm run clean:dist && DEBUG='@malept/flatpak-bundler' electron-builder --linux flatpak --x64 -p never",
     "pack:mac": "npm run clean:dist && electron-builder --mac --universal -p never",
     "pack:mac:arm64": "npm run clean:dist && electron-builder --mac --arm64 -p never",
     "pack:mac:mas": "npm run clean:dist && electron-builder --mac mas --universal -p never",
