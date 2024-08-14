@@ -190,7 +190,10 @@ jobs:
           npm run build:cross-platform
 
       - name: Build application
-        run: npm run dist:lin
+        run: npm run dist:lin:vgrassia
+
+      - name: List files
+        run: ls -alh dist/
 
       - name: Upload .deb artifact
         uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3 # v4.3.1
