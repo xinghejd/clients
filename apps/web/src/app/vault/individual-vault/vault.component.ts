@@ -60,11 +60,6 @@ import { CollectionView } from "@bitwarden/common/vault/models/view/collection.v
 import { ServiceUtils } from "@bitwarden/common/vault/service-utils";
 import { DialogService, Icons, ToastService } from "@bitwarden/components";
 import { CollectionAssignmentResult, PasswordRepromptService } from "@bitwarden/vault";
-import {
-  AddEditCipherDialogParams,
-  AddEditCipherDialogResult,
-  openAddEditCipherDialog,
-} from "./add-edit-v2.component";
 
 import { SharedModule } from "../../shared/shared.module";
 import { AssignCollectionsWebComponent } from "../components/assign-collections";
@@ -78,8 +73,13 @@ import { VaultItemEvent } from "../components/vault-items/vault-item-event";
 import { VaultItemsModule } from "../components/vault-items/vault-items.module";
 import { getNestedCollectionTree } from "../utils/collection-utils";
 
+import {
+  AddEditCipherDialogCloseResult,
+  AddEditCipherDialogResult,
+  openAddEditCipherDialog,
+  AddEditComponentV2,
+} from "./add-edit-v2.component";
 import { AddEditComponent } from "./add-edit.component";
-import { AddEditComponentV2 } from "./add-edit-v2.component";
 import { AttachmentsComponent } from "./attachments.component";
 import {
   BulkDeleteDialogResult,
@@ -627,11 +627,11 @@ export class VaultComponent implements OnInit, OnDestroy {
     this.go({ itemId: cipher?.id });
   }
 
-  async editCipher(cipher: CipherView, cipherType?: CipherType) {
-    return this.editCipherId(cipher?.id, cipherType);
+  async editCipher(cipher: CipherView, cipherType?: CipherType, cloneMode?: boolean) {
+    return this.editCipherId(cipher?.id, cipherType, cloneMode);
   }
 
-  async editCipherId(id: string, cipherType?: CipherType) {
+  async editCipherId(id: string, cipherType?: CipherType, cloneMode?: boolean) {
     const cipher = await this.cipherService.get(id);
 
     if (
@@ -655,8 +655,23 @@ export class VaultComponent implements OnInit, OnDestroy {
         data: {
           cipher: cipherView,
           cipherType: cipherType,
+          cloneMode: cloneMode,
         },
       });
+
+      const result: AddEditCipherDialogCloseResult = await firstValueFrom(dialogRef.closed);
+
+      if (result.action === AddEditCipherDialogResult.added) {
+        this.refresh();
+      }
+
+      if (result.action === AddEditCipherDialogResult.edited) {
+        this.refresh();
+      }
+
+      if (result.action === AddEditCipherDialogResult.deleted) {
+        this.refresh();
+      }
 
       return dialogRef.componentInstance;
     } else {
@@ -836,8 +851,10 @@ export class VaultComponent implements OnInit, OnDestroy {
       }
     }
 
-    const component = await this.editCipher(cipher);
-    // component.cloneMode = true;
+    const component = (await this.editCipher(cipher, null, true)) as
+      | AddEditComponent
+      | AddEditComponentV2;
+    component.cloneMode = true;
   }
 
   async restore(c: CipherView): Promise<boolean> {

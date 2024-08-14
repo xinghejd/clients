@@ -36,6 +36,7 @@ import { SharedModule } from "../../shared/shared.module";
 export interface AddEditCipherDialogParams {
   cipher?: CipherView;
   cipherType?: CipherType;
+  cloneMode?: boolean;
 }
 
 export enum AddEditCipherDialogResult {
@@ -72,6 +73,7 @@ export class AddEditComponentV2 implements OnInit, OnDestroy {
   cipher: CipherView;
   deletePromise: Promise<void>;
   onDeletedCipher = new EventEmitter<CipherView>();
+  onSavedCipher = new EventEmitter<CipherView>();
   cipherTypeString: string;
   cipherEditUrl: string;
   organization: Organization;
@@ -80,7 +82,8 @@ export class AddEditComponentV2 implements OnInit, OnDestroy {
   config: CipherFormConfig;
   headerText: string;
   cipherType: CipherType;
-
+  editMode: boolean = false;
+  cloneMode: boolean = false;
   protected destroy$ = new Subject<void>();
 
   constructor(
@@ -104,6 +107,7 @@ export class AddEditComponentV2 implements OnInit, OnDestroy {
   async ngOnInit() {
     this.cipher = this.params.cipher;
     this.cipherType = this.params.cipherType;
+    this.cloneMode = this.params.cloneMode;
     this.subscribeToParams();
 
     if (this.cipher && this.cipher.organizationId) {
@@ -133,8 +137,9 @@ export class AddEditComponentV2 implements OnInit, OnDestroy {
           const cipherType = (params.type || this.cipherType) as CipherType;
           if (cipherId == null) {
             mode = "add";
+            this.editMode = true;
           } else {
-            mode = params.clone ? "clone" : "edit";
+            mode = params.clone || this.cloneMode ? "clone" : "edit";
           }
           const config = await this.addEditFormConfigService.buildConfig(
             mode,
@@ -181,7 +186,20 @@ export class AddEditComponentV2 implements OnInit, OnDestroy {
   }
 
   async onCipherSaved(cipher: CipherView) {
-    //console.log("onCipherSaved", cipher);
+    let action = AddEditCipherDialogResult.added;
+    if (cipher.edit) {
+      action = AddEditCipherDialogResult.edited;
+    }
+
+    this.dialogRef.close({ action });
+    this.onSavedCipher.emit(this.cipher);
+    this.messagingService.send(this.editMode && !this.cloneMode ? "editedCipher" : "addedCipher");
+    await this.router.navigate([], {
+      queryParams: {
+        itemId: null,
+        action: null,
+      },
+    });
   }
 
   /**
@@ -285,7 +303,7 @@ export class AddEditComponentV2 implements OnInit, OnDestroy {
 export function openAddEditCipherDialog(
   dialogService: DialogService,
   config: DialogConfig<AddEditCipherDialogParams>,
-): DialogRef<AddEditCipherDialogResult> {
+): DialogRef<AddEditCipherDialogCloseResult> {
   return dialogService.open(AddEditComponentV2, config);
 }
 
