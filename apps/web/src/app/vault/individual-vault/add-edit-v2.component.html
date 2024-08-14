@@ -20,5 +20,8 @@
     <button bitButton type="submit" form="cipherForm" buttonType="primary" #submitBtn>
       {{ "save" | i18n }}
     </button>
+    <button bitButton type="button" buttonType="secondary" form="cipherForm" (click)="cancel()">
+      {{ "cancel" | i18n }}
+    </button>
   </ng-container>
 </bit-dialog>

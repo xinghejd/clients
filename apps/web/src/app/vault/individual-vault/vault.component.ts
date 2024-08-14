@@ -79,6 +79,7 @@ import { VaultItemsModule } from "../components/vault-items/vault-items.module";
 import { getNestedCollectionTree } from "../utils/collection-utils";
 
 import { AddEditComponent } from "./add-edit.component";
+import { AddEditComponentV2 } from "./add-edit-v2.component";
 import { AttachmentsComponent } from "./attachments.component";
 import {
   BulkDeleteDialogResult,
@@ -172,6 +173,7 @@ export class VaultComponent implements OnInit, OnDestroy {
   private searchText$ = new Subject<string>();
   private refresh$ = new BehaviorSubject<void>(null);
   private destroy$ = new Subject<void>();
+  private extensionRefreshEnabled: boolean;
 
   constructor(
     private syncService: SyncService,
@@ -410,6 +412,11 @@ export class VaultComponent implements OnInit, OnDestroy {
           this.refreshing = false;
         },
       );
+
+    // Check if the extension refresh feature flag is enabled
+    this.extensionRefreshEnabled = await this.configService.getFeatureFlag(
+      FeatureFlag.ExtensionRefresh,
+    );
   }
 
   ngOnDestroy() {
@@ -592,35 +599,39 @@ export class VaultComponent implements OnInit, OnDestroy {
   }
 
   async addCipher(cipherType?: CipherType) {
-    console.log("addCipher");
-    //const component = await this.editCipher(null);
-    //console.log(component);
-    // component.type = cipherType || this.activeFilter.cipherType;
-    // if (this.activeFilter.organizationId !== "MyVault") {
-    //   component.organizationId = this.activeFilter.organizationId;
-    //   component.collections = (
-    //     await firstValueFrom(this.vaultFilterService.filteredCollections$)
-    //   ).filter((c) => !c.readOnly && c.id != null);
-    // }
-    // const selectedColId = this.activeFilter.collectionId;
-    // if (selectedColId !== "AllCollections") {
-    //   component.organizationId = component.collections.find(
-    //     (collection) => collection.id === selectedColId,
-    //   )?.organizationId;
-    //   component.collectionIds = [selectedColId];
-    // }
-    // component.folderId = this.activeFilter.folderId;
+    let component;
+    if (this.extensionRefreshEnabled) {
+      component = (await this.editCipher(null, cipherType)) as AddEditComponentV2;
+      return component;
+    } else {
+      component = (await this.editCipher(null)) as AddEditComponent;
+    }
+
+    if (this.activeFilter.organizationId !== "MyVault") {
+      component.organizationId = this.activeFilter.organizationId;
+      component.collections = (
+        await firstValueFrom(this.vaultFilterService.filteredCollections$)
+      ).filter((c) => !c.readOnly && c.id != null);
+    }
+    const selectedColId = this.activeFilter.collectionId;
+    if (selectedColId !== "AllCollections") {
+      component.organizationId = component.collections.find(
+        (collection) => collection.id === selectedColId,
+      )?.organizationId;
+      component.collectionIds = [selectedColId];
+    }
+    component.folderId = this.activeFilter.folderId;
   }
 
   async navigateToCipher(cipher: CipherView) {
     this.go({ itemId: cipher?.id });
   }
 
-  async editCipher(cipher: CipherView) {
-    return this.editCipherId(cipher?.id);
+  async editCipher(cipher: CipherView, cipherType?: CipherType) {
+    return this.editCipherId(cipher?.id, cipherType);
   }
 
-  async editCipherId(id: string) {
+  async editCipherId(id: string, cipherType?: CipherType) {
     const cipher = await this.cipherService.get(id);
 
     if (
@@ -632,33 +643,51 @@ export class VaultComponent implements OnInit, OnDestroy {
       return;
     }
 
-    console.log("getKeyForCipherKeyDecryption");
-    const key = await this.cipherService.getKeyForCipherKeyDecryption(cipher);
-    const cipherView = await cipher.decrypt(key);
+    if (this.extensionRefreshEnabled) {
+      let cipherView: CipherView;
 
-    const dialogRef = openAddEditCipherDialog(this.dialogService, {
-      data: {
-        cipher: cipherView,
-      },
-    });
+      if (cipher) {
+        const key = await this.cipherService.getKeyForCipherKeyDecryption(cipher);
+        cipherView = await cipher.decrypt(key);
+      }
 
-    const result = await lastValueFrom(dialogRef.closed);
+      const dialogRef = openAddEditCipherDialog(this.dialogService, {
+        data: {
+          cipher: cipherView,
+          cipherType: cipherType,
+        },
+      });
 
-    if (result === AddEditCipherDialogResult.deleted) {
-      this.refresh();
+      return dialogRef.componentInstance;
+    } else {
+      const [modal, childComponent] = await this.modalService.openViewRef(
+        AddEditComponent,
+        this.cipherAddEditModalRef,
+        (comp) => {
+          comp.cipherId = id;
+          comp.onSavedCipher.pipe(takeUntil(this.destroy$)).subscribe(() => {
+            modal.close();
+            this.refresh();
+          });
+          comp.onDeletedCipher.pipe(takeUntil(this.destroy$)).subscribe(() => {
+            modal.close();
+            this.refresh();
+          });
+          comp.onRestoredCipher.pipe(takeUntil(this.destroy$)).subscribe(() => {
+            modal.close();
+            this.refresh();
+          });
+        },
+      );
+
+      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
+      modal.onClosedPromise().then(() => {
+        this.go({ cipherId: null, itemId: null });
+      });
+
+      return childComponent;
     }
-
-    if (result === AddEditCipherDialogResult.edited) {
-      this.refresh();
-    }
-
-    if (result === AddEditCipherDialogResult.added) {
-      this.refresh();
-    }
-
-    this.go({ cipherId: null, itemId: null });
-
-    return dialogRef;
   }
 
   async addCollection() {

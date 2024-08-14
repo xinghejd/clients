@@ -34,7 +34,8 @@ import { CipherViewComponent } from "../../../../../../libs/vault/src/cipher-vie
 import { SharedModule } from "../../shared/shared.module";
 
 export interface AddEditCipherDialogParams {
-  cipher: CipherView;
+  cipher?: CipherView;
+  cipherType?: CipherType;
 }
 
 export enum AddEditCipherDialogResult {
@@ -67,7 +68,7 @@ export interface AddEditCipherDialogCloseResult {
     { provide: CipherFormGenerationService, useClass: DefaultCipherFormGenerationService },
   ],
 })
-export class AddEditComponent implements OnInit, OnDestroy {
+export class AddEditComponentV2 implements OnInit, OnDestroy {
   cipher: CipherView;
   deletePromise: Promise<void>;
   onDeletedCipher = new EventEmitter<CipherView>();
@@ -78,6 +79,7 @@ export class AddEditComponent implements OnInit, OnDestroy {
   restrictProviderAccess = false;
   config: CipherFormConfig;
   headerText: string;
+  cipherType: CipherType;
 
   protected destroy$ = new Subject<void>();
 
@@ -101,6 +103,7 @@ export class AddEditComponent implements OnInit, OnDestroy {
    */
   async ngOnInit() {
     this.cipher = this.params.cipher;
+    this.cipherType = this.params.cipherType;
     this.subscribeToParams();
 
     if (this.cipher && this.cipher.organizationId) {
@@ -126,7 +129,8 @@ export class AddEditComponent implements OnInit, OnDestroy {
         map((params) => new QueryParams(params)),
         switchMap(async (params) => {
           let mode: CipherFormMode;
-          const cipherId = (getCipherIdFromParams(params) || this.cipher.id) as CipherId;
+          const cipherId = (getCipherIdFromParams(params) || this.cipher?.id) as CipherId;
+          const cipherType = (params.type || this.cipherType) as CipherType;
           if (cipherId == null) {
             mode = "add";
           } else {
@@ -135,7 +139,7 @@ export class AddEditComponent implements OnInit, OnDestroy {
           const config = await this.addEditFormConfigService.buildConfig(
             mode,
             cipherId,
-            params.type,
+            cipherType,
           );
 
           if (config.mode === "edit" && !config.originalCipher.edit) {
@@ -246,23 +250,34 @@ export class AddEditComponent implements OnInit, OnDestroy {
     });
   }
 
+  async cancel() {
+    this.dialogRef.close();
+    await this.router.navigate([], {
+      queryParams: {
+        itemId: null,
+        action: null,
+        organizationId: null,
+      },
+    });
+  }
+
   setHeader(mode: CipherFormMode, type: CipherType) {
     const partOne = mode === "edit" || mode === "partial-edit" ? "editItemHeader" : "newItemHeader";
     switch (type) {
       case CipherType.Login:
-        return this.i18nService.t(partOne, this.i18nService.t("typeLogin"));
+        return this.i18nService.t(partOne, this.i18nService.t("typeLogin").toLowerCase());
       case CipherType.Card:
-        return this.i18nService.t(partOne, this.i18nService.t("typeCard"));
+        return this.i18nService.t(partOne, this.i18nService.t("typeCard").toLowerCase());
       case CipherType.Identity:
-        return this.i18nService.t(partOne, this.i18nService.t("typeIdentity"));
+        return this.i18nService.t(partOne, this.i18nService.t("typeIdentity").toLowerCase());
       case CipherType.SecureNote:
-        return this.i18nService.t(partOne, this.i18nService.t("note"));
+        return this.i18nService.t(partOne, this.i18nService.t("note").toLowerCase());
     }
   }
 }
 
 /**
- * Strongly typed helper to open a cipher view dialog
+ * Strongly typed helper to open a cipher add/edit dialog
  * @param dialogService Instance of the dialog service that will be used to open the dialog
  * @param config Configuration for the dialog
  * @returns A reference to the opened dialog
@@ -271,7 +286,7 @@ export function openAddEditCipherDialog(
   dialogService: DialogService,
   config: DialogConfig<AddEditCipherDialogParams>,
 ): DialogRef<AddEditCipherDialogResult> {
-  return dialogService.open(AddEditComponent, config);
+  return dialogService.open(AddEditComponentV2, config);
 }
 
 /**

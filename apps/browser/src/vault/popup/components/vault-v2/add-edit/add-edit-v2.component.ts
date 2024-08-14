@@ -2,12 +2,12 @@ import { CommonModule, Location } from "@angular/common";
 import { Component, OnInit } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormsModule } from "@angular/forms";
-import { ActivatedRoute, Params, Router } from "@angular/router";
+import { ActivatedRoute, Router } from "@angular/router";
 import { firstValueFrom, map, switchMap } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { CipherId, CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
+import { CipherId } from "@bitwarden/common/types/guid";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { AsyncActionsModule, ButtonModule, SearchModule } from "@bitwarden/components";
@@ -21,6 +21,7 @@ import {
   TotpCaptureService,
 } from "@bitwarden/vault";
 
+import { QueryParams } from "../../../../../../../../libs/angular/src/utils/add-edit-query-params";
 import { BrowserFido2UserInterfaceSession } from "../../../../../autofill/fido2/services/browser-fido2-user-interface.service";
 import BrowserPopupUtils from "../../../../../platform/popup/browser-popup-utils";
 import { PopOutComponent } from "../../../../../platform/popup/components/pop-out.component";
@@ -36,7 +37,6 @@ import {
 } from "../../../utils/fido2-popout-session-data";
 import { VaultPopoutType } from "../../../utils/vault-popout-window";
 import { OpenAttachmentsComponent } from "../attachments/open-attachments/open-attachments.component";
-import { QueryParams } from "../../../../../../../../libs/angular/src/utils/add-edit-query-params";
 
 export type AddEditQueryParams = Partial<Record<keyof QueryParams, string>>;
 
