@@ -189,9 +189,26 @@ describe("Folder Service", () => {
     });
 
     it("returns re-encrypted user folders", async () => {
+      const userState = stateProvider.singleUser.getFake(mockUserId, FOLDER_ENCRYPTED_FOLDERS);
+
+      userState.stateSubject.next([
+        mockUserId,
+        { 1: { id: "1", name: "test", revisionDate: new Date().toJSON() } },
+      ]);
+
       const result = await folderService.getRotatedData(originalUserKey, newUserKey, mockUserId);
 
       expect(result[0]).toMatchObject({ id: "1", name: "Re-encrypted Folder" });
+    });
+
+    it("throws if encrypted folders is null", async () => {
+      const userState = stateProvider.singleUser.getFake(mockUserId, FOLDER_ENCRYPTED_FOLDERS);
+
+      userState.stateSubject.next([mockUserId, null]);
+
+      await expect(async () =>
+        folderService.getRotatedData(originalUserKey, newUserKey, mockUserId),
+      ).rejects.toThrow("Folders must have been retrieved");
     });
 
     it("throws if the new user key is null", async () => {
