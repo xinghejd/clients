@@ -94,12 +94,29 @@
   "linux": {
     "category": "Utility",
     "synopsis": "A secure and free password manager for all of your devices.",
-    "target": ["deb", "freebsd", "rpm", "AppImage", "snap"],
+    "target": ["deb", "flatpak", "freebsd", "rpm", "AppImage", "snap"],
     "desktop": {
       "Name": "Bitwarden",
       "Type": "Application",
       "GenericName": "Password Manager"
     }
+  },
+  "flatpak": {
+    "runtime": "org.freedesktop.Platform",
+    "runtimeVersion": "23.08",
+    "sdk": "org.freedesktop.Sdk",
+    "base": "org.electronjs.Electron2.BaseApp",
+    "baseVersion": "23.08",
+    "finishArgs": [
+      "--socket=wayland",
+      "--socket=x11",
+      "--share=ipc",
+      "--device=dri",
+      "--socket=pulseaudio",
+      "--filesystem=home",
+      "--share=network",
+      "--talk-name=org.freedesktop.Notifications"
+    ]
   },
   "dmg": {
     "icon": "dmg.icns",
