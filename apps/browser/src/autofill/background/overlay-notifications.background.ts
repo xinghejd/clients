@@ -1,7 +1,10 @@
+// import { firstValueFrom } from "rxjs";
+
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
 import { UserNotificationSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/user-notification-settings.service";
+// import { NeverDomains } from "@bitwarden/common/models/domain/domain-service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -29,6 +32,7 @@ export class OverlayNotificationsBackground implements OverlayNotificationsBackg
   private websiteOriginsWithFields: Set<string> = new Set();
   private activeFormSubmissionRequests: ActiveFormSubmissionRequests = new Set();
   private modifyLoginCipherFormData: ModifyLoginCipherFormData = new Map();
+  private readonly formSubmissionRequestMethods: Set<string> = new Set(["POST", "PUT", "PATCH"]);
   private readonly extensionMessageHandlers: OverlayNotificationsExtensionMessageHandlers = {
     collectPageDetailsResponse: ({ message, sender }) =>
       this.handleCollectPageDetailsResponse(message, sender),
@@ -51,10 +55,14 @@ export class OverlayNotificationsBackground implements OverlayNotificationsBackg
     this.setupExtensionListeners();
   }
 
-  private handleCollectPageDetailsResponse(
+  private async handleCollectPageDetailsResponse(
     message: OverlayNotificationsExtensionMessage,
     sender: chrome.runtime.MessageSender,
   ) {
+    if (await this.isSenderFromExcludedDomain(sender)) {
+      return;
+    }
+
     const originMatchPattern = `${sender.origin}/*`;
     if (!message.details?.fields?.length) {
       this.clearWebRequestsListenersOnWebsiteOrigin(originMatchPattern);
@@ -66,14 +74,13 @@ export class OverlayNotificationsBackground implements OverlayNotificationsBackg
     }
 
     this.websiteOriginsWithFields.add(originMatchPattern);
+    this.resetWebRequestsListeners();
+  }
 
-    const requestFilter: chrome.webRequest.RequestFilter = {
-      urls: Array.from(this.websiteOriginsWithFields),
-      types: ["main_frame", "sub_frame", "xmlhttprequest"],
-    };
-    this.removeWebRequestListeners();
-    chrome.webRequest.onBeforeRequest.addListener(this.handleOnBeforeRequestEvent, requestFilter);
-    chrome.webRequest.onCompleted.addListener(this.handleOnCompletedRequestEvent, requestFilter);
+  private async isSenderFromExcludedDomain(sender: chrome.runtime.MessageSender): Promise<boolean> {
+    // const excludedDomains = await firstValueFrom(this.domainSettingsService.neverDomains$);
+
+    return true;
   }
 
   private clearWebRequestsListenersOnWebsiteOrigin(originMatchPattern: string) {
@@ -83,6 +90,17 @@ export class OverlayNotificationsBackground implements OverlayNotificationsBackg
 
     this.websiteOriginsWithFields.delete(originMatchPattern);
     this.removeWebRequestListeners();
+  }
+
+  private resetWebRequestsListeners() {
+    this.removeWebRequestListeners();
+
+    const requestFilter: chrome.webRequest.RequestFilter = {
+      urls: Array.from(this.websiteOriginsWithFields),
+      types: ["main_frame", "sub_frame", "xmlhttprequest"],
+    };
+    chrome.webRequest.onBeforeRequest.addListener(this.handleOnBeforeRequestEvent, requestFilter);
+    chrome.webRequest.onCompleted.addListener(this.handleOnCompletedRequestEvent, requestFilter);
   }
 
   private removeWebRequestListeners() {
@@ -95,7 +113,7 @@ export class OverlayNotificationsBackground implements OverlayNotificationsBackg
   }
 
   private handleOnBeforeRequestEvent = (details: chrome.webRequest.WebRequestDetails) => {
-    if (this.requestHostIsInvalid(details) || details.tabId < 0 || details.method !== "POST") {
+    if (this.requestHostIsInvalid(details) || !this.isFormSubmissionRequest(details)) {
       return;
     }
 
@@ -118,6 +136,10 @@ export class OverlayNotificationsBackground implements OverlayNotificationsBackg
       .catch((error) => this.logService.error(error));
   };
 
+  private isFormSubmissionRequest = (details: chrome.webRequest.WebRequestDetails) => {
+    return this.formSubmissionRequestMethods.has(details.method?.toUpperCase());
+  };
+
   private handleOnCompletedRequestEvent = (details: chrome.webRequest.WebRequestDetails) => {
     if (
       this.requestHostIsInvalid(details) ||
@@ -132,7 +154,7 @@ export class OverlayNotificationsBackground implements OverlayNotificationsBackg
   };
 
   private requestHostIsInvalid = (details: chrome.webRequest.WebRequestDetails) => {
-    return !details.url?.startsWith("http");
+    return !details.url?.startsWith("http") || details.tabId < 0;
   };
 
   private handleExtensionMessage = (

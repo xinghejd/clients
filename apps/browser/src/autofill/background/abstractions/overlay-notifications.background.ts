@@ -56,7 +56,7 @@ export type OverlayNotificationsExtensionMessageHandlers = {
   collectPageDetailsResponse: ({
     message,
     sender,
-  }: OverlayNotificationsMessageHandlersParams) => void;
+  }: OverlayNotificationsMessageHandlersParams) => Promise<void>;
 };
 
 export interface OverlayNotificationsBackground {
