@@ -19,10 +19,8 @@ describe("SymmetricCryptoKey", () => {
 
       expect(cryptoKey).toEqual({
         encKey: key,
-        encKeyB64: "AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8=",
         encType: 0,
         key: key,
-        keyB64: "AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8=",
         macKey: null,
       });
     });
@@ -33,12 +31,9 @@ describe("SymmetricCryptoKey", () => {
 
       expect(cryptoKey).toEqual({
         encKey: key.slice(0, 16),
-        encKeyB64: "AAECAwQFBgcICQoLDA0ODw==",
         encType: 1,
         key: key,
-        keyB64: "AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8=",
         macKey: key.slice(16, 32),
-        macKeyB64: "EBESExQVFhcYGRobHB0eHw==",
       });
     });
 
@@ -48,13 +43,9 @@ describe("SymmetricCryptoKey", () => {
 
       expect(cryptoKey).toEqual({
         encKey: key.slice(0, 32),
-        encKeyB64: "AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8=",
         encType: 2,
         key: key,
-        keyB64:
-          "AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8gISIjJCUmJygpKissLS4vMDEyMzQ1Njc4OTo7PD0+Pw==",
         macKey: key.slice(32, 64),
-        macKeyB64: "ICEiIyQlJicoKSorLC0uLzAxMjM0NTY3ODk6Ozw9Pj8=",
       });
     });
 
