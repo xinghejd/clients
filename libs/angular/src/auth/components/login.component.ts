@@ -23,6 +23,7 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { SyncService } from "@bitwarden/common/platform/sync";
 import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legacy";
 
 import {
@@ -91,6 +92,7 @@ export class LoginComponent extends CaptchaProtectedComponent implements OnInit,
     protected ssoLoginService: SsoLoginServiceAbstraction,
     protected webAuthnLoginService: WebAuthnLoginServiceAbstraction,
     protected registerRouteService: RegisterRouteService,
+    protected syncService: SyncService,
   ) {
     super(environmentService, i18nService, platformUtilsService);
   }
@@ -183,6 +185,8 @@ export class LoginComponent extends CaptchaProtectedComponent implements OnInit,
           this.onSuccessfulLogin();
         }
         if (this.onSuccessfulLoginNavigate != null) {
+          // eslint-disable-next-line @typescript-eslint/no-floating-promises
+          this.syncService.fullSync(false);
           // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
           // eslint-disable-next-line @typescript-eslint/no-floating-promises
           this.onSuccessfulLoginNavigate();

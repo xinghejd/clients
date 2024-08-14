@@ -74,6 +74,7 @@ export class LoginComponent extends BaseLoginComponent {
       ssoLoginService,
       webAuthnLoginService,
       registerRouteService,
+      syncService,
     );
     super.onSuccessfulLogin = async () => {
       await syncService.fullSync(true);
