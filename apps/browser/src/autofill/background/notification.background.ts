@@ -233,7 +233,7 @@ export default class NotificationBackground {
     message: NotificationBackgroundExtensionMessage,
     sender: chrome.runtime.MessageSender,
   ) {
-    const authStatus = await this.authService.getAuthStatus();
+    const authStatus = await firstValueFrom(this.authService.activeAccountStatus$);
     if (authStatus === AuthenticationStatus.LoggedOut) {
       return;
     }

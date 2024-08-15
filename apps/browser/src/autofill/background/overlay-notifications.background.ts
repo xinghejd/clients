@@ -1,6 +1,3 @@
-import { firstValueFrom } from "rxjs";
-
-import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 
 import { BrowserApi } from "../../platform/browser/browser-api";
@@ -26,7 +23,6 @@ export class OverlayNotificationsBackground implements OverlayNotificationsBackg
 
   constructor(
     private logService: LogService,
-    private domainSettingsService: DomainSettingsService,
     private notificationsBackground: NotificationBackground,
   ) {}
 
@@ -38,7 +34,10 @@ export class OverlayNotificationsBackground implements OverlayNotificationsBackg
     message: OverlayNotificationsExtensionMessage,
     sender: chrome.runtime.MessageSender,
   ) {
-    if (await this.isSenderFromExcludedDomain(sender)) {
+    if (
+      !(await this.isAddLoginOrChangePasswordNotificationEnabled()) ||
+      (await this.isSenderFromExcludedDomain(sender))
+    ) {
       return;
     }
 
@@ -58,12 +57,31 @@ export class OverlayNotificationsBackground implements OverlayNotificationsBackg
 
   private async isSenderFromExcludedDomain(sender: chrome.runtime.MessageSender): Promise<boolean> {
     try {
-      const excludedDomains = await firstValueFrom(this.domainSettingsService.neverDomains$);
-      const senderDomain = new URL(sender.origin).hostname;
+      const senderOrigin = sender.origin;
+      const serverConfig = await this.notificationsBackground.getActiveUserServerConfig();
+      const activeUserVault = serverConfig?.environment?.vault;
+      if (activeUserVault === senderOrigin) {
+        return true;
+      }
+
+      const excludedDomains = await this.notificationsBackground.getExcludedDomains();
+      if (!excludedDomains) {
+        return false;
+      }
+
+      const senderDomain = new URL(senderOrigin).hostname;
       return excludedDomains[senderDomain] !== undefined;
     } catch {
       return true;
     }
+  }
+
+  private async isAddLoginOrChangePasswordNotificationEnabled() {
+    if (await this.notificationsBackground.getEnableChangedPasswordPrompt()) {
+      return true;
+    }
+
+    return await this.notificationsBackground.getEnableAddedLoginPrompt();
   }
 
   private clearWebRequestsListenersOnWebsiteOrigin(originMatchPattern: string) {
@@ -109,7 +127,6 @@ export class OverlayNotificationsBackground implements OverlayNotificationsBackg
     )
       .then((response: any) => {
         if (response) {
-          // console.log(response);
           const { uri, username, password, newPassword } = response;
           this.modifyLoginCipherFormData.set(details.tabId, {
             uri: uri,
@@ -127,6 +144,7 @@ export class OverlayNotificationsBackground implements OverlayNotificationsBackg
   };
 
   private handleOnCompletedRequestEvent = async (details: chrome.webRequest.WebResponseDetails) => {
+    // console.log("onCompleted", details);
     if (
       this.requestHostIsInvalid(details) ||
       this.isInvalidStatusCode(details.statusCode) ||
@@ -140,10 +158,14 @@ export class OverlayNotificationsBackground implements OverlayNotificationsBackg
       return;
     }
 
-    // console.log("onCompleted", details, modifyLoginData);
+    // console.log("modifyLoginData", modifyLoginData);
 
     const tab = await BrowserApi.getTab(details.tabId);
-    if (modifyLoginData.newPassword && !modifyLoginData.username) {
+    if (
+      (await this.notificationsBackground.getEnableChangedPasswordPrompt()) &&
+      modifyLoginData.newPassword &&
+      !modifyLoginData.username
+    ) {
       await this.notificationsBackground.changedPassword(
         {
           command: "bgChangedPassword",
@@ -155,14 +177,15 @@ export class OverlayNotificationsBackground implements OverlayNotificationsBackg
         },
         { tab },
       );
-      this.activeFormSubmissionRequests.delete(details.requestId);
-      this.modifyLoginCipherFormData.delete(details.tabId);
-      // this.websiteOriginsWithFields.delete(`${tab.url}/*`);
-      this.resetWebRequestsListeners();
+      this.clearCompletedWebRequest(details.requestId, tab);
       return;
     }
 
-    if (modifyLoginData.username && (modifyLoginData.password || modifyLoginData.newPassword)) {
+    if (
+      (await this.notificationsBackground.getEnableAddedLoginPrompt()) &&
+      modifyLoginData.username &&
+      (modifyLoginData.password || modifyLoginData.newPassword)
+    ) {
       await this.notificationsBackground.addLogin(
         {
           command: "bgAddLogin",
@@ -174,10 +197,7 @@ export class OverlayNotificationsBackground implements OverlayNotificationsBackg
         },
         { tab },
       );
-      this.activeFormSubmissionRequests.delete(details.requestId);
-      this.modifyLoginCipherFormData.delete(details.tabId);
-      // this.websiteOriginsWithFields.delete(`${tab.url}/*`);
-      this.resetWebRequestsListeners();
+      this.clearCompletedWebRequest(details.requestId, tab);
     }
   };
 
@@ -187,6 +207,19 @@ export class OverlayNotificationsBackground implements OverlayNotificationsBackg
 
   private requestHostIsInvalid = (details: chrome.webRequest.ResourceRequest) => {
     return !details.url?.startsWith("http") || details.tabId < 0;
+  };
+
+  private clearCompletedWebRequest = (requestId: string, tab: chrome.tabs.Tab) => {
+    try {
+      this.activeFormSubmissionRequests.delete(requestId);
+      this.modifyLoginCipherFormData.delete(tab.id);
+      const tabOrigin = new URL(tab.url).origin;
+      this.websiteOriginsWithFields.delete(`${tabOrigin}/*`);
+    } catch {
+      /* empty */
+    } finally {
+      this.resetWebRequestsListeners();
+    }
   };
 
   private handleExtensionMessage = (
