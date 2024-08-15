@@ -73,6 +73,12 @@ import { VaultItemEvent } from "../components/vault-items/vault-item-event";
 import { VaultItemsModule } from "../components/vault-items/vault-items.module";
 import { getNestedCollectionTree } from "../utils/collection-utils";
 
+import {
+  AddEditCipherDialogCloseResult,
+  AddEditCipherDialogResult,
+  openAddEditCipherDialog,
+  AddEditComponentV2,
+} from "./add-edit-v2.component";
 import { AddEditComponent } from "./add-edit.component";
 import { AttachmentsComponent } from "./attachments.component";
 import {
@@ -164,6 +170,7 @@ export class VaultComponent implements OnInit, OnDestroy {
   private searchText$ = new Subject<string>();
   private refresh$ = new BehaviorSubject<void>(null);
   private destroy$ = new Subject<void>();
+  private extensionRefreshEnabled: boolean;
 
   constructor(
     private syncService: SyncService,
@@ -402,6 +409,11 @@ export class VaultComponent implements OnInit, OnDestroy {
           this.refreshing = false;
         },
       );
+
+    // Check if the extension refresh feature flag is enabled
+    this.extensionRefreshEnabled = await this.configService.getFeatureFlag(
+      FeatureFlag.ExtensionRefresh,
+    );
   }
 
   ngOnDestroy() {
@@ -584,7 +596,13 @@ export class VaultComponent implements OnInit, OnDestroy {
   }
 
   async addCipher(cipherType?: CipherType) {
-    const component = await this.editCipher(null);
+    let component;
+    if (this.extensionRefreshEnabled) {
+      component = (await this.editCipher(null, cipherType)) as AddEditComponentV2;
+      return component;
+    }
+
+    component = (await this.editCipher(null)) as AddEditComponent;
     component.type = cipherType || this.activeFilter.cipherType;
     if (
       this.activeFilter.organizationId !== "MyVault" &&
@@ -612,51 +630,82 @@ export class VaultComponent implements OnInit, OnDestroy {
     this.go({ itemId: cipher?.id });
   }
 
-  async editCipher(cipher: CipherView) {
-    return this.editCipherId(cipher?.id);
+  async editCipher(cipher: CipherView, cipherType?: CipherType, cloneMode?: boolean) {
+    return this.editCipherId(cipher?.id, cipherType, cloneMode);
   }
 
-  async editCipherId(id: string) {
+  async editCipherId(id: string, cipherType?: CipherType, cloneMode?: boolean) {
     const cipher = await this.cipherService.get(id);
-    // if cipher exists (cipher is null when new) and MP reprompt
-    // is on for this cipher, then show password reprompt
+
     if (
       cipher &&
       cipher.reprompt !== 0 &&
       !(await this.passwordRepromptService.showPasswordPrompt())
     ) {
-      // didn't pass password prompt, so don't open add / edit modal
       this.go({ cipherId: null, itemId: null });
       return;
     }
 
-    const [modal, childComponent] = await this.modalService.openViewRef(
-      AddEditComponent,
-      this.cipherAddEditModalRef,
-      (comp) => {
-        comp.cipherId = id;
-        comp.onSavedCipher.pipe(takeUntil(this.destroy$)).subscribe(() => {
-          modal.close();
-          this.refresh();
-        });
-        comp.onDeletedCipher.pipe(takeUntil(this.destroy$)).subscribe(() => {
-          modal.close();
-          this.refresh();
-        });
-        comp.onRestoredCipher.pipe(takeUntil(this.destroy$)).subscribe(() => {
-          modal.close();
-          this.refresh();
-        });
-      },
-    );
+    if (this.extensionRefreshEnabled) {
+      let cipherView: CipherView;
 
-    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    modal.onClosedPromise().then(() => {
-      this.go({ cipherId: null, itemId: null });
-    });
+      if (cipher) {
+        const key = await this.cipherService.getKeyForCipherKeyDecryption(cipher);
+        cipherView = await cipher.decrypt(key);
+      }
 
-    return childComponent;
+      const dialogRef = openAddEditCipherDialog(this.dialogService, {
+        data: {
+          cipher: cipherView,
+          cipherType: cipherType,
+          cloneMode: cloneMode,
+        },
+      });
+
+      const result: AddEditCipherDialogCloseResult = await firstValueFrom(dialogRef.closed);
+
+      if (result.action === AddEditCipherDialogResult.added) {
+        this.refresh();
+      }
+
+      if (result.action === AddEditCipherDialogResult.edited) {
+        this.refresh();
+      }
+
+      if (result.action === AddEditCipherDialogResult.deleted) {
+        this.refresh();
+      }
+
+      return dialogRef.componentInstance;
+    } else {
+      const [modal, childComponent] = await this.modalService.openViewRef(
+        AddEditComponent,
+        this.cipherAddEditModalRef,
+        (comp) => {
+          comp.cipherId = id;
+          comp.onSavedCipher.pipe(takeUntil(this.destroy$)).subscribe(() => {
+            modal.close();
+            this.refresh();
+          });
+          comp.onDeletedCipher.pipe(takeUntil(this.destroy$)).subscribe(() => {
+            modal.close();
+            this.refresh();
+          });
+          comp.onRestoredCipher.pipe(takeUntil(this.destroy$)).subscribe(() => {
+            modal.close();
+            this.refresh();
+          });
+        },
+      );
+
+      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
+      modal.onClosedPromise().then(() => {
+        this.go({ cipherId: null, itemId: null });
+      });
+
+      return childComponent;
+    }
   }
 
   async addCollection() {
@@ -804,7 +853,9 @@ export class VaultComponent implements OnInit, OnDestroy {
       }
     }
 
-    const component = await this.editCipher(cipher);
+    const component = (await this.editCipher(cipher, null, true)) as
+      | AddEditComponent
+      | AddEditComponentV2;
     component.cloneMode = true;
   }
 

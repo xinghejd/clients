@@ -1,0 +1,17 @@
+<bit-dialog dialogSize="large">
+  <span bitDialogTitle>
+    {{ "attachments" | i18n }}
+  </span>
+  <ng-container bitDialogContent>
+    <app-cipher-attachments
+      *ngIf="cipherId"
+      [cipherId]="cipherId"
+      (onUploadSuccess)="uploadSuccessful()"
+    ></app-cipher-attachments>
+  </ng-container>
+  <ng-container bitDialogFooter>
+    <button bitButton type="submit" form="cipherForm" buttonType="primary" #submitBtnComponent>
+      {{ "save" | i18n }}
+    </button>
+  </ng-container>
+</bit-dialog>
