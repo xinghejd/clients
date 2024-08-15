@@ -13,11 +13,15 @@ import { CipherId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherType } from "@bitwarden/common/vault/enums/cipher-type";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import { CipherAttachmentsComponent } from "@bitwarden/vault";
+import { AttachmentsV2Component } from "./attachments-v2.component";
+
 import {
   AsyncActionsModule,
   DialogModule,
   DialogService,
   ToastService,
+  ItemModule,
 } from "@bitwarden/components";
 import {
   CipherFormConfig,
@@ -32,6 +36,8 @@ import { QueryParams } from "../../../../../../libs/angular/src/utils/add-edit-q
 import { DefaultCipherFormGenerationService } from "../../../../../../libs/vault/src/cipher-form/services/default-cipher-form-generation.service";
 import { CipherViewComponent } from "../../../../../../libs/vault/src/cipher-view/cipher-view.component";
 import { SharedModule } from "../../shared/shared.module";
+import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 
 export interface AddEditCipherDialogParams {
   cipher?: CipherView;
@@ -45,8 +51,17 @@ export enum AddEditCipherDialogResult {
   added = "added",
 }
 
+export enum attachmentDialogResult {
+  uploaded = "uploaded",
+  closed = "closed",
+}
+
 export interface AddEditCipherDialogCloseResult {
   action: AddEditCipherDialogResult;
+}
+
+export interface attachmentDialogCloseResult {
+  action: attachmentDialogResult;
 }
 
 /**
@@ -63,6 +78,8 @@ export interface AddEditCipherDialogCloseResult {
     DialogModule,
     SharedModule,
     CipherFormModule,
+    CipherAttachmentsComponent,
+    ItemModule,
   ],
   providers: [
     { provide: CipherFormConfigService, useClass: DefaultCipherFormConfigService },
@@ -71,6 +88,7 @@ export interface AddEditCipherDialogCloseResult {
 })
 export class AddEditComponentV2 implements OnInit, OnDestroy {
   cipher: CipherView;
+  cipherId: CipherId;
   deletePromise: Promise<void>;
   onDeletedCipher = new EventEmitter<CipherView>();
   onSavedCipher = new EventEmitter<CipherView>();
@@ -85,10 +103,13 @@ export class AddEditComponentV2 implements OnInit, OnDestroy {
   editMode: boolean = false;
   cloneMode: boolean = false;
   protected destroy$ = new Subject<void>();
+  attachmentFormId = CipherAttachmentsComponent.attachmentFormID;
+  canAccessAttachments: boolean = false;
 
   constructor(
     @Inject(DIALOG_DATA) public params: AddEditCipherDialogParams,
     private dialogRef: DialogRef<AddEditCipherDialogCloseResult>,
+    private attachmentDialogRef: DialogRef<attachmentDialogCloseResult>,
     private i18nService: I18nService,
     private dialogService: DialogService,
     private messagingService: MessagingService,
@@ -99,13 +120,21 @@ export class AddEditComponentV2 implements OnInit, OnDestroy {
     private router: Router,
     private addEditFormConfigService: CipherFormConfigService,
     private route: ActivatedRoute,
-  ) {}
+    private billingAccountProfileStateService: BillingAccountProfileStateService,
+  ) {
+    this.billingAccountProfileStateService.hasPremiumFromAnySource$
+      .pipe(takeUntilDestroyed())
+      .subscribe((canAccessPremium) => {
+        this.canAccessAttachments = canAccessPremium;
+      });
+  }
 
   /**
    * Lifecycle hook for component initialization.
    */
   async ngOnInit() {
     this.cipher = this.params.cipher;
+    this.cipherId = this.cipher?.id as CipherId;
     this.cipherType = this.params.cipherType;
     this.cloneMode = this.params.cloneMode;
     this.subscribeToParams();
@@ -288,6 +317,19 @@ export class AddEditComponentV2 implements OnInit, OnDestroy {
       case CipherType.SecureNote:
         return this.i18nService.t(partOne, this.i18nService.t("note").toLowerCase());
     }
+  }
+
+  openAttachmentsDialog() {
+    this.dialogService.open(AttachmentsV2Component, {
+      data: {
+        cipherId: this.cipherId,
+      },
+    });
+  }
+
+  closeAttachmentsDialog() {
+    console.log("closeAttachmentsDialog");
+    this.attachmentDialogRef.close({ action: attachmentDialogResult.closed });
   }
 }
 
