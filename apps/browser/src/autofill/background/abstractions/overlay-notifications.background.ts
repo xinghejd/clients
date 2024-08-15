@@ -28,8 +28,6 @@ export type UpdateLoginCipherNotification = OverlayNotification &
 
 export type OverlayNotificationItem = AddLoginCipherNotification | UpdateLoginCipherNotification;
 
-export type OverlayNotifications = Map<chrome.tabs.Tab["id"], OverlayNotificationItem>;
-
 export type ActiveFormSubmissionRequests = Set<chrome.webRequest.ResourceRequest["requestId"]>;
 
 export type ModifyLoginCipherFormData = Map<
@@ -53,6 +51,7 @@ type OverlayNotificationsMessageHandlersParams = OverlayNotificationsMessagePara
 
 export type OverlayNotificationsExtensionMessageHandlers = {
   [key: string]: ({ message, sender }: OverlayNotificationsMessageHandlersParams) => any;
+  formFieldSubmitted: ({ message, sender }: OverlayNotificationsMessageHandlersParams) => void;
   collectPageDetailsResponse: ({
     message,
     sender,

@@ -13,10 +13,12 @@ import NotificationBackground from "./notification.background";
 
 export class OverlayNotificationsBackground implements OverlayNotificationsBackgroundInterface {
   private websiteOriginsWithFields: Set<string> = new Set();
+  private websiteOriginsWithFormSubmissions: Set<string> = new Set();
   private activeFormSubmissionRequests: ActiveFormSubmissionRequests = new Set();
   private modifyLoginCipherFormData: ModifyLoginCipherFormData = new Map();
   private readonly formSubmissionRequestMethods: Set<string> = new Set(["POST", "PUT", "PATCH"]);
   private readonly extensionMessageHandlers: OverlayNotificationsExtensionMessageHandlers = {
+    formFieldSubmitted: ({ message, sender }) => this.handleFormFieldSubmitted(message, sender),
     collectPageDetailsResponse: ({ message, sender }) =>
       this.handleCollectPageDetailsResponse(message, sender),
   };
@@ -28,6 +30,14 @@ export class OverlayNotificationsBackground implements OverlayNotificationsBackg
 
   init() {
     this.setupExtensionListeners();
+  }
+
+  private handleFormFieldSubmitted(
+    message: OverlayNotificationsExtensionMessage,
+    sender: chrome.runtime.MessageSender,
+  ) {
+    // console.log("form field submitted", message, sender);
+    this.websiteOriginsWithFormSubmissions.add(sender.origin);
   }
 
   private async handleCollectPageDetailsResponse(
@@ -114,7 +124,11 @@ export class OverlayNotificationsBackground implements OverlayNotificationsBackg
   }
 
   private handleOnBeforeRequestEvent = (details: chrome.webRequest.WebRequestDetails) => {
-    if (this.requestHostIsInvalid(details) || !this.isFormSubmissionRequest(details)) {
+    if (
+      this.requestHostIsInvalid(details) ||
+      !this.isFormSubmissionRequest(details) ||
+      !this.formSubmissionCaptured(details)
+    ) {
       return;
     }
 
@@ -139,12 +153,20 @@ export class OverlayNotificationsBackground implements OverlayNotificationsBackg
       .catch((error) => this.logService.error(error));
   };
 
+  private formSubmissionCaptured = (details: chrome.webRequest.WebRequestDetails) => {
+    try {
+      // console.log(this.websiteOriginsWithFormSubmissions, new URL(details.url).origin);
+      return this.websiteOriginsWithFormSubmissions.has(new URL(details.url).origin);
+    } catch {
+      return false;
+    }
+  };
+
   private isFormSubmissionRequest = (details: chrome.webRequest.WebRequestDetails) => {
     return this.formSubmissionRequestMethods.has(details.method?.toUpperCase());
   };
 
   private handleOnCompletedRequestEvent = async (details: chrome.webRequest.WebResponseDetails) => {
-    // console.log("onCompleted", details);
     if (
       this.requestHostIsInvalid(details) ||
       this.isInvalidStatusCode(details.statusCode) ||
@@ -152,6 +174,8 @@ export class OverlayNotificationsBackground implements OverlayNotificationsBackg
     ) {
       return;
     }
+
+    // console.log("onCompleted", details);
 
     const modifyLoginData = this.modifyLoginCipherFormData.get(details.tabId);
     if (!modifyLoginData) {
@@ -177,7 +201,7 @@ export class OverlayNotificationsBackground implements OverlayNotificationsBackg
         },
         { tab },
       );
-      this.clearCompletedWebRequest(details.requestId, tab);
+      this.clearCompletedWebRequest(details, tab);
       return;
     }
 
@@ -197,7 +221,7 @@ export class OverlayNotificationsBackground implements OverlayNotificationsBackg
         },
         { tab },
       );
-      this.clearCompletedWebRequest(details.requestId, tab);
+      this.clearCompletedWebRequest(details, tab);
     }
   };
 
@@ -209,12 +233,16 @@ export class OverlayNotificationsBackground implements OverlayNotificationsBackg
     return !details.url?.startsWith("http") || details.tabId < 0;
   };
 
-  private clearCompletedWebRequest = (requestId: string, tab: chrome.tabs.Tab) => {
+  private clearCompletedWebRequest = (
+    details: chrome.webRequest.WebResponseDetails,
+    tab: chrome.tabs.Tab,
+  ) => {
     try {
-      this.activeFormSubmissionRequests.delete(requestId);
+      this.activeFormSubmissionRequests.delete(details.requestId);
       this.modifyLoginCipherFormData.delete(tab.id);
       const tabOrigin = new URL(tab.url).origin;
       this.websiteOriginsWithFields.delete(`${tabOrigin}/*`);
+      this.websiteOriginsWithFormSubmissions.delete(new URL(details.url).origin);
     } catch {
       /* empty */
     } finally {
