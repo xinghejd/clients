@@ -1124,7 +1124,11 @@ describe("OverlayBackground", () => {
 
       beforeEach(() => {
         jest.useFakeTimers();
-        sender = mock<chrome.runtime.MessageSender>({ tab: { id: 1 } });
+        sender = mock<chrome.runtime.MessageSender>({
+          tab: { id: 1 },
+          url: "https://top-frame-test.com",
+          frameId: 0,
+        });
         openAddEditVaultItemPopoutSpy = jest
           .spyOn(overlayBackground as any, "openAddEditVaultItemPopout")
           .mockImplementation();
@@ -1307,10 +1311,15 @@ describe("OverlayBackground", () => {
 
       describe("pulling cipher data from multiple frames of a tab", () => {
         let subFrameSender: MockProxy<chrome.runtime.MessageSender>;
+        let secondSubFrameSender: MockProxy<chrome.runtime.MessageSender>;
         const command = "autofillOverlayAddNewVaultItem";
 
         beforeEach(() => {
           subFrameSender = mock<chrome.runtime.MessageSender>({ tab: sender.tab, frameId: 2 });
+          secondSubFrameSender = mock<chrome.runtime.MessageSender>({
+            tab: sender.tab,
+            frameId: 3,
+          });
         });
 
         it("combines the login cipher data from all frames", async () => {
@@ -1319,9 +1328,15 @@ describe("OverlayBackground", () => {
             "buildLoginCipherView",
           );
           const addNewCipherType = CipherType.Login;
+          const topLevelLoginCipherData = {
+            uri: "https://top-frame-test.com",
+            hostname: "top-frame-test.com",
+            username: "",
+            password: "",
+          };
           const loginCipherData = {
             uri: "https://tacos.com",
-            hostname: "",
+            hostname: "tacos.com",
             username: "username",
             password: "",
           };
@@ -1332,10 +1347,55 @@ describe("OverlayBackground", () => {
             password: "password",
           };
 
-          sendMockExtensionMessage({ command, addNewCipherType, login: loginCipherData }, sender);
+          sendMockExtensionMessage(
+            { command, addNewCipherType, login: topLevelLoginCipherData },
+            sender,
+          );
+          sendMockExtensionMessage(
+            { command, addNewCipherType, login: loginCipherData },
+            subFrameSender,
+          );
           sendMockExtensionMessage(
             { command, addNewCipherType, login: subFrameLoginCipherData },
+            secondSubFrameSender,
+          );
+          jest.advanceTimersByTime(100);
+          await flushPromises();
+
+          expect(buildLoginCipherViewSpy).toHaveBeenCalledWith({
+            uri: "https://top-frame-test.com",
+            hostname: "top-frame-test.com",
+            username: "username",
+            password: "password",
+          });
+        });
+
+        it("sets the uri to the subframe of a tab if the login data is complete", async () => {
+          const buildLoginCipherViewSpy = jest.spyOn(
+            overlayBackground as any,
+            "buildLoginCipherView",
+          );
+          const addNewCipherType = CipherType.Login;
+          const loginCipherData = {
+            uri: "https://tacos.com",
+            hostname: "tacos.com",
+            username: "username",
+            password: "password",
+          };
+          const topLevelLoginCipherData = {
+            uri: "https://top-frame-test.com",
+            hostname: "top-frame-test.com",
+            username: "",
+            password: "",
+          };
+
+          sendMockExtensionMessage(
+            { command, addNewCipherType, login: loginCipherData },
             subFrameSender,
+          );
+          sendMockExtensionMessage(
+            { command, addNewCipherType, login: topLevelLoginCipherData },
+            sender,
           );
           jest.advanceTimersByTime(100);
           await flushPromises();
