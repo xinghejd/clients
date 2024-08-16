@@ -11,13 +11,12 @@ import { Organization } from "@bitwarden/common/admin-console/models/domain/orga
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CollectionService } from "@bitwarden/common/vault/abstractions/collection.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
-import { DialogService, ToastService } from "@bitwarden/components";
+import { DialogService } from "@bitwarden/components";
 import { DefaultCipherFormConfigService } from "@bitwarden/vault";
 
 import { AddEditCipherDialogParams, AddEditComponentV2 } from "./add-edit-v2.component";
@@ -33,7 +32,6 @@ describe("AddEditComponentV2", () => {
   let dialogRef: MockProxy<DialogRef<any>>;
   let dialogService: MockProxy<DialogService>;
   let cipherService: MockProxy<CipherService>;
-  let toastService: MockProxy<ToastService>;
   let messagingService: MockProxy<MessagingService>;
   let folderService: MockProxy<FolderService>;
   let collectionService: MockProxy<CollectionService>;
@@ -71,8 +69,6 @@ describe("AddEditComponentV2", () => {
 
     dialogRef = mock<DialogRef<any>>();
     dialogService = mock<DialogService>();
-    cipherService = mock<CipherService>();
-    toastService = mock<ToastService>();
     messagingService = mock<MessagingService>();
     folderService = mock<FolderService>();
     folderService.folderViews$ = of([]);
@@ -94,9 +90,7 @@ describe("AddEditComponentV2", () => {
         { provide: I18nService, useValue: { t: jest.fn().mockReturnValue("login") } },
         { provide: DialogService, useValue: dialogService },
         { provide: CipherService, useValue: cipherService },
-        { provide: ToastService, useValue: toastService },
         { provide: MessagingService, useValue: messagingService },
-        { provide: LogService, useValue: mock<LogService>() },
         { provide: OrganizationService, useValue: organizationService },
         { provide: Router, useValue: mock<Router>() },
         { provide: ActivatedRoute, useValue: activatedRoute },

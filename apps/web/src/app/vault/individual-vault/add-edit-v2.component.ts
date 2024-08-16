@@ -9,19 +9,11 @@ import { OrganizationService } from "@bitwarden/common/admin-console/abstraction
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { CipherId } from "@bitwarden/common/types/guid";
-import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherType } from "@bitwarden/common/vault/enums/cipher-type";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
-import {
-  AsyncActionsModule,
-  DialogModule,
-  DialogService,
-  ToastService,
-  ItemModule,
-} from "@bitwarden/components";
+import { AsyncActionsModule, DialogModule, DialogService, ItemModule } from "@bitwarden/components";
 import {
   CipherAttachmentsComponent,
   CipherFormConfig,
@@ -107,9 +99,6 @@ export class AddEditComponentV2 implements OnInit, OnDestroy {
     private i18nService: I18nService,
     private dialogService: DialogService,
     private messagingService: MessagingService,
-    private logService: LogService,
-    private cipherService: CipherService,
-    private toastService: ToastService,
     private organizationService: OrganizationService,
     private router: Router,
     private addEditFormConfigService: CipherFormConfigService,
@@ -238,55 +227,6 @@ export class AddEditComponentV2 implements OnInit, OnDestroy {
         action: null,
       },
     });
-  }
-
-  /**
-   * Method to handle cipher deletion. Called when a user clicks the delete button.
-   */
-  async delete(): Promise<void> {
-    const confirmed = await this.dialogService.openSimpleDialog({
-      title: { key: "deleteItem" },
-      content: {
-        key: this.cipher.isDeleted ? "permanentlyDeleteItemConfirmation" : "deleteItemConfirmation",
-      },
-      type: "warning",
-    });
-
-    if (!confirmed) {
-      return;
-    }
-
-    try {
-      this.deletePromise = this.deleteCipher();
-      await this.deletePromise;
-      this.toastService.showToast({
-        variant: "success",
-        title: this.i18nService.t("success"),
-        message: this.i18nService.t(
-          this.cipher.isDeleted ? "permanentlyDeletedItem" : "deletedItem",
-        ),
-      });
-      this.onDeletedCipher.emit(this.cipher);
-      this.messagingService.send(
-        this.cipher.isDeleted ? "permanentlyDeletedCipher" : "deletedCipher",
-      );
-    } catch (e) {
-      this.logService.error(e);
-    }
-
-    this.dialogRef.close({ action: AddEditCipherDialogResult.deleted });
-  }
-
-  /**
-   * Helper method to delete cipher.
-   */
-  protected async deleteCipher(): Promise<void> {
-    const asAdmin = this.organization?.canEditAllCiphers(this.flexibleCollectionsV1Enabled);
-    if (this.cipher.isDeleted) {
-      await this.cipherService.deleteWithServer(this.cipher.id, asAdmin);
-    } else {
-      await this.cipherService.softDeleteWithServer(this.cipher.id, asAdmin);
-    }
   }
 
   /**
