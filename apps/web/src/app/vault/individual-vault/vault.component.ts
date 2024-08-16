@@ -46,7 +46,7 @@ import { MessagingService } from "@bitwarden/common/platform/abstractions/messag
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { SyncService } from "@bitwarden/common/platform/sync";
-import { OrganizationId } from "@bitwarden/common/types/guid";
+import { CipherId, OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CollectionService } from "@bitwarden/common/vault/abstractions/collection.service";
 import { TotpService } from "@bitwarden/common/vault/abstractions/totp.service";
@@ -80,6 +80,11 @@ import {
   AddEditComponentV2,
 } from "./add-edit-v2.component";
 import { AddEditComponent } from "./add-edit.component";
+import {
+  AttachmentDialogCloseResult,
+  AttachmentDialogResult,
+  AttachmentsV2Component,
+} from "./attachments-v2.component";
 import { AttachmentsComponent } from "./attachments.component";
 import {
   BulkDeleteDialogResult,
@@ -414,6 +419,8 @@ export class VaultComponent implements OnInit, OnDestroy {
     this.extensionRefreshEnabled = await this.configService.getFeatureFlag(
       FeatureFlag.ExtensionRefresh,
     );
+
+    this.extensionRefreshEnabled = true;
   }
 
   ngOnDestroy() {
@@ -509,6 +516,15 @@ export class VaultComponent implements OnInit, OnDestroy {
     this.searchText$.next(searchText);
   }
 
+  /**
+   * Handles opening the attachments dialog for a cipher.
+   * Runs several checks to ensure that the user has the correct permissions
+   * and then opens the attachments dialog.
+   * Uses the new AttachmentsV2Component if the extensionRefresh feature flag is enabled.
+   *
+   * @param cipher
+   * @returns
+   */
   async editCipherAttachments(cipher: CipherView) {
     if (cipher?.reprompt !== 0 && !(await this.passwordRepromptService.showPasswordPrompt())) {
       this.go({ cipherId: null, itemId: null });
@@ -534,6 +550,30 @@ export class VaultComponent implements OnInit, OnDestroy {
     );
 
     let madeAttachmentChanges = false;
+
+    if (this.extensionRefreshEnabled) {
+      const dialogRef = this.dialogService.open<
+        AttachmentDialogCloseResult,
+        { cipherId: CipherId }
+      >(AttachmentsV2Component, {
+        data: {
+          cipherId: cipher.id as CipherId,
+        },
+      });
+
+      const result = await lastValueFrom(dialogRef.closed);
+
+      if (
+        result.action === AttachmentDialogResult.uploaded ||
+        result.action === AttachmentDialogResult.removed
+      ) {
+        madeAttachmentChanges = true;
+        this.refresh();
+      }
+
+      return;
+    }
+
     const [modal] = await this.modalService.openViewRef(
       AttachmentsComponent,
       this.attachmentsModalRef,
@@ -664,16 +704,13 @@ export class VaultComponent implements OnInit, OnDestroy {
 
       const result: AddEditCipherDialogCloseResult = await firstValueFrom(dialogRef.closed);
 
-      if (result.action === AddEditCipherDialogResult.added) {
+      if (
+        result.action === AddEditCipherDialogResult.added ||
+        result.action === AddEditCipherDialogResult.edited ||
+        result.action === AddEditCipherDialogResult.deleted
+      ) {
         this.refresh();
-      }
-
-      if (result.action === AddEditCipherDialogResult.edited) {
-        this.refresh();
-      }
-
-      if (result.action === AddEditCipherDialogResult.deleted) {
-        this.refresh();
+        this.go({ cipherId: null, itemId: null });
       }
 
       return dialogRef.componentInstance;

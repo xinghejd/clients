@@ -6,12 +6,14 @@
     <app-cipher-attachments
       *ngIf="cipherId"
       [cipherId]="cipherId"
+      [submitBtn]="submitBtn"
       (onUploadSuccess)="uploadSuccessful()"
+      (onRemoveSuccess)="removalSuccessful()"
     ></app-cipher-attachments>
   </ng-container>
   <ng-container bitDialogFooter>
-    <button bitButton type="submit" form="cipherForm" buttonType="primary" #submitBtnComponent>
-      {{ "save" | i18n }}
+    <button bitButton type="submit" buttonType="primary" [attr.form]="attachmentFormId" #submitBtn>
+      {{ "upload" | i18n }}
     </button>
   </ng-container>
 </bit-dialog>

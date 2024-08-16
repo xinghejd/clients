@@ -37,7 +37,11 @@ import { DefaultCipherFormGenerationService } from "../../../../../../libs/vault
 import { CipherViewComponent } from "../../../../../../libs/vault/src/cipher-view/cipher-view.component";
 import { SharedModule } from "../../shared/shared.module";
 
-import { AttachmentsV2Component } from "./attachments-v2.component";
+import {
+  AttachmentDialogCloseResult,
+  AttachmentDialogResult,
+  AttachmentsV2Component,
+} from "./attachments-v2.component";
 
 export interface AddEditCipherDialogParams {
   cipher?: CipherView;
@@ -51,17 +55,8 @@ export enum AddEditCipherDialogResult {
   added = "added",
 }
 
-export enum attachmentDialogResult {
-  uploaded = "uploaded",
-  closed = "closed",
-}
-
 export interface AddEditCipherDialogCloseResult {
   action: AddEditCipherDialogResult;
-}
-
-export interface attachmentDialogCloseResult {
-  action: attachmentDialogResult;
 }
 
 /**
@@ -109,7 +104,7 @@ export class AddEditComponentV2 implements OnInit, OnDestroy {
   constructor(
     @Inject(DIALOG_DATA) public params: AddEditCipherDialogParams,
     private dialogRef: DialogRef<AddEditCipherDialogCloseResult>,
-    private attachmentDialogRef: DialogRef<attachmentDialogCloseResult>,
+    private attachmentDialogRef: DialogRef<AttachmentDialogCloseResult>,
     private i18nService: I18nService,
     private dialogService: DialogService,
     private messagingService: MessagingService,
@@ -152,10 +147,16 @@ export class AddEditComponentV2 implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
+  /**
+   * Getter to check if the component is loading.
+   */
   get loading() {
     return this.config == null;
   }
 
+  /**
+   * Subscribes to route query parameters and updates the form configuration accordingly.
+   */
   subscribeToParams(): void {
     this.route.queryParams
       .pipe(
@@ -192,6 +193,11 @@ export class AddEditComponentV2 implements OnInit, OnDestroy {
       });
   }
 
+  /**
+   * Sets initial values for the form configuration based on query parameters.
+   * @param params The query parameters.
+   * @param config The form configuration.
+   */
   setInitialValuesFromParams(params: QueryParams, config: CipherFormConfig) {
     config.initialValues = {};
     if (params.folderId) {
@@ -214,6 +220,10 @@ export class AddEditComponentV2 implements OnInit, OnDestroy {
     }
   }
 
+  /**
+   * Handles the event when a cipher is saved.
+   * @param cipher The saved cipher.
+   */
   async onCipherSaved(cipher: CipherView) {
     let action = AddEditCipherDialogResult.added;
     if (cipher.edit) {
@@ -294,6 +304,9 @@ export class AddEditComponentV2 implements OnInit, OnDestroy {
     });
   }
 
+  /**
+   * Method to handle cancel action. Called when a user clicks the cancel button.
+   */
   async cancel() {
     this.dialogRef.close();
     await this.router.navigate([], {
@@ -305,6 +318,12 @@ export class AddEditComponentV2 implements OnInit, OnDestroy {
     });
   }
 
+  /**
+   * Sets the header text based on the mode and type of the cipher.
+   * @param mode The form mode.
+   * @param type The cipher type.
+   * @returns The header text.
+   */
   setHeader(mode: CipherFormMode, type: CipherType) {
     const partOne = mode === "edit" || mode === "partial-edit" ? "editItemHeader" : "newItemHeader";
     switch (type) {
@@ -319,16 +338,25 @@ export class AddEditComponentV2 implements OnInit, OnDestroy {
     }
   }
 
-  openAttachmentsDialog() {
-    this.dialogService.open(AttachmentsV2Component, {
-      data: {
-        cipherId: this.cipherId,
+  /**
+   * Opens the attachments dialog.
+   */
+  async openAttachmentsDialog() {
+    this.dialogService.open<AttachmentsV2Component, { cipherId: CipherId }>(
+      AttachmentsV2Component,
+      {
+        data: {
+          cipherId: this.cipherId,
+        },
       },
-    });
+    );
   }
 
+  /**
+   * Closes the attachments dialog.
+   */
   closeAttachmentsDialog() {
-    this.attachmentDialogRef.close({ action: attachmentDialogResult.closed });
+    this.attachmentDialogRef.close({ action: AttachmentDialogResult.closed });
   }
 }
 
@@ -348,6 +376,8 @@ export function openAddEditCipherDialog(
 /**
  * Allows backwards compatibility with
  * old links that used the original `cipherId` param
+ * @param params The query parameters.
+ * @returns The cipher ID.
  */
 const getCipherIdFromParams = (params: Params): string => {
   return params["itemId"] || params["cipherId"];

@@ -11,8 +11,12 @@ export interface AttachmentsDialogParams {
   cipherId: CipherId;
 }
 
+/**
+ * Enum representing the possible results of the attachment dialog.
+ */
 export enum AttachmentDialogResult {
   uploaded = "uploaded",
+  removed = "removed",
   closed = "closed",
 }
 
@@ -20,6 +24,9 @@ export interface AttachmentDialogCloseResult {
   action: AttachmentDialogResult;
 }
 
+/**
+ * Component for the attachments dialog.
+ */
 @Component({
   selector: "app-vault-attachments-v2",
   templateUrl: "attachments-v2.component.html",
@@ -28,7 +35,13 @@ export interface AttachmentDialogCloseResult {
 })
 export class AttachmentsV2Component {
   cipherId: CipherId;
+  attachmentFormId = CipherAttachmentsComponent.attachmentFormID;
 
+  /**
+   * Constructor for AttachmentsV2Component.
+   * @param dialogRef - Reference to the dialog.
+   * @param params - Parameters passed to the dialog.
+   */
   constructor(
     private dialogRef: DialogRef<AttachmentDialogCloseResult>,
     @Inject(DIALOG_DATA) public params: AttachmentsDialogParams,
@@ -36,9 +49,23 @@ export class AttachmentsV2Component {
     this.cipherId = params.cipherId;
   }
 
+  /**
+   * Called when an attachment is successfully uploaded.
+   * Closes the dialog with an 'uploaded' result.
+   */
   uploadSuccessful() {
     this.dialogRef.close({
       action: AttachmentDialogResult.uploaded,
+    });
+  }
+
+  /**
+   * Called when an attachment is successfully removed.
+   * Closes the dialog with a 'removed' result.
+   */
+  removalSuccessful() {
+    this.dialogRef.close({
+      action: AttachmentDialogResult.removed,
     });
   }
 }

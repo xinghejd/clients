@@ -83,6 +83,9 @@ export class CipherAttachmentsComponent implements OnInit, AfterViewInit {
   /** Emits after a file has been successfully uploaded */
   @Output() onUploadSuccess = new EventEmitter<void>();
 
+  /** Emits after a file has been successfully removed */
+  @Output() onRemoveSuccess = new EventEmitter<void>();
+
   cipher: CipherView;
 
   attachmentForm: CipherAttachmentForm = this.formBuilder.group({
@@ -208,5 +211,7 @@ export class CipherAttachmentsComponent implements OnInit, AfterViewInit {
     if (index > -1) {
       this.cipher.attachments.splice(index, 1);
     }
+
+    this.onRemoveSuccess.emit();
   }
 }
