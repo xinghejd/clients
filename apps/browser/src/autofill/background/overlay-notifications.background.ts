@@ -1,3 +1,5 @@
+import { Subject, switchMap, timer } from "rxjs";
+
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 
 import { BrowserApi } from "../../platform/browser/browser-api";
@@ -12,10 +14,11 @@ import {
 import NotificationBackground from "./notification.background";
 
 export class OverlayNotificationsBackground implements OverlayNotificationsBackgroundInterface {
-  private websiteOriginsWithFields: Set<string> = new Set();
-  private websiteOriginsWithFormSubmissions: Set<string> = new Set();
+  private websiteOriginsWithFields: Map<chrome.tabs.Tab["id"], string> = new Map();
   private activeFormSubmissionRequests: ActiveFormSubmissionRequests = new Set();
   private modifyLoginCipherFormData: ModifyLoginCipherFormData = new Map();
+  private clearLoginCipherFormDataSubject: Subject<void> = new Subject();
+  private readonly clearLoginCipherTimeoutDuration: number = 5000;
   private readonly formSubmissionRequestMethods: Set<string> = new Set(["POST", "PUT", "PATCH"]);
   private readonly extensionMessageHandlers: OverlayNotificationsExtensionMessageHandlers = {
     formFieldSubmitted: ({ message, sender }) => this.handleFormFieldSubmitted(message, sender),
@@ -30,6 +33,9 @@ export class OverlayNotificationsBackground implements OverlayNotificationsBackg
 
   init() {
     this.setupExtensionListeners();
+    this.clearLoginCipherFormDataSubject
+      .pipe(switchMap(() => timer(this.clearLoginCipherTimeoutDuration)))
+      .subscribe(() => this.clearLoginCipherFormData());
   }
 
   private handleFormFieldSubmitted(
@@ -37,8 +43,27 @@ export class OverlayNotificationsBackground implements OverlayNotificationsBackg
     sender: chrome.runtime.MessageSender,
   ) {
     // console.log("form field submitted", message, sender);
-    this.websiteOriginsWithFormSubmissions.add(sender.origin);
+    this.storeModifiedLoginFormData(message, sender.tab.id);
   }
+
+  private storeModifiedLoginFormData = (
+    message: OverlayNotificationsExtensionMessage,
+    tabId: chrome.tabs.Tab["id"],
+  ) => {
+    this.clearLoginCipherFormDataSubject.next();
+
+    const { uri, username, password, newPassword } = message;
+    this.modifyLoginCipherFormData.set(tabId, {
+      uri: uri,
+      username: username,
+      password: password,
+      newPassword: newPassword,
+    });
+  };
+
+  private clearLoginCipherFormData = () => {
+    this.modifyLoginCipherFormData.clear();
+  };
 
   private async handleCollectPageDetailsResponse(
     message: OverlayNotificationsExtensionMessage,
@@ -51,17 +76,16 @@ export class OverlayNotificationsBackground implements OverlayNotificationsBackg
       return;
     }
 
-    const originMatchPattern = `${sender.origin}/*`;
     if (!message.details?.fields?.length) {
-      this.clearWebRequestsListenersOnWebsiteOrigin(originMatchPattern);
+      this.clearWebRequestsListenersOnWebsiteOrigin(sender.tab.id);
       return;
     }
 
-    if (this.websiteOriginsWithFields.has(originMatchPattern)) {
+    if (this.websiteOriginsWithFields.has(sender.tab.id)) {
       return;
     }
 
-    this.websiteOriginsWithFields.add(originMatchPattern);
+    this.websiteOriginsWithFields.set(sender.tab.id, this.getTabOriginMatchPattern(sender.url));
     this.resetWebRequestsListeners();
   }
 
@@ -94,12 +118,12 @@ export class OverlayNotificationsBackground implements OverlayNotificationsBackg
     return await this.notificationsBackground.getEnableAddedLoginPrompt();
   }
 
-  private clearWebRequestsListenersOnWebsiteOrigin(originMatchPattern: string) {
-    if (!this.websiteOriginsWithFields.has(originMatchPattern)) {
+  private clearWebRequestsListenersOnWebsiteOrigin(tabId: chrome.tabs.Tab["id"]) {
+    if (!this.websiteOriginsWithFields.has(tabId)) {
       return;
     }
 
-    this.websiteOriginsWithFields.delete(originMatchPattern);
+    this.websiteOriginsWithFields.delete(tabId);
     this.removeWebRequestListeners();
   }
 
@@ -107,7 +131,7 @@ export class OverlayNotificationsBackground implements OverlayNotificationsBackg
     this.removeWebRequestListeners();
 
     const requestFilter: chrome.webRequest.RequestFilter = {
-      urls: Array.from(this.websiteOriginsWithFields),
+      urls: Array.from(this.websiteOriginsWithFields.values()),
       types: ["main_frame", "sub_frame", "xmlhttprequest"],
     };
     chrome.webRequest.onBeforeRequest.addListener(this.handleOnBeforeRequestEvent, requestFilter);
@@ -121,45 +145,21 @@ export class OverlayNotificationsBackground implements OverlayNotificationsBackg
 
   private setupExtensionListeners() {
     BrowserApi.messageListener("overlay-notifications", this.handleExtensionMessage);
+    chrome.tabs.onRemoved.addListener(this.handleTabRemoved);
   }
 
+  private handleTabRemoved = (tabId: number) => {
+    this.modifyLoginCipherFormData.delete(tabId);
+    this.websiteOriginsWithFields.delete(tabId);
+    this.removeWebRequestListeners();
+  };
+
   private handleOnBeforeRequestEvent = (details: chrome.webRequest.WebRequestDetails) => {
-    if (
-      this.requestHostIsInvalid(details) ||
-      !this.isFormSubmissionRequest(details) ||
-      !this.formSubmissionCaptured(details)
-    ) {
+    if (this.requestHostIsInvalid(details) || !this.isFormSubmissionRequest(details)) {
       return;
     }
 
-    // console.log("onBeforeRequest", details);
     this.activeFormSubmissionRequests.add(details.requestId);
-    BrowserApi.tabSendMessage(
-      { id: details.tabId } as chrome.tabs.Tab,
-      { command: "gatherFormDataForNotification" },
-      { frameId: details.frameId },
-    )
-      .then((response: any) => {
-        if (response) {
-          const { uri, username, password, newPassword } = response;
-          this.modifyLoginCipherFormData.set(details.tabId, {
-            uri: uri,
-            username: username,
-            password: password,
-            newPassword: newPassword,
-          });
-        }
-      })
-      .catch((error) => this.logService.error(error));
-  };
-
-  private formSubmissionCaptured = (details: chrome.webRequest.WebRequestDetails) => {
-    try {
-      // console.log(this.websiteOriginsWithFormSubmissions, new URL(details.url).origin);
-      return this.websiteOriginsWithFormSubmissions.has(new URL(details.url).origin);
-    } catch {
-      return false;
-    }
   };
 
   private isFormSubmissionRequest = (details: chrome.webRequest.WebRequestDetails) => {
@@ -167,6 +167,8 @@ export class OverlayNotificationsBackground implements OverlayNotificationsBackg
   };
 
   private handleOnCompletedRequestEvent = async (details: chrome.webRequest.WebResponseDetails) => {
+    // console.log("onCompleted", details);
+
     if (
       this.requestHostIsInvalid(details) ||
       this.isInvalidStatusCode(details.statusCode) ||
@@ -175,14 +177,12 @@ export class OverlayNotificationsBackground implements OverlayNotificationsBackg
       return;
     }
 
-    // console.log("onCompleted", details);
-
     const modifyLoginData = this.modifyLoginCipherFormData.get(details.tabId);
     if (!modifyLoginData) {
       return;
     }
 
-    // console.log("modifyLoginData", modifyLoginData);
+    // console.log("submit notification with login data", modifyLoginData);
 
     const tab = await BrowserApi.getTab(details.tabId);
     if (
@@ -237,18 +237,24 @@ export class OverlayNotificationsBackground implements OverlayNotificationsBackg
     details: chrome.webRequest.WebResponseDetails,
     tab: chrome.tabs.Tab,
   ) => {
-    try {
-      this.activeFormSubmissionRequests.delete(details.requestId);
-      this.modifyLoginCipherFormData.delete(tab.id);
-      const tabOrigin = new URL(tab.url).origin;
-      this.websiteOriginsWithFields.delete(`${tabOrigin}/*`);
-      this.websiteOriginsWithFormSubmissions.delete(new URL(details.url).origin);
-    } catch {
-      /* empty */
-    } finally {
-      this.resetWebRequestsListeners();
-    }
+    this.activeFormSubmissionRequests.delete(details.requestId);
+    this.modifyLoginCipherFormData.delete(tab.id);
+    this.websiteOriginsWithFields.delete(tab.id);
+    this.resetWebRequestsListeners();
   };
+
+  private getTabOriginMatchPattern(url: string) {
+    try {
+      if (!url.startsWith("http")) {
+        url = `https://${url}`;
+      }
+
+      const parsedUrl = new URL(url);
+      return `${parsedUrl.origin}/*`;
+    } catch {
+      return "";
+    }
+  }
 
   private handleExtensionMessage = (
     message: OverlayNotificationsExtensionMessage,

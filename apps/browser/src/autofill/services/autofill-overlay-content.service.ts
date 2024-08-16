@@ -82,7 +82,6 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     checkMostRecentlyFocusedFieldHasValue: () => this.mostRecentlyFocusedFieldHasValue(),
     setupRebuildSubFrameOffsetsListeners: () => this.setupRebuildSubFrameOffsetsListeners(),
     destroyAutofillInlineMenuListeners: () => this.destroy(),
-    gatherFormDataForNotification: () => this.gatherFormDataForNotification(),
   };
   private readonly cardFieldQualifiers: Record<string, CallableFunction> = {
     [AutofillFieldQualifier.cardholderName]:
@@ -138,15 +137,6 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     private domQueryService: DomQueryService,
     private inlineMenuFieldQualificationService: InlineMenuFieldQualificationService,
   ) {}
-
-  private gatherFormDataForNotification() {
-    return {
-      uri: globalThis.document.URL,
-      username: this.userFilledFields["username"]?.value || "",
-      password: this.userFilledFields["password"]?.value || "",
-      newPassword: this.userFilledFields["newPassword"]?.value || "",
-    };
-  }
 
   /**
    * Initializes the autofill overlay content service by setting up the mutation observers.
@@ -456,7 +446,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     while (currentElement && currentElement.tagName !== "HTML") {
       const genericSubmitElement = this.domQueryService.deepQueryElements<HTMLButtonElement>(
         currentElement,
-        "button[type='submit'], input[type='submit']",
+        "[type='submit']",
       );
       if (genericSubmitElement[0]) {
         return genericSubmitElement[0];
@@ -491,7 +481,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
   ): HTMLElement | null {
     const genericSubmitElement = this.domQueryService.deepQueryElements<HTMLButtonElement>(
       formFieldElement.form,
-      "button[type='submit'], input[type='submit']",
+      "[type='submit']",
     );
     if (genericSubmitElement[0]) {
       return genericSubmitElement[0];
@@ -527,10 +517,12 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
       return;
     }
 
-    // TODO: Determine logic here
-    // console.log("submission", this.userFilledFields);
-
-    void this.sendExtensionMessage("formFieldSubmitted");
+    void this.sendExtensionMessage("formFieldSubmitted", {
+      uri: globalThis.document.URL,
+      username: this.userFilledFields["username"]?.value || "",
+      password: this.userFilledFields["password"]?.value || "",
+      newPassword: this.userFilledFields["newPassword"]?.value || "",
+    });
   };
 
   /**

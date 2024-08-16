@@ -32,7 +32,6 @@ export type AutofillOverlayContentExtensionMessageHandlers = {
   checkMostRecentlyFocusedFieldHasValue: () => boolean;
   setupRebuildSubFrameOffsetsListeners: () => void;
   destroyAutofillInlineMenuListeners: () => void;
-  gatherFormDataForNotification: () => void;
 };
 
 export interface AutofillOverlayContentService {
