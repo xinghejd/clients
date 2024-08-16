@@ -712,35 +712,35 @@ export class VaultComponent implements OnInit, OnDestroy {
       }
 
       return dialogRef.componentInstance;
-    } else {
-      const [modal, childComponent] = await this.modalService.openViewRef(
-        AddEditComponent,
-        this.cipherAddEditModalRef,
-        (comp) => {
-          comp.cipherId = id;
-          comp.onSavedCipher.pipe(takeUntil(this.destroy$)).subscribe(() => {
-            modal.close();
-            this.refresh();
-          });
-          comp.onDeletedCipher.pipe(takeUntil(this.destroy$)).subscribe(() => {
-            modal.close();
-            this.refresh();
-          });
-          comp.onRestoredCipher.pipe(takeUntil(this.destroy$)).subscribe(() => {
-            modal.close();
-            this.refresh();
-          });
-        },
-      );
-
-      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
-      modal.onClosedPromise().then(() => {
-        this.go({ cipherId: null, itemId: null });
-      });
-
-      return childComponent;
     }
+
+    const [modal, childComponent] = await this.modalService.openViewRef(
+      AddEditComponent,
+      this.cipherAddEditModalRef,
+      (comp) => {
+        comp.cipherId = id;
+        comp.onSavedCipher.pipe(takeUntil(this.destroy$)).subscribe(() => {
+          modal.close();
+          this.refresh();
+        });
+        comp.onDeletedCipher.pipe(takeUntil(this.destroy$)).subscribe(() => {
+          modal.close();
+          this.refresh();
+        });
+        comp.onRestoredCipher.pipe(takeUntil(this.destroy$)).subscribe(() => {
+          modal.close();
+          this.refresh();
+        });
+      },
+    );
+
+    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
+    modal.onClosedPromise().then(() => {
+      this.go({ cipherId: null, itemId: null });
+    });
+
+    return childComponent;
   }
 
   async addCollection() {
