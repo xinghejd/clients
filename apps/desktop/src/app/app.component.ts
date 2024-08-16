@@ -455,6 +455,9 @@ export class AppComponent implements OnInit, OnDestroy {
           case "deepLink":
             this.processDeepLink(message.urlString);
             break;
+          case "launchUri":
+            this.platformUtilsService.launchUri(message.url);
+            break;
         }
       });
     });
