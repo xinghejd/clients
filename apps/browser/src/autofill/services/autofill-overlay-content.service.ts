@@ -54,7 +54,8 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
   private hiddenFormFieldElements: WeakMap<ElementWithOpId<FormFieldElement>, AutofillField> =
     new WeakMap();
   private formElements: Set<HTMLFormElement> = new Set();
-  private submitElements: Set<HTMLElement> = new Set(); // TODO: Refine this typing to incorporate input or button elements
+  private submitElements: Set<HTMLElement> = new Set();
+  private fieldsWithSubmitElements: WeakMap<FillableFormFieldElement, HTMLElement> = new WeakMap();
   private ignoredFieldTypes: Set<string> = new Set(AutoFillConstants.ExcludedInlineMenuTypes);
   private userFilledFields: Record<string, FillableFormFieldElement> = {};
   private authStatus: AuthenticationStatus;
@@ -414,55 +415,111 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
       return;
     }
 
-    if (autofillFieldData.form && !this.formElements.has(formFieldElement.form)) {
-      this.formElements.add(formFieldElement.form);
-      this.setupFormSubmissionEventListeners(formFieldElement);
+    if (autofillFieldData.form) {
+      this.setupSubmitListenerOnFieldWithForms(formFieldElement);
+      return;
     }
 
-    this.setupSubmitButtonClickEventListeners(formFieldElement);
+    this.setupSubmitListenerOnFormlessField(formFieldElement);
   }
 
-  private setupFormSubmissionEventListeners(formFieldElement: FillableFormFieldElement) {
-    formFieldElement.form.addEventListener(EVENTS.SUBMIT, this.handleFormFieldSubmitEvent);
-  }
+  private setupSubmitListenerOnFieldWithForms(formFieldElement: FillableFormFieldElement) {
+    const formElement = formFieldElement.form;
+    if (!formElement || this.formElements.has(formElement)) {
+      return;
+    }
 
-  private setupSubmitButtonClickEventListeners(formFieldElement: FillableFormFieldElement) {
-    const closesSubmitButton = this.findClosestSubmitButton(formFieldElement);
+    this.formElements.add(formElement);
+
+    formElement.addEventListener(EVENTS.SUBMIT, this.handleFormFieldSubmitEvent);
+    const closesSubmitButton = this.findSubmitButton(formElement);
     if (!closesSubmitButton || this.submitElements.has(closesSubmitButton)) {
       return;
     }
 
     this.submitElements.add(closesSubmitButton);
-    globalThis.document.addEventListener(EVENTS.CLICK, this.handleFormFieldSubmitEvent);
+    globalThis.document.addEventListener(EVENTS.CLICK, this.handleSubmitButtonClickedEvent);
   }
 
-  private findClosestSubmitButton(formFieldElement: FillableFormFieldElement): HTMLElement | null {
-    if (formFieldElement.form) {
-      return this.findClosestFormSubmitButton(formFieldElement);
+  private findSubmitButton(element: HTMLElement): HTMLElement | null {
+    const genericSubmitElement = this.foundGenericSubmitButtonElement(element);
+    if (genericSubmitElement) {
+      return genericSubmitElement;
     }
 
+    const submitButtonElement = this.foundSubmitButtonElement(element);
+    if (submitButtonElement) {
+      return submitButtonElement;
+    }
+  }
+
+  private foundGenericSubmitButtonElement(element: HTMLElement) {
+    const genericSubmitElements = this.domQueryService.deepQueryElements<HTMLButtonElement>(
+      element,
+      "[type='submit']",
+    );
+    const genericSubmitElement = this.foundSubmitElement(genericSubmitElements);
+    if (genericSubmitElement) {
+      return genericSubmitElement;
+    }
+  }
+
+  private foundSubmitButtonElement(element: HTMLElement) {
+    const buttons = this.domQueryService.deepQueryElements<HTMLButtonElement>(
+      element,
+      "button, [type='button']",
+    );
+    const submitButtonElement = this.foundSubmitElement(buttons);
+    if (submitButtonElement) {
+      return submitButtonElement;
+    }
+  }
+
+  private foundSubmitElement(elements: HTMLElement[]) {
+    for (let index = 0; index < elements.length; index++) {
+      const submitElement = elements[index];
+      if (this.isElementSubmitButton(submitElement)) {
+        return submitElement;
+      }
+    }
+  }
+
+  private isElementSubmitButton(element: HTMLElement) {
+    return (
+      this.inlineMenuFieldQualificationService.isElementLoginSubmitButton(element) ||
+      this.inlineMenuFieldQualificationService.isElementChangePasswordSubmitButton(element)
+    );
+  }
+
+  private setupSubmitListenerOnFormlessField(formFieldElement: FillableFormFieldElement) {
+    if (this.fieldsWithSubmitElements.has(formFieldElement)) {
+      return;
+    }
+
+    const closesSubmitButton = this.findClosestFormlessSubmitButton(formFieldElement);
+    if (!closesSubmitButton || this.submitElements.has(closesSubmitButton)) {
+      return;
+    }
+
+    this.submitElements.add(closesSubmitButton);
+    globalThis.document.addEventListener(EVENTS.CLICK, this.handleSubmitButtonClickedEvent);
+  }
+
+  private findClosestFormlessSubmitButton(
+    formFieldElement: FillableFormFieldElement,
+  ): HTMLElement | null {
     let currentElement: HTMLElement = formFieldElement;
 
     while (currentElement && currentElement.tagName !== "HTML") {
-      const genericSubmitElement = this.domQueryService.deepQueryElements<HTMLButtonElement>(
-        currentElement,
-        "[type='submit']",
-      );
-      if (genericSubmitElement[0]) {
-        return genericSubmitElement[0];
-      }
+      const submitButton = this.findSubmitButton(currentElement);
+      if (submitButton) {
+        this.formFieldElements.forEach((_, element) => {
+          if (currentElement.contains(element)) {
+            this.fieldsWithSubmitElements.set(element as FillableFormFieldElement, submitButton);
+          }
+        });
 
-      const buttons = this.domQueryService.deepQueryElements<HTMLButtonElement>(
-        currentElement,
-        "button, [type='button']",
-      );
-      for (let i = 0; i < buttons.length; i++) {
-        if (
-          this.inlineMenuFieldQualificationService.isElementLoginSubmitButton(buttons[i]) ||
-          this.inlineMenuFieldQualificationService.isElementChangePasswordSubmitButton(buttons[i])
-        ) {
-          return buttons[i];
-        }
+        return submitButton;
       }
 
       if (!currentElement.parentElement && currentElement.getRootNode() instanceof ShadowRoot) {
@@ -476,53 +533,21 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     return null;
   }
 
-  private findClosestFormSubmitButton(
-    formFieldElement: FillableFormFieldElement,
-  ): HTMLElement | null {
-    const genericSubmitElement = this.domQueryService.deepQueryElements<HTMLButtonElement>(
-      formFieldElement.form,
-      "[type='submit']",
-    );
-    if (genericSubmitElement[0]) {
-      return genericSubmitElement[0];
-    }
-
-    let currentElement: HTMLElement = formFieldElement;
-
-    while (currentElement && currentElement.tagName !== "HTML") {
-      const buttons = this.domQueryService.deepQueryElements<HTMLButtonElement>(
-        currentElement,
-        "button, [type='button']",
-      );
-      for (let i = 0; i < buttons.length; i++) {
-        if (
-          this.inlineMenuFieldQualificationService.isElementLoginSubmitButton(buttons[i]) ||
-          this.inlineMenuFieldQualificationService.isElementChangePasswordSubmitButton(buttons[i])
-        ) {
-          return buttons[i];
-        }
-      }
-
-      if (!currentElement.parentElement && currentElement.getRootNode() instanceof ShadowRoot) {
-        currentElement = (currentElement.getRootNode() as ShadowRoot).host as any;
-        continue;
-      }
-
-      currentElement = currentElement.parentElement;
-    }
-  }
-
-  private handleFormFieldSubmitEvent = async (event: MouseEvent) => {
-    if (!this.submitElements.has(event.target as HTMLElement)) {
-      return;
-    }
-
+  private handleFormFieldSubmitEvent = () => {
     void this.sendExtensionMessage("formFieldSubmitted", {
       uri: globalThis.document.URL,
       username: this.userFilledFields["username"]?.value || "",
       password: this.userFilledFields["password"]?.value || "",
       newPassword: this.userFilledFields["newPassword"]?.value || "",
     });
+  };
+
+  private handleSubmitButtonClickedEvent = async (event: MouseEvent) => {
+    if (!this.submitElements.has(event.target as HTMLElement)) {
+      return;
+    }
+
+    this.handleFormFieldSubmitEvent();
   };
 
   /**
