@@ -495,8 +495,7 @@ describe("SsoLoginStrategy", () => {
 
       expect(masterPasswordService.mock.decryptUserKeyWithMasterKey).toHaveBeenCalledWith(
         masterKey,
-        undefined,
-        undefined,
+        userId,
       );
       expect(cryptoService.setUserKey).toHaveBeenCalledWith(userKey, userId);
     });
@@ -551,8 +550,7 @@ describe("SsoLoginStrategy", () => {
 
       expect(masterPasswordService.mock.decryptUserKeyWithMasterKey).toHaveBeenCalledWith(
         masterKey,
-        undefined,
-        undefined,
+        userId,
       );
       expect(cryptoService.setUserKey).toHaveBeenCalledWith(userKey, userId);
     });

@@ -190,7 +190,7 @@ export class ChangePasswordComponent
       HashPurpose.LocalAuthorization,
     );
 
-    const userKey = await this.masterPasswordService.decryptUserKeyWithMasterKey(masterKey);
+    const userKey = await this.masterPasswordService.decryptUserKeyWithMasterKey(masterKey, userId);
     if (userKey == null) {
       this.platformUtilsService.showToast(
         "error",
