@@ -9,7 +9,7 @@ import {
 } from "@angular/core";
 import { FormBuilder, Validators } from "@angular/forms";
 import { Router } from "@angular/router";
-import { Subject, takeUntil } from "rxjs";
+import { firstValueFrom, Subject, takeUntil } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
@@ -23,6 +23,7 @@ import { OrganizationKeysRequest } from "@bitwarden/common/admin-console/models/
 import { OrganizationUpgradeRequest } from "@bitwarden/common/admin-console/models/request/organization-upgrade.request";
 import { ProviderOrganizationCreateRequest } from "@bitwarden/common/admin-console/models/request/provider/provider-organization-create.request";
 import { ProviderResponse } from "@bitwarden/common/admin-console/models/response/provider/provider.response";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { PaymentMethodType, PlanType, ProductTierType } from "@bitwarden/common/billing/enums";
 import { PaymentRequest } from "@bitwarden/common/billing/models/request/payment.request";
 import { BillingResponse } from "@bitwarden/common/billing/models/response/billing.response";
@@ -150,6 +151,7 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
     private formBuilder: FormBuilder,
     private organizationApiService: OrganizationApiServiceAbstraction,
     private providerApiService: ProviderApiServiceAbstraction,
+    private accountService: AccountService,
   ) {
     this.selfHosted = platformUtilsService.isSelfHost();
   }
@@ -567,7 +569,8 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
     const doSubmit = async (): Promise<string> => {
       let orgId: string = null;
       if (this.createOrganization) {
-        const orgKey = await this.cryptoService.makeOrgKey<OrgKey>();
+        const userId = (await firstValueFrom(this.accountService.activeAccount$))?.id;
+        const orgKey = await this.cryptoService.makeOrgKey<OrgKey>(userId);
         const key = orgKey[0].encryptedString;
         const collection = await this.cryptoService.encrypt(
           this.i18nService.t("defaultCollection"),

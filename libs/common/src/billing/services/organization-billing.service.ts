@@ -1,3 +1,5 @@
+import { UserId } from "@bitwarden/common/types/guid";
+
 import { ApiService } from "../../abstractions/api.service";
 import { OrganizationApiServiceAbstraction as OrganizationApiService } from "../../admin-console/abstractions/organization/organization-api.service.abstraction";
 import { OrganizationCreateRequest } from "../../admin-console/models/request/organization-create.request";
@@ -35,10 +37,13 @@ export class OrganizationBillingService implements OrganizationBillingServiceAbs
     private syncService: SyncService,
   ) {}
 
-  async purchaseSubscription(subscription: SubscriptionInformation): Promise<OrganizationResponse> {
+  async purchaseSubscription(
+    userId: UserId,
+    subscription: SubscriptionInformation,
+  ): Promise<OrganizationResponse> {
     const request = new OrganizationCreateRequest();
 
-    const organizationKeys = await this.makeOrganizationKeys();
+    const organizationKeys = await this.makeOrganizationKeys(userId);
 
     this.setOrganizationKeys(request, organizationKeys);
 
@@ -57,10 +62,13 @@ export class OrganizationBillingService implements OrganizationBillingServiceAbs
     return response;
   }
 
-  async startFree(subscription: SubscriptionInformation): Promise<OrganizationResponse> {
+  async startFree(
+    userId: UserId,
+    subscription: SubscriptionInformation,
+  ): Promise<OrganizationResponse> {
     const request = new OrganizationCreateRequest();
 
-    const organizationKeys = await this.makeOrganizationKeys();
+    const organizationKeys = await this.makeOrganizationKeys(userId);
 
     this.setOrganizationKeys(request, organizationKeys);
 
@@ -77,8 +85,8 @@ export class OrganizationBillingService implements OrganizationBillingServiceAbs
     return response;
   }
 
-  private async makeOrganizationKeys(): Promise<OrganizationKeys> {
-    const [encryptedKey, key] = await this.cryptoService.makeOrgKey<OrgKey>();
+  private async makeOrganizationKeys(userId: UserId): Promise<OrganizationKeys> {
+    const [encryptedKey, key] = await this.cryptoService.makeOrgKey<OrgKey>(userId);
     const [publicKey, encryptedPrivateKey] = await this.cryptoService.makeKeyPair(key);
     const encryptedCollectionName = await this.encryptService.encrypt(
       this.i18nService.t("defaultCollection"),

@@ -1,3 +1,5 @@
+import { UserId } from "@bitwarden/common/types/guid";
+
 import { OrganizationResponse } from "../../admin-console/models/response/organization.response";
 import { InitiationPath } from "../../models/request/reference-event.request";
 import { PaymentMethodType, PlanType } from "../enums";
@@ -41,7 +43,13 @@ export type SubscriptionInformation = {
 };
 
 export abstract class OrganizationBillingServiceAbstraction {
-  purchaseSubscription: (subscription: SubscriptionInformation) => Promise<OrganizationResponse>;
+  purchaseSubscription: (
+    userId: UserId,
+    subscription: SubscriptionInformation,
+  ) => Promise<OrganizationResponse>;
 
-  startFree: (subscription: SubscriptionInformation) => Promise<OrganizationResponse>;
+  startFree: (
+    userId: UserId,
+    subscription: SubscriptionInformation,
+  ) => Promise<OrganizationResponse>;
 }

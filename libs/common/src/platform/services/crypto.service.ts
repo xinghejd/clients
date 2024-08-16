@@ -412,10 +412,8 @@ export class CryptoService implements CryptoServiceAbstraction {
     await this.stateProvider.setUserState(USER_ENCRYPTED_PROVIDER_KEYS, null, userId);
   }
 
-  // TODO: Make userId required
-  async makeOrgKey<T extends OrgKey | ProviderKey>(userId?: UserId): Promise<[EncString, T]> {
+  async makeOrgKey<T extends OrgKey | ProviderKey>(userId: UserId): Promise<[EncString, T]> {
     const shareKey = await this.keyGenerationService.createKey(512);
-    userId ??= await firstValueFrom(this.stateProvider.activeUserId$);
     const publicKey = await firstValueFrom(this.userPublicKey$(userId));
     const encShareKey = await this.rsaEncrypt(shareKey.key, publicKey);
     return [encShareKey, shareKey as T];

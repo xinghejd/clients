@@ -1,7 +1,9 @@
 import { Component, EventEmitter, Input, OnInit, Output, ViewChild } from "@angular/core";
 import { FormBuilder, Validators } from "@angular/forms";
+import { firstValueFrom } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import {
   BillingInformation,
   OrganizationBillingServiceAbstraction as OrganizationBillingService,
@@ -75,6 +77,7 @@ export class TrialBillingStepComponent implements OnInit {
     private messagingService: MessagingService,
     private organizationBillingService: OrganizationBillingService,
     private platformUtilsService: PlatformUtilsService,
+    private accountService: AccountService,
   ) {}
 
   async ngOnInit(): Promise<void> {
@@ -166,7 +169,9 @@ export class TrialBillingStepComponent implements OnInit {
       billing: this.getBillingInformationFromTaxInfoComponent(),
     };
 
-    const response = await this.organizationBillingService.purchaseSubscription({
+    const userId = (await firstValueFrom(this.accountService.activeAccount$))?.id;
+
+    const response = await this.organizationBillingService.purchaseSubscription(userId, {
       organization,
       plan,
       payment,

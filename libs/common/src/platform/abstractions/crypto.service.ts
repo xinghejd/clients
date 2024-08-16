@@ -239,9 +239,10 @@ export abstract class CryptoService {
   /**
    * Creates a new organization key and encrypts it with the user's public key.
    * This method can also return Provider keys for creating new Provider users.
+   * @param userId The user id of the user to create the key for.
    * @returns The new encrypted org key and the decrypted key itself
    */
-  abstract makeOrgKey<T extends OrgKey | ProviderKey>(): Promise<[EncString, T]>;
+  abstract makeOrgKey<T extends OrgKey | ProviderKey>(userId: UserId): Promise<[EncString, T]>;
   /**
    * Sets the user's encrypted private key in storage and
    * clears the decrypted private key from memory

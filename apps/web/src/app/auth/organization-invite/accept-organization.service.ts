@@ -25,6 +25,7 @@ import {
   KeyDefinition,
   ORGANIZATION_INVITE_DISK,
 } from "@bitwarden/common/platform/state";
+import { UserId } from "@bitwarden/common/types/guid";
 import { OrgKey } from "@bitwarden/common/types/key";
 
 import { OrganizationInvite } from "./organization-invite";
@@ -94,14 +95,17 @@ export class AcceptOrganizationInviteService {
    * @param invite an organization invite
    * @returns a promise that resolves a boolean indicating if the invite was accepted.
    */
-  async validateAndAcceptInvite(invite: OrganizationInvite): Promise<boolean> {
+  async validateAndAcceptInvite(userId: UserId, invite: OrganizationInvite): Promise<boolean> {
+    if (userId == null) {
+      throw new Error("UserId cannot be null.");
+    }
     if (invite == null) {
       throw new Error("Invite cannot be null.");
     }
 
     // Creation of a new org
     if (invite.initOrganization) {
-      await this.acceptAndInitOrganization(invite);
+      await this.acceptAndInitOrganization(userId, invite);
       return true;
     }
 
@@ -119,8 +123,11 @@ export class AcceptOrganizationInviteService {
     return true;
   }
 
-  private async acceptAndInitOrganization(invite: OrganizationInvite): Promise<void> {
-    await this.prepareAcceptAndInitRequest(invite).then((request) =>
+  private async acceptAndInitOrganization(
+    userId: UserId,
+    invite: OrganizationInvite,
+  ): Promise<void> {
+    await this.prepareAcceptAndInitRequest(userId, invite).then((request) =>
       this.organizationUserService.postOrganizationUserAcceptInit(
         invite.organizationId,
         invite.organizationUserId,
@@ -132,12 +139,13 @@ export class AcceptOrganizationInviteService {
   }
 
   private async prepareAcceptAndInitRequest(
+    userId: UserId,
     invite: OrganizationInvite,
   ): Promise<OrganizationUserAcceptInitRequest> {
     const request = new OrganizationUserAcceptInitRequest();
     request.token = invite.token;
 
-    const [encryptedOrgKey, orgKey] = await this.cryptoService.makeOrgKey<OrgKey>();
+    const [encryptedOrgKey, orgKey] = await this.cryptoService.makeOrgKey<OrgKey>(userId);
     const [orgPublicKey, encryptedOrgPrivateKey] = await this.cryptoService.makeKeyPair(orgKey);
     const collection = await this.encryptService.encrypt(
       this.i18nService.t("defaultCollection"),

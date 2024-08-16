@@ -10,11 +10,13 @@ import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abs
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/models/domain/master-password-policy-options";
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
+import { AuthResult } from "@bitwarden/common/auth/models/domain/auth-result";
 import { OrganizationBillingServiceAbstraction as OrganizationBillingService } from "@bitwarden/common/billing/abstractions/organization-billing.service";
 import { ProductTierType, ProductType } from "@bitwarden/common/billing/enums";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
+import { UserId } from "@bitwarden/common/types/guid";
 import { ToastService } from "@bitwarden/components";
 
 import {
@@ -63,6 +65,8 @@ export class CompleteTrialInitiationComponent implements OnInit, OnDestroy {
   email = "";
   /** Token from the backend associated with the email verification */
   emailVerificationToken: string;
+  /** UserId for the authenticated user, for key generation */
+  userId: UserId;
 
   orgInfoFormGroup = this.formBuilder.group({
     name: ["", { validators: [Validators.required, Validators.maxLength(50)], updateOn: "change" }],
@@ -240,7 +244,7 @@ export class CompleteTrialInitiationComponent implements OnInit, OnDestroy {
       return;
     }
 
-    const response = await this.organizationBillingService.startFree({
+    const response = await this.organizationBillingService.startFree(this.userId, {
       organization: {
         name: this.orgInfoFormGroup.value.name,
         billingEmail: this.orgInfoFormGroup.value.billingEmail,
@@ -294,7 +298,7 @@ export class CompleteTrialInitiationComponent implements OnInit, OnDestroy {
   }
 
   /** Logs the user in based using the token received by the `finishRegistration` method */
-  private async logIn(masterPassword: string, captchaBypassToken: string): Promise<void> {
+  private async logIn(masterPassword: string, captchaBypassToken: string): Promise<AuthResult> {
     const credentials = new PasswordLoginCredentials(
       this.email,
       masterPassword,
@@ -302,7 +306,7 @@ export class CompleteTrialInitiationComponent implements OnInit, OnDestroy {
       null,
     );
 
-    await this.loginStrategyService.logIn(credentials);
+    return this.loginStrategyService.logIn(credentials);
   }
 
   finishRegistration(passwordInputResult: PasswordInputResult) {
