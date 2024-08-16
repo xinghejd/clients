@@ -9,6 +9,7 @@ import { CreateClientOrganizationRequest } from "@bitwarden/common/billing/model
 import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
 import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { UserId } from "@bitwarden/common/types/guid";
 import { OrgKey } from "@bitwarden/common/types/key";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 
@@ -39,13 +40,14 @@ export class WebProviderService {
   }
 
   async createClientOrganization(
+    userId: UserId,
     providerId: string,
     name: string,
     ownerEmail: string,
     planType: PlanType,
     seats: number,
   ): Promise<void> {
-    const organizationKey = (await this.cryptoService.makeOrgKey<OrgKey>())[1];
+    const organizationKey = (await this.cryptoService.makeOrgKey<OrgKey>(userId))[1];
 
     const [publicKey, encryptedPrivateKey] = await this.cryptoService.makeKeyPair(organizationKey);
 

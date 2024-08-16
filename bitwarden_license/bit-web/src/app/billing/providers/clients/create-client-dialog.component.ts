@@ -1,7 +1,9 @@
 import { DIALOG_DATA, DialogConfig, DialogRef } from "@angular/cdk/dialog";
 import { Component, Inject, OnInit } from "@angular/core";
 import { FormControl, FormGroup, Validators } from "@angular/forms";
+import { firstValueFrom } from "rxjs";
 
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions/billilng-api.service.abstraction";
 import { PlanType } from "@bitwarden/common/billing/enums";
 import { PlanResponse } from "@bitwarden/common/billing/models/response/plan.response";
@@ -61,6 +63,7 @@ export class CreateClientDialogComponent implements OnInit {
     private i18nService: I18nService,
     private toastService: ToastService,
     private webProviderService: WebProviderService,
+    private accountService: AccountService,
   ) {}
 
   protected getPlanCardContainerClasses(selected: boolean) {
@@ -143,9 +146,12 @@ export class CreateClientDialogComponent implements OnInit {
       return;
     }
 
+    const activeUserId = (await firstValueFrom(this.accountService.activeAccount$))?.id;
+
     const selectedPlanCard = this.planCards.find((planCard) => planCard.selected);
 
     await this.webProviderService.createClientOrganization(
+      activeUserId,
       this.dialogParams.providerId,
       this.formGroup.value.organizationName,
       this.formGroup.value.clientOwnerEmail,

@@ -7,6 +7,7 @@ import { first, takeUntil } from "rxjs/operators";
 import { ManageTaxInformationComponent } from "@bitwarden/angular/billing/components";
 import { ProviderApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/provider/provider-api.service.abstraction";
 import { ProviderSetupRequest } from "@bitwarden/common/admin-console/models/request/provider/provider-setup.request";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { TaxInformation } from "@bitwarden/common/billing/models/domain";
 import { ExpandedTaxInfoUpdateRequest } from "@bitwarden/common/billing/models/request/expanded-tax-info-update.request";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
@@ -58,6 +59,7 @@ export class SetupComponent implements OnInit, OnDestroy {
     private providerApiService: ProviderApiServiceAbstraction,
     private formBuilder: FormBuilder,
     private toastService: ToastService,
+    private accountService: AccountService,
   ) {}
 
   ngOnInit() {
@@ -131,7 +133,8 @@ export class SetupComponent implements OnInit, OnDestroy {
         return;
       }
 
-      const providerKey = await this.cryptoService.makeOrgKey<ProviderKey>();
+      const activeUserId = (await firstValueFrom(this.accountService.activeAccount$))?.id;
+      const providerKey = await this.cryptoService.makeOrgKey<ProviderKey>(activeUserId);
       const key = providerKey[0].encryptedString;
 
       const request = new ProviderSetupRequest();

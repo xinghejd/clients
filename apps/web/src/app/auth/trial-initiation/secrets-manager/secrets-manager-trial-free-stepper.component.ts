@@ -1,7 +1,9 @@
 import { Component, OnInit, ViewChild } from "@angular/core";
 import { UntypedFormBuilder, Validators } from "@angular/forms";
 import { Router } from "@angular/router";
+import { firstValueFrom } from "rxjs";
 
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { OrganizationBillingServiceAbstraction as OrganizationBillingService } from "@bitwarden/common/billing/abstractions/organization-billing.service";
 import { PlanType } from "@bitwarden/common/billing/enums";
 import { ReferenceEventRequest } from "@bitwarden/common/models/request/reference-event.request";
@@ -47,6 +49,7 @@ export class SecretsManagerTrialFreeStepperComponent implements OnInit {
     protected i18nService: I18nService,
     protected organizationBillingService: OrganizationBillingService,
     private router: Router,
+    private accountService: AccountService,
   ) {}
 
   ngOnInit(): void {
@@ -61,7 +64,8 @@ export class SecretsManagerTrialFreeStepperComponent implements OnInit {
   }
 
   async createOrganization(): Promise<void> {
-    const response = await this.organizationBillingService.startFree({
+    const activeUserId = (await firstValueFrom(this.accountService.activeAccount$))?.id;
+    const response = await this.organizationBillingService.startFree(activeUserId, {
       organization: {
         name: this.formGroup.get("name").value,
         billingEmail: this.formGroup.get("email").value,
