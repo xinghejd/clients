@@ -419,8 +419,6 @@ export class VaultComponent implements OnInit, OnDestroy {
     this.extensionRefreshEnabled = await this.configService.getFeatureFlag(
       FeatureFlag.ExtensionRefresh,
     );
-
-    this.extensionRefreshEnabled = true;
   }
 
   ngOnDestroy() {
