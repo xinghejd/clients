@@ -300,13 +300,22 @@ export class AppComponent implements OnInit, OnDestroy {
               this.systemService.clearClipboard(message.clipboardValue, message.clearMs);
             }
             break;
-          case "ssoCallback":
+          case "ssoCallback": {
+            let queryParams = {
+              code: message.code,
+              state: message.state,
+              redirectUri: "bitwarden://sso-callback",
+            };
+            if (message.redirectUri) {
+              queryParams = { ...queryParams, redirectUri: message.redirectUri };
+            }
             // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
             // eslint-disable-next-line @typescript-eslint/no-floating-promises
             this.router.navigate(["sso"], {
-              queryParams: { code: message.code, state: message.state },
+              queryParams: queryParams,
             });
             break;
+          }
           case "premiumRequired": {
             const premiumConfirmed = await this.dialogService.openSimpleDialog({
               title: { key: "premiumRequired" },

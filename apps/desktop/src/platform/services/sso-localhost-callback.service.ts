@@ -6,19 +6,24 @@ import { firstValueFrom } from "rxjs";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { MessageSender } from "@bitwarden/common/platform/messaging";
 
-
 /**
  * The SSO Localhost login service uses a local host listener as fallback in case scheme handling deeplinks does not work.
  * This way it is possible to log in with SSO on appimage, snap, and electron dev using the same methods that the cli uses.
  */
 export class SSOLocalhostCallbackService {
+  private ssoRedirectUri = "";
+
   constructor(
     private environmentService: EnvironmentService,
     private messagingService: MessageSender,
   ) {
     ipcMain.handle("openSsoPrompt", async (event, { codeChallenge, state }) => {
       const { ssoCode } = await this.openSsoPrompt(codeChallenge, state);
-      this.messagingService.send("ssoCallback", { code: ssoCode, state: state });
+      this.messagingService.send("ssoCallback", {
+        code: ssoCode,
+        state: state,
+        redirectUri: this.ssoRedirectUri,
+      });
     });
   }
 
@@ -73,15 +78,15 @@ export class SSOLocalhostCallbackService {
       const webUrl = env.getWebVaultUrl();
       for (let port = 8065; port <= 8070; port++) {
         try {
-          const ssoRedirectUri = "http://localhost:" + port;
+          this.ssoRedirectUri = "http://localhost:" + port;
           callbackServer.listen(port, () => {
             this.messagingService.send("launchUri", {
               url:
                 webUrl +
                 "/#/sso?clientId=" +
-                "cli" +
+                "desktop" +
                 "&redirectUri=" +
-                encodeURIComponent(ssoRedirectUri) +
+                encodeURIComponent(this.ssoRedirectUri) +
                 "&state=" +
                 state +
                 "&codeChallenge=" +
