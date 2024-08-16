@@ -62,7 +62,6 @@ import { Message, MessageListener, MessageSender } from "@bitwarden/common/platf
 // eslint-disable-next-line no-restricted-imports -- Used for dependency injection
 import { SubjectMessageSender } from "@bitwarden/common/platform/messaging/internal";
 import { TaskSchedulerService } from "@bitwarden/common/platform/scheduling";
-import { ConsoleLogService } from "@bitwarden/common/platform/services/console-log.service";
 import { ContainerService } from "@bitwarden/common/platform/services/container.service";
 import { StorageServiceProvider } from "@bitwarden/common/platform/services/storage-service.provider";
 import { WebCryptoFunctionService } from "@bitwarden/common/platform/services/web-crypto-function.service";
@@ -92,6 +91,7 @@ import MainBackground from "../../background/main.background";
 import { BrowserApi } from "../../platform/browser/browser-api";
 import { runInsideAngular } from "../../platform/browser/run-inside-angular.operator";
 /* eslint-disable no-restricted-imports */
+import { ChromeStorageLocalLogService } from "../../platform/logging/chrome-storage-local-log.service";
 import { ChromeMessageSender } from "../../platform/messaging/chrome-message.sender";
 /* eslint-enable no-restricted-imports */
 import { OffscreenDocumentService } from "../../platform/offscreen-document/abstractions/offscreen-document";
@@ -176,8 +176,8 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: LogService,
     useFactory: () => {
-      const isDev = process.env.ENV === "development";
-      return new ConsoleLogService(isDev);
+      // const isDev = process.env.ENV === "development";
+      return new ChromeStorageLocalLogService();
     },
     deps: [],
   }),
