@@ -1,32 +1,6 @@
-import { NotificationMessageTypes } from "../../enums/notification-queue-message-type.enum";
 import AutofillPageDetails from "../../models/autofill-page-details";
 
-export type OverlayNotification = {
-  type: NotificationMessageTypes;
-  tab: chrome.tabs.Tab;
-  expires: Date;
-};
-
-export type AddLoginCipherData = { username: string; password: string };
-
-export type AddLoginCipherNotification = OverlayNotification &
-  AddLoginCipherData & {
-    uri: string;
-  };
-
-export type UpdateLoginCipherData = {
-  username: string;
-  currentPassword: string;
-  newPassword: string;
-};
-
-export type UpdateLoginCipherNotification = OverlayNotification &
-  UpdateLoginCipherData & {
-    uri: string;
-    cipherId: string;
-  };
-
-export type OverlayNotificationItem = AddLoginCipherNotification | UpdateLoginCipherNotification;
+export type WebsiteOriginsWithFields = Map<chrome.tabs.Tab["id"], string>;
 
 export type ActiveFormSubmissionRequests = Set<chrome.webRequest.ResourceRequest["requestId"]>;
 

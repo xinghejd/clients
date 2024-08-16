@@ -10,11 +10,12 @@ import {
   OverlayNotificationsBackground as OverlayNotificationsBackgroundInterface,
   OverlayNotificationsExtensionMessage,
   OverlayNotificationsExtensionMessageHandlers,
+  WebsiteOriginsWithFields,
 } from "./abstractions/overlay-notifications.background";
 import NotificationBackground from "./notification.background";
 
 export class OverlayNotificationsBackground implements OverlayNotificationsBackgroundInterface {
-  private websiteOriginsWithFields: Map<chrome.tabs.Tab["id"], string> = new Map();
+  private websiteOriginsWithFields: WebsiteOriginsWithFields = new Map();
   private activeFormSubmissionRequests: ActiveFormSubmissionRequests = new Set();
   private modifyLoginCipherFormData: ModifyLoginCipherFormData = new Map();
   private clearLoginCipherFormDataSubject: Subject<void> = new Subject();
