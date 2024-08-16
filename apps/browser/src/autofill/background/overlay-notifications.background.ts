@@ -125,11 +125,15 @@ export class OverlayNotificationsBackground implements OverlayNotificationsBackg
     }
 
     this.websiteOriginsWithFields.delete(tabId);
-    this.removeWebRequestListeners();
+    this.resetWebRequestsListeners();
   }
 
   private resetWebRequestsListeners() {
-    this.removeWebRequestListeners();
+    chrome.webRequest.onBeforeRequest.removeListener(this.handleOnBeforeRequestEvent);
+    chrome.webRequest.onCompleted.removeListener(this.handleOnCompletedRequestEvent);
+    if (!this.websiteOriginsWithFields.size) {
+      return;
+    }
 
     const requestFilter: chrome.webRequest.RequestFilter = {
       urls: Array.from(this.websiteOriginsWithFields.values()),
@@ -137,11 +141,6 @@ export class OverlayNotificationsBackground implements OverlayNotificationsBackg
     };
     chrome.webRequest.onBeforeRequest.addListener(this.handleOnBeforeRequestEvent, requestFilter);
     chrome.webRequest.onCompleted.addListener(this.handleOnCompletedRequestEvent, requestFilter);
-  }
-
-  private removeWebRequestListeners() {
-    chrome.webRequest.onBeforeRequest.removeListener(this.handleOnBeforeRequestEvent);
-    chrome.webRequest.onCompleted.removeListener(this.handleOnCompletedRequestEvent);
   }
 
   private setupExtensionListeners() {
@@ -152,7 +151,7 @@ export class OverlayNotificationsBackground implements OverlayNotificationsBackg
   private handleTabRemoved = (tabId: number) => {
     this.modifyLoginCipherFormData.delete(tabId);
     this.websiteOriginsWithFields.delete(tabId);
-    this.removeWebRequestListeners();
+    this.resetWebRequestsListeners();
   };
 
   private handleOnBeforeRequestEvent = (details: chrome.webRequest.WebRequestDetails) => {
