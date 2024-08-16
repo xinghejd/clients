@@ -19,7 +19,6 @@ import AutofillInit from "./autofill-init";
       inlineMenuElements = new AutofillInlineMenuContentService();
     }
     windowContext.bitwardenAutofillInit = new AutofillInit(
-      domQueryService,
       autofillOverlayContentService,
       inlineMenuElements,
     );

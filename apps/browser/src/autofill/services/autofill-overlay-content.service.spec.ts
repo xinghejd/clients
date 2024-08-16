@@ -34,12 +34,11 @@ describe("AutofillOverlayContentService", () => {
 
   beforeEach(() => {
     inlineMenuFieldQualificationService = new InlineMenuFieldQualificationService();
-    domQueryService = new DomQueryService();
     autofillOverlayContentService = new AutofillOverlayContentService(
       domQueryService,
       inlineMenuFieldQualificationService,
     );
-    autofillInit = new AutofillInit(domQueryService, autofillOverlayContentService);
+    autofillInit = new AutofillInit(autofillOverlayContentService);
     autofillInit.init();
     sendExtensionMessageSpy = jest
       .spyOn(autofillOverlayContentService as any, "sendExtensionMessage")

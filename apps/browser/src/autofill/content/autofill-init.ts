@@ -4,7 +4,6 @@ import AutofillPageDetails from "../models/autofill-page-details";
 import { AutofillInlineMenuContentService } from "../overlay/inline-menu/abstractions/autofill-inline-menu-content.service";
 import { OverlayNotificationsContentService } from "../overlay/notifications/abstractions/overlay-notifications-content.service";
 import { AutofillOverlayContentService } from "../services/abstractions/autofill-overlay-content.service";
-import { DomQueryService } from "../services/abstractions/dom-query.service";
 import { CollectAutofillContentService } from "../services/collect-autofill-content.service";
 import DomElementVisibilityService from "../services/dom-element-visibility.service";
 import InsertAutofillContentService from "../services/insert-autofill-content.service";
@@ -39,9 +38,9 @@ class AutofillInit implements AutofillInitInterface {
    *
    * @param autofillOverlayContentService - The autofill overlay content service, potentially undefined.
    * @param inlineMenuContentService - The inline menu content service, potentially undefined.
+   * @param overlayNotificationsContentService - The overlay notifications content service, potentially undefined.
    */
   constructor(
-    private domQueryService: DomQueryService,
     autofillOverlayContentService?: AutofillOverlayContentService,
     inlineMenuContentService?: AutofillInlineMenuContentService,
     overlayNotificationsContentService?: OverlayNotificationsContentService,
@@ -210,6 +209,10 @@ class AutofillInit implements AutofillInitInterface {
 
     if (this.autofillInlineMenuContentService?.messageHandlers?.[command]) {
       return this.autofillInlineMenuContentService.messageHandlers[command];
+    }
+
+    if (this.overlayNotificationsContentService?.messageHandlers?.[command]) {
+      return this.overlayNotificationsContentService.messageHandlers[command];
     }
 
     return this.extensionMessageHandlers[command];

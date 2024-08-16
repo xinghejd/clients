@@ -29,6 +29,7 @@ import { openUnlockPopout } from "../../auth/popup/utils/auth-popout-window";
 import { BrowserApi } from "../../platform/browser/browser-api";
 import { openAddEditVaultItemPopout } from "../../vault/popup/utils/vault-popout-window";
 import { NotificationMessageType } from "../enums/notification-queue-message-type.enum";
+import { NotificationTypeData } from "../overlay/notifications/abstractions/overlay-notifications-content.service";
 import { AutofillService } from "../services/abstractions/autofill.service";
 
 import {
@@ -60,9 +61,8 @@ export default class NotificationBackground {
     bgCloseNotificationBar: ({ sender }) => this.handleCloseNotificationBarMessage(sender),
     bgAdjustNotificationBar: ({ message, sender }) =>
       this.handleAdjustNotificationBarMessage(message, sender),
-    // TODO: These handlers can likely still be registered, we'd want to handle the change for this within the content script
-    // bgAddLogin: ({ message, sender }) => this.addLogin(message, sender),
-    // bgChangedPassword: ({ message, sender }) => this.changedPassword(message, sender),
+    bgAddLogin: ({ message, sender }) => this.addLogin(message, sender),
+    bgChangedPassword: ({ message, sender }) => this.changedPassword(message, sender),
     bgRemoveTabFromNotificationQueue: ({ sender }) =>
       this.removeTabFromNotificationQueue(sender.tab),
     bgSaveCipher: ({ message, sender }) => this.handleSaveCipherMessage(message, sender),
@@ -185,7 +185,7 @@ export default class NotificationBackground {
   ) {
     const notificationType = notificationQueueMessage.type;
 
-    const typeData: Record<string, any> = {
+    const typeData: NotificationTypeData = {
       isVaultLocked: notificationQueueMessage.wasVaultLocked,
       theme: await firstValueFrom(this.themeStateService.selectedTheme$),
     };

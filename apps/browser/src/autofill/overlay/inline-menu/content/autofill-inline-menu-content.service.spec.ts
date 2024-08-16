@@ -1,6 +1,5 @@
 import AutofillInit from "../../../content/autofill-init";
 import { AutofillOverlayElement } from "../../../enums/autofill-overlay.enum";
-import { DomQueryService } from "../../../services/dom-query.service";
 import { createMutationRecordMock } from "../../../spec/autofill-mocks";
 import { flushPromises, sendMockExtensionMessage } from "../../../spec/testing-utils";
 import { ElementWithOpId } from "../../../types";
@@ -9,7 +8,6 @@ import { AutofillInlineMenuContentService } from "./autofill-inline-menu-content
 
 describe("AutofillInlineMenuContentService", () => {
   let autofillInlineMenuContentService: AutofillInlineMenuContentService;
-  let domQueryService: DomQueryService;
   let autofillInit: AutofillInit;
   let sendExtensionMessageSpy: jest.SpyInstance;
   let observeBodyMutationsSpy: jest.SpyInstance;
@@ -20,8 +18,7 @@ describe("AutofillInlineMenuContentService", () => {
     globalThis.document.body.innerHTML = "";
     globalThis.requestIdleCallback = jest.fn((cb, options) => setTimeout(cb, 100));
     autofillInlineMenuContentService = new AutofillInlineMenuContentService();
-    domQueryService = new DomQueryService();
-    autofillInit = new AutofillInit(domQueryService, null, autofillInlineMenuContentService);
+    autofillInit = new AutofillInit(null, autofillInlineMenuContentService);
     autofillInit.init();
     observeBodyMutationsSpy = jest.spyOn(
       autofillInlineMenuContentService["bodyElementMutationObserver"] as any,
