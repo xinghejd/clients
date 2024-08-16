@@ -98,7 +98,6 @@ export class AddEditComponentV2 implements OnInit, OnDestroy {
   editMode: boolean = false;
   cloneMode: boolean = false;
   protected destroy$ = new Subject<void>();
-  attachmentFormId = CipherAttachmentsComponent.attachmentFormID;
   canAccessAttachments: boolean = false;
 
   constructor(
