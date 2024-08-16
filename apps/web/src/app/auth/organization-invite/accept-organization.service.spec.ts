@@ -13,8 +13,10 @@ import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
 import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
 import { FakeGlobalState } from "@bitwarden/common/spec/fake-state";
+import { UserId } from "@bitwarden/common/types/guid";
 import { OrgKey } from "@bitwarden/common/types/key";
 
 import { I18nService } from "../../core/i18n.service";
@@ -26,6 +28,7 @@ import {
 import { OrganizationInvite } from "./organization-invite";
 
 describe("AcceptOrganizationInviteService", () => {
+  const mockUserId = Utils.newGuid() as UserId;
   let sut: AcceptOrganizationInviteService;
   let apiService: MockProxy<ApiService>;
   let authService: MockProxy<AuthService>;
@@ -82,7 +85,7 @@ describe("AcceptOrganizationInviteService", () => {
       encryptService.encrypt.mockResolvedValue({ encryptedString: "string" } as EncString);
       const invite = createOrgInvite({ initOrganization: true });
 
-      const result = await sut.validateAndAcceptInvite(invite);
+      const result = await sut.validateAndAcceptInvite(mockUserId, invite);
 
       expect(result).toBe(true);
       expect(organizationUserService.postOrganizationUserAcceptInit).toHaveBeenCalled();
@@ -101,7 +104,7 @@ describe("AcceptOrganizationInviteService", () => {
         } as Policy,
       ]);
 
-      const result = await sut.validateAndAcceptInvite(invite);
+      const result = await sut.validateAndAcceptInvite(mockUserId, invite);
 
       expect(result).toBe(false);
       expect(authService.logOut).toHaveBeenCalled();
@@ -119,7 +122,7 @@ describe("AcceptOrganizationInviteService", () => {
         } as Policy,
       ]);
 
-      const result = await sut.validateAndAcceptInvite(providedInvite);
+      const result = await sut.validateAndAcceptInvite(mockUserId, providedInvite);
 
       expect(result).toBe(false);
       expect(authService.logOut).toHaveBeenCalled();
@@ -130,7 +133,7 @@ describe("AcceptOrganizationInviteService", () => {
       const invite = createOrgInvite();
       policyApiService.getPoliciesByToken.mockResolvedValue([]);
 
-      const result = await sut.validateAndAcceptInvite(invite);
+      const result = await sut.validateAndAcceptInvite(mockUserId, invite);
 
       expect(result).toBe(true);
       expect(organizationUserService.postOrganizationUserAccept).toHaveBeenCalled();
@@ -158,7 +161,7 @@ describe("AcceptOrganizationInviteService", () => {
         false,
       ]);
 
-      const result = await sut.validateAndAcceptInvite(invite);
+      const result = await sut.validateAndAcceptInvite(mockUserId, invite);
 
       expect(result).toBe(true);
       expect(organizationUserService.postOrganizationUserAccept).toHaveBeenCalled();

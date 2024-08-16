@@ -25,6 +25,7 @@ import {
   KeyDefinition,
   ORGANIZATION_INVITE_DISK,
 } from "@bitwarden/common/platform/state";
+import { UserId } from "@bitwarden/common/types/guid";
 import { OrgKey } from "@bitwarden/common/types/key";
 
 import { OrganizationInvite } from "./organization-invite";
@@ -91,10 +92,14 @@ export class AcceptOrganizationInviteService {
    * Validates and accepts the organization invitation if possible.
    * Note: Users might need to pass a MP policy check before accepting an invite to an existing organization. If the user
    * has not passed this check, they will be logged out and the invite will be stored for later use.
+   * @param userId the user Id of the user accepting the invite
    * @param invite an organization invite
    * @returns a promise that resolves a boolean indicating if the invite was accepted.
    */
-  async validateAndAcceptInvite(invite: OrganizationInvite): Promise<boolean> {
+  async validateAndAcceptInvite(userId: UserId, invite: OrganizationInvite): Promise<boolean> {
+    if (userId == null) {
+      throw new Error("UserId cannot be null.");
+    }
     if (invite == null) {
       throw new Error("Invite cannot be null.");
     }
@@ -115,7 +120,7 @@ export class AcceptOrganizationInviteService {
     }
 
     // We know the user has already logged in and passed a MP policy check
-    await this.accept(invite);
+    await this.accept(userId, invite);
     return true;
   }
 
@@ -154,8 +159,8 @@ export class AcceptOrganizationInviteService {
     return request;
   }
 
-  private async accept(invite: OrganizationInvite): Promise<void> {
-    await this.prepareAcceptRequest(invite).then((request) =>
+  private async accept(userId: UserId, invite: OrganizationInvite): Promise<void> {
+    await this.prepareAcceptRequest(userId, invite).then((request) =>
       this.organizationUserService.postOrganizationUserAccept(
         invite.organizationId,
         invite.organizationUserId,
@@ -168,6 +173,7 @@ export class AcceptOrganizationInviteService {
   }
 
   private async prepareAcceptRequest(
+    userId: UserId,
     invite: OrganizationInvite,
   ): Promise<OrganizationUserAcceptRequest> {
     const request = new OrganizationUserAcceptRequest();
@@ -183,7 +189,7 @@ export class AcceptOrganizationInviteService {
       const publicKey = Utils.fromB64ToArray(response.publicKey);
 
       // RSA Encrypt user's encKey.key with organization public key
-      const userKey = await this.cryptoService.getUserKey();
+      const userKey = await firstValueFrom(this.cryptoService.userKey$(userId));
       const encryptedKey = await this.cryptoService.rsaEncrypt(userKey.key, publicKey);
 
       // Add reset password key to accept request
