@@ -2,8 +2,9 @@ import { DIALOG_DATA, DialogConfig, DialogRef } from "@angular/cdk/dialog";
 import { CommonModule } from "@angular/common";
 import { Component, Inject, OnInit, EventEmitter, OnDestroy } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import { FormGroup } from "@angular/forms";
 import { ActivatedRoute, Params, Router } from "@angular/router";
-import { map, Subject, switchMap, takeUntil } from "rxjs";
+import { lastValueFrom, map, Subject, switchMap, takeUntil } from "rxjs";
 
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
@@ -34,6 +35,10 @@ import {
   AttachmentDialogResult,
   AttachmentsV2Component,
 } from "./attachments-v2.component";
+import {
+  PasswordGeneratorCloseResult,
+  PasswordGeneratorComponent,
+} from "./password-generator.component";
 
 export interface AddEditCipherDialogParams {
   cipher?: CipherView;
@@ -42,9 +47,9 @@ export interface AddEditCipherDialogParams {
 }
 
 export enum AddEditCipherDialogResult {
-  edited = "edited",
-  deleted = "deleted",
-  added = "added",
+  Edited = "edited",
+  Deleted = "deleted",
+  Added = "added",
 }
 
 export interface AddEditCipherDialogCloseResult {
@@ -213,9 +218,9 @@ export class AddEditComponentV2 implements OnInit, OnDestroy {
    * @param cipher The saved cipher.
    */
   async onCipherSaved(cipher: CipherView) {
-    let action = AddEditCipherDialogResult.added;
+    let action = AddEditCipherDialogResult.Added;
     if (cipher.edit) {
-      action = AddEditCipherDialogResult.edited;
+      action = AddEditCipherDialogResult.Edited;
     }
 
     this.dialogRef.close({ action });
@@ -233,7 +238,7 @@ export class AddEditComponentV2 implements OnInit, OnDestroy {
    * Method to handle cipher editing. Called when a user clicks the edit button.
    */
   async edit(): Promise<void> {
-    this.dialogRef.close({ action: AddEditCipherDialogResult.edited });
+    this.dialogRef.close({ action: AddEditCipherDialogResult.Edited });
     await this.router.navigate([], {
       queryParams: {
         itemId: this.cipher.id,
@@ -295,7 +300,25 @@ export class AddEditComponentV2 implements OnInit, OnDestroy {
    * Closes the attachments dialog.
    */
   closeAttachmentsDialog() {
-    this.attachmentDialogRef.close({ action: AttachmentDialogResult.closed });
+    this.attachmentDialogRef.close({ action: AttachmentDialogResult.Closed });
+  }
+
+  /**
+   * Handles the event when a user would like to launch the password generation dialog.
+   * @param formGroup The form group.
+   */
+  async onPasswordGenerationEvent(formGroup: FormGroup) {
+    const dialogRef = this.dialogService.open(PasswordGeneratorComponent, {
+      data: {},
+    });
+
+    const result = (await lastValueFrom(dialogRef.closed)) as PasswordGeneratorCloseResult;
+
+    if (result?.action === "added" && result?.password) {
+      formGroup.patchValue({
+        password: result.password,
+      });
+    }
   }
 }
 

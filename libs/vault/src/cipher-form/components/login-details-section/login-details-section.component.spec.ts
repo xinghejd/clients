@@ -9,6 +9,7 @@ import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { Fido2CredentialView } from "@bitwarden/common/vault/models/view/fido2-credential.view";
 import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
 import { ToastService } from "@bitwarden/components";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 
 import { CipherFormGenerationService } from "../../abstractions/cipher-form-generation.service";
 import { TotpCaptureService } from "../../abstractions/totp-capture.service";
@@ -34,6 +35,7 @@ describe("LoginDetailsSectionComponent", () => {
   let toastService: MockProxy<ToastService>;
   let totpCaptureService: MockProxy<TotpCaptureService>;
   let i18nService: MockProxy<I18nService>;
+  let configService: MockProxy<ConfigService>;
 
   beforeEach(async () => {
     cipherFormContainer = mock<CipherFormContainer>();
@@ -43,6 +45,7 @@ describe("LoginDetailsSectionComponent", () => {
     toastService = mock<ToastService>();
     totpCaptureService = mock<TotpCaptureService>();
     i18nService = mock<I18nService>();
+    configService = mock<ConfigService>();
 
     await TestBed.configureTestingModule({
       imports: [LoginDetailsSectionComponent],
@@ -53,6 +56,7 @@ describe("LoginDetailsSectionComponent", () => {
         { provide: ToastService, useValue: toastService },
         { provide: TotpCaptureService, useValue: totpCaptureService },
         { provide: I18nService, useValue: i18nService },
+        { provide: ConfigService, useValue: configService },
       ],
     })
       .overrideComponent(LoginDetailsSectionComponent, {
@@ -523,5 +527,25 @@ describe("LoginDetailsSectionComponent", () => {
       expect(updatedCipher.login.fido2Credentials).toBeNull();
       expect(component.hasPasskey).toBe(false);
     }));
+  });
+
+  describe("password generation event", () => {
+    it("emits a passwordGenerationEvent when generatePassword is called and extensionRefreshEnabled is true", async () => {
+      (component as any).extensionRefreshEnabled = true;
+      const emitSpy = jest.spyOn(component.passwordGenerationEvent, "emit");
+
+      await component.generatePassword();
+
+      expect(emitSpy).toHaveBeenCalledWith(component.loginDetailsForm);
+    });
+
+    it("does not emit a passwordGenerationEvent when extensionRefreshEnabled is false", async () => {
+      (component as any).extensionRefreshEnabled = false;
+      const emitSpy = jest.spyOn(component.passwordGenerationEvent, "emit");
+
+      await component.generatePassword();
+
+      expect(emitSpy).not.toHaveBeenCalled();
+    });
   });
 });

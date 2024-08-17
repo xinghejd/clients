@@ -15,9 +15,9 @@ export interface AttachmentsDialogParams {
  * Enum representing the possible results of the attachment dialog.
  */
 export enum AttachmentDialogResult {
-  uploaded = "uploaded",
-  removed = "removed",
-  closed = "closed",
+  Uploaded = "uploaded",
+  Removed = "removed",
+  Closed = "closed",
 }
 
 export interface AttachmentDialogCloseResult {
@@ -55,7 +55,7 @@ export class AttachmentsV2Component {
    */
   uploadSuccessful() {
     this.dialogRef.close({
-      action: AttachmentDialogResult.uploaded,
+      action: AttachmentDialogResult.Uploaded,
     });
   }
 
@@ -65,7 +65,7 @@ export class AttachmentsV2Component {
    */
   removalSuccessful() {
     this.dialogRef.close({
-      action: AttachmentDialogResult.removed,
+      action: AttachmentDialogResult.Removed,
     });
   }
 }

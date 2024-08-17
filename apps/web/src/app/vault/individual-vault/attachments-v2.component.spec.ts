@@ -50,7 +50,7 @@ describe("AttachmentsV2Component", () => {
 
     component.uploadSuccessful();
 
-    expect(dialogRefCloseSpy).toHaveBeenCalledWith({ action: AttachmentDialogResult.uploaded });
+    expect(dialogRefCloseSpy).toHaveBeenCalledWith({ action: AttachmentDialogResult.Uploaded });
   });
 
   it("closes the dialog with 'removed' result on removalSuccessful", () => {
@@ -58,6 +58,6 @@ describe("AttachmentsV2Component", () => {
 
     component.removalSuccessful();
 
-    expect(dialogRefCloseSpy).toHaveBeenCalledWith({ action: AttachmentDialogResult.removed });
+    expect(dialogRefCloseSpy).toHaveBeenCalledWith({ action: AttachmentDialogResult.Removed });
   });
 });

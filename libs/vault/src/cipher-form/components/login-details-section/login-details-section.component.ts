@@ -1,11 +1,13 @@
 import { DatePipe, NgIf } from "@angular/common";
-import { Component, inject, OnInit, Optional } from "@angular/core";
+import { Component, inject, OnInit, Optional, Output, EventEmitter } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { FormBuilder, ReactiveFormsModule } from "@angular/forms";
+import { FormBuilder, FormGroup, ReactiveFormsModule } from "@angular/forms";
 import { map } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { AuditService } from "@bitwarden/common/abstractions/audit.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Fido2CredentialView } from "@bitwarden/common/vault/models/view/fido2-credential.view";
 import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
@@ -60,6 +62,16 @@ export class LoginDetailsSectionComponent implements OnInit {
   newPasswordGenerated: boolean;
 
   /**
+   * Event emitted when a new password is generated.
+   */
+  @Output() passwordGenerationEvent = new EventEmitter<FormGroup>();
+
+  /**
+   * Flag indicating whether the extension refresh feature flag is enabled.
+   */
+  private extensionRefreshEnabled: boolean = false;
+
+  /**
    * Whether the TOTP field can be captured from the current tab. Only available in the browser extension.
    */
   get canCaptureTotp() {
@@ -102,6 +114,7 @@ export class LoginDetailsSectionComponent implements OnInit {
     private generationService: CipherFormGenerationService,
     private auditService: AuditService,
     private toastService: ToastService,
+    private configService: ConfigService,
     @Optional() private totpCaptureService?: TotpCaptureService,
   ) {
     this.cipherFormContainer.registerChildForm("loginDetails", this.loginDetailsForm);
@@ -135,6 +148,10 @@ export class LoginDetailsSectionComponent implements OnInit {
     if (this.cipherFormContainer.config.mode === "partial-edit") {
       this.loginDetailsForm.disable();
     }
+
+    this.extensionRefreshEnabled = await this.configService.getFeatureFlag(
+      FeatureFlag.ExtensionRefresh,
+    );
   }
 
   private initFromExistingCipher(existingLogin: LoginView) {
@@ -196,6 +213,13 @@ export class LoginDetailsSectionComponent implements OnInit {
    * TODO: Browser extension needs a means to cache the current form so values are not lost upon navigating to the generator.
    */
   generatePassword = async () => {
+    // If the extension refresh feature flag is enabled, emit an event to launch the password generation in a dialog.
+    if (this.extensionRefreshEnabled) {
+      this.passwordGenerationEvent.emit(this.loginDetailsForm);
+      this.newPasswordGenerated = true;
+      return;
+    }
+
     const newPassword = await this.generationService.generatePassword();
 
     if (newPassword) {

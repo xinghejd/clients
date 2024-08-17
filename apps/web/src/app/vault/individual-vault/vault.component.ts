@@ -562,8 +562,8 @@ export class VaultComponent implements OnInit, OnDestroy {
       const result = await lastValueFrom(dialogRef.closed);
 
       if (
-        result.action === AttachmentDialogResult.uploaded ||
-        result.action === AttachmentDialogResult.removed
+        result.action === AttachmentDialogResult.Uploaded ||
+        result.action === AttachmentDialogResult.Removed
       ) {
         madeAttachmentChanges = true;
         this.refresh();
@@ -703,9 +703,9 @@ export class VaultComponent implements OnInit, OnDestroy {
       const result: AddEditCipherDialogCloseResult = await firstValueFrom(dialogRef.closed);
 
       if (
-        result.action === AddEditCipherDialogResult.added ||
-        result.action === AddEditCipherDialogResult.edited ||
-        result.action === AddEditCipherDialogResult.deleted
+        result.action === AddEditCipherDialogResult.Added ||
+        result.action === AddEditCipherDialogResult.Edited ||
+        result.action === AddEditCipherDialogResult.Deleted
       ) {
         this.refresh();
         this.go({ cipherId: null, itemId: null });

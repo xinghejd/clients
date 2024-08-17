@@ -8,6 +8,7 @@
 
     <vault-login-details-section
       *ngIf="config.cipherType === CipherType.Login"
+      (passwordGenerationEvent)="onPasswordGenerationEvent($event)"
     ></vault-login-details-section>
 
     <vault-identity-section

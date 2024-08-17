@@ -123,6 +123,8 @@ export class CipherFormComponent implements AfterViewInit, OnInit, OnChanges, Ci
 
   CipherType = CipherType;
 
+  @Output() passwordGenerationEvent = new EventEmitter<FormGroup>();
+
   ngAfterViewInit(): void {
     if (this.submitBtn) {
       this.bitSubmit.loading$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((loading) => {
@@ -272,4 +274,12 @@ export class CipherFormComponent implements AfterViewInit, OnInit, OnChanges, Ci
 
     this.cipherSaved.emit(savedCipher);
   };
+
+  /**
+   * Handles the event when a user would like to launch the password generation dialog.
+   * @param formGroup The form group.
+   */
+  onPasswordGenerationEvent(formGroup: FormGroup) {
+    this.passwordGenerationEvent.emit(formGroup);
+  }
 }
