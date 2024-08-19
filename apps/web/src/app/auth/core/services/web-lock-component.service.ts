@@ -26,10 +26,6 @@ export class WebLockComponentService implements LockComponentService {
     throw new Error("Method not implemented.");
   }
 
-  async biometricsEnabled(userId: UserId): Promise<boolean> {
-    throw new Error("Method not implemented.");
-  }
-
   getBiometricsUnlockBtnText(): string {
     throw new Error("Method not implemented.");
   }

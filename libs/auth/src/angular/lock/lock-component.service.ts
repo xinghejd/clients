@@ -34,9 +34,6 @@ export abstract class LockComponentService {
   abstract isWindowVisible(): Promise<boolean>;
   abstract getBiometricsUnlockBtnText(): string;
 
-  // TODO: this will be replaced by getAvailableUnlockOptions$ in the future.
-  abstract biometricsEnabled(userId: UserId): Promise<boolean>;
-
   // Multi client
   abstract getAvailableUnlockOptions$(userId: UserId): Observable<UnlockOptions>;
 }

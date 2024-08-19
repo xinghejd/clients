@@ -49,11 +49,6 @@ export class ExtensionLockComponentService implements LockComponentService {
     return false;
   }
 
-  // TODO: remove this once transitioned to getAvailableUnlockOptions$.
-  async biometricsEnabled(userId: UserId): Promise<boolean> {
-    return false;
-  }
-
   getBiometricsUnlockBtnText(): string {
     return "unlockWithBiometrics";
   }

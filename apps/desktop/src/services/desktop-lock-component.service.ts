@@ -53,11 +53,6 @@ export class DesktopLockComponentService implements LockComponentService {
     }
   }
 
-  // TODO: remove this once transitioned to getAvailableUnlockOptions$.
-  async biometricsEnabled(userId: UserId): Promise<boolean> {
-    return await ipc.platform.biometric.enabled(userId);
-  }
-
   private async isBiometricLockSet(userId: UserId): Promise<boolean> {
     const biometricLockSet = await this.vaultTimeoutSettingsService.isBiometricLockSet(userId);
     const hasBiometricEncryptedUserKeyStored = await this.cryptoService.hasUserKeyStored(
