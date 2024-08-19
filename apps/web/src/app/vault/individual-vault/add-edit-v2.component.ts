@@ -308,9 +308,7 @@ export class AddEditComponentV2 implements OnInit, OnDestroy {
    * @param formGroup The form group.
    */
   async onPasswordGenerationEvent(formGroup: FormGroup) {
-    const dialogRef = this.dialogService.open(PasswordGeneratorComponent, {
-      data: {},
-    });
+    const dialogRef = this.dialogService.open(PasswordGeneratorComponent, {});
 
     const result = (await lastValueFrom(dialogRef.closed)) as PasswordGeneratorCloseResult;
 

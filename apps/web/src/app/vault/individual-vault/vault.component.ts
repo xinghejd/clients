@@ -708,8 +708,9 @@ export class VaultComponent implements OnInit, OnDestroy {
         result.action === AddEditCipherDialogResult.Deleted
       ) {
         this.refresh();
-        this.go({ cipherId: null, itemId: null });
       }
+
+      this.go({ cipherId: null, itemId: null });
 
       return dialogRef.componentInstance;
     }
