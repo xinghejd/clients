@@ -57,21 +57,21 @@ export class OverlayNotificationsContentService
     this.currentNotificationBarType = initData.type;
     this.notificationBarIframe = globalThis.document.createElement("iframe");
     this.notificationBarIframe.style.cssText =
-      "width: 100%; height: 100%; border: 0; display: block; position:relative;";
+      "width: 100%; height: 100%; border: 0; display: block; position:relative; transition: transform 0.15s ease-out; transform: translateX(100%);";
     this.notificationBarIframe.id = "bit-notification-bar-iframe";
     this.notificationBarIframe.src = chrome.runtime.getURL("notification/bar.html");
 
     this.notificationBarElement = globalThis.document.createElement("div");
     this.notificationBarElement.id = "bit-notification-bar";
     this.notificationBarElement.style.cssText =
-      "height: 82px; width: 415px; max-width: calc(100% - 16px); min-height: initial; top: 8px; right: 8px; padding: 0; position: fixed; z-index: 2147483647; visibility: visible; overflow: hidden; border-radius: 4px; border: none; box-shadow: 2px 4px 6px 0px #0000001A; background-color: transparent; transition: transform 0.2s ease-out; transform: translateX(100%);";
+      "height: 82px; width: 415px; max-width: calc(100% - 16px); min-height: initial; top: 8px; right: 8px; padding: 0; position: fixed; z-index: 2147483647; visibility: visible; overflow: hidden; border-radius: 4px; border: none; box-shadow: 2px 4px 6px 0px #0000001A; background-color: transparent; overflow: hidden;";
     this.notificationBarElement.appendChild(this.notificationBarIframe);
 
     this.setupInitNotificationBarMessageListener(initData);
     globalThis.document.body.appendChild(this.notificationBarElement);
     setTimeout(() => {
-      this.notificationBarElement.style.transform = "translateX(0)";
-    }, 1);
+      this.notificationBarIframe.style.transform = "translateX(0)";
+    }, 100);
   }
 
   private adjustNotificationBarHeight(message: NotificationsExtensionMessage) {
@@ -106,6 +106,7 @@ export class OverlayNotificationsContentService
       return;
     }
 
+    this.notificationBarIframe.style.transform = "translateX(100%)";
     this.notificationBarElement.remove();
     this.notificationBarElement = null;
 
