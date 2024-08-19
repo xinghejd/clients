@@ -3,14 +3,18 @@ import { Observable } from "rxjs";
 import { UserId } from "@bitwarden/common/types/guid";
 
 export enum BiometricsDisableReason {
-  OperatingSystemDoesNotSupport = "OperatingSystemDoesNotSupport",
-  BiometricsEncryptedKeysUnavailable = "BiometricsEncryptedKeysUnavailable",
+  NotSupportedOnOperatingSystem = "NotSupportedOnOperatingSystem",
+  EncryptedKeysUnavailable = "BiometricsEncryptedKeysUnavailable",
   SystemBiometricsUnavailable = "SystemBiometricsUnavailable",
 }
 
 export type UnlockOptions = {
-  masterPasswordEnabled: boolean;
-  pinEnabled: boolean;
+  masterPassword: {
+    enabled: boolean;
+  };
+  pin: {
+    enabled: boolean;
+  };
   biometrics: {
     enabled: boolean;
     disableReason: BiometricsDisableReason | null;
@@ -28,6 +32,8 @@ export abstract class LockComponentService {
 
   // Desktop only
   abstract isWindowVisible(): Promise<boolean>;
+
+  // TODO: this will be replaced by getAvailableUnlockOptions$ in the future.
   abstract biometricsEnabled(userId: UserId): Promise<boolean>;
 
   // Multi client

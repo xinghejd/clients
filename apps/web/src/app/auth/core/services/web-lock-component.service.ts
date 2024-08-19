@@ -34,8 +34,12 @@ export class WebLockComponentService implements LockComponentService {
     return this.userDecryptionOptionsService.userDecryptionOptionsById$(userId).pipe(
       map((userDecryptionOptions: UserDecryptionOptions) => {
         const unlockOpts: UnlockOptions = {
-          masterPasswordEnabled: userDecryptionOptions.hasMasterPassword,
-          pinEnabled: false,
+          masterPassword: {
+            enabled: userDecryptionOptions.hasMasterPassword,
+          },
+          pin: {
+            enabled: false,
+          },
           biometrics: {
             enabled: false,
             disableReason: null,

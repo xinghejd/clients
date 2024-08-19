@@ -1,7 +1,11 @@
 import { inject } from "@angular/core";
 import { combineLatest, from, interval, map, Observable, switchMap } from "rxjs";
 
-import { LockComponentService, UnlockOptions } from "@bitwarden/auth/angular";
+import {
+  BiometricsDisableReason,
+  LockComponentService,
+  UnlockOptions,
+} from "@bitwarden/auth/angular";
 import {
   PinServiceAbstraction,
   UserDecryptionOptionsServiceAbstraction,
@@ -35,17 +39,9 @@ export class DesktopLockComponentService implements LockComponentService {
     return ipc.platform.isWindowVisible();
   }
 
-  // TODO: This probably can be removed in the future.
+  // TODO: remove this once transitioned to getAvailableUnlockOptions$.
   async biometricsEnabled(userId: UserId): Promise<boolean> {
     return await ipc.platform.biometric.enabled(userId);
-  }
-
-  private async isBiometricsSupportedAndReady(
-    userId: UserId,
-  ): Promise<{ supportsBiometric: boolean; biometricReady: boolean }> {
-    const supportsBiometric = await this.platformUtilsService.supportsBiometric();
-    const biometricReady = await ipc.platform.biometric.enabled(userId);
-    return { supportsBiometric, biometricReady };
   }
 
   private async isBiometricLockSet(userId: UserId): Promise<boolean> {
@@ -59,6 +55,14 @@ export class DesktopLockComponentService implements LockComponentService {
     return (
       biometricLockSet && (hasBiometricEncryptedUserKeyStored || !platformSupportsSecureStorage)
     );
+  }
+
+  private async isBiometricsSupportedAndReady(
+    userId: UserId,
+  ): Promise<{ supportsBiometric: boolean; biometricReady: boolean }> {
+    const supportsBiometric = await this.platformUtilsService.supportsBiometric();
+    const biometricReady = await ipc.platform.biometric.enabled(userId);
+    return { supportsBiometric, biometricReady };
   }
 
   private biometricsSupportedAndReady$(userId: UserId): Observable<{
@@ -84,20 +88,44 @@ export class DesktopLockComponentService implements LockComponentService {
           userDecryptionOptions,
           pinDecryptionAvailable,
         ]) => {
+          const disableReason = this.getBiometricsDisabledReason(
+            polledBiometricsData.supportsBiometric,
+            isBiometricsLockSet,
+            polledBiometricsData.biometricReady,
+          );
           const unlockOpts: UnlockOptions = {
-            masterPasswordEnabled: userDecryptionOptions.hasMasterPassword,
-            pinEnabled: pinDecryptionAvailable,
+            masterPassword: {
+              enabled: userDecryptionOptions.hasMasterPassword,
+            },
+            pin: {
+              enabled: pinDecryptionAvailable,
+            },
             biometrics: {
               enabled:
                 polledBiometricsData.supportsBiometric &&
                 isBiometricsLockSet &&
                 polledBiometricsData.biometricReady,
-              disableReason: null, // TODO: must provide reason if it is disabled.
+              disableReason: disableReason,
             },
           };
           return unlockOpts;
         },
       ),
     );
+  }
+
+  private getBiometricsDisabledReason(
+    osSupportsBiometric: boolean,
+    biometricLockSet: boolean,
+    biometricReady: boolean,
+  ): BiometricsDisableReason | null {
+    if (!osSupportsBiometric) {
+      return BiometricsDisableReason.NotSupportedOnOperatingSystem;
+    } else if (!biometricLockSet) {
+      return BiometricsDisableReason.EncryptedKeysUnavailable;
+    } else if (!biometricReady) {
+      return BiometricsDisableReason.SystemBiometricsUnavailable;
+    }
+    return null;
   }
 }
