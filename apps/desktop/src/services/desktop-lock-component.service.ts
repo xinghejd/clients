@@ -107,6 +107,7 @@ export class DesktopLockComponentService implements LockComponentService {
             isBiometricsLockSet,
             polledBiometricsData.biometricReady,
           );
+
           const unlockOpts: UnlockOptions = {
             masterPassword: {
               enabled: userDecryptionOptions.hasMasterPassword,
@@ -122,6 +123,7 @@ export class DesktopLockComponentService implements LockComponentService {
               disableReason: disableReason,
             },
           };
+
           return unlockOpts;
         },
       ),
