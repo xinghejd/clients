@@ -47,19 +47,6 @@ import { AnonLayoutWrapperDataService } from "../anon-layout/anon-layout-wrapper
 
 import { LockComponentService, UnlockOptions } from "./lock-component.service";
 
-// TODO: investigate this approach. It seems like a good way to handle the different unlock options.
-// See user verification form input for example.
-
-// This should be reactively served out of the LockComponentService
-// type UnlockOptions = {
-//   masterPasswordEnabled: boolean;
-//   pinEnabled: boolean;
-//   biometrics: {
-//    enabled: false,
-//    disableReason:  string union type or string enum
-//   },;
-// };
-
 const BroadcasterSubscriptionId = "LockComponent";
 
 @Component({
@@ -87,14 +74,16 @@ export class LockV2Component implements OnInit, OnDestroy {
   unlockOptions: UnlockOptions = null;
   activeUnlockOption: keyof UnlockOptions = null;
 
-  pinEnabled = false;
-  pin = "";
+  // pinEnabled = false;
+  pin = ""; // TODO: remove this and move to formGroup
   private invalidPinAttempts = 0;
 
-  supportsBiometric: boolean;
-  biometricLockSet: boolean;
+  // supportsBiometric: boolean;
+  // biometricLockSet: boolean;
+  biometricUnlockBtnText: string;
 
-  masterPasswordEnabled = false;
+  // masterPasswordEnabled = false;
+
   masterPassword = "";
   showPassword = false;
   private enforcedMasterPasswordOptions: MasterPasswordPolicyOptions = undefined;
@@ -115,7 +104,7 @@ export class LockV2Component implements OnInit, OnDestroy {
 
   // Desktop properties:
   private deferFocus: boolean = null;
-  biometricReady = false;
+  // biometricReady = false;
   private biometricAsked = false;
   private autoPromptBiometric = false;
   private timerId: any;
@@ -158,15 +147,10 @@ export class LockV2Component implements OnInit, OnDestroy {
   ) {}
 
   async ngOnInit() {
-    this.accountService.activeAccount$
-      .pipe(
-        switchMap(async (account) => {
-          this.activeAccount = account;
-          await this.load(account);
-        }),
-        takeUntil(this.destroy$),
-      )
-      .subscribe();
+    this.listenForActiveAccountChanges();
+
+    // TODO: change from webVaultHostname to envHostName as it's used on all clients.
+    this.webVaultHostname = (await this.environmentService.getEnvironment()).getHostname();
 
     // Identify client
     this.clientType = this.platformUtilsService.getClientType();
@@ -181,26 +165,53 @@ export class LockV2Component implements OnInit, OnDestroy {
   }
 
   // Base component methods
-  private async load(activeAccount: { id: UserId | undefined } & AccountInfo) {
+  private listenForActiveAccountChanges() {
+    this.accountService.activeAccount$
+      .pipe(
+        switchMap(async (account) => {
+          this.activeAccount = account;
+          await this.handleActiveAccountChange(account);
+        }),
+        takeUntil(this.destroy$),
+      )
+      .subscribe();
+  }
+
+  private async handleActiveAccountChange(activeAccount: { id: UserId | undefined } & AccountInfo) {
     this.setEmailAsPageSubtitle(activeAccount.email);
 
-    this.pinEnabled = await this.pinService.isPinDecryptionAvailable(activeAccount.id);
+    // this.pinEnabled = await this.pinService.isPinDecryptionAvailable(activeAccount.id);
 
-    this.masterPasswordEnabled = await this.userVerificationService.hasMasterPassword();
+    // this.masterPasswordEnabled = await this.userVerificationService.hasMasterPassword();
 
-    // Only desktop uses this
-    this.supportsBiometric = await this.platformUtilsService.supportsBiometric();
+    // // Only desktop uses this
+    // this.supportsBiometric = await this.platformUtilsService.supportsBiometric();
 
-    this.biometricLockSet =
-      (await this.vaultTimeoutSettingsService.isBiometricLockSet()) &&
-      ((await this.cryptoService.hasUserKeyStored(KeySuffixOptions.Biometric)) ||
-        !this.platformUtilsService.supportsSecureStorage());
+    // this.biometricLockSet =
+    //   (await this.vaultTimeoutSettingsService.isBiometricLockSet()) &&
+    //   ((await this.cryptoService.hasUserKeyStored(KeySuffixOptions.Biometric)) ||
+    //     !this.platformUtilsService.supportsSecureStorage());
 
-    // TODO: if unlockOptions.biometrics.enabled is true, then call
-    // this.biometricsUnlockBtnText = this.lockComponentService.getBiometricsUnlockBtnText();
+    this.unlockOptions = await firstValueFrom(
+      this.lockComponentService.getAvailableUnlockOptions$(activeAccount.id),
+    );
 
-    // TODO: This shouldn't change based on active acct... move to ngOnInit
-    this.webVaultHostname = (await this.environmentService.getEnvironment()).getHostname();
+    this.setDefaultActiveUnlockOption(this.unlockOptions);
+
+    if (this.unlockOptions.biometrics.enabled) {
+      this.biometricUnlockBtnText = this.lockComponentService.getBiometricsUnlockBtnText();
+    }
+  }
+
+  private setDefaultActiveUnlockOption(unlockOptions: UnlockOptions) {
+    // Priorities should be Biometrics > Pin > Master Password for speed
+    if (unlockOptions.biometrics.enabled) {
+      this.activeUnlockOption = "biometrics";
+    } else if (unlockOptions.pin.enabled) {
+      this.activeUnlockOption = "pin";
+    } else if (unlockOptions.masterPassword.enabled) {
+      this.activeUnlockOption = "masterPassword";
+    }
   }
 
   private setEmailAsPageSubtitle(email: string) {
@@ -213,7 +224,7 @@ export class LockV2Component implements OnInit, OnDestroy {
   }
 
   async submit() {
-    if (this.pinEnabled) {
+    if (this.unlockOptions.pin.enabled) {
       return await this.handlePinRequiredUnlock();
     }
 
@@ -234,7 +245,7 @@ export class LockV2Component implements OnInit, OnDestroy {
   }
 
   async unlockBiometric(): Promise<boolean> {
-    if (!this.biometricLockSet) {
+    if (!this.unlockOptions.biometrics.enabled) {
       return;
     }
 
@@ -250,7 +261,9 @@ export class LockV2Component implements OnInit, OnDestroy {
 
   togglePassword() {
     this.showPassword = !this.showPassword;
-    const input = document.getElementById(this.pinEnabled ? "pin" : "masterPassword");
+    const input = document.getElementById(
+      this.unlockOptions.pin.enabled ? "pin" : "masterPassword",
+    );
     if (this.ngZone.isStable) {
       input.focus();
     } else {
@@ -451,7 +464,7 @@ export class LockV2Component implements OnInit, OnDestroy {
     this.autoPromptBiometric = await firstValueFrom(
       this.biometricStateService.promptAutomatically$,
     );
-    this.biometricReady = await this.canUseBiometric();
+    // this.biometricReady = await this.canUseBiometric();
 
     await this.displayBiometricUpdateWarning();
 
@@ -485,16 +498,18 @@ export class LockV2Component implements OnInit, OnDestroy {
     });
     this.messagingService.send("getWindowIsFocused");
 
-    // start background listener until destroyed on interval
-    this.timerId = setInterval(async () => {
-      this.supportsBiometric = await this.platformUtilsService.supportsBiometric();
-      this.biometricReady = await this.canUseBiometric();
-    }, 1000);
+    // // TODO: this interval will be replaced with reactive polling within the LockComponentService.getAvailableUnlockOptions$
+    // // start background listener until destroyed on interval
+    // this.timerId = setInterval(async () => {
+    //   this.supportsBiometric = await this.platformUtilsService.supportsBiometric();
+    //   this.biometricReady = await this.canUseBiometric();
+    // }, 1000);
   }
 
-  private async canUseBiometric() {
-    return await this.lockComponentService.biometricsEnabled(this.activeAccount.id);
-  }
+  // TODO: remove this method
+  // private async canUseBiometric() {
+  //   return await this.lockComponentService.biometricsEnabled(this.activeAccount.id);
+  // }
 
   private async displayBiometricUpdateWarning(): Promise<void> {
     if (await firstValueFrom(this.biometricStateService.dismissedRequirePasswordOnStartCallout$)) {
@@ -516,7 +531,7 @@ export class LockV2Component implements OnInit, OnDestroy {
       if (response) {
         await this.biometricStateService.setPromptAutomatically(false);
       }
-      this.supportsBiometric = await this.canUseBiometric();
+      // this.supportsBiometric = await this.canUseBiometric();
       await this.biometricStateService.setDismissedRequirePasswordOnStartCallout();
     }
   }
@@ -528,7 +543,11 @@ export class LockV2Component implements OnInit, OnDestroy {
       return;
     }
 
-    if (!this.supportsBiometric || !this.autoPromptBiometric || this.biometricAsked) {
+    if (
+      !this.unlockOptions.biometrics.enabled ||
+      !this.autoPromptBiometric ||
+      this.biometricAsked
+    ) {
       return;
     }
 
@@ -549,7 +568,7 @@ export class LockV2Component implements OnInit, OnDestroy {
   }
 
   private focusInput() {
-    document.getElementById(this.pinEnabled ? "pin" : "masterPassword")?.focus();
+    document.getElementById(this.unlockOptions.pin.enabled ? "pin" : "masterPassword")?.focus();
   }
 
   // -----------------------------------------------------------------------------------------------
@@ -566,7 +585,7 @@ export class LockV2Component implements OnInit, OnDestroy {
     window.setTimeout(async () => {
       this.focusInput();
       if (
-        this.biometricLockSet &&
+        this.unlockOptions.biometrics.enabled &&
         autoBiometricsPrompt &&
         this.isInitialLockScreen &&
         (await this.authService.getAuthStatus()) === AuthenticationStatus.Locked
@@ -577,7 +596,7 @@ export class LockV2Component implements OnInit, OnDestroy {
   }
 
   private async extensionUnlockBiometric(): Promise<boolean> {
-    if (!this.biometricLockSet) {
+    if (!this.unlockOptions.biometrics.enabled) {
       return;
     }
 
