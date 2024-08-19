@@ -4,12 +4,12 @@ import { ComponentFixture, fakeAsync, TestBed, tick } from "@angular/core/testin
 import { mock, MockProxy } from "jest-mock-extended";
 
 import { AuditService } from "@bitwarden/common/abstractions/audit.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { Fido2CredentialView } from "@bitwarden/common/vault/models/view/fido2-credential.view";
 import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
 import { ToastService } from "@bitwarden/components";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 
 import { CipherFormGenerationService } from "../../abstractions/cipher-form-generation.service";
 import { TotpCaptureService } from "../../abstractions/totp-capture.service";
