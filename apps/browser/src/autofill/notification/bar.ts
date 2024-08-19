@@ -392,7 +392,7 @@ function setNotificationBarTheme() {
   document.documentElement.classList.add(`theme_${theme}`);
 
   if (notificationBarIframeInitData.applyRedesign) {
-    document.documentElement.classList.add("notification-bar-redesign");
+    document.body.classList.add("notification-bar-redesign");
   }
 }
 

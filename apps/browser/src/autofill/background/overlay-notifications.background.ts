@@ -70,6 +70,7 @@ export class OverlayNotificationsBackground implements OverlayNotificationsBackg
     message: OverlayNotificationsExtensionMessage,
     sender: chrome.runtime.MessageSender,
   ) {
+    // console.log("collect page details response", message, sender);
     if (
       !(await this.isAddLoginOrChangePasswordNotificationEnabled()) ||
       (await this.isSenderFromExcludedDomain(sender))
@@ -78,7 +79,6 @@ export class OverlayNotificationsBackground implements OverlayNotificationsBackg
     }
 
     if (!message.details?.fields?.length) {
-      this.clearWebRequestsListenersOnWebsiteOrigin(sender.tab.id);
       return;
     }
 
@@ -131,6 +131,7 @@ export class OverlayNotificationsBackground implements OverlayNotificationsBackg
   private resetWebRequestsListeners() {
     chrome.webRequest.onBeforeRequest.removeListener(this.handleOnBeforeRequestEvent);
     chrome.webRequest.onCompleted.removeListener(this.handleOnCompletedRequestEvent);
+    // console.log("rest web", this.websiteOriginsWithFields);
     if (!this.websiteOriginsWithFields.size) {
       return;
     }
@@ -146,6 +147,7 @@ export class OverlayNotificationsBackground implements OverlayNotificationsBackg
   private setupExtensionListeners() {
     BrowserApi.messageListener("overlay-notifications", this.handleExtensionMessage);
     chrome.tabs.onRemoved.addListener(this.handleTabRemoved);
+    chrome.tabs.onUpdated.addListener(this.handleTabUpdated);
   }
 
   private handleTabRemoved = (tabId: number) => {
@@ -154,7 +156,18 @@ export class OverlayNotificationsBackground implements OverlayNotificationsBackg
     this.resetWebRequestsListeners();
   };
 
+  private handleTabUpdated = (
+    tabId: number,
+    changeInfo: chrome.tabs.TabChangeInfo,
+    tab: chrome.tabs.Tab,
+  ) => {
+    if (changeInfo.status === "loading") {
+      this.clearWebRequestsListenersOnWebsiteOrigin(tabId);
+    }
+  };
+
   private handleOnBeforeRequestEvent = (details: chrome.webRequest.WebRequestDetails) => {
+    // console.log("onBefore", details);
     if (this.requestHostIsInvalid(details) || !this.isFormSubmissionRequest(details)) {
       return;
     }

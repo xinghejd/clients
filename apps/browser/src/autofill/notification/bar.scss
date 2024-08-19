@@ -75,8 +75,8 @@ img {
 
 #close {
   display: block;
-  width: 17px;
-  height: 17px;
+  width: 16px;
+  height: 16px;
 
   > path {
     @include themify($themes) {
@@ -183,23 +183,30 @@ button {
 }
 
 .notification-bar-redesign {
+  button {
+    padding: 4px 8px;
+  }
+
+  select {
+    padding: 4px 6px;
+  }
+
   .outer-wrapper {
     display: block;
     position: relative;
-    padding: 8px 6px;
+    padding: 8px 8px 8px 10px;
   }
 
   .logo {
     position: absolute;
     top: 8px;
-    left: 6px;
+    left: 10px;
     overflow: hidden;
-    border-radius: 4px;
   }
 
   .notification-close {
     position: absolute;
-    top: 6px;
+    top: 4px;
     right: 4px;
 
     #close-button {
@@ -222,13 +229,13 @@ button {
 
     .notification-body {
       width: 100%;
-      padding: 5px 30px 25px 40px;
+      padding: 4px 32px 24px 40px;
       font-weight: 400;
     }
     .notification-actions {
       display: flex;
-      align-items: center;
-      align-content: center;
+      align-items: stretch;
+      align-content: stretch;
       justify-content: flex-end;
       width: 100%;
 
@@ -236,13 +243,24 @@ button {
         margin-right: auto;
         padding: 0;
         font-size: 16px;
-        font-weight: 700;
+        font-weight: 500;
         letter-spacing: 0.5px;
       }
 
       #select-folder {
         width: 125px;
         margin-right: 6px;
+        font-size: 12px;
+
+        @include themify($themes) {
+          color: themed("mutedTextColor");
+          border-color: themed("mutedTextColor");
+        }
+      }
+
+      .primary,
+      .secondary {
+        font-size: 12px;
       }
 
       .secondary {

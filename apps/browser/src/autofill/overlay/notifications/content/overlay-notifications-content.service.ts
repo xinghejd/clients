@@ -64,7 +64,7 @@ export class OverlayNotificationsContentService
     this.notificationBarElement = globalThis.document.createElement("div");
     this.notificationBarElement.id = "bit-notification-bar";
     this.notificationBarElement.style.cssText =
-      "height: 82px; width: 415px; max-width: calc(100% - 16px); min-height: initial; top: 8px; right: 8px; padding: 0; position: fixed; z-index: 2147483647; visibility: visible; overflow: hidden; border-radius: 4px; border: none; box-shadow: 2px 4px 6px 0px #0000001A; background-color: transparent; overflow: hidden;";
+      "height: 82px; width: 430px; max-width: calc(100% - 20px); min-height: initial; top: 10px; right: 10px; padding: 0; position: fixed; z-index: 2147483647; visibility: visible; overflow: hidden; border-radius: 4px; border: none; box-shadow: 2px 4px 6px 0px #0000001A; background-color: transparent; overflow: hidden;";
     this.notificationBarElement.appendChild(this.notificationBarIframe);
 
     this.setupInitNotificationBarMessageListener(initData);
