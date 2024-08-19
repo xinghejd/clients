@@ -107,7 +107,6 @@ export class LockV2Component implements OnInit, OnDestroy {
   // biometricReady = false;
   private biometricAsked = false;
   private autoPromptBiometric = false;
-  private timerId: any;
 
   // Browser extension properties:
   private isInitialLockScreen = (window as any).previousPopupUrl == null;
@@ -497,19 +496,7 @@ export class LockV2Component implements OnInit, OnDestroy {
       });
     });
     this.messagingService.send("getWindowIsFocused");
-
-    // // TODO: this interval will be replaced with reactive polling within the LockComponentService.getAvailableUnlockOptions$
-    // // start background listener until destroyed on interval
-    // this.timerId = setInterval(async () => {
-    //   this.supportsBiometric = await this.platformUtilsService.supportsBiometric();
-    //   this.biometricReady = await this.canUseBiometric();
-    // }, 1000);
   }
-
-  // TODO: remove this method
-  // private async canUseBiometric() {
-  //   return await this.lockComponentService.biometricsEnabled(this.activeAccount.id);
-  // }
 
   private async displayBiometricUpdateWarning(): Promise<void> {
     if (await firstValueFrom(this.biometricStateService.dismissedRequirePasswordOnStartCallout$)) {
@@ -625,8 +612,5 @@ export class LockV2Component implements OnInit, OnDestroy {
   ngOnDestroy() {
     this.destroy$.next();
     this.destroy$.complete();
-
-    // Desktop cleanup
-    clearInterval(this.timerId);
   }
 }
