@@ -206,8 +206,8 @@ button {
 
   .notification-close {
     position: absolute;
-    top: 4px;
-    right: 4px;
+    top: 6px;
+    right: 6px;
 
     #close-button {
       display: flex;
@@ -229,7 +229,7 @@ button {
 
     .notification-body {
       width: 100%;
-      padding: 4px 32px 24px 40px;
+      padding: 4px 38px 24px 40px;
       font-weight: 400;
     }
     .notification-actions {
