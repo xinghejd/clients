@@ -111,8 +111,8 @@ export class VaultHeaderComponent implements OnInit {
     this.restrictProviderAccessFlag = await this.configService.getFeatureFlag(
       FeatureFlag.RestrictProviderAccess,
     );
-    this.extensionRefreshEnabled = await firstValueFrom(
-      this.configService.getFeatureFlag$(FeatureFlag.ExtensionRefresh),
+    this.extensionRefreshEnabled = await this.configService.getFeatureFlag(
+      FeatureFlag.ExtensionRefresh,
     );
   }
 
