@@ -32,6 +32,7 @@ export abstract class LockComponentService {
 
   // Desktop only
   abstract isWindowVisible(): Promise<boolean>;
+  abstract getBiometricsUnlockBtnText(): string;
 
   // TODO: this will be replaced by getAvailableUnlockOptions$ in the future.
   abstract biometricsEnabled(userId: UserId): Promise<boolean>;

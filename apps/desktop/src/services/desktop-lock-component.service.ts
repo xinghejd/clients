@@ -11,6 +11,7 @@ import {
   UserDecryptionOptionsServiceAbstraction,
 } from "@bitwarden/auth/common";
 import { VaultTimeoutSettingsService } from "@bitwarden/common/abstractions/vault-timeout/vault-timeout-settings.service";
+import { DeviceType } from "@bitwarden/common/enums";
 import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { KeySuffixOptions } from "@bitwarden/common/platform/enums";
@@ -37,6 +38,19 @@ export class DesktopLockComponentService implements LockComponentService {
 
   async isWindowVisible(): Promise<boolean> {
     return ipc.platform.isWindowVisible();
+  }
+
+  getBiometricsUnlockBtnText(): string {
+    switch (this.platformUtilsService.getDevice()) {
+      case DeviceType.MacOsDesktop:
+        return "unlockWithTouchId";
+      case DeviceType.WindowsDesktop:
+        return "unlockWithWindowsHello";
+      case DeviceType.LinuxDesktop:
+        return "unlockWithPolkit";
+      default:
+        throw new Error("Unsupported platform");
+    }
   }
 
   // TODO: remove this once transitioned to getAvailableUnlockOptions$.

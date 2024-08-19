@@ -45,7 +45,7 @@ import {
 import { PinServiceAbstraction } from "../../common/abstractions";
 import { AnonLayoutWrapperDataService } from "../anon-layout/anon-layout-wrapper-data.service";
 
-import { LockComponentService } from "./lock-component.service";
+import { LockComponentService, UnlockOptions } from "./lock-component.service";
 
 // TODO: investigate this approach. It seems like a good way to handle the different unlock options.
 // See user verification form input for example.
@@ -84,15 +84,8 @@ export class LockV2Component implements OnInit, OnDestroy {
   clientType: ClientType;
   ClientType = ClientType;
 
-  // TODO: is there a better way to do this?
-  // unlockOpts: UnlockOptions = {
-  //   masterPassword: false,
-  //   pin: false,
-  //   biometrics: {
-  //    enabled: false,
-  //    disableReason:  string union type or string enum
-  //   },
-  // };
+  unlockOptions: UnlockOptions = null;
+  activeUnlockOption: keyof UnlockOptions = null;
 
   pinEnabled = false;
   pin = "";
@@ -203,6 +196,10 @@ export class LockV2Component implements OnInit, OnDestroy {
       ((await this.cryptoService.hasUserKeyStored(KeySuffixOptions.Biometric)) ||
         !this.platformUtilsService.supportsSecureStorage());
 
+    // TODO: if unlockOptions.biometrics.enabled is true, then call
+    // this.biometricsUnlockBtnText = this.lockComponentService.getBiometricsUnlockBtnText();
+
+    // TODO: This shouldn't change based on active acct... move to ngOnInit
     this.webVaultHostname = (await this.environmentService.getEnvironment()).getHostname();
   }
 

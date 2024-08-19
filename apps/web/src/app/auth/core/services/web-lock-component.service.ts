@@ -15,19 +15,23 @@ export class WebLockComponentService implements LockComponentService {
   constructor() {}
 
   getBiometricsError(error: any): string | null {
-    return null;
+    throw new Error("Method not implemented.");
   }
 
   async isFido2Session(): Promise<boolean> {
-    return false;
+    throw new Error("Method not implemented.");
   }
 
   async isWindowVisible(): Promise<boolean> {
-    return false;
+    throw new Error("Method not implemented.");
   }
 
   async biometricsEnabled(userId: UserId): Promise<boolean> {
-    return false;
+    throw new Error("Method not implemented.");
+  }
+
+  getBiometricsUnlockBtnText(): string {
+    throw new Error("Method not implemented.");
   }
 
   getAvailableUnlockOptions$(userId: UserId): Observable<UnlockOptions> {

@@ -54,6 +54,10 @@ export class ExtensionLockComponentService implements LockComponentService {
     return false;
   }
 
+  getBiometricsUnlockBtnText(): string {
+    return "unlockWithBiometrics";
+  }
+
   private async isBiometricLockSet(userId: UserId): Promise<boolean> {
     const biometricLockSet = await this.vaultTimeoutSettingsService.isBiometricLockSet(userId);
     const hasBiometricEncryptedUserKeyStored = await this.cryptoService.hasUserKeyStored(
