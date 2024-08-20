@@ -905,6 +905,9 @@
   "unlockWithBiometrics": {
     "message": "Unlock with biometrics"
   },
+  "unlockWithMasterPassword": {
+    "message": "Unlock with master password"
+  },
   "unlock": {
     "message": "Unlock"
   },

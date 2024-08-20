@@ -1815,6 +1815,9 @@
   "unlockWithBiometrics": {
     "message": "Unlock with biometrics"
   },
+  "unlockWithMasterPassword": {
+    "message": "Unlock with master password"
+  },
   "awaitDesktop": {
     "message": "Awaiting confirmation from desktop"
   },

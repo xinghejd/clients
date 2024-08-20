@@ -7289,6 +7289,12 @@
   "unlockWithBiometrics": {
     "message": "Unlock with biometrics"
   },
+  "unlockWithPin": {
+    "message": "Unlock with PIN"
+  },
+  "unlockWithMasterPassword": {
+    "message": "Unlock with master password"
+  },
   "licenseAndBillingManagement": {
     "message": "License and billing management"
   },

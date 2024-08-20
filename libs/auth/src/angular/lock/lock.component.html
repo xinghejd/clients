@@ -1,17 +1,49 @@
-<!-- TODO: this is just web HTML, we need new HTML for PIN & Biometrics -->
 <form [bitSubmit]="submit" [formGroup]="formGroup">
-  <bit-form-field>
-    <bit-label>{{ "masterPass" | i18n }}</bit-label>
-    <input
-      type="password"
-      formControlName="masterPassword"
-      bitInput
-      appAutofocus
-      name="masterPassword"
-      required
-    />
-    <button type="button" bitIconButton bitSuffix bitPasswordInputToggle></button>
-  </bit-form-field>
+  <!-- Biometrics Unlock -->
+  <ng-container *ngIf="unlockOptions.biometrics.enabled && activeUnlockOption === 'biometrics'">
+    <button type="button" bitButton bitFormButton buttonType="primary" block>
+      {{ "unlockWithBiometrics" | i18n }}
+    </button>
+  </ng-container>
+
+  <!-- PIN Unlock -->
+  <ng-container *ngIf="unlockOptions.pin.enabled && activeUnlockOption === 'pin'">
+    <bit-form-field>
+      <!-- TODO: add pin label to web translations -->
+      <bit-label>{{ "pin" | i18n }}</bit-label>
+      <input
+        type="password"
+        formControlName="pin"
+        bitInput
+        appAutofocus
+        name="pin"
+        class="tw-font-mono"
+        required
+        appInputVerbatim
+      />
+      <button type="button" bitIconButton bitSuffix bitPasswordInputToggle></button>
+    </bit-form-field>
+  </ng-container>
+
+  <!-- MP Unlock -->
+  <ng-container
+    *ngIf="unlockOptions.masterPassword.enabled && activeUnlockOption === 'masterPassword'"
+  >
+    <bit-form-field>
+      <bit-label>{{ "masterPass" | i18n }}</bit-label>
+      <input
+        type="password"
+        formControlName="masterPassword"
+        bitInput
+        appAutofocus
+        name="masterPassword"
+        class="tw-font-mono"
+        required
+        appInputVerbatim
+      />
+      <button type="button" bitIconButton bitSuffix bitPasswordInputToggle></button>
+    </bit-form-field>
+  </ng-container>
 
   <hr />
 
@@ -22,26 +54,44 @@
 
     <p class="tw-text-center">{{ "or" | i18n }}</p>
 
-    <!-- TODO: this doesn't feel good. I wonder if I should roll up all unlock opts into a method which
-     desktop can run set interval on.  -->
-    <ng-container *ngIf="clientType == ClientType.Browser">
-      <button type="button" bitButton bitFormButton buttonType="secondary" block>
-        {{ "unlockWithBiometrics" | i18n }}
-      </button>
-    </ng-container>
-
-    <ng-container *ngIf="clientType == ClientType.Desktop">
-      <!-- TODO: must handle TDE no MP and no PIN scenario -->
+    <ng-container *ngIf="unlockOptions.biometrics.enabled && activeUnlockOption !== 'biometrics'">
       <button
-        *ngIf="supportsBiometric && biometricLockSet && biometricReady"
         type="button"
         bitButton
         bitFormButton
         buttonType="secondary"
-        (click)="unlockBiometric()"
         block
+        (click)="activeUnlockOption = 'biometrics'"
       >
         {{ "unlockWithBiometrics" | i18n }}
+      </button>
+    </ng-container>
+
+    <ng-container *ngIf="unlockOptions.pin.enabled && activeUnlockOption !== 'pin'">
+      <button
+        type="button"
+        bitButton
+        bitFormButton
+        buttonType="secondary"
+        block
+        (click)="activeUnlockOption = 'pin'"
+      >
+        {{ "unlockWithPin" | i18n }}
+      </button>
+    </ng-container>
+
+    <ng-container
+      *ngIf="unlockOptions.masterPassword.enabled && activeUnlockOption !== 'masterPassword'"
+    >
+      <button
+        type="button"
+        bitButton
+        bitFormButton
+        buttonType="secondary"
+        block
+        (click)="activeUnlockOption = 'masterPassword'"
+      >
+        {{ "unlockWithMasterPassword" | i18n }}
       </button>
     </ng-container>
 
