@@ -291,7 +291,7 @@ export class AppComponent implements OnInit, OnDestroy {
             );
             break;
           case "showToast":
-            this.toastService._showToast(message);
+            this.toastService.showToast(message);
             break;
           case "copiedToClipboard":
             if (!message.clearing) {
@@ -336,17 +336,17 @@ export class AppComponent implements OnInit, OnDestroy {
           case "syncVault":
             try {
               await this.syncService.fullSync(true, true);
-              this.platformUtilsService.showToast(
-                "success",
-                null,
-                this.i18nService.t("syncingComplete"),
-              );
+              this.toastService.showToast({
+                variant: "success",
+                title: null,
+                message: this.i18nService.t("syncingComplete"),
+              });
             } catch {
-              this.platformUtilsService.showToast(
-                "error",
-                null,
-                this.i18nService.t("syncingFailed"),
-              );
+              this.toastService.showToast({
+                variant: "error",
+                title: null,
+                message: this.i18nService.t("syncingFailed"),
+              });
             }
             break;
           case "checkSyncVault":

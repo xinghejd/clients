@@ -30,6 +30,7 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { ToastService } from "@bitwarden/components";
 
 import { ssoTypeValidator } from "./sso-type.validator";
 
@@ -187,6 +188,7 @@ export class SsoComponent implements OnInit, OnDestroy {
     private organizationService: OrganizationService,
     private organizationApiService: OrganizationApiServiceAbstraction,
     private configService: ConfigService,
+    private toastService: ToastService,
   ) {}
 
   async ngOnInit() {
@@ -280,7 +282,11 @@ export class SsoComponent implements OnInit, OnDestroy {
     const response = await this.organizationApiService.updateSso(this.organizationId, request);
     this.populateForm(response);
 
-    this.platformUtilsService.showToast("success", null, this.i18nService.t("ssoSettingsSaved"));
+    this.toastService.showToast({
+      variant: "success",
+      title: null,
+      message: this.i18nService.t("ssoSettingsSaved"),
+    });
   };
 
   async validateKeyConnectorUrl() {

@@ -182,6 +182,7 @@ import { FolderApiService } from "@bitwarden/common/vault/services/folder/folder
 import { FolderService } from "@bitwarden/common/vault/services/folder/folder.service";
 import { TotpService } from "@bitwarden/common/vault/services/totp.service";
 import { VaultSettingsService } from "@bitwarden/common/vault/services/vault-settings/vault-settings.service";
+import { ToastService } from "@bitwarden/components";
 import {
   legacyPasswordGenerationServiceFactory,
   PasswordGenerationServiceAbstraction,
@@ -375,6 +376,7 @@ export default class MainBackground {
   private nativeMessagingBackground: NativeMessagingBackground;
 
   private popupViewCacheBackgroundService: PopupViewCacheBackgroundService;
+  private toastService: ToastService;
 
   constructor(public popupOnlyContext: boolean = false) {
     // Services
@@ -729,6 +731,7 @@ export default class MainBackground {
       this.userDecryptionOptionsService,
       this.logService,
       this.configService,
+      this.toastService,
     );
 
     this.devicesService = new DevicesServiceImplementation(this.devicesApiService);

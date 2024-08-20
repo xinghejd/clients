@@ -29,7 +29,7 @@ import {
   VaultTimeoutOption,
   VaultTimeoutStringType,
 } from "@bitwarden/common/types/vault-timeout.type";
-import { DialogService } from "@bitwarden/components";
+import { DialogService, ToastService } from "@bitwarden/components";
 
 import { SetPinComponent } from "../../auth/components/set-pin.component";
 import { DesktopAutofillSettingsService } from "../../autofill/services/desktop-autofill-settings.service";
@@ -137,6 +137,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
     private pinService: PinServiceAbstraction,
     private logService: LogService,
     private nativeMessagingManifestService: NativeMessagingManifestService,
+    private toastService: ToastService,
   ) {
     const isMac = this.platformUtilsService.getDevice() === DeviceType.MacOsDesktop;
 
@@ -372,11 +373,11 @@ export class SettingsComponent implements OnInit, OnDestroy {
     }
 
     if (!this.form.controls.vaultTimeout.valid) {
-      this.platformUtilsService.showToast(
-        "error",
-        null,
-        this.i18nService.t("vaultTimeoutTooLarge"),
-      );
+      this.toastService.showToast({
+        variant: "error",
+        title: null,
+        message: this.i18nService.t("vaultTimeoutTooLarge"),
+      });
       return;
     }
 
@@ -408,11 +409,11 @@ export class SettingsComponent implements OnInit, OnDestroy {
     }
 
     if (this.form.controls.vaultTimeout.hasError("policyError")) {
-      this.platformUtilsService.showToast(
-        "error",
-        null,
-        this.i18nService.t("vaultTimeoutTooLarge"),
-      );
+      this.toastService.showToast({
+        variant: "error",
+        title: null,
+        message: this.i18nService.t("vaultTimeoutTooLarge"),
+      });
       return;
     }
 

@@ -11,7 +11,7 @@ import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.servi
 import { CollectionService } from "@bitwarden/common/vault/abstractions/collection.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { CollectionView } from "@bitwarden/common/vault/models/view/collection.view";
-import { DialogService } from "@bitwarden/components";
+import { DialogService, ToastService } from "@bitwarden/components";
 
 export interface BulkShareDialogParams {
   ciphers: CipherView[];
@@ -61,6 +61,7 @@ export class BulkShareDialogComponent implements OnInit, OnDestroy {
     private collectionService: CollectionService,
     private organizationService: OrganizationService,
     private logService: LogService,
+    private toastService: ToastService,
   ) {
     this.ciphers = params.ciphers ?? [];
     this.organizationId = params.organizationId;
@@ -106,11 +107,11 @@ export class BulkShareDialogComponent implements OnInit, OnDestroy {
       const orgName =
         this.organizations.find((o) => o.id === this.organizationId)?.name ??
         this.i18nService.t("organization");
-      this.platformUtilsService.showToast(
-        "success",
-        null,
-        this.i18nService.t("movedItemsToOrg", orgName),
-      );
+      this.toastService.showToast({
+        variant: "success",
+        title: null,
+        message: this.i18nService.t("movedItemsToOrg", orgName),
+      });
       this.close(BulkShareDialogResult.Shared);
     } catch (e) {
       this.logService.error(e);

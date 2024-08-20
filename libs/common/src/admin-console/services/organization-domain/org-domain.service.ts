@@ -1,5 +1,7 @@
 import { BehaviorSubject } from "rxjs";
 
+import { ToastService } from "@bitwarden/components";
+
 import { I18nService } from "../../../platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "../../../platform/abstractions/platform-utils.service";
 import { OrgDomainInternalServiceAbstraction } from "../../abstractions/organization-domain/org-domain.service.abstraction";
@@ -13,6 +15,7 @@ export class OrgDomainService implements OrgDomainInternalServiceAbstraction {
   constructor(
     private platformUtilsService: PlatformUtilsService,
     private i18nService: I18nService,
+    private toastService: ToastService,
   ) {}
 
   get(orgDomainId: string): OrganizationDomainResponse {
@@ -23,11 +26,11 @@ export class OrgDomainService implements OrgDomainInternalServiceAbstraction {
 
   copyDnsTxt(dnsTxt: string): void {
     this.platformUtilsService.copyToClipboard(dnsTxt);
-    this.platformUtilsService.showToast(
-      "success",
-      null,
-      this.i18nService.t("valueCopied", this.i18nService.t("dnsTxtRecord")),
-    );
+    this.toastService.showToast({
+      variant: "success",
+      title: null,
+      message: this.i18nService.t("valueCopied", this.i18nService.t("dnsTxtRecord")),
+    });
   }
 
   upsert(orgDomains: OrganizationDomainResponse[]): void {

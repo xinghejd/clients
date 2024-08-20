@@ -31,7 +31,7 @@ import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
 import { UserId } from "@bitwarden/common/types/guid";
 import { MasterKey, UserKey } from "@bitwarden/common/types/key";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
-import { DialogService } from "@bitwarden/components";
+import { DialogService, ToastService } from "@bitwarden/components";
 import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legacy";
 
 import { ChangePasswordComponent as BaseChangePasswordComponent } from "./change-password.component";
@@ -72,6 +72,7 @@ export class SetPasswordComponent extends BaseChangePasswordComponent implements
     private ssoLoginService: SsoLoginServiceAbstraction,
     dialogService: DialogService,
     kdfConfigService: KdfConfigService,
+    protected toastService: ToastService,
   ) {
     super(
       i18nService,
@@ -85,6 +86,7 @@ export class SetPasswordComponent extends BaseChangePasswordComponent implements
       kdfConfigService,
       masterPasswordService,
       accountService,
+      toastService,
     );
   }
 
@@ -135,7 +137,11 @@ export class SetPasswordComponent extends BaseChangePasswordComponent implements
       )
       .subscribe({
         error: () => {
-          this.platformUtilsService.showToast("error", null, this.i18nService.t("errorOccurred"));
+          this.toastService.showToast({
+            variant: "error",
+            title: null,
+            message: this.i18nService.t("errorOccurred"),
+          });
         },
       });
   }
@@ -219,7 +225,11 @@ export class SetPasswordComponent extends BaseChangePasswordComponent implements
         this.router.navigate([this.successRoute]);
       }
     } catch {
-      this.platformUtilsService.showToast("error", null, this.i18nService.t("errorOccurred"));
+      this.toastService.showToast({
+        variant: "error",
+        title: null,
+        message: this.i18nService.t("errorOccurred"),
+      });
     }
   }
 

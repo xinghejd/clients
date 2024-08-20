@@ -43,6 +43,7 @@ import { GlobalState, GlobalStateProvider } from "@bitwarden/common/platform/sta
 import { DeviceTrustServiceAbstraction } from "@bitwarden/common/src/auth/abstractions/device-trust.service.abstraction";
 import { PasswordStrengthServiceAbstraction } from "@bitwarden/common/tools/password-strength";
 import { MasterKey } from "@bitwarden/common/types/key";
+import { ToastService } from "@bitwarden/components";
 
 import { AuthRequestServiceAbstraction, LoginStrategyServiceAbstraction } from "../../abstractions";
 import { InternalUserDecryptionOptionsServiceAbstraction } from "../../abstractions/user-decryption-options.service.abstraction";
@@ -114,6 +115,7 @@ export class LoginStrategyService implements LoginStrategyServiceAbstraction {
     protected vaultTimeoutSettingsService: VaultTimeoutSettingsService,
     protected kdfConfigService: KdfConfigService,
     protected taskSchedulerService: TaskSchedulerService,
+    protected toastService: ToastService,
   ) {
     this.currentAuthnTypeState = this.stateProvider.get(CURRENT_LOGIN_STRATEGY_KEY);
     this.loginStrategyCacheState = this.stateProvider.get(CACHE_KEY);
@@ -352,6 +354,7 @@ export class LoginStrategyService implements LoginStrategyServiceAbstraction {
               this.deviceTrustService,
               this.authRequestService,
               this.i18nService,
+              this.toastService,
               ...sharedDeps,
             );
           case AuthenticationType.UserApiKey:

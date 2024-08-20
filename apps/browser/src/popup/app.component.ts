@@ -120,7 +120,7 @@ export class AppComponent implements OnInit, OnDestroy {
             // eslint-disable-next-line @typescript-eslint/no-floating-promises
             this.showNativeMessagingFingerprintDialog(msg);
           } else if (msg.command === "showToast") {
-            this.toastService._showToast(msg);
+            this.toastService.showToast(msg);
           } else if (msg.command === "reloadProcess") {
             const forceWindowReload =
               this.platformUtilsService.isSafari() ||
@@ -212,7 +212,12 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   private showToast(msg: any) {
-    this.platformUtilsService.showToast(msg.type, msg.title, msg.text, msg.options);
+    this.toastService.showToast({
+      variant: msg.type,
+      title: msg.title,
+      message: msg.text,
+      ...msg.options,
+    });
   }
 
   private async showDialog(msg: SimpleDialogOptions) {

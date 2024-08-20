@@ -31,6 +31,7 @@ import { Organization } from "@bitwarden/common/admin-console/models/domain/orga
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { ToastService } from "@bitwarden/components";
 
 import { VaultFilterService } from "../../../services/vault-filter.service";
 
@@ -100,6 +101,7 @@ export class VaultSelectComponent implements OnInit, OnDestroy {
     private platformUtilsService: PlatformUtilsService,
     private organizationService: OrganizationService,
     private policyService: PolicyService,
+    private toastService: ToastService,
   ) {}
 
   @HostListener("document:keydown.escape", ["$event"])
@@ -198,11 +200,11 @@ export class VaultSelectComponent implements OnInit, OnDestroy {
 
   selectOrganization(organization: Organization) {
     if (!organization.enabled) {
-      this.platformUtilsService.showToast(
-        "error",
-        null,
-        this.i18nService.t("disabledOrganizationFilterError"),
-      );
+      this.toastService.showToast({
+        variant: "error",
+        title: null,
+        message: this.i18nService.t("disabledOrganizationFilterError"),
+      });
     } else {
       this._selectedVault.next(organization.name);
       this.vaultFilterService.setVaultFilter(organization.id);

@@ -20,6 +20,7 @@ import {
   LinkModule,
   SectionComponent,
   SectionHeaderComponent,
+  ToastService,
   TypographyModule,
 } from "@bitwarden/components";
 
@@ -69,6 +70,7 @@ export class ExcludedDomainsComponent implements OnInit, OnDestroy {
     private router: Router,
     private broadcasterService: BroadcasterService,
     private platformUtilsService: PlatformUtilsService,
+    private toastService: ToastService,
   ) {
     this.accountSwitcherEnabled = enableAccountSwitching();
   }
@@ -129,11 +131,11 @@ export class ExcludedDomainsComponent implements OnInit, OnDestroy {
         const validatedHost = Utils.getHostname(uri);
 
         if (!validatedHost) {
-          this.platformUtilsService.showToast(
-            "error",
-            null,
-            this.i18nService.t("excludedDomainsInvalidDomain", uri),
-          );
+          this.toastService.showToast({
+            variant: "error",
+            title: null,
+            message: this.i18nService.t("excludedDomainsInvalidDomain", uri),
+          });
 
           return;
         }
@@ -145,14 +147,17 @@ export class ExcludedDomainsComponent implements OnInit, OnDestroy {
     try {
       await this.domainSettingsService.setNeverDomains(newExcludedDomainsSaveState);
 
-      this.platformUtilsService.showToast(
-        "success",
-        null,
-        this.i18nService.t("excludedDomainsSavedSuccess"),
-      );
+      this.toastService.showToast({
+        variant: "success",
+        title: null,
+        message: this.i18nService.t("excludedDomainsSavedSuccess"),
+      });
     } catch {
-      this.platformUtilsService.showToast("error", null, this.i18nService.t("unexpectedError"));
-
+      this.toastService.showToast({
+        variant: "error",
+        title: null,
+        message: this.i18nService.t("unexpectedError"),
+      });
       // Do not navigate on error
       return;
     }

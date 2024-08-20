@@ -6,6 +6,7 @@ import { UpdateDomainsRequest } from "@bitwarden/common/models/request/update-do
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { ToastService } from "@bitwarden/components";
 
 @Component({
   selector: "app-domain-rules",
@@ -25,6 +26,7 @@ export class DomainRulesComponent implements OnInit {
     private platformUtilsService: PlatformUtilsService,
     private logService: LogService,
     private formBuilder: FormBuilder,
+    private toastService: ToastService,
   ) {}
 
   async ngOnInit() {
@@ -95,7 +97,11 @@ export class DomainRulesComponent implements OnInit {
     }
 
     await this.apiService.putSettingsDomains(request);
-    this.platformUtilsService.showToast("success", null, this.i18nService.t("domainsUpdated"));
+    this.toastService.showToast({
+      variant: "success",
+      title: null,
+      message: this.i18nService.t("domainsUpdated"),
+    });
   };
 
   indexTrackBy(index: number, obj: any): any {

@@ -8,6 +8,7 @@ import { NeverDomains } from "@bitwarden/common/models/domain/domain-service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { ToastService } from "@bitwarden/components";
 
 import { fido2PopoutSessionData$ } from "../../../vault/popup/utils/fido2-popout-session-data";
 import { BrowserFido2UserInterfaceSession } from "../../fido2/services/browser-fido2-user-interface.service";
@@ -55,6 +56,7 @@ export class Fido2UseBrowserLinkComponent {
     private domainSettingsService: DomainSettingsService,
     private platformUtilsService: PlatformUtilsService,
     private i18nService: I18nService,
+    private toastService: ToastService,
   ) {}
 
   toggle() {
@@ -100,11 +102,11 @@ export class Fido2UseBrowserLinkComponent {
 
     await this.domainSettingsService.setNeverDomains(savedDomains);
 
-    this.platformUtilsService.showToast(
-      "success",
-      null,
-      this.i18nService.t("domainAddedToExcludedDomains", validDomain),
-    );
+    this.toastService.showToast({
+      variant: "success",
+      title: null,
+      message: this.i18nService.t("domainAddedToExcludedDomains", validDomain),
+    });
   }
 
   private abortSession(sessionId: string) {

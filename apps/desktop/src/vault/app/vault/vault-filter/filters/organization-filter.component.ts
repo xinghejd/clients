@@ -5,6 +5,7 @@ import { DisplayMode } from "@bitwarden/angular/vault/vault-filter/models/displa
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { ToastService } from "@bitwarden/components";
 
 @Component({
   selector: "app-organization-filter",
@@ -23,6 +24,7 @@ export class OrganizationFilterComponent extends BaseOrganizationFilterComponent
   constructor(
     private i18nService: I18nService,
     private platformUtilsService: PlatformUtilsService,
+    private toastService: ToastService,
   ) {
     super();
   }
@@ -34,11 +36,11 @@ export class OrganizationFilterComponent extends BaseOrganizationFilterComponent
       // eslint-disable-next-line @typescript-eslint/no-floating-promises
       super.applyOrganizationFilter(organization);
     } else {
-      this.platformUtilsService.showToast(
-        "error",
-        null,
-        this.i18nService.t("disabledOrganizationFilterError"),
-      );
+      this.toastService.showToast({
+        variant: "error",
+        title: null,
+        message: this.i18nService.t("disabledOrganizationFilterError"),
+      });
     }
   }
 }

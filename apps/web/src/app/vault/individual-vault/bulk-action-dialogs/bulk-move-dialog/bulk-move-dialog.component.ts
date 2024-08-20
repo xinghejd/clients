@@ -10,7 +10,7 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
-import { DialogService } from "@bitwarden/components";
+import { DialogService, ToastService } from "@bitwarden/components";
 
 export interface BulkMoveDialogParams {
   cipherIds?: string[];
@@ -60,6 +60,7 @@ export class BulkMoveDialogComponent implements OnInit {
     private folderService: FolderService,
     private formBuilder: FormBuilder,
     private configService: ConfigService,
+    private toastService: ToastService,
   ) {
     this.cipherIds = params.cipherIds ?? [];
   }
@@ -81,7 +82,11 @@ export class BulkMoveDialogComponent implements OnInit {
     }
 
     await this.cipherService.moveManyWithServer(this.cipherIds, this.formGroup.value.folderId);
-    this.platformUtilsService.showToast("success", null, this.i18nService.t("movedItems"));
+    this.toastService.showToast({
+      variant: "success",
+      title: null,
+      message: this.i18nService.t("movedItems"),
+    });
     this.close(BulkMoveDialogResult.Moved);
   };
 

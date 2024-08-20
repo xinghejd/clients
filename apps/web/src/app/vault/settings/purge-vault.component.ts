@@ -9,7 +9,7 @@ import { Verification } from "@bitwarden/common/auth/types/verification";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
-import { DialogService } from "@bitwarden/components";
+import { DialogService, ToastService } from "@bitwarden/components";
 
 export interface PurgeVaultDialogData {
   organizationId: string;
@@ -35,6 +35,7 @@ export class PurgeVaultComponent {
     private userVerificationService: UserVerificationService,
     private router: Router,
     private syncService: SyncService,
+    private toastService: ToastService,
   ) {
     this.organizationId = data && data.organizationId ? data.organizationId : null;
   }
@@ -44,7 +45,11 @@ export class PurgeVaultComponent {
       .buildRequest(this.formGroup.value.masterPassword)
       .then((request) => this.apiService.postPurgeCiphers(request, this.organizationId));
     await response;
-    this.platformUtilsService.showToast("success", null, this.i18nService.t("vaultPurged"));
+    this.toastService.showToast({
+      variant: "success",
+      title: null,
+      message: this.i18nService.t("vaultPurged"),
+    });
     await this.syncService.fullSync(true);
     if (this.organizationId != null) {
       await this.router.navigate(["organizations", this.organizationId, "vault"]);

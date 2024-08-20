@@ -15,7 +15,7 @@ import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.servi
 import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
 import { AttachmentView } from "@bitwarden/common/vault/models/view/attachment.view";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
-import { DialogService } from "@bitwarden/components";
+import { DialogService, ToastService } from "@bitwarden/components";
 
 @Directive()
 export class AttachmentsComponent implements OnInit {
@@ -46,6 +46,7 @@ export class AttachmentsComponent implements OnInit {
     protected fileDownloadService: FileDownloadService,
     protected dialogService: DialogService,
     protected billingAccountProfileStateService: BillingAccountProfileStateService,
+    protected toastService: ToastService,
   ) {}
 
   async ngOnInit() {
@@ -56,21 +57,21 @@ export class AttachmentsComponent implements OnInit {
     const fileEl = document.getElementById("file") as HTMLInputElement;
     const files = fileEl.files;
     if (files == null || files.length === 0) {
-      this.platformUtilsService.showToast(
-        "error",
-        this.i18nService.t("errorOccurred"),
-        this.i18nService.t("selectFile"),
-      );
+      this.toastService.showToast({
+        variant: "error",
+        title: this.i18nService.t("errorOccurred"),
+        message: this.i18nService.t("selectFile"),
+      });
       return;
     }
 
     if (files[0].size > 524288000) {
       // 500 MB
-      this.platformUtilsService.showToast(
-        "error",
-        this.i18nService.t("errorOccurred"),
-        this.i18nService.t("maxFileSize"),
-      );
+      this.toastService.showToast({
+        variant: "error",
+        title: this.i18nService.t("errorOccurred"),
+        message: this.i18nService.t("maxFileSize"),
+      });
       return;
     }
 
@@ -80,7 +81,11 @@ export class AttachmentsComponent implements OnInit {
       this.cipher = await this.cipherDomain.decrypt(
         await this.cipherService.getKeyForCipherKeyDecryption(this.cipherDomain),
       );
-      this.platformUtilsService.showToast("success", null, this.i18nService.t("attachmentSaved"));
+      this.toastService.showToast({
+        variant: "success",
+        title: null,
+        message: this.i18nService.t("attachmentSaved"),
+      });
       this.onUploadedAttachment.emit();
     } catch (e) {
       this.logService.error(e);
@@ -111,7 +116,11 @@ export class AttachmentsComponent implements OnInit {
     try {
       this.deletePromises[attachment.id] = this.deleteCipherAttachment(attachment.id);
       await this.deletePromises[attachment.id];
-      this.platformUtilsService.showToast("success", null, this.i18nService.t("deletedAttachment"));
+      this.toastService.showToast({
+        variant: "success",
+        title: null,
+        message: this.i18nService.t("deletedAttachment"),
+      });
       const i = this.cipher.attachments.indexOf(attachment);
       if (i > -1) {
         this.cipher.attachments.splice(i, 1);
@@ -131,11 +140,11 @@ export class AttachmentsComponent implements OnInit {
     }
 
     if (!this.canAccessAttachments) {
-      this.platformUtilsService.showToast(
-        "error",
-        this.i18nService.t("premiumRequired"),
-        this.i18nService.t("premiumRequiredDesc"),
-      );
+      this.toastService.showToast({
+        variant: "error",
+        title: this.i18nService.t("premiumRequired"),
+        message: this.i18nService.t("premiumRequiredDesc"),
+      });
       return;
     }
 
@@ -160,7 +169,11 @@ export class AttachmentsComponent implements OnInit {
     a.downloading = true;
     const response = await fetch(new Request(url, { cache: "no-store" }));
     if (response.status !== 200) {
-      this.platformUtilsService.showToast("error", null, this.i18nService.t("errorOccurred"));
+      this.toastService.showToast({
+        variant: "error",
+        title: null,
+        message: this.i18nService.t("errorOccurred"),
+      });
       a.downloading = false;
       return;
     }
@@ -177,7 +190,11 @@ export class AttachmentsComponent implements OnInit {
         blobData: decBuf,
       });
     } catch (e) {
-      this.platformUtilsService.showToast("error", null, this.i18nService.t("errorOccurred"));
+      this.toastService.showToast({
+        variant: "error",
+        title: null,
+        message: this.i18nService.t("errorOccurred"),
+      });
     }
 
     a.downloading = false;
@@ -222,7 +239,11 @@ export class AttachmentsComponent implements OnInit {
         a.downloading = true;
         const response = await fetch(new Request(attachment.url, { cache: "no-store" }));
         if (response.status !== 200) {
-          this.platformUtilsService.showToast("error", null, this.i18nService.t("errorOccurred"));
+          this.toastService.showToast({
+            variant: "error",
+            title: null,
+            message: this.i18nService.t("errorOccurred"),
+          });
           a.downloading = false;
           return;
         }
@@ -256,14 +277,18 @@ export class AttachmentsComponent implements OnInit {
             }
           }
 
-          this.platformUtilsService.showToast(
-            "success",
-            null,
-            this.i18nService.t("attachmentSaved"),
-          );
+          this.toastService.showToast({
+            variant: "success",
+            title: null,
+            message: this.i18nService.t("attachmentSaved"),
+          });
           this.onReuploadedAttachment.emit();
         } catch (e) {
-          this.platformUtilsService.showToast("error", null, this.i18nService.t("errorOccurred"));
+          this.toastService.showToast({
+            variant: "error",
+            title: null,
+            message: this.i18nService.t("errorOccurred"),
+          });
         }
 
         a.downloading = false;

@@ -15,7 +15,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
-import { DialogService } from "@bitwarden/components";
+import { DialogService, ToastService } from "@bitwarden/components";
 
 import { OrganizationUserResetPasswordService } from "../../../../admin-console/organizations/members/services/organization-user-reset-password/organization-user-reset-password.service";
 import { EnrollMasterPasswordReset } from "../../../../admin-console/organizations/users/enroll-master-password-reset.component";
@@ -50,6 +50,7 @@ export class OrganizationOptionsComponent implements OnInit, OnDestroy {
     private dialogService: DialogService,
     private resetPasswordService: OrganizationUserResetPasswordService,
     private userVerificationService: UserVerificationService,
+    private toastService: ToastService,
   ) {}
 
   async ngOnInit() {
@@ -120,7 +121,7 @@ export class OrganizationOptionsComponent implements OnInit, OnDestroy {
         return this.syncService.fullSync(true);
       });
       await this.actionPromise;
-      this.platformUtilsService.showToast("success", null, "Unlinked SSO");
+      this.toastService.showToast({ variant: "success", title: null, message: "Unlinked SSO" });
     } catch (e) {
       this.logService.error(e);
     }
@@ -140,7 +141,11 @@ export class OrganizationOptionsComponent implements OnInit, OnDestroy {
     try {
       this.actionPromise = this.organizationApiService.leave(org.id);
       await this.actionPromise;
-      this.platformUtilsService.showToast("success", null, this.i18nService.t("leftOrganization"));
+      this.toastService.showToast({
+        variant: "success",
+        title: null,
+        message: this.i18nService.t("leftOrganization"),
+      });
     } catch (e) {
       this.logService.error(e);
     }
@@ -171,11 +176,11 @@ export class OrganizationOptionsComponent implements OnInit, OnDestroy {
       );
       try {
         await this.actionPromise;
-        this.platformUtilsService.showToast(
-          "success",
-          null,
-          this.i18nService.t("withdrawPasswordResetSuccess"),
-        );
+        this.toastService.showToast({
+          variant: "success",
+          title: null,
+          message: this.i18nService.t("withdrawPasswordResetSuccess"),
+        });
         await this.syncService.fullSync(true);
       } catch (e) {
         this.logService.error(e);

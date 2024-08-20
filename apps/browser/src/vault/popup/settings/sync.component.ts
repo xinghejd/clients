@@ -3,6 +3,7 @@ import { Component, OnInit } from "@angular/core";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
+import { ToastService } from "@bitwarden/components";
 
 @Component({
   selector: "app-sync",
@@ -16,6 +17,7 @@ export class SyncComponent implements OnInit {
     private syncService: SyncService,
     private platformUtilsService: PlatformUtilsService,
     private i18nService: I18nService,
+    private toastService: ToastService,
   ) {}
 
   async ngOnInit() {
@@ -27,9 +29,17 @@ export class SyncComponent implements OnInit {
     const success = await this.syncPromise;
     if (success) {
       await this.setLastSync();
-      this.platformUtilsService.showToast("success", null, this.i18nService.t("syncingComplete"));
+      this.toastService.showToast({
+        variant: "success",
+        title: null,
+        message: this.i18nService.t("syncingComplete"),
+      });
     } else {
-      this.platformUtilsService.showToast("error", null, this.i18nService.t("syncingFailed"));
+      this.toastService.showToast({
+        variant: "error",
+        title: null,
+        message: this.i18nService.t("syncingFailed"),
+      });
     }
   }
 

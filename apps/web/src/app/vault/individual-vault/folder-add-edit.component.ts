@@ -76,11 +76,11 @@ export class FolderAddEditComponent extends BaseFolderAddEditComponent {
       const folder = await this.folderService.encrypt(this.folder);
       this.formPromise = this.folderApiService.save(folder);
       await this.formPromise;
-      this.platformUtilsService.showToast(
-        "success",
-        null,
-        this.i18nService.t(this.editMode ? "editedFolder" : "addedFolder"),
-      );
+      this.toastService.showToast({
+        variant: "success",
+        title: null,
+        message: this.i18nService.t(this.editMode ? "editedFolder" : "addedFolder"),
+      });
       this.onSavedFolder.emit(this.folder);
       this.dialogRef.close(FolderAddEditDialogResult.Saved);
     } catch (e) {

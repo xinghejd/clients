@@ -1,6 +1,7 @@
 import { firstValueFrom, map, Observable } from "rxjs";
 
 import { UserDecryptionOptionsServiceAbstraction } from "@bitwarden/auth/common";
+import { ToastService } from "@bitwarden/components";
 
 import { FeatureFlag } from "../../enums/feature-flag.enum";
 import { AppIdService } from "../../platform/abstractions/app-id.service";
@@ -76,6 +77,7 @@ export class DeviceTrustService implements DeviceTrustServiceAbstraction {
     private userDecryptionOptionsService: UserDecryptionOptionsServiceAbstraction,
     private logService: LogService,
     private configService: ConfigService,
+    private toastService: ToastService,
   ) {
     this.supportsDeviceTrust$ = this.userDecryptionOptionsService.userDecryptionOptions$.pipe(
       map((options) => options?.trustedDeviceOption != null ?? false),
@@ -166,7 +168,11 @@ export class DeviceTrustService implements DeviceTrustServiceAbstraction {
     // store device key in local/secure storage if enc keys posted to server successfully
     await this.setDeviceKey(userId, deviceKey);
 
-    this.platformUtilsService.showToast("success", null, this.i18nService.t("deviceTrusted"));
+    this.toastService.showToast({
+      variant: "success",
+      title: null,
+      message: this.i18nService.t("deviceTrusted"),
+    });
 
     return deviceResponse;
   }

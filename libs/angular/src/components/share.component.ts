@@ -13,6 +13,7 @@ import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.servi
 import { CollectionService } from "@bitwarden/common/vault/abstractions/collection.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { CollectionView } from "@bitwarden/common/vault/models/view/collection.view";
+import { ToastService } from "@bitwarden/components";
 
 @Directive()
 export class ShareComponent implements OnInit, OnDestroy {
@@ -36,6 +37,7 @@ export class ShareComponent implements OnInit, OnDestroy {
     protected cipherService: CipherService,
     private logService: LogService,
     protected organizationService: OrganizationService,
+    private toastService: ToastService,
   ) {}
 
   async ngOnInit() {
@@ -86,11 +88,11 @@ export class ShareComponent implements OnInit, OnDestroy {
   async submit(): Promise<boolean> {
     const selectedCollectionIds = this.collections.filter(isChecked).map((c) => c.id);
     if (selectedCollectionIds.length === 0) {
-      this.platformUtilsService.showToast(
-        "error",
-        this.i18nService.t("errorOccurred"),
-        this.i18nService.t("selectOneCollection"),
-      );
+      this.toastService.showToast({
+        variant: "error",
+        title: this.i18nService.t("errorOccurred"),
+        message: this.i18nService.t("selectOneCollection"),
+      });
       return;
     }
 
@@ -107,11 +109,11 @@ export class ShareComponent implements OnInit, OnDestroy {
         .shareWithServer(cipherView, this.organizationId, selectedCollectionIds)
         .then(async () => {
           this.onSharedCipher.emit();
-          this.platformUtilsService.showToast(
-            "success",
-            null,
-            this.i18nService.t("movedItemToOrg", cipherView.name, orgName),
-          );
+          this.toastService.showToast({
+            variant: "success",
+            title: null,
+            message: this.i18nService.t("movedItemToOrg", cipherView.name, orgName),
+          });
         });
       await this.formPromise;
       return true;

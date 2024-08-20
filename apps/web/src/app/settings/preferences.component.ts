@@ -18,7 +18,7 @@ import {
   VaultTimeoutOption,
   VaultTimeoutStringType,
 } from "@bitwarden/common/types/vault-timeout.type";
-import { DialogService } from "@bitwarden/components";
+import { DialogService, ToastService } from "@bitwarden/components";
 
 @Component({
   selector: "app-preferences",
@@ -59,6 +59,7 @@ export class PreferencesComponent implements OnInit, OnDestroy {
     private domainSettingsService: DomainSettingsService,
     private dialogService: DialogService,
     private accountService: AccountService,
+    private toastService: ToastService,
   ) {
     this.vaultTimeoutOptions = [
       { name: i18nService.t("oneMinute"), value: 1 },
@@ -160,11 +161,11 @@ export class PreferencesComponent implements OnInit, OnDestroy {
 
   submit = async () => {
     if (!this.form.controls.vaultTimeout.valid) {
-      this.platformUtilsService.showToast(
-        "error",
-        null,
-        this.i18nService.t("vaultTimeoutRangeError"),
-      );
+      this.toastService.showToast({
+        variant: "error",
+        title: null,
+        message: this.i18nService.t("vaultTimeoutRangeError"),
+      });
       return;
     }
     const values = this.form.value;
@@ -182,11 +183,11 @@ export class PreferencesComponent implements OnInit, OnDestroy {
     if (values.locale !== this.startingLocale) {
       window.location.reload();
     } else {
-      this.platformUtilsService.showToast(
-        "success",
-        null,
-        this.i18nService.t("preferencesUpdated"),
-      );
+      this.toastService.showToast({
+        variant: "success",
+        title: null,
+        message: this.i18nService.t("preferencesUpdated"),
+      });
     }
   };
 

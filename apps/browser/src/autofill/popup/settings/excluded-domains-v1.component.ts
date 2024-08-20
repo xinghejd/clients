@@ -7,6 +7,7 @@ import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broa
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { ToastService } from "@bitwarden/components";
 
 import { BrowserApi } from "../../../platform/browser/browser-api";
 import { enableAccountSwitching } from "../../../platform/flags";
@@ -36,6 +37,7 @@ export class ExcludedDomainsV1Component implements OnInit, OnDestroy {
     private broadcasterService: BroadcasterService,
     private ngZone: NgZone,
     private platformUtilsService: PlatformUtilsService,
+    private toastService: ToastService,
   ) {
     this.accountSwitcherEnabled = enableAccountSwitching();
   }
@@ -96,11 +98,11 @@ export class ExcludedDomainsV1Component implements OnInit, OnDestroy {
         if (domain.uri && domain.uri !== "") {
           const validDomain = Utils.getHostname(domain.uri);
           if (!validDomain) {
-            this.platformUtilsService.showToast(
-              "error",
-              null,
-              this.i18nService.t("excludedDomainsInvalidDomain", domain.uri),
-            );
+            this.toastService.showToast({
+              variant: "error",
+              title: null,
+              message: this.i18nService.t("excludedDomainsInvalidDomain", domain.uri),
+            });
             return;
           }
           savedDomains[validDomain] = null;

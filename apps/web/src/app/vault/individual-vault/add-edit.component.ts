@@ -23,7 +23,7 @@ import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folde
 import { TotpService } from "@bitwarden/common/vault/abstractions/totp.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { Launchable } from "@bitwarden/common/vault/interfaces/launchable";
-import { DialogService } from "@bitwarden/components";
+import { DialogService, ToastService } from "@bitwarden/components";
 import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legacy";
 import { PasswordRepromptService } from "@bitwarden/vault";
 
@@ -68,6 +68,7 @@ export class AddEditComponent extends BaseAddEditComponent implements OnInit, On
     datePipe: DatePipe,
     configService: ConfigService,
     private billingAccountProfileStateService: BillingAccountProfileStateService,
+    private toastService: ToastService,
   ) {
     super(
       cipherService,
@@ -161,11 +162,11 @@ export class AddEditComponent extends BaseAddEditComponent implements OnInit, On
     }
 
     this.platformUtilsService.copyToClipboard(value, { window: window });
-    this.platformUtilsService.showToast(
-      "info",
-      null,
-      this.i18nService.t("valueCopied", this.i18nService.t(typeI18nKey)),
-    );
+    this.toastService.showToast({
+      variant: "info",
+      title: null,
+      message: this.i18nService.t("valueCopied", this.i18nService.t(typeI18nKey)),
+    });
 
     if (this.editMode) {
       if (typeI18nKey === "password") {
