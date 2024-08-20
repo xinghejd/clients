@@ -5,7 +5,6 @@ import { ActivatedRoute, Router } from "@angular/router";
 import { firstValueFrom, Subject, switchMap, take, takeUntil } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
-import { VaultTimeoutSettingsService } from "@bitwarden/common/abstractions/vault-timeout/vault-timeout-settings.service";
 import { InternalPolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/models/domain/master-password-policy-options";
 import { AccountInfo, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -117,7 +116,6 @@ export class LockV2Component implements OnInit, OnDestroy {
   constructor(
     private accountService: AccountService,
     private authService: AuthService,
-    private vaultTimeoutSettingsService: VaultTimeoutSettingsService,
     private pinService: PinServiceAbstraction,
     private userVerificationService: UserVerificationService,
     private cryptoService: CryptoService,
@@ -178,18 +176,7 @@ export class LockV2Component implements OnInit, OnDestroy {
   private async handleActiveAccountChange(activeAccount: { id: UserId | undefined } & AccountInfo) {
     this.setEmailAsPageSubtitle(activeAccount.email);
 
-    // this.pinEnabled = await this.pinService.isPinDecryptionAvailable(activeAccount.id);
-
-    // this.masterPasswordEnabled = await this.userVerificationService.hasMasterPassword();
-
-    // // Only desktop uses this
-    // this.supportsBiometric = await this.platformUtilsService.supportsBiometric();
-
-    // this.biometricLockSet =
-    //   (await this.vaultTimeoutSettingsService.isBiometricLockSet()) &&
-    //   ((await this.cryptoService.hasUserKeyStored(KeySuffixOptions.Biometric)) ||
-    //     !this.platformUtilsService.supportsSecureStorage());
-
+    // TODO: what do I do if biometrics loads later?
     this.unlockOptions = await firstValueFrom(
       this.lockComponentService.getAvailableUnlockOptions$(activeAccount.id),
     );
