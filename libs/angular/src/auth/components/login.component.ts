@@ -266,6 +266,7 @@ export class LoginComponent extends CaptchaProtectedComponent implements OnInit,
   async validateEmail() {
     this.formGroup.controls.email.markAsTouched();
     const emailValid = this.formGroup.get("email").valid;
+
     if (emailValid) {
       this.toggleValidateEmail(true);
       await this.getLoginWithDevice(this.loggedEmail);
@@ -299,6 +300,7 @@ export class LoginComponent extends CaptchaProtectedComponent implements OnInit,
     // Try to load from memory first
     const email = this.loginEmailService.getEmail();
     const rememberEmail = this.loginEmailService.getRememberEmail();
+
     if (email) {
       this.formGroup.controls.email.setValue(email);
       this.formGroup.controls.rememberEmail.setValue(rememberEmail);

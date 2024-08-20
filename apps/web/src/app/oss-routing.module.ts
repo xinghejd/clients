@@ -19,6 +19,7 @@ import {
   SetPasswordJitComponent,
   LockIcon,
   RegistrationLinkExpiredComponent,
+  LoginComponentV2,
 } from "@bitwarden/auth/angular";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 
@@ -260,7 +261,7 @@ const routes: Routes = [
         children: [
           {
             path: "",
-            component: LoginComponent,
+            component: LoginComponentV2,
           },
           {
             path: "",

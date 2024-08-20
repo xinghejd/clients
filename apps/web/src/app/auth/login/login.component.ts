@@ -45,6 +45,7 @@ export class LoginComponent extends BaseLoginComponent implements OnInit {
   enforcedPasswordPolicyOptions: MasterPasswordPolicyOptions;
   policies: Policy[];
   showPasswordless = false;
+
   constructor(
     private acceptOrganizationInviteService: AcceptOrganizationInviteService,
     devicesApiService: DevicesApiServiceAbstraction,
@@ -95,6 +96,7 @@ export class LoginComponent extends BaseLoginComponent implements OnInit {
     this.onSuccessfulLoginNavigate = this.goAfterLogIn;
     this.showPasswordless = flagEnabled("showPasswordless");
   }
+
   submitForm = async (showToast = true) => {
     return await this.submitFormHelper(showToast);
   };
@@ -102,6 +104,7 @@ export class LoginComponent extends BaseLoginComponent implements OnInit {
   private async submitFormHelper(showToast: boolean) {
     await super.submit(showToast);
   }
+
   async ngOnInit() {
     // eslint-disable-next-line rxjs-angular/prefer-takeuntil, rxjs/no-async-subscribe
     this.route.queryParams.pipe(first()).subscribe(async (qParams) => {
@@ -202,10 +205,12 @@ export class LoginComponent extends BaseLoginComponent implements OnInit {
     if (this.policies == null) {
       return;
     }
+
     const resetPasswordPolicy = this.policyService.getResetPasswordPolicyOptions(
       this.policies,
       invite.organizationId,
     );
+
     // Set to true if policy enabled and auto-enroll enabled
     this.showResetPasswordAutoEnrollWarning =
       resetPasswordPolicy[1] && resetPasswordPolicy[0].autoEnrollEnabled;
