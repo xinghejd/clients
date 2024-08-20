@@ -95,7 +95,7 @@ export class LockV2Component implements OnInit, OnDestroy {
   formPromise: Promise<MasterPasswordVerificationResponse>;
   onSuccessfulSubmit: () => Promise<void>; // TODO: remove all callbacks
 
-  webVaultHostname = "";
+  envHostname = "";
 
   // TODO: there will be more to do here.
   formGroup = this.formBuilder.group({
@@ -148,8 +148,7 @@ export class LockV2Component implements OnInit, OnDestroy {
   async ngOnInit() {
     this.listenForActiveAccountChanges();
 
-    // TODO: change from webVaultHostname to envHostName as it's used on all clients.
-    this.webVaultHostname = (await this.environmentService.getEnvironment()).getHostname();
+    this.envHostname = (await this.environmentService.getEnvironment()).getHostname();
 
     // Identify client
     this.clientType = this.platformUtilsService.getClientType();
