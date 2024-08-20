@@ -65,6 +65,8 @@ const BroadcasterSubscriptionId = "LockComponent";
 export class LockV2Component implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
 
+  loading = true;
+
   activeAccount: { id: UserId | undefined } & AccountInfo;
 
   clientType: ClientType;
@@ -144,6 +146,11 @@ export class LockV2Component implements OnInit, OnDestroy {
   ) {}
 
   async ngOnInit() {
+    // Get active account and handle it
+    const activeAccount = await firstValueFrom(this.accountService.activeAccount$);
+    await this.handleActiveAccountChange(activeAccount);
+
+    // Listen for active account changes
     this.listenForActiveAccountChanges();
 
     this.envHostname = (await this.environmentService.getEnvironment()).getHostname();
@@ -158,15 +165,18 @@ export class LockV2Component implements OnInit, OnDestroy {
     if (this.clientType === "browser") {
       await this.extensionOnInit();
     }
+
+    this.loading = false;
   }
 
   // Base component methods
+  // TODO: consider making a reactive unlockOptions$
   private listenForActiveAccountChanges() {
     this.accountService.activeAccount$
       .pipe(
-        switchMap(async (account) => {
+        switchMap((account) => {
           this.activeAccount = account;
-          await this.handleActiveAccountChange(account);
+          return this.handleActiveAccountChange(account);
         }),
         takeUntil(this.destroy$),
       )
