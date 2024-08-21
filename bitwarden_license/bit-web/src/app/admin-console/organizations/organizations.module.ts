@@ -1,7 +1,6 @@
 import { NgModule } from "@angular/core";
 
 import { LooseComponentsModule } from "@bitwarden/web-vault/app/shared";
-import { OnboardingModule } from "@bitwarden/web-vault/app/shared/components/onboarding/onboarding.module";
 import { SharedModule } from "@bitwarden/web-vault/app/shared/shared.module";
 
 import { SsoComponent } from "../../auth/sso/sso.component";
@@ -13,7 +12,7 @@ import { ScimComponent } from "./manage/scim.component";
 import { OrganizationsRoutingModule } from "./organizations-routing.module";
 
 @NgModule({
-  imports: [SharedModule, OrganizationsRoutingModule, LooseComponentsModule, OnboardingModule],
+  imports: [SharedModule, OrganizationsRoutingModule, LooseComponentsModule],
   declarations: [
     SsoComponent,
     ScimComponent,
