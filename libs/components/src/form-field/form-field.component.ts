@@ -49,6 +49,9 @@ export class BitFormFieldComponent implements AfterContentChecked {
       this.input.hasError
         ? "group-hover/bit-form-field:tw-border-danger-700"
         : "group-hover/bit-form-field:tw-border-primary-500",
+      // the next 2 selectors override the above hover selectors when the input (or text area) is non-interactive (i.e. readonly, disabled)
+      "group-has-[input:read-only]/bit-form-field:group-hover/bit-form-field:tw-border-secondary-500",
+      "group-has-[textarea:read-only]/bit-form-field:group-hover/bit-form-field:tw-border-secondary-500",
       "group-focus-within/bit-form-field:tw-outline-none",
       shouldFocusBorderAppear ? "group-focus-within/bit-form-field:tw-border-2" : "",
       shouldFocusBorderAppear ? "group-focus-within/bit-form-field:tw-border-primary-500" : "",
