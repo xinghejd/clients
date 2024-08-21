@@ -58,6 +58,10 @@ export class OrganizationLayoutComponent implements OnInit, OnDestroy {
     FeatureFlag.EnableConsolidatedBilling,
   );
 
+  protected adminConsoleAppGuardEnabled$ = this.configService.getFeatureFlag$(
+    FeatureFlag.AdminConsoleAppGuard,
+  );
+
   constructor(
     private route: ActivatedRoute,
     private organizationService: OrganizationService,
