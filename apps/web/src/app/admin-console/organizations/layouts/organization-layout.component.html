@@ -28,7 +28,7 @@
       route="reporting"
       *ngIf="canShowReportsTab(organization)"
     >
-      <ng-container *ngIf="adminConsoleAppGuardEnabled$ | async">
+      <ng-container *ngIf="actionableInsightsEnabled$ | async">
         <bit-nav-item
           [text]="'appGuard' | i18n"
           route="reporting/app-guard"

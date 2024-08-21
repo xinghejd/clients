@@ -84,7 +84,7 @@ const routes: Routes = [
         component: AppGuardComponent,
         canActivate: [
           authGuard,
-          canAccessFeature(FeatureFlag.AdminConsoleAppGuard),
+          canAccessFeature(FeatureFlag.ActionableInsights),
           organizationPermissionsGuard((org) => org.canAccessAppGuard),
         ],
         data: {
