@@ -3,6 +3,7 @@ import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { mock } from "jest-mock-extended";
 
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { CipherId } from "@bitwarden/common/types/guid";
@@ -32,6 +33,7 @@ describe("AttachmentsV2Component", () => {
         { provide: I18nService, useValue: mock<I18nService>() },
         { provide: CipherService, useValue: mock<CipherService>() },
         { provide: LogService, useValue: mock<LogService>() },
+        { provide: AccountService, useValue: mock<AccountService>() },
       ],
     }).compileComponents();
 
