@@ -37,7 +37,7 @@ import { IdentityView } from "@bitwarden/common/vault/models/view/identity.view"
 import { LoginUriView } from "@bitwarden/common/vault/models/view/login-uri.view";
 import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
 import { SecureNoteView } from "@bitwarden/common/vault/models/view/secure-note.view";
-import { DialogService } from "@bitwarden/components";
+import { DialogService, ToastService } from "@bitwarden/components";
 import { PasswordRepromptService } from "@bitwarden/vault";
 
 @Directive()
@@ -121,6 +121,7 @@ export class AddEditComponent implements OnInit, OnDestroy {
     protected win: Window,
     protected datePipe: DatePipe,
     protected configService: ConfigService,
+    protected toastService: ToastService,
   ) {
     this.typeOptions = [
       { name: i18nService.t("typeLogin"), value: CipherType.Login },
@@ -331,11 +332,11 @@ export class AddEditComponent implements OnInit, OnDestroy {
     }
 
     if (this.cipher.name == null || this.cipher.name === "") {
-      this.platformUtilsService.showToast(
-        "error",
-        this.i18nService.t("errorOccurred"),
-        this.i18nService.t("nameRequired"),
-      );
+      this.toastService.showToast({
+        variant: "error",
+        title: this.i18nService.t("errorOccurred"),
+        message: this.i18nService.t("nameRequired"),
+      });
       return false;
     }
 
@@ -344,11 +345,11 @@ export class AddEditComponent implements OnInit, OnDestroy {
       !this.allowPersonal &&
       this.cipher.organizationId == null
     ) {
-      this.platformUtilsService.showToast(
-        "error",
-        this.i18nService.t("errorOccurred"),
-        this.i18nService.t("personalOwnershipSubmitError"),
-      );
+      this.toastService.showToast({
+        variant: "error",
+        title: this.i18nService.t("errorOccurred"),
+        message: this.i18nService.t("personalOwnershipSubmitError"),
+      });
       return false;
     }
 
@@ -383,11 +384,11 @@ export class AddEditComponent implements OnInit, OnDestroy {
       this.formPromise = this.saveCipher(cipher);
       await this.formPromise;
       this.cipher.id = cipher.id;
-      this.platformUtilsService.showToast(
-        "success",
-        null,
-        this.i18nService.t(this.editMode && !this.cloneMode ? "editedItem" : "addedItem"),
-      );
+      this.toastService.showToast({
+        variant: "success",
+        title: null,
+        message: this.i18nService.t(this.editMode && !this.cloneMode ? "editedItem" : "addedItem"),
+      });
       this.onSavedCipher.emit(this.cipher);
       this.messagingService.send(this.editMode && !this.cloneMode ? "editedCipher" : "addedCipher");
       return true;
@@ -473,11 +474,13 @@ export class AddEditComponent implements OnInit, OnDestroy {
     try {
       this.deletePromise = this.deleteCipher();
       await this.deletePromise;
-      this.platformUtilsService.showToast(
-        "success",
-        null,
-        this.i18nService.t(this.cipher.isDeleted ? "permanentlyDeletedItem" : "deletedItem"),
-      );
+      this.toastService.showToast({
+        variant: "success",
+        title: null,
+        message: this.i18nService.t(
+          this.cipher.isDeleted ? "permanentlyDeletedItem" : "deletedItem",
+        ),
+      });
       this.onDeletedCipher.emit(this.cipher);
       this.messagingService.send(
         this.cipher.isDeleted ? "permanentlyDeletedCipher" : "deletedCipher",
@@ -497,7 +500,11 @@ export class AddEditComponent implements OnInit, OnDestroy {
     try {
       this.restorePromise = this.restoreCipher();
       await this.restorePromise;
-      this.platformUtilsService.showToast("success", null, this.i18nService.t("restoredItem"));
+      this.toastService.showToast({
+        variant: "success",
+        title: null,
+        message: this.i18nService.t("restoredItem"),
+      });
       this.onRestoredCipher.emit(this.cipher);
       this.messagingService.send("restoredCipher");
     } catch (e) {
@@ -641,13 +648,17 @@ export class AddEditComponent implements OnInit, OnDestroy {
     this.checkPasswordPromise = null;
 
     if (matches > 0) {
-      this.platformUtilsService.showToast(
-        "warning",
-        null,
-        this.i18nService.t("passwordExposed", matches.toString()),
-      );
+      this.toastService.showToast({
+        variant: "warning",
+        title: null,
+        message: this.i18nService.t("passwordExposed", matches.toString()),
+      });
     } else {
-      this.platformUtilsService.showToast("success", null, this.i18nService.t("passwordSafe"));
+      this.toastService.showToast({
+        variant: "success",
+        title: null,
+        message: this.i18nService.t("passwordSafe"),
+      });
     }
   }
 
@@ -731,11 +742,11 @@ export class AddEditComponent implements OnInit, OnDestroy {
 
     const copyOptions = this.win != null ? { window: this.win } : null;
     this.platformUtilsService.copyToClipboard(value, copyOptions);
-    this.platformUtilsService.showToast(
-      "info",
-      null,
-      this.i18nService.t("valueCopied", this.i18nService.t(typeI18nKey)),
-    );
+    this.toastService.showToast({
+      variant: "info",
+      title: null,
+      message: this.i18nService.t("valueCopied", this.i18nService.t(typeI18nKey)),
+    });
 
     if (typeI18nKey === "password") {
       // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.

@@ -17,6 +17,7 @@ import { VaultSettingsService } from "@bitwarden/common/vault/abstractions/vault
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherRepromptType } from "@bitwarden/common/vault/enums/cipher-reprompt-type";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import { ToastService } from "@bitwarden/components";
 import { PasswordRepromptService } from "@bitwarden/vault";
 
 import { AutofillService } from "../../../../autofill/services/abstractions/autofill.service";
@@ -71,6 +72,7 @@ export class CurrentTabComponent implements OnInit, OnDestroy {
     private organizationService: OrganizationService,
     private vaultFilterService: VaultFilterService,
     private vaultSettingsService: VaultSettingsService,
+    private toastService: ToastService,
   ) {}
 
   async ngOnInit() {
@@ -134,11 +136,11 @@ export class CurrentTabComponent implements OnInit, OnDestroy {
       await this.autofillSettingsService.setAutofillOnPageLoad(true);
 
       if (!autofillOnPageLoadPolicyToastHasDisplayed) {
-        this.platformUtilsService.showToast(
-          "info",
-          null,
-          this.i18nService.t("autofillPageLoadPolicyActivated"),
-        );
+        this.toastService.showToast({
+          variant: "info",
+          title: null,
+          message: this.i18nService.t("autofillPageLoadPolicyActivated"),
+        });
 
         await this.autofillSettingsService.setAutofillOnPageLoadPolicyToastHasDisplayed(true);
       }
@@ -194,7 +196,11 @@ export class CurrentTabComponent implements OnInit, OnDestroy {
     }
 
     if (this.pageDetails == null || this.pageDetails.length === 0) {
-      this.platformUtilsService.showToast("error", null, this.i18nService.t("autofillError"));
+      this.toastService.showToast({
+        variant: "error",
+        title: null,
+        message: this.i18nService.t("autofillError"),
+      });
       return;
     }
 
@@ -224,7 +230,11 @@ export class CurrentTabComponent implements OnInit, OnDestroy {
       }
     } catch {
       this.ngZone.run(() => {
-        this.platformUtilsService.showToast("error", null, this.i18nService.t("autofillError"));
+        this.toastService.showToast({
+          variant: "error",
+          title: null,
+          message: this.i18nService.t("autofillError"),
+        });
         this.changeDetectorRef.detectChanges();
       });
     }

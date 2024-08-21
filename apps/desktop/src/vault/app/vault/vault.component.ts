@@ -28,7 +28,7 @@ import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherRepromptType } from "@bitwarden/common/vault/enums/cipher-reprompt-type";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
-import { DialogService } from "@bitwarden/components";
+import { DialogService, ToastService } from "@bitwarden/components";
 import { PasswordRepromptService } from "@bitwarden/vault";
 
 import { SearchBarService } from "../../../app/layout/search/search-bar.service";
@@ -105,6 +105,7 @@ export class VaultComponent implements OnInit, OnDestroy {
     private apiService: ApiService,
     private dialogService: DialogService,
     private billingAccountProfileStateService: BillingAccountProfileStateService,
+    private toastService: ToastService,
   ) {}
 
   async ngOnInit() {
@@ -752,11 +753,11 @@ export class VaultComponent implements OnInit, OnDestroy {
       }
 
       this.platformUtilsService.copyToClipboard(value);
-      this.platformUtilsService.showToast(
-        "info",
-        null,
-        this.i18nService.t("valueCopied", this.i18nService.t(labelI18nKey)),
-      );
+      this.toastService.showToast({
+        variant: "info",
+        title: null,
+        message: this.i18nService.t("valueCopied", this.i18nService.t(labelI18nKey)),
+      });
       if (this.action === "view") {
         this.messagingService.send("minimizeOnCopy");
       }

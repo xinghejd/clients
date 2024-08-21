@@ -25,7 +25,7 @@ import { TotpService as TotpServiceAbstraction } from "@bitwarden/common/vault/a
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
 import { LoginUriView } from "@bitwarden/common/vault/models/view/login-uri.view";
-import { DialogService } from "@bitwarden/components";
+import { DialogService, ToastService } from "@bitwarden/components";
 import { PasswordRepromptService } from "@bitwarden/vault";
 
 import { BrowserFido2UserInterfaceSession } from "../../../../autofill/fido2/services/browser-fido2-user-interface.service";
@@ -100,6 +100,7 @@ export class ViewComponent extends BaseViewComponent implements OnInit, OnDestro
     datePipe: DatePipe,
     accountService: AccountService,
     billingAccountProfileStateService: BillingAccountProfileStateService,
+    toastService: ToastService,
   ) {
     super(
       cipherService,
@@ -124,6 +125,7 @@ export class ViewComponent extends BaseViewComponent implements OnInit, OnDestro
       datePipe,
       accountService,
       billingAccountProfileStateService,
+      toastService,
     );
   }
 
@@ -238,7 +240,11 @@ export class ViewComponent extends BaseViewComponent implements OnInit, OnDestro
   async fillCipher() {
     const didAutofill = await this.doAutofill();
     if (didAutofill) {
-      this.platformUtilsService.showToast("success", null, this.i18nService.t("autoFillSuccess"));
+      this.toastService.showToast({
+        variant: "success",
+        title: null,
+        message: this.i18nService.t("autoFillSuccess"),
+      });
     }
 
     return didAutofill;
@@ -256,11 +262,11 @@ export class ViewComponent extends BaseViewComponent implements OnInit, OnDestro
         this.cipher.login.uris = [];
       } else {
         if (this.cipher.login.uris.some((uri) => uri.uri === this.tab.url)) {
-          this.platformUtilsService.showToast(
-            "success",
-            null,
-            this.i18nService.t("autoFillSuccessAndSavedUri"),
-          );
+          this.toastService.showToast({
+            variant: "success",
+            title: null,
+            message: this.i18nService.t("autoFillSuccessAndSavedUri"),
+          });
           return;
         }
       }
@@ -275,14 +281,18 @@ export class ViewComponent extends BaseViewComponent implements OnInit, OnDestro
         );
         const cipher: Cipher = await this.cipherService.encrypt(this.cipher, activeUserId);
         await this.cipherService.updateWithServer(cipher);
-        this.platformUtilsService.showToast(
-          "success",
-          null,
-          this.i18nService.t("autoFillSuccessAndSavedUri"),
-        );
+        this.toastService.showToast({
+          variant: "success",
+          title: null,
+          message: this.i18nService.t("autoFillSuccessAndSavedUri"),
+        });
         this.messagingService.send("editedCipher");
       } catch {
-        this.platformUtilsService.showToast("error", null, this.i18nService.t("unexpectedError"));
+        this.toastService.showToast({
+          variant: "error",
+          title: null,
+          message: this.i18nService.t("unexpectedError"),
+        });
       }
     }
   }
@@ -367,7 +377,11 @@ export class ViewComponent extends BaseViewComponent implements OnInit, OnDestro
     const tabUrlChanged = originalTabHostPath !== currentTabHostPath;
 
     if (this.pageDetails == null || this.pageDetails.length === 0 || tabUrlChanged) {
-      this.platformUtilsService.showToast("error", null, this.i18nService.t("autofillError"));
+      this.toastService.showToast({
+        variant: "error",
+        title: null,
+        message: this.i18nService.t("autofillError"),
+      });
       return false;
     }
 
@@ -384,7 +398,11 @@ export class ViewComponent extends BaseViewComponent implements OnInit, OnDestro
         this.platformUtilsService.copyToClipboard(this.totpCode, { window: window });
       }
     } catch {
-      this.platformUtilsService.showToast("error", null, this.i18nService.t("autofillError"));
+      this.toastService.showToast({
+        variant: "error",
+        title: null,
+        message: this.i18nService.t("autofillError"),
+      });
       this.changeDetectorRef.detectChanges();
       return false;
     }
