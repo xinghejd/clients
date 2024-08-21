@@ -258,6 +258,9 @@ const routes: Routes = [
       {
         path: "login",
         canActivate: [unauthGuardFn()],
+        data: {
+          pageTitle: "logInToBitwarden",
+        } satisfies DataProperties & AnonLayoutWrapperData,
         children: [
           {
             path: "",
@@ -269,9 +272,6 @@ const routes: Routes = [
             outlet: "environment-selector",
           },
         ],
-        data: {
-          pageTitle: "logIn",
-        },
       },
       {
         path: "lock",
