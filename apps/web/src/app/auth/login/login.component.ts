@@ -108,6 +108,7 @@ export class LoginComponent extends BaseLoginComponent implements OnInit {
   async ngOnInit() {
     // eslint-disable-next-line rxjs-angular/prefer-takeuntil, rxjs/no-async-subscribe
     this.route.queryParams.pipe(first()).subscribe(async (qParams) => {
+      // If there is an query parameter called 'org', set previousUrl to `/create-organization?org=paramValue`
       if (qParams.org != null) {
         const route = this.router.createUrlTree(["create-organization"], {
           queryParams: { plan: qParams.org },
@@ -115,7 +116,11 @@ export class LoginComponent extends BaseLoginComponent implements OnInit {
         this.routerService.setPreviousUrl(route.toString());
       }
 
-      // Are they coming from an email for sponsoring a families organization
+      /**
+       * If there is a query parameter called 'sponsorshipToken', that means they are coming
+       * from an email for sponsoring a families organization. If so, then set the prevousUrl
+       * to `/setup/families-for-enterprise?token=paramValue`
+       */
       if (qParams.sponsorshipToken != null) {
         const route = this.router.createUrlTree(["setup/families-for-enterprise"], {
           queryParams: { token: qParams.sponsorshipToken },

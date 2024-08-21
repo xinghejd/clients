@@ -103,12 +103,14 @@ export class LoginComponent extends CaptchaProtectedComponent implements OnInit,
 
       const queryParamsEmail = params.email;
 
+      // If there is an email in the query params, set that email as the form field value
       if (queryParamsEmail != null && queryParamsEmail.indexOf("@") > -1) {
         this.formGroup.controls.email.setValue(queryParamsEmail);
         this.paramEmailSet = true;
       }
     });
 
+    // if there is no email in the query params, attempt to load email settings from loginEmailService
     if (!this.paramEmailSet) {
       await this.loadEmailSettings();
     }
