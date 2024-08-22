@@ -25,6 +25,8 @@ import {
 } from "@bitwarden/components";
 
 import { CipherFormGenerationService } from "../../abstractions/cipher-form-generation.service";
+import { WebCipherFormGenerationService } from "../../services/web-cipher-form-generation.service";
+import { DefaultCipherFormGenerationService } from "../../services/default-cipher-form-generation.service";
 import { TotpCaptureService } from "../../abstractions/totp-capture.service";
 import { CipherFormContainer } from "../../cipher-form-container";
 import { AutofillOptionsComponent } from "../autofill-options/autofill-options.component";
@@ -48,6 +50,9 @@ import { AutofillOptionsComponent } from "../autofill-options/autofill-options.c
     AutofillOptionsComponent,
     LinkModule,
   ],
+  // providers: [
+  //   { provide: CipherFormGenerationService, useClass: DefaultCipherFormGenerationService },
+  // ],
 })
 export class LoginDetailsSectionComponent implements OnInit {
   loginDetailsForm = this.formBuilder.group({
@@ -60,11 +65,6 @@ export class LoginDetailsSectionComponent implements OnInit {
    * Flag indicating whether a new password has been generated for the current form.
    */
   newPasswordGenerated: boolean;
-
-  /**
-   * Event emitted when a new password is generated.
-   */
-  @Output() passwordGenerationEvent = new EventEmitter<FormGroup>();
 
   /**
    * Flag indicating whether the extension refresh feature flag is enabled.
@@ -213,13 +213,6 @@ export class LoginDetailsSectionComponent implements OnInit {
    * TODO: Browser extension needs a means to cache the current form so values are not lost upon navigating to the generator.
    */
   generatePassword = async () => {
-    // If the extension refresh feature flag is enabled, emit an event to launch the password generation in a dialog.
-    if (this.extensionRefreshEnabled) {
-      this.passwordGenerationEvent.emit(this.loginDetailsForm);
-      this.newPasswordGenerated = true;
-      return;
-    }
-
     const newPassword = await this.generationService.generatePassword();
 
     if (newPassword) {

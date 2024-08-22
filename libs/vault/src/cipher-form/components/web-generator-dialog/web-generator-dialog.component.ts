@@ -1,6 +1,5 @@
 import { animate, group, style, transition, trigger } from "@angular/animations";
 import { DIALOG_DATA, DialogConfig, DialogRef } from "@angular/cdk/dialog";
-import { Overlay } from "@angular/cdk/overlay";
 import { CommonModule } from "@angular/common";
 import { Component, Inject } from "@angular/core";
 
@@ -8,7 +7,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { ButtonModule, DialogService } from "@bitwarden/components";
 import { CipherFormGeneratorComponent } from "@bitwarden/vault";
 
-import { SharedModule } from "../../shared";
+import { DialogModule } from "../../../../../../libs/components/src/dialog";
 
 export interface WebVaultGeneratorDialogParams {
   type: "password" | "username";
@@ -36,9 +35,9 @@ const slideIn = trigger("slideIn", [
 
 @Component({
   selector: "web-vault-generator-dialog",
-  templateUrl: "./generator-dialog.component.html",
+  templateUrl: "./web-generator-dialog.component.html",
   standalone: true,
-  imports: [CommonModule, CipherFormGeneratorComponent, ButtonModule, SharedModule],
+  imports: [CommonModule, CipherFormGeneratorComponent, ButtonModule, DialogModule],
   animations: [slideIn],
 })
 export class WebVaultGeneratorDialogComponent {
@@ -91,20 +90,11 @@ export class WebVaultGeneratorDialogComponent {
   /**
    * Opens the vault generator dialog in a full screen dialog.
    */
-  static open(
-    dialogService: DialogService,
-    overlay: Overlay,
-    config: DialogConfig<WebVaultGeneratorDialogParams>,
-  ) {
-    const position = overlay.position().global();
-
+  static open(dialogService: DialogService, config: DialogConfig<WebVaultGeneratorDialogParams>) {
     return dialogService.open<WebVaultGeneratorDialogResult, WebVaultGeneratorDialogParams>(
       WebVaultGeneratorDialogComponent,
       {
         ...config,
-        positionStrategy: position,
-        height: "100vh",
-        width: "100vw",
       },
     );
   }

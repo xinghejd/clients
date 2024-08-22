@@ -2,9 +2,8 @@ import { DIALOG_DATA, DialogConfig, DialogRef } from "@angular/cdk/dialog";
 import { CommonModule } from "@angular/common";
 import { Component, Inject, OnInit, EventEmitter, OnDestroy } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { FormGroup } from "@angular/forms";
 import { ActivatedRoute, Params, Router } from "@angular/router";
-import { lastValueFrom, map, Subject, switchMap, takeUntil } from "rxjs";
+import { map, Subject, switchMap, takeUntil } from "rxjs";
 
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
@@ -26,7 +25,7 @@ import {
 } from "@bitwarden/vault";
 
 import { CipherFormQueryParams } from "../../../../../../libs/vault/src/cipher-form/cipher-form-query-params";
-import { DefaultCipherFormGenerationService } from "../../../../../../libs/vault/src/cipher-form/services/default-cipher-form-generation.service";
+import { WebCipherFormGenerationService } from "../../../../../../libs/vault/src/cipher-form/services/web-cipher-form-generation.service";
 import { CipherViewComponent } from "../../../../../../libs/vault/src/cipher-view/cipher-view.component";
 import { SharedModule } from "../../shared/shared.module";
 
@@ -35,10 +34,6 @@ import {
   AttachmentDialogResult,
   AttachmentsV2Component,
 } from "./attachments-v2.component";
-import {
-  PasswordGeneratorCloseResult,
-  PasswordGeneratorComponent,
-} from "./password-generator.component";
 
 export interface AddEditCipherDialogParams {
   cipher?: CipherView;
@@ -75,7 +70,7 @@ export interface AddEditCipherDialogCloseResult {
   ],
   providers: [
     { provide: CipherFormConfigService, useClass: DefaultCipherFormConfigService },
-    { provide: CipherFormGenerationService, useClass: DefaultCipherFormGenerationService },
+    { provide: CipherFormGenerationService, useClass: WebCipherFormGenerationService },
   ],
 })
 export class AddEditComponentV2 implements OnInit, OnDestroy {
@@ -301,22 +296,6 @@ export class AddEditComponentV2 implements OnInit, OnDestroy {
    */
   closeAttachmentsDialog() {
     this.attachmentDialogRef.close({ action: AttachmentDialogResult.Closed });
-  }
-
-  /**
-   * Handles the event when a user would like to launch the password generation dialog.
-   * @param formGroup The form group.
-   */
-  async onPasswordGenerationEvent(formGroup: FormGroup) {
-    const dialogRef = this.dialogService.open(PasswordGeneratorComponent, {});
-
-    const result = (await lastValueFrom(dialogRef.closed)) as PasswordGeneratorCloseResult;
-
-    if (result?.action === "added" && result?.password) {
-      formGroup.patchValue({
-        password: result.password,
-      });
-    }
   }
 }
 

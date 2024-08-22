@@ -1,19 +1,17 @@
-import { Overlay } from "@angular/cdk/overlay";
 import { inject, Injectable } from "@angular/core";
 import { firstValueFrom } from "rxjs";
 
 import { DialogService } from "@bitwarden/components";
 import { CipherFormGenerationService } from "@bitwarden/vault";
 
-import { WebVaultGeneratorDialogComponent } from "../individual-vault/generator-dialog.component";
+import { WebVaultGeneratorDialogComponent } from "../components/web-generator-dialog/web-generator-dialog.component";
 
 @Injectable()
 export class WebCipherFormGenerationService implements CipherFormGenerationService {
   private dialogService = inject(DialogService);
-  private overlay = inject(Overlay);
 
   async generatePassword(): Promise<string> {
-    const dialogRef = WebVaultGeneratorDialogComponent.open(this.dialogService, this.overlay, {
+    const dialogRef = WebVaultGeneratorDialogComponent.open(this.dialogService, {
       data: { type: "password" },
     });
 
@@ -27,7 +25,7 @@ export class WebCipherFormGenerationService implements CipherFormGenerationServi
   }
 
   async generateUsername(): Promise<string> {
-    const dialogRef = WebVaultGeneratorDialogComponent.open(this.dialogService, this.overlay, {
+    const dialogRef = WebVaultGeneratorDialogComponent.open(this.dialogService, {
       data: { type: "username" },
     });
 
