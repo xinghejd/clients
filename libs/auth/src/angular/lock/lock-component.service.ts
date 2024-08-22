@@ -8,6 +8,8 @@ export enum BiometricsDisableReason {
   SystemBiometricsUnavailable = "SystemBiometricsUnavailable",
 }
 
+export type UnlockOptionKey = keyof UnlockOptions;
+
 export type UnlockOptions = {
   masterPassword: {
     enabled: boolean;

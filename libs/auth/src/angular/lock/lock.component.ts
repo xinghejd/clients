@@ -1,8 +1,8 @@
 import { CommonModule } from "@angular/common";
 import { Component, NgZone, OnDestroy, OnInit } from "@angular/core";
-import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
+import { FormBuilder, ReactiveFormsModule } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
-import { firstValueFrom, Subject, switchMap, take, takeUntil } from "rxjs";
+import { BehaviorSubject, firstValueFrom, Subject, switchMap, take, takeUntil } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { InternalPolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
@@ -44,7 +44,7 @@ import {
 import { PinServiceAbstraction } from "../../common/abstractions";
 import { AnonLayoutWrapperDataService } from "../anon-layout/anon-layout-wrapper-data.service";
 
-import { LockComponentService, UnlockOptions } from "./lock-component.service";
+import { LockComponentService, UnlockOptionKey, UnlockOptions } from "./lock-component.service";
 
 const BroadcasterSubscriptionId = "LockComponent";
 
@@ -73,17 +73,25 @@ export class LockV2Component implements OnInit, OnDestroy {
   ClientType = ClientType;
 
   unlockOptions: UnlockOptions = null;
-  activeUnlockOption: keyof UnlockOptions = null;
+
+  private _activeUnlockOptionBSubject: BehaviorSubject<UnlockOptionKey> =
+    new BehaviorSubject<UnlockOptionKey>(null);
+
+  activeUnlockOption$ = this._activeUnlockOptionBSubject.asObservable();
+
+  set activeUnlockOption(value: UnlockOptionKey) {
+    this._activeUnlockOptionBSubject.next(value);
+  }
+
+  get activeUnlockOption(): UnlockOptionKey {
+    return this._activeUnlockOptionBSubject.value;
+  }
 
   // pinEnabled = false;
   pin = ""; // TODO: remove this and move to formGroup
   private invalidPinAttempts = 0;
 
-  // supportsBiometric: boolean;
-  // biometricLockSet: boolean;
   biometricUnlockBtnText: string;
-
-  // masterPasswordEnabled = false;
 
   masterPassword = "";
   showPassword = false;
@@ -96,12 +104,16 @@ export class LockV2Component implements OnInit, OnDestroy {
   formPromise: Promise<MasterPasswordVerificationResponse>;
   onSuccessfulSubmit: () => Promise<void>; // TODO: remove all callbacks
 
-  envHostname = "";
+  // TODO: ensure hostname is shown in anon-layout footer
+  // envHostname = "";
 
-  // TODO: there will be more to do here.
-  formGroup = this.formBuilder.group({
-    masterPassword: ["", { validators: Validators.required, updateOn: "submit" }],
-  });
+  formGroup = this.formBuilder.group(
+    {
+      masterPassword: ["", []],
+      pin: ["", []],
+    },
+    { updateOn: "submit" },
+  );
 
   // Desktop properties:
   private deferFocus: boolean = null;
@@ -146,6 +158,8 @@ export class LockV2Component implements OnInit, OnDestroy {
   ) {}
 
   async ngOnInit() {
+    this.listenForActiveUnlockOptionChanges();
+
     // Get active account and handle it
     const activeAccount = await firstValueFrom(this.accountService.activeAccount$);
     await this.handleActiveAccountChange(activeAccount);
@@ -153,7 +167,7 @@ export class LockV2Component implements OnInit, OnDestroy {
     // Listen for active account changes
     this.listenForActiveAccountChanges();
 
-    this.envHostname = (await this.environmentService.getEnvironment()).getHostname();
+    // this.envHostname = (await this.environmentService.getEnvironment()).getHostname();
 
     // Identify client
     this.clientType = this.platformUtilsService.getClientType();
@@ -170,7 +184,12 @@ export class LockV2Component implements OnInit, OnDestroy {
   }
 
   // Base component methods
-  // TODO: consider making a reactive unlockOptions$
+  private listenForActiveUnlockOptionChanges() {
+    this.activeUnlockOption$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((activeUnlockOption: UnlockOptionKey) => {});
+  }
+
   private listenForActiveAccountChanges() {
     this.accountService.activeAccount$
       .pipe(
