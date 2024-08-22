@@ -25,9 +25,6 @@
   "finishCreatingYourAccountBySettingAPassword": {
     "message": "ایجاد حساب خود را با تنظیم رمز عبور تکمیل کنید"
   },
-  "login": {
-    "message": "ورود"
-  },
   "enterpriseSingleSignOn": {
     "message": "ورود به سیستم پروژه"
   },
@@ -1079,6 +1076,9 @@
   "ppremiumSignUpStorage": {
     "message": "۱ گیگابایت فضای ذخیره سازی رمزگذاری شده برای پیوست های پرونده."
   },
+  "premiumSignUpEmergency": {
+    "message": "Emergency access."
+  },
   "premiumSignUpTwoStepOptions": {
     "message": "گزینه های ورود اضافی دو مرحله ای مانند YubiKey و Duo."
   },
@@ -1106,8 +1106,20 @@
   "premiumCurrentMemberThanks": {
     "message": "برای حمایتتان از Bitwarden سپاسگزاریم."
   },
+  "premiumFeatures": {
+    "message": "Upgrade to premium and receive:"
+  },
   "premiumPrice": {
     "message": "تمامش فقط $PRICE$ در سال!",
+    "placeholders": {
+      "price": {
+        "content": "$1",
+        "example": "$10"
+      }
+    }
+  },
+  "premiumPriceV2": {
+    "message": "All for just $PRICE$ per year!",
     "placeholders": {
       "price": {
         "content": "$1",
@@ -3922,6 +3934,12 @@
   },
   "autoFillOnPageLoad": {
     "message": "Autofill on page load?"
+  },
+  "cardExpiredTitle": {
+    "message": "Expired card"
+  },
+  "cardExpiredMessage": {
+    "message": "If you've renewed it, update the card's information"
   },
   "cardDetails": {
     "message": "Card details"

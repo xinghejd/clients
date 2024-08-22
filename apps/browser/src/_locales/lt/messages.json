@@ -25,9 +25,6 @@
   "finishCreatingYourAccountBySettingAPassword": {
     "message": "Baigkite kurti paskyrą nustatydami slaptažodį"
   },
-  "login": {
-    "message": "Prisijungti"
-  },
   "enterpriseSingleSignOn": {
     "message": "Vienkartinis įmonės prisijungimas"
   },
@@ -1079,6 +1076,9 @@
   "ppremiumSignUpStorage": {
     "message": "1 GB užšifruotos vietos diske bylų prisegimams."
   },
+  "premiumSignUpEmergency": {
+    "message": "Emergency access."
+  },
   "premiumSignUpTwoStepOptions": {
     "message": "Patentuotos dviejų žingsnių prisijungimo parinktys, tokios kaip YubiKey ir Duo."
   },
@@ -1106,8 +1106,20 @@
   "premiumCurrentMemberThanks": {
     "message": "Dėkojame, kad palaikote „Bitwarden“."
   },
+  "premiumFeatures": {
+    "message": "Upgrade to premium and receive:"
+  },
   "premiumPrice": {
     "message": "Visa tai tik už $PRICE$ / metus!",
+    "placeholders": {
+      "price": {
+        "content": "$1",
+        "example": "$10"
+      }
+    }
+  },
+  "premiumPriceV2": {
+    "message": "All for just $PRICE$ per year!",
     "placeholders": {
       "price": {
         "content": "$1",
@@ -3922,6 +3934,12 @@
   },
   "autoFillOnPageLoad": {
     "message": "Autofill on page load?"
+  },
+  "cardExpiredTitle": {
+    "message": "Expired card"
+  },
+  "cardExpiredMessage": {
+    "message": "If you've renewed it, update the card's information"
   },
   "cardDetails": {
     "message": "Kortelės duomenys"
