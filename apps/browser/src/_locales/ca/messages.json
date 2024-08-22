@@ -25,9 +25,6 @@
   "finishCreatingYourAccountBySettingAPassword": {
     "message": "Acabeu de crear el vostre compte establint una contrasenya"
   },
-  "login": {
-    "message": "Inicia sessió"
-  },
   "enterpriseSingleSignOn": {
     "message": "Inici de sessió únic d'empresa"
   },
@@ -1079,6 +1076,9 @@
   "ppremiumSignUpStorage": {
     "message": "1 GB d'emmagatzematge xifrat per als fitxers adjunts."
   },
+  "premiumSignUpEmergency": {
+    "message": "Emergency access."
+  },
   "premiumSignUpTwoStepOptions": {
     "message": "Opcions propietàries de doble factor com ara YubiKey i Duo."
   },
@@ -1106,8 +1106,20 @@
   "premiumCurrentMemberThanks": {
     "message": "Gràcies per donar suport a Bitwarden."
   },
+  "premiumFeatures": {
+    "message": "Upgrade to premium and receive:"
+  },
   "premiumPrice": {
     "message": "Tot per només $PRICE$ / any!",
+    "placeholders": {
+      "price": {
+        "content": "$1",
+        "example": "$10"
+      }
+    }
+  },
+  "premiumPriceV2": {
+    "message": "All for just $PRICE$ per year!",
     "placeholders": {
       "price": {
         "content": "$1",
@@ -3922,6 +3934,12 @@
   },
   "autoFillOnPageLoad": {
     "message": "Autofill on page load?"
+  },
+  "cardExpiredTitle": {
+    "message": "Expired card"
+  },
+  "cardExpiredMessage": {
+    "message": "If you've renewed it, update the card's information"
   },
   "cardDetails": {
     "message": "Card details"

@@ -25,9 +25,6 @@
   "finishCreatingYourAccountBySettingAPassword": {
     "message": "Завершіть створення облікового запису, встановивши пароль"
   },
-  "login": {
-    "message": "Увійти"
-  },
   "enterpriseSingleSignOn": {
     "message": "Єдиний корпоративний вхід (SSO)"
   },
@@ -1079,6 +1076,9 @@
   "ppremiumSignUpStorage": {
     "message": "1 ГБ зашифрованого сховища для файлів."
   },
+  "premiumSignUpEmergency": {
+    "message": "Екстрений доступ."
+  },
   "premiumSignUpTwoStepOptions": {
     "message": "Додаткові можливості двоетапної авторизації, як-от YubiKey та Duo."
   },
@@ -1106,8 +1106,20 @@
   "premiumCurrentMemberThanks": {
     "message": "Дякуємо за підтримку Bitwarden."
   },
+  "premiumFeatures": {
+    "message": "Передплатіть преміум та отримайте:"
+  },
   "premiumPrice": {
     "message": "Всього лише $PRICE$ / за рік!",
+    "placeholders": {
+      "price": {
+        "content": "$1",
+        "example": "$10"
+      }
+    }
+  },
+  "premiumPriceV2": {
+    "message": "Усе лише за $PRICE$ на рік!",
     "placeholders": {
       "price": {
         "content": "$1",
@@ -3922,6 +3934,12 @@
   },
   "autoFillOnPageLoad": {
     "message": "Автоматично заповнювати під час завантаження сторінки?"
+  },
+  "cardExpiredTitle": {
+    "message": "Протермінована картка"
+  },
+  "cardExpiredMessage": {
+    "message": "Якщо ви її поновили, оновіть інформацію"
   },
   "cardDetails": {
     "message": "Подробиці картки"

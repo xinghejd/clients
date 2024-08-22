@@ -25,9 +25,6 @@
   "finishCreatingYourAccountBySettingAPassword": {
     "message": "Jāpabeidz sava konta izveida ar paroles iestatīšanu"
   },
-  "login": {
-    "message": "Pieteikties"
-  },
   "enterpriseSingleSignOn": {
     "message": "Uzņēmuma vienotā pieteikšanās"
   },
@@ -1079,6 +1076,9 @@
   "ppremiumSignUpStorage": {
     "message": "1 GB šifrētas krātuves datņu pielikumiem."
   },
+  "premiumSignUpEmergency": {
+    "message": "Ārkārtas piekļuve"
+  },
   "premiumSignUpTwoStepOptions": {
     "message": "Tādas slēgtā pirmavota divpakāpju pieteikšanās iespējas kā YubiKey un Duo."
   },
@@ -1100,14 +1100,29 @@
   "premiumPurchaseAlert": {
     "message": "Premium dalību ir iespējams iegādāties bitwarden.com tīmekļa glabātavā. Vai tagad apmeklēt tīmekļvietni?"
   },
+  "premiumPurchaseAlertV2": {
+    "message": "Premium var iegādāties Bitwarden tīmekļa lietotnē sava konta iestatījumos."
+  },
   "premiumCurrentMember": {
     "message": "Tu esi Premium dalībnieks!"
   },
   "premiumCurrentMemberThanks": {
     "message": "Paldies, ka atbalsti Bitwarden!"
   },
+  "premiumFeatures": {
+    "message": "Uzlabo uz \"Premium\" un saņem:"
+  },
   "premiumPrice": {
     "message": "Viss par tikai $PRICE$ gadā!",
+    "placeholders": {
+      "price": {
+        "content": "$1",
+        "example": "$10"
+      }
+    }
+  },
+  "premiumPriceV2": {
+    "message": "Viss par tikai $PRICE$ gadā.",
     "placeholders": {
       "price": {
         "content": "$1",
@@ -2293,6 +2308,24 @@
   },
   "createdSend": {
     "message": "Send izveidots",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "createdSendSuccessfully": {
+    "message": "Send tika veiksmīgi izveidots.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendAvailability": {
+    "message": "Send būs pieejams nākamās $DAYS$ dienas ikvienam, kuram ir saite.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "days": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "sendLinkCopied": {
+    "message": "Send saite ievietota starpliktuvē",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "editedSend": {
@@ -3922,6 +3955,12 @@
   },
   "autoFillOnPageLoad": {
     "message": "Automātiski aizpildīt lapas ielādes brīdī?"
+  },
+  "cardExpiredTitle": {
+    "message": "Beidzies kartes derīgums"
+  },
+  "cardExpiredMessage": {
+    "message": "Ja atjaunoji to, jāatjaunina kartes informācija"
   },
   "cardDetails": {
     "message": "Kartes dati"
