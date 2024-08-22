@@ -25,7 +25,7 @@ import {
   DefaultCipherFormConfigService,
 } from "@bitwarden/vault";
 
-import { QueryParams } from "../../../../../../libs/angular/src/utils/add-edit-query-params";
+import { CipherFormQueryParams } from "../../../../../../libs/vault/src/cipher-form/cipher-form-query-params";
 import { DefaultCipherFormGenerationService } from "../../../../../../libs/vault/src/cipher-form/services/default-cipher-form-generation.service";
 import { CipherViewComponent } from "../../../../../../libs/vault/src/cipher-view/cipher-view.component";
 import { SharedModule } from "../../shared/shared.module";
@@ -153,7 +153,7 @@ export class AddEditComponentV2 implements OnInit, OnDestroy {
   subscribeToParams(): void {
     this.route.queryParams
       .pipe(
-        map((params) => new QueryParams(params)),
+        map((params) => new CipherFormQueryParams(params)),
         switchMap(async (params) => {
           let mode: CipherFormMode;
           const cipherId = (getCipherIdFromParams(params) || this.cipher?.id) as CipherId;
@@ -191,7 +191,7 @@ export class AddEditComponentV2 implements OnInit, OnDestroy {
    * @param params The query parameters.
    * @param config The form configuration.
    */
-  setInitialValuesFromParams(params: QueryParams, config: CipherFormConfig) {
+  setInitialValuesFromParams(params: CipherFormQueryParams, config: CipherFormConfig) {
     config.initialValues = {};
     if (params.folderId) {
       config.initialValues.folderId = params.folderId;

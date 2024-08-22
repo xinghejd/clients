@@ -6,7 +6,7 @@ import { CipherType } from "@bitwarden/common/vault/enums";
 /**
  * Helper class to parse query parameters for the AddEdit route.
  */
-export class QueryParams {
+export class CipherFormQueryParams {
   constructor(params: Params) {
     this.cipherId = params.cipherId;
     this.type = params.type != undefined ? parseInt(params.type, null) : undefined;
