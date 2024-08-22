@@ -135,3 +135,11 @@ export abstract class CipherFormConfigService {
     cipherType?: CipherType,
   ): Promise<CipherFormConfig>;
 }
+
+export abstract class AdminConsoleCipherFormConfigService extends CipherFormConfigService {
+  abstract buildConfig(
+    mode: CipherFormMode,
+    cipherId?: CipherId,
+    cipherType?: CipherType,
+  ): Promise<CipherFormConfig>;
+}
