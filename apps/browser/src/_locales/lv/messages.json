@@ -23,7 +23,7 @@
     "message": "Jāiestata droša parole"
   },
   "finishCreatingYourAccountBySettingAPassword": {
-    "message": "Jāpabeidz sava konta izveida ar paroles iestatīšanu"
+    "message": "Sava konta izveidošana jāpabeidz ar paroles iestatīšanu"
   },
   "login": {
     "message": "Pieteikties"
@@ -303,6 +303,24 @@
   },
   "editFolder": {
     "message": "Labot mapi"
+  },
+  "newFolder": {
+    "message": "Jauna mape"
+  },
+  "folderName": {
+    "message": "Mapes nosaukums"
+  },
+  "folderHintText": {
+    "message": "Apakšmapes var izveidot, ja pievieno iekļaujošās mapes nosaukumu, aiz kura ir \"/\". Piemēram: Tīklošanās/Forumi"
+  },
+  "noFoldersAdded": {
+    "message": "Nav pievienota neviena mape"
+  },
+  "createFoldersToOrganize": {
+    "message": "Mapes ir izveidojamas, lai sakārtotu savas glabātavas vienumus"
+  },
+  "deleteFolderPermanently": {
+    "message": "Vai tiešām neatgriezeniski izdzēst šo mapi?"
   },
   "deleteFolder": {
     "message": "Dzēst mapi"
@@ -671,6 +689,9 @@
   },
   "totpHelperWithCapture": {
     "message": "Bitwarden can store and fill 2-step verification codes. Select the camera icon to take a screenshot of this website's authenticator QR code, or copy and paste the key into this field."
+  },
+  "learnMoreAboutAuthenticators": {
+    "message": "Uzzināt vairāk par autentificētājiem"
   },
   "copyTOTP": {
     "message": "Ievietot starpliktuvē autentificētāja atslēgu (TOTP)"
@@ -1061,6 +1082,9 @@
   "ppremiumSignUpStorage": {
     "message": "1 GB šifrētas krātuves datņu pielikumiem."
   },
+  "premiumSignUpEmergency": {
+    "message": "Emergency access"
+  },
   "premiumSignUpTwoStepOptions": {
     "message": "Tādas slēgtā pirmavota divpakāpju pieteikšanās iespējas kā YubiKey un Duo."
   },
@@ -1081,6 +1105,9 @@
   },
   "premiumPurchaseAlert": {
     "message": "Premium dalību ir iespējams iegādāties bitwarden.com tīmekļa glabātavā. Vai tagad apmeklēt tīmekļvietni?"
+  },
+  "premiumPurchaseAlertV2": {
+    "message": "You can purchase Premium from your account settings on the Bitwarden web app."
   },
   "premiumCurrentMember": {
     "message": "Tu esi Premium dalībnieks!"
@@ -1803,6 +1830,29 @@
   "passwordGeneratorPolicyInEffect": {
     "message": "Viens vai vairāki apvienības nosacījumi ietekmē veidotāja iestatījumus."
   },
+  "passwordGenerator": {
+    "message": "Paroļu veidotājs"
+  },
+  "usernameGenerator": {
+    "message": "Lietotājvārdu veidotājs"
+  },
+  "useThisPassword": {
+    "message": "Izmantot šo paroli"
+  },
+  "useThisUsername": {
+    "message": "Izmantot šo lietotājvārdu"
+  },
+  "securePasswordGenerated": {
+    "message": "Droša parole izveidota. Neaizmirsti arī atjaunināt savu paroli tīmekļvietnē!"
+  },
+  "useGeneratorHelpTextPartOne": {
+    "message": "Veidotājs ir izmantojams",
+    "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
+  },
+  "useGeneratorHelpTextPartTwo": {
+    "message": ", lai izveidotu spēcīgu un vienreizēju paroli",
+    "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
+  },
   "vaultTimeoutAction": {
     "message": "Glabātavas noildzes darbība"
   },
@@ -1999,6 +2049,12 @@
   },
   "nativeMessagingWrongUserTitle": {
     "message": "Konta nesaderība"
+  },
+  "nativeMessagingWrongUserKeyDesc": {
+    "message": "Biometriskā atslēgšana neizdevās. Biometriskā slepenā atslēgai neizdevās atslēgt glabātavu. Lūgums vēlreiz mēģināt iestatīt biometriju."
+  },
+  "nativeMessagingWrongUserKeyTitle": {
+    "message": "Biometriskās atslēgas neatbilstība"
   },
   "biometricsNotEnabledTitle": {
     "message": "Biometrija nav iespējota"
@@ -2248,6 +2304,24 @@
     "message": "Send izveidots",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "createdSendSuccessfully": {
+    "message": "Send created successfully!",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendAvailability": {
+    "message": "The Send will be available to anyone with the link for the next $DAYS$ days.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "days": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "sendLinkCopied": {
+    "message": "Send link copied",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
   "editedSend": {
     "message": "Send saglabāts",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -2328,7 +2402,7 @@
     "message": "Galvenā parole neatbilst vienam vai vairākiem apvienības nosacījumiem. Ir jāatjaunina galvenā parole, lai varētu piekļūt glabātavai. Turpinot notiks atteikšanās no pašreizējās sesijas, un būs nepieciešams pieteikties no jauna. Citās ierīcēs esošās sesijas var turpināt darboties līdz vienai stundai."
   },
   "tdeDisabledMasterPasswordRequired": {
-    "message": "Your organization has disabled trusted device encryption. Please set a master password to access your vault."
+    "message": "Tava apvienība ir atspējojusi uzticamo ierīču šifrēšanu. Lūgums iestatīt galveno paroli, lai piekļūtu savai glabātavai."
   },
   "resetPasswordPolicyAutoEnroll": {
     "message": "Automātiska ievietošana sarakstā"
@@ -3836,6 +3910,16 @@
   "websiteUri": {
     "message": "Tīmekļvietne (URI)"
   },
+  "websiteUriCount": {
+    "message": "Tīmekļvietne (URI) $COUNT$",
+    "description": "Label for an input field that contains a website URI. The input field is part of a list of fields, and the count indicates the position of the field in the list.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
   "websiteAdded": {
     "message": "Tīmekļvietne pievienota"
   },
@@ -3896,6 +3980,18 @@
   },
   "data": {
     "message": "Dati"
+  },
+  "passkeys": {
+    "message": "Piekļuves atslēgas",
+    "description": "A section header for a list of passkeys."
+  },
+  "passwords": {
+    "message": "Paroles",
+    "description": "A section header for a list of passwords."
+  },
+  "logInWithPasskeyAriaLabel": {
+    "message": "Pieteikties ar piekļuves atslēgu",
+    "description": "ARIA label for the inline menu button that logs in with a passkey."
   },
   "assign": {
     "message": "Assign"
@@ -4091,6 +4187,12 @@
   "itemLocation": {
     "message": "Vienuma atrašanās vieta"
   },
+  "fileSends": {
+    "message": "Datņu Send"
+  },
+  "textSends": {
+    "message": "Teksta Send"
+  },
   "bitwardenNewLook": {
     "message": "Bitwarden ir jauns izskats."
   },
@@ -4099,5 +4201,14 @@
   },
   "accountActions": {
     "message": "Konta darbības"
+  },
+  "showNumberOfAutofillSuggestions": {
+    "message": "Paplašinājuma ikonā rādīt pieteikšanās automātiskās aizpildes ieteikumu skaitu"
+  },
+  "systemDefault": {
+    "message": "Sistēmas noklusējums"
+  },
+  "enterprisePolicyRequirementsApplied": {
+    "message": "Šim iestatījumam tika piemērotas uzņēmējdarbības nosacījumu prasības"
   }
 }

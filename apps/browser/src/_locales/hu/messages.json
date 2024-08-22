@@ -304,6 +304,24 @@
   "editFolder": {
     "message": "Mappa szerkesztése"
   },
+  "newFolder": {
+    "message": "Új mappa"
+  },
+  "folderName": {
+    "message": "Mappanév"
+  },
+  "folderHintText": {
+    "message": "Mappa beágyazása a szülőmappa nevének hozzáadásával, majd egy “/” karakterrel. Példa: Közösségi/Fórumok"
+  },
+  "noFoldersAdded": {
+    "message": "Nem lett mappa hozzáadva."
+  },
+  "createFoldersToOrganize": {
+    "message": "Hozzunk létre mappákat a széfelemek rendszerezéséhez"
+  },
+  "deleteFolderPermanently": {
+    "message": "Biztosan véglegesen törlésre kerüljön ez a mappa?"
+  },
   "deleteFolder": {
     "message": "Mappa törlése"
   },
@@ -671,6 +689,9 @@
   },
   "totpHelperWithCapture": {
     "message": "A Bitwarden képes tárolni és kitölteni a kétlépcsős ellenőrző kódokat. Válasszuk a kamera ikont, hogy képernyőképet készítsünk a webhely hitelesítő QR kódjáról vagy másoljuk ki és illesszük be a kulcsot ebbe a mezőbe."
+  },
+  "learnMoreAboutAuthenticators": {
+    "message": "További információ a hitelesítőkről"
   },
   "copyTOTP": {
     "message": "Hitelesítő kód másolása (TOTP)"
@@ -1061,6 +1082,9 @@
   "ppremiumSignUpStorage": {
     "message": "1 GB titkosított tárhely a fájlmellékleteknek."
   },
+  "premiumSignUpEmergency": {
+    "message": "Emergency access"
+  },
   "premiumSignUpTwoStepOptions": {
     "message": "Saját kétlépcsős bejelentkezési lehetőségek mint a YubiKey és a Duo."
   },
@@ -1081,6 +1105,9 @@
   },
   "premiumPurchaseAlert": {
     "message": "A prémium tagság megvásárolható a bitwarden.com webes széfben. Szeretnénk felkeresni a webhelyet most?"
+  },
+  "premiumPurchaseAlertV2": {
+    "message": "You can purchase Premium from your account settings on the Bitwarden web app."
   },
   "premiumCurrentMember": {
     "message": "Prémium tag vagyunk!"
@@ -1656,7 +1683,7 @@
     "description": "Domain name. Ex. website.com"
   },
   "baseDomainOptionRecommended": {
-    "message": "Base domain (recommended)",
+    "message": "Alap domain (ajánlott)",
     "description": "Domain name. Ex. website.com"
   },
   "domainName": {
@@ -1802,6 +1829,29 @@
   },
   "passwordGeneratorPolicyInEffect": {
     "message": "Egy vagy több szervezeti szabály érinti a generátor beállításokat."
+  },
+  "passwordGenerator": {
+    "message": "Jelszó generátor"
+  },
+  "usernameGenerator": {
+    "message": "Felhasználónév generátor"
+  },
+  "useThisPassword": {
+    "message": "Jelszó használata"
+  },
+  "useThisUsername": {
+    "message": "Felhasználónév használata"
+  },
+  "securePasswordGenerated": {
+    "message": "A biztonságos jelszó generálásra került! Ne felejtsük el frissíteni a jelszót a webhelyen is."
+  },
+  "useGeneratorHelpTextPartOne": {
+    "message": "Generátor használata",
+    "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
+  },
+  "useGeneratorHelpTextPartTwo": {
+    "message": "erős egyedi jelszó létrehozásához",
+    "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
   },
   "vaultTimeoutAction": {
     "message": "Széf időkifutás művelet"
@@ -1999,6 +2049,12 @@
   },
   "nativeMessagingWrongUserTitle": {
     "message": "A fiók nem egyezik."
+  },
+  "nativeMessagingWrongUserKeyDesc": {
+    "message": "A biometrikus feloldás nem sikerült. A biometrikus titkos kulcs nem tudta feloldani a széfet. Próbáljuk újra beállítani a biometrikus adatokat."
+  },
+  "nativeMessagingWrongUserKeyTitle": {
+    "message": "A biometrikus kulcs nem egyezik."
   },
   "biometricsNotEnabledTitle": {
     "message": "A biometrikus adatok nincsenek beüzemelve."
@@ -2248,6 +2304,24 @@
     "message": "A Send létrejött.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "createdSendSuccessfully": {
+    "message": "A Send sikeresen létrejött!",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendAvailability": {
+    "message": "A Send bárki számára elérhető a hivatkozással a következő $DAYS$ napban.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "days": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "sendLinkCopied": {
+    "message": "A Send hivatkozás másolásra került.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
   "editedSend": {
     "message": "A Send mentésre került.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -2328,7 +2402,7 @@
     "message": "A mesterjelszó nem felel meg egy vagy több szervezeti szabályzatnak. A széf eléréséhez frissíteni kell a meszerjelszót. A továbblépés kijelentkeztet az aktuális munkamenetből és újra be kell jelentkezni. A többi eszközön lévő aktív munkamenetek akár egy óráig is aktívak maradhatnak."
   },
   "tdeDisabledMasterPasswordRequired": {
-    "message": "Your organization has disabled trusted device encryption. Please set a master password to access your vault."
+    "message": "A szervezete letiltotta a megbízható eszközök titkosítását. Állítsunk be egy mesterjelszót a széf eléréséhez."
   },
   "resetPasswordPolicyAutoEnroll": {
     "message": "Automatikus regisztráció"
@@ -3831,22 +3905,32 @@
     "message": "Hitelesítő kulcs"
   },
   "autofillOptions": {
-    "message": "Auto-fill options"
+    "message": "Automatikus kitöltés opciók"
   },
   "websiteUri": {
-    "message": "Website (URI)"
+    "message": "Webhely (URI)"
+  },
+  "websiteUriCount": {
+    "message": "Webhely (URI) $COUNT$",
+    "description": "Label for an input field that contains a website URI. The input field is part of a list of fields, and the count indicates the position of the field in the list.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
   },
   "websiteAdded": {
-    "message": "Website added"
+    "message": "A webhely hozzáadásra került."
   },
   "addWebsite": {
-    "message": "Add website"
+    "message": "Webhely hozzáadása"
   },
   "deleteWebsite": {
-    "message": "Delete website"
+    "message": "Webhely törlése"
   },
   "defaultLabel": {
-    "message": "Default ($VALUE$)",
+    "message": "Alapértelmezés ($VALUE$)",
     "description": "A label that indicates the default value for a field with the current default value in parentheses.",
     "placeholders": {
       "value": {
@@ -3856,7 +3940,7 @@
     }
   },
   "showMatchDetection": {
-    "message": "Show match detection $WEBSITE$",
+    "message": "$WEBSITE$ egyező érzékelés megjelenítése",
     "placeholders": {
       "website": {
         "content": "$1",
@@ -3865,7 +3949,7 @@
     }
   },
   "hideMatchDetection": {
-    "message": "Hide match detection $WEBSITE$",
+    "message": "$WEBSITE$ egyező érzékelés elrejtése",
     "placeholders": {
       "website": {
         "content": "$1",
@@ -3874,7 +3958,7 @@
     }
   },
   "autoFillOnPageLoad": {
-    "message": "Autofill on page load?"
+    "message": "Automatikus kitöltés oldalbetöltésnél?"
   },
   "cardDetails": {
     "message": "Kártyaadatok"
@@ -3896,6 +3980,18 @@
   },
   "data": {
     "message": "Adat"
+  },
+  "passkeys": {
+    "message": "Hozzáférési kulcsok",
+    "description": "A section header for a list of passkeys."
+  },
+  "passwords": {
+    "message": "Jelszavak",
+    "description": "A section header for a list of passwords."
+  },
+  "logInWithPasskeyAriaLabel": {
+    "message": "Bejelentkezés hozzáférési kulccsal",
+    "description": "ARIA label for the inline menu button that logs in with a passkey."
   },
   "assign": {
     "message": "Assign"
@@ -4091,6 +4187,12 @@
   "itemLocation": {
     "message": "Elem helyek"
   },
+  "fileSends": {
+    "message": "Fájl küldés"
+  },
+  "textSends": {
+    "message": "Szöveg küldés"
+  },
   "bitwardenNewLook": {
     "message": "Bitwarden has a new look!"
   },
@@ -4098,6 +4200,15 @@
     "message": "It's easier and more intuitive than ever to autofill and search from the Vault tab. Take a look around!"
   },
   "accountActions": {
-    "message": "Account actions"
+    "message": "Fiókműveletek"
+  },
+  "showNumberOfAutofillSuggestions": {
+    "message": "Az automatikus bejelentkezési kitöltési javaslatok számának megjelenítése a bővítmény ikonján"
+  },
+  "systemDefault": {
+    "message": "Rendszer alapértelmezett"
+  },
+  "enterprisePolicyRequirementsApplied": {
+    "message": "Erre a beállításra a vállalkozás rendszabály követelmények lettek alkalmazva."
   }
 }
