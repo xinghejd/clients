@@ -700,16 +700,14 @@ export class VaultComponent implements OnInit, OnDestroy {
     }
 
     if (this.extensionRefreshEnabled) {
-      let cipherView: CipherView;
-
       const activeUserId = await firstValueFrom(
         this.accountService.activeAccount$.pipe(map((a) => a?.id)),
       );
 
-      if (cipher) {
-        const key = await this.cipherService.getKeyForCipherKeyDecryption(cipher, activeUserId);
-        cipherView = await cipher.decrypt(key);
-      }
+      // Decrypt the cipher.
+      const cipherView = await cipher.decrypt(
+        await this.cipherService.getKeyForCipherKeyDecryption(cipher, activeUserId),
+      );
 
       const dialogRef = openAddEditCipherDialog(this.dialogService, {
         data: {
