@@ -20,6 +20,8 @@ export * from "./input-password/password-input-result";
 
 // login
 export * from "./login/login.component";
+export * from "./login/login.service";
+export * from "./login/default-login.service";
 
 // password callout
 export * from "./password-callout/password-callout.component";

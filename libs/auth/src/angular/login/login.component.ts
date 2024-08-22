@@ -13,6 +13,8 @@ import {
   FormFieldModule,
 } from "@bitwarden/components";
 
+import { LoginService } from "./login.service";
+
 @Component({
   standalone: true,
   templateUrl: "./login.component.html",
@@ -39,6 +41,7 @@ export class LoginComponentV2 implements OnInit {
     private activatedRoute: ActivatedRoute,
     private formBuilder: FormBuilder,
     private loginEmailService: LoginEmailServiceAbstraction,
+    private loginService: LoginService,
   ) {}
 
   async ngOnInit(): Promise<void> {
