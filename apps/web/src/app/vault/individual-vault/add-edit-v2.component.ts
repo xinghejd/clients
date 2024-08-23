@@ -76,12 +76,7 @@ export interface AddEditCipherDialogCloseResult {
 export class AddEditComponentV2 implements OnInit, OnDestroy {
   cipher: CipherView;
   cipherId: CipherId;
-  deletePromise: Promise<void>;
-  cipherTypeString: string;
-  cipherEditUrl: string;
   organization: Organization;
-  flexibleCollectionsV1Enabled = false;
-  restrictProviderAccess = false;
   config: CipherFormConfig;
   headerText: string;
   cipherType: CipherType;
