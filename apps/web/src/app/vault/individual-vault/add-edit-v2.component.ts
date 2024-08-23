@@ -40,6 +40,7 @@ export enum AddEditCipherDialogResult {
   Edited = "edited",
   Deleted = "deleted",
   Added = "added",
+  Canceled = "canceled",
 }
 
 export interface AddEditCipherDialogCloseResult {
@@ -140,14 +141,7 @@ export class AddEditComponentV2 implements OnInit, OnDestroy {
    * Method to handle cancel action. Called when a user clicks the cancel button.
    */
   async cancel() {
-    this.dialogRef.close();
-    await this.router.navigate([], {
-      queryParams: {
-        itemId: null,
-        action: null,
-        organizationId: null,
-      },
-    });
+    this.dialogRef.close({ action: AddEditCipherDialogResult.Canceled });
   }
 
   /**
