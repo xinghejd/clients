@@ -3,6 +3,7 @@ import { CommonModule } from "@angular/common";
 import { Component, Inject } from "@angular/core";
 
 import { CipherId } from "@bitwarden/common/types/guid";
+import { DialogService } from "@bitwarden/components";
 import { CipherAttachmentsComponent } from "@bitwarden/vault";
 
 import { SharedModule } from "../../shared";
@@ -47,6 +48,21 @@ export class AttachmentsV2Component {
     @Inject(DIALOG_DATA) public params: AttachmentsDialogParams,
   ) {
     this.cipherId = params.cipherId;
+  }
+
+  /**
+   * Opens the attachments dialog.
+   * @param dialogService - The dialog service.
+   * @param params - The parameters for the dialog.
+   * @returns The dialog reference.
+   */
+  static open(
+    dialogService: DialogService,
+    params: AttachmentsDialogParams,
+  ): DialogRef<AttachmentDialogCloseResult> {
+    return dialogService.open(AttachmentsV2Component, {
+      data: params,
+    });
   }
 
   /**

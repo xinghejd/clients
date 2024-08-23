@@ -573,22 +573,16 @@ export class VaultComponent implements OnInit, OnDestroy {
     let madeAttachmentChanges = false;
 
     if (this.extensionRefreshEnabled) {
-      const dialogRef = this.dialogService.open<
-        AttachmentDialogCloseResult,
-        { cipherId: CipherId }
-      >(AttachmentsV2Component, {
-        data: {
-          cipherId: cipher.id as CipherId,
-        },
+      const dialogRef = AttachmentsV2Component.open(this.dialogService, {
+        cipherId: cipher.id as CipherId,
       });
 
-      const result = await lastValueFrom(dialogRef.closed);
+      const result: AttachmentDialogCloseResult = await lastValueFrom(dialogRef.closed);
 
       if (
         result.action === AttachmentDialogResult.Uploaded ||
         result.action === AttachmentDialogResult.Removed
       ) {
-        madeAttachmentChanges = true;
         this.refresh();
       }
 
