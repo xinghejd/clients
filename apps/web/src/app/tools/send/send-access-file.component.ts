@@ -1,4 +1,5 @@
-import { Component, Input } from "@angular/core";
+import { Component, EventEmitter, Input, OnInit, Output } from "@angular/core";
+import { DomSanitizer, SafeUrl } from "@angular/platform-browser";
 
 import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
 import { FileDownloadService } from "@bitwarden/common/platform/abstractions/file-download/file-download.service";
@@ -19,19 +20,59 @@ import { SharedModule } from "../../shared";
   imports: [SharedModule],
   standalone: true,
 })
-export class SendAccessFileComponent {
+export class SendAccessFileComponent implements OnInit {
   @Input() send: SendAccessView;
   @Input() decKey: SymmetricCryptoKey;
   @Input() accessRequest: SendAccessRequest;
+  @Output() preview = new EventEmitter<void>();
+
+  imageFileExtensions = ["jpg", "jpeg", "png", "avif"];
+  imageMimeTypes = {
+    jpg: "image/jpeg",
+    jpeg: "image/jpeg",
+    png: "image/png",
+    avif: "image/avif",
+  };
+  maxPreviewFileSize = 1024 * 1024 * 10; // 10MiB
+  imageUrl: SafeUrl = null;
+
   constructor(
     private i18nService: I18nService,
     private toastService: ToastService,
     private cryptoService: CryptoService,
     private fileDownloadService: FileDownloadService,
     private sendApiService: SendApiService,
+    private sanitizer: DomSanitizer,
   ) {}
 
-  protected download = async () => {
+  async ngOnInit() {
+    if (
+      Number(this.send.file.size) < this.maxPreviewFileSize &&
+      this.imageFileExtensions.includes(this.getFileExtention(this.send.file.fileName))
+    ) {
+      const decBuffer = await this.downloadToBuffer();
+      if (decBuffer != null) {
+        const decBufferB64 = Utils.fromBufferToB64(decBuffer);
+        const mimeType =
+          this.imageMimeTypes[
+            this.getFileExtention(this.send.file.fileName) as "jpg" | "jpeg" | "png" | "avif"
+          ];
+        this.imageUrl = this.sanitizer.bypassSecurityTrustUrl(
+          `data:${mimeType};base64,` + decBufferB64,
+        );
+      }
+    }
+  }
+
+  private getFileExtention(filename: string): string {
+    const splitFileName = filename.split(".");
+    if (splitFileName.length > 1) {
+      return splitFileName[splitFileName.length - 1];
+    }
+    return "";
+  }
+
+  protected downloadToBuffer = async () => {
     if (this.send == null || this.decKey == null) {
       return;
     }
@@ -63,6 +104,19 @@ export class SendAccessFileComponent {
     try {
       const encBuf = await EncArrayBuffer.fromResponse(response);
       const decBuf = await this.cryptoService.decryptFromBytes(encBuf, this.decKey);
+      return decBuf;
+    } catch (e) {
+      this.toastService.showToast({
+        variant: "error",
+        title: null,
+        message: this.i18nService.t("errorOccurred"),
+      });
+    }
+  };
+
+  protected download = async () => {
+    try {
+      const decBuf = await this.downloadToBuffer();
       this.fileDownloadService.download({
         fileName: this.send.file.fileName,
         blobData: decBuf,

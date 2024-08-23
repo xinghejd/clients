@@ -1,4 +1,5 @@
 <p>{{ send.file.fileName }}</p>
+<img [src]="imageUrl" alt="" [style]="'max-width: 1000px; margin-bottom: 20px;'" *ngIf="imageUrl" />
 <button bitButton type="button" buttonType="primary" [bitAction]="download" [block]="true">
   <i class="bwi bwi-download" aria-hidden="true"></i>
   {{ "downloadAttachments" | i18n }} ({{ send.file.sizeName }})

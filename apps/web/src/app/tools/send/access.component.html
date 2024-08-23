@@ -18,6 +18,7 @@
     </bit-callout>
     <div
       class="tw-mt-3 tw-w-10/12 tw-rounded-md tw-border tw-border-solid tw-border-secondary-300 tw-bg-background tw-p-6"
+      [style]="'width: max-content'"
     >
       <ng-container *ngIf="!loading; else spinner">
         <app-send-access-password
