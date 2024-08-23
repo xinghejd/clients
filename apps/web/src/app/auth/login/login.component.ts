@@ -127,6 +127,7 @@ export class LoginComponent extends BaseLoginComponent implements OnInit {
         });
         this.routerService.setPreviousUrl(route.toString());
       }
+
       await super.ngOnInit();
     });
 
