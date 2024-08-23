@@ -2,8 +2,8 @@ import { DIALOG_DATA, DialogConfig, DialogRef } from "@angular/cdk/dialog";
 import { CommonModule } from "@angular/common";
 import { Component, Inject, OnInit, OnDestroy } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { ActivatedRoute, Params, Router } from "@angular/router";
-import { map, Subject, switchMap, takeUntil } from "rxjs";
+import { Router } from "@angular/router";
+import { Subject } from "rxjs";
 
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
@@ -24,7 +24,6 @@ import {
   DefaultCipherFormConfigService,
 } from "@bitwarden/vault";
 
-import { CipherFormQueryParams } from "../../../../../../libs/vault/src/cipher-form/cipher-form-query-params";
 import { WebCipherFormGenerationService } from "../../../../../../libs/vault/src/cipher-form/services/web-cipher-form-generation.service";
 import { CipherViewComponent } from "../../../../../../libs/vault/src/cipher-view/cipher-view.component";
 import { SharedModule } from "../../shared/shared.module";
@@ -36,9 +35,9 @@ import {
 } from "./attachments-v2.component";
 
 export interface AddEditCipherDialogParams {
-  cipher?: CipherView;
-  cipherType?: CipherType;
+  cipher: CipherView;
   cloneMode?: boolean;
+  cipherFormConfig: CipherFormConfig;
 }
 
 export enum AddEditCipherDialogResult {
@@ -80,7 +79,6 @@ export class AddEditComponentV2 implements OnInit, OnDestroy {
   config: CipherFormConfig;
   headerText: string;
   cipherType: CipherType;
-  editMode: boolean = false;
   cloneMode: boolean = false;
   protected destroy$ = new Subject<void>();
   canAccessAttachments: boolean = false;
@@ -94,8 +92,6 @@ export class AddEditComponentV2 implements OnInit, OnDestroy {
     private messagingService: MessagingService,
     private organizationService: OrganizationService,
     private router: Router,
-    private addEditFormConfigService: CipherFormConfigService,
-    private route: ActivatedRoute,
     private billingAccountProfileStateService: BillingAccountProfileStateService,
   ) {
     this.billingAccountProfileStateService.hasPremiumFromAnySource$
@@ -111,13 +107,15 @@ export class AddEditComponentV2 implements OnInit, OnDestroy {
   async ngOnInit() {
     this.cipher = this.params.cipher;
     this.cipherId = this.cipher?.id as CipherId;
-    this.cipherType = this.params.cipherType;
+    this.cipherType = this.params.cipherFormConfig?.cipherType;
     this.cloneMode = this.params.cloneMode;
-    this.subscribeToParams();
+    this.config = this.params.cipherFormConfig;
 
     if (this.cipher && this.cipher.organizationId) {
       this.organization = await this.organizationService.get(this.cipher.organizationId);
     }
+
+    this.headerText = this.setHeader(this.config.mode, this.cipherType);
   }
 
   /**
@@ -133,72 +131,6 @@ export class AddEditComponentV2 implements OnInit, OnDestroy {
    */
   get loading() {
     return this.config == null;
-  }
-
-  /**
-   * Subscribes to route query parameters and updates the form configuration accordingly.
-   */
-  subscribeToParams(): void {
-    this.route.queryParams
-      .pipe(
-        map((params) => new CipherFormQueryParams(params)),
-        switchMap(async (params) => {
-          let mode: CipherFormMode;
-          const cipherId = (getCipherIdFromParams(params) || this.cipher?.id) as CipherId;
-          const cipherType = (params.type || this.cipherType) as CipherType;
-          if (cipherId == null) {
-            mode = "add";
-            this.editMode = true;
-          } else {
-            mode = params.clone || this.cloneMode ? "clone" : "edit";
-          }
-          const config = await this.addEditFormConfigService.buildConfig(
-            mode,
-            cipherId,
-            cipherType,
-          );
-
-          if (config.mode === "edit" && !config.originalCipher.edit) {
-            config.mode = "partial-edit";
-          }
-
-          this.setInitialValuesFromParams(params, config);
-
-          return config;
-        }),
-        takeUntil(this.destroy$),
-      )
-      .subscribe((config) => {
-        this.config = config;
-        this.headerText = this.setHeader(config.mode, config.cipherType);
-      });
-  }
-
-  /**
-   * Sets initial values for the form configuration based on query parameters.
-   * @param params The query parameters.
-   * @param config The form configuration.
-   */
-  setInitialValuesFromParams(params: CipherFormQueryParams, config: CipherFormConfig) {
-    config.initialValues = {};
-    if (params.folderId) {
-      config.initialValues.folderId = params.folderId;
-    }
-    if (params.organizationId) {
-      config.initialValues.organizationId = params.organizationId;
-    }
-    if (params.collectionId) {
-      config.initialValues.collectionIds = [params.collectionId];
-    }
-    if (params.uri) {
-      config.initialValues.loginUri = params.uri;
-    }
-    if (params.username) {
-      config.initialValues.username = params.username;
-    }
-    if (params.name) {
-      config.initialValues.name = params.name;
-    }
   }
 
   /**
@@ -277,13 +209,3 @@ export function openAddEditCipherDialog(
 ): DialogRef<AddEditCipherDialogCloseResult> {
   return dialogService.open(AddEditComponentV2, config);
 }
-
-/**
- * Allows backwards compatibility with
- * old links that used the original `cipherId` param
- * @param params The query parameters.
- * @returns The cipher ID.
- */
-const getCipherIdFromParams = (params: Params): string => {
-  return params["itemId"] || params["cipherId"];
-};

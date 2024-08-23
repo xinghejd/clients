@@ -60,7 +60,11 @@ import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { CollectionView } from "@bitwarden/common/vault/models/view/collection.view";
 import { ServiceUtils } from "@bitwarden/common/vault/service-utils";
 import { DialogService, Icons, ToastService } from "@bitwarden/components";
-import { CollectionAssignmentResult, PasswordRepromptService } from "@bitwarden/vault";
+import {
+  CollectionAssignmentResult,
+  DefaultCipherFormConfigService,
+  PasswordRepromptService,
+} from "@bitwarden/vault";
 
 import { SharedModule } from "../../shared/shared.module";
 import { AssignCollectionsWebComponent } from "../components/assign-collections";
@@ -142,7 +146,11 @@ const SearchTextDebounceInterval = 200;
     VaultItemsModule,
     SharedModule,
   ],
-  providers: [RoutedVaultFilterService, RoutedVaultFilterBridgeService],
+  providers: [
+    RoutedVaultFilterService,
+    RoutedVaultFilterBridgeService,
+    DefaultCipherFormConfigService,
+  ],
 })
 export class VaultComponent implements OnInit, OnDestroy {
   @ViewChild("vaultFilter", { static: true }) filterComponent: VaultFilterComponent;
@@ -212,6 +220,7 @@ export class VaultComponent implements OnInit, OnDestroy {
     private billingAccountProfileStateService: BillingAccountProfileStateService,
     private toastService: ToastService,
     private accountService: AccountService,
+    private cipherFormConfigService: DefaultCipherFormConfigService,
   ) {}
 
   async ngOnInit() {
@@ -709,11 +718,17 @@ export class VaultComponent implements OnInit, OnDestroy {
         await this.cipherService.getKeyForCipherKeyDecryption(cipher, activeUserId),
       );
 
+      const cipherFormConfig = await this.cipherFormConfigService.buildConfig(
+        "edit",
+        cipher.id as CipherId,
+        cipher.type,
+      );
+
       const dialogRef = openAddEditCipherDialog(this.dialogService, {
         data: {
           cipher: cipherView,
-          cipherType: cipherType,
           cloneMode: cloneMode,
+          cipherFormConfig,
         },
       });
 

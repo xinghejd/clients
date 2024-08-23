@@ -18,7 +18,7 @@ import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folde
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { DialogService } from "@bitwarden/components";
 import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legacy";
-import { DefaultCipherFormConfigService } from "@bitwarden/vault";
+import { CipherFormConfig, DefaultCipherFormConfigService } from "@bitwarden/vault";
 
 import { AddEditCipherDialogParams, AddEditComponentV2 } from "./add-edit-v2.component";
 
@@ -46,6 +46,8 @@ describe("AddEditComponentV2", () => {
 
   const mockParams: AddEditCipherDialogParams = {
     cipher: mockCipher,
+    cloneMode: false,
+    cipherFormConfig: mock<CipherFormConfig>(),
   };
 
   beforeEach(async () => {
