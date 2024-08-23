@@ -15,7 +15,7 @@ on:
           - Republish
           - Dry Run
       version:
-        description: 'Version to publish (default: latest cli release)'
+        description: 'Version to publish (default: latest desktop release)'
         required: true
         type: string
         default: latest
@@ -34,10 +34,6 @@ on:
         required: true
         default: true
         type: boolean
-
-defaults:
-  run:
-    shell: bash
 
 jobs:
   setup:
@@ -215,7 +211,7 @@ jobs:
 
       - name: Download artifacts
         working-directory: apps/desktop/dist
-        run: wget https://github.com/bitwarden/clients/releases/${{ env._RELEASE_TAG }}/download/bitwarden_${{ env._PKG_VERSION }}_amd64.snap
+        run: wget https://github.com/bitwarden/clients/releases/download/${{ env._RELEASE_TAG }}/bitwarden_${{ env._PKG_VERSION }}_amd64.snap
 
       - name: Deploy to Snap Store
         if: ${{ inputs.publish_type != 'Dry Run' }}
@@ -256,23 +252,20 @@ jobs:
           secrets: "cli-choco-api-key"
 
       - name: Setup Chocolatey
-        shell: pwsh
         run: choco apikey --key $env:CHOCO_API_KEY --source https://push.chocolatey.org/
         env:
           CHOCO_API_KEY: ${{ steps.retrieve-secrets.outputs.cli-choco-api-key }}
 
       - name: Make dist dir
-        shell: pwsh
         run: New-Item -ItemType directory -Path ./dist
         working-directory: apps/desktop
 
       - name: Download artifacts
         working-directory: apps/desktop/dist
-        run: wget https://github.com/bitwarden/clients/releases/${{ env._RELEASE_TAG }}/download/bitwarden.${{ env._PKG_VERSION }}.nupkg
+        run: Invoke-WebRequest -Uri "https://github.com/bitwarden/clients/releases/download/${{ env._RELEASE_TAG }}/bitwarden.${{ env._PKG_VERSION }}.nupkg" -OutFile bitwarden.${{ env._PKG_VERSION }}.nupkg
 
       - name: Push to Chocolatey
         if: ${{ inputs.publish_type != 'Dry Run' }}
-        shell: pwsh
         run: choco push --source=https://push.chocolatey.org/
         working-directory: apps/desktop/dist
 
