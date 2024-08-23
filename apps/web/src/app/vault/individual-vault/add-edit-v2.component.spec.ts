@@ -17,6 +17,7 @@ import { CollectionService } from "@bitwarden/common/vault/abstractions/collecti
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { DialogService } from "@bitwarden/components";
+import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legacy";
 import { DefaultCipherFormConfigService } from "@bitwarden/vault";
 
 import { AddEditCipherDialogParams, AddEditComponentV2 } from "./add-edit-v2.component";
@@ -100,6 +101,10 @@ describe("AddEditComponentV2", () => {
         { provide: BillingAccountProfileStateService, useValue: billingAccountProfileStateService },
         { provide: PolicyService, useValue: policyService },
         { provide: DefaultCipherFormConfigService, useValue: mockDefaultCipherFormConfigService },
+        {
+          provide: PasswordGenerationServiceAbstraction,
+          useValue: mock<PasswordGenerationServiceAbstraction>(),
+        },
       ],
     }).compileComponents();
 
@@ -116,45 +121,6 @@ describe("AddEditComponentV2", () => {
 
       expect(component.cipher).toEqual(mockCipher);
       expect(component.cipherId).toEqual(mockCipher.id);
-    });
-  });
-
-  describe("onCipherSaved", () => {
-    it("handles cipher saved event", async () => {
-      const spyClose = jest.spyOn(dialogRef, "close");
-      const spyEmit = jest.spyOn(component.onSavedCipher, "emit");
-      const spySend = jest.spyOn(messagingService, "send");
-      const spyNavigate = jest.spyOn(router, "navigate").mockResolvedValue(true);
-
-      await component.onCipherSaved(mockCipher);
-
-      expect(spyClose).toHaveBeenCalledWith({ action: "added" });
-      expect(spyEmit).toHaveBeenCalledWith(mockCipher);
-      expect(spySend).toHaveBeenCalledWith("addedCipher");
-      expect(spyNavigate).toHaveBeenCalledWith([], {
-        queryParams: {
-          itemId: null,
-          action: null,
-        },
-      });
-    });
-  });
-
-  describe("edit", () => {
-    it("handles cipher editing", async () => {
-      const spyClose = jest.spyOn(dialogRef, "close");
-      const spyNavigate = jest.spyOn(router, "navigate").mockResolvedValue(true);
-
-      await component.edit();
-
-      expect(spyClose).toHaveBeenCalledWith({ action: "edited" });
-      expect(spyNavigate).toHaveBeenCalledWith([], {
-        queryParams: {
-          itemId: mockCipher.id,
-          action: "edit",
-          organizationId: mockCipher.organizationId,
-        },
-      });
     });
   });
 

@@ -1,6 +1,6 @@
 import { DIALOG_DATA, DialogConfig, DialogRef } from "@angular/cdk/dialog";
 import { CommonModule } from "@angular/common";
-import { Component, Inject, OnInit, EventEmitter, OnDestroy } from "@angular/core";
+import { Component, Inject, OnInit, OnDestroy } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, Params, Router } from "@angular/router";
 import { map, Subject, switchMap, takeUntil } from "rxjs";
@@ -77,8 +77,6 @@ export class AddEditComponentV2 implements OnInit, OnDestroy {
   cipher: CipherView;
   cipherId: CipherId;
   deletePromise: Promise<void>;
-  onDeletedCipher = new EventEmitter<CipherView>();
-  onSavedCipher = new EventEmitter<CipherView>();
   cipherTypeString: string;
   cipherEditUrl: string;
   organization: Organization;
@@ -213,34 +211,7 @@ export class AddEditComponentV2 implements OnInit, OnDestroy {
    * @param cipher The saved cipher.
    */
   async onCipherSaved(cipher: CipherView) {
-    let action = AddEditCipherDialogResult.Added;
-    if (cipher.edit) {
-      action = AddEditCipherDialogResult.Edited;
-    }
-
-    this.dialogRef.close({ action });
-    this.onSavedCipher.emit(this.cipher);
-    this.messagingService.send(this.editMode && !this.cloneMode ? "editedCipher" : "addedCipher");
-    await this.router.navigate([], {
-      queryParams: {
-        itemId: null,
-        action: null,
-      },
-    });
-  }
-
-  /**
-   * Method to handle cipher editing. Called when a user clicks the edit button.
-   */
-  async edit(): Promise<void> {
-    this.dialogRef.close({ action: AddEditCipherDialogResult.Edited });
-    await this.router.navigate([], {
-      queryParams: {
-        itemId: this.cipher.id,
-        action: "edit",
-        organizationId: this.cipher.organizationId,
-      },
-    });
+    this.messagingService.send(cipher.edit ? "editedCipher" : "addedCipher");
   }
 
   /**

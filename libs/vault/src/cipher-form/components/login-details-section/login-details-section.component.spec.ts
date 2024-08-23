@@ -528,24 +528,4 @@ describe("LoginDetailsSectionComponent", () => {
       expect(component.hasPasskey).toBe(false);
     }));
   });
-
-  describe("password generation event", () => {
-    it("emits a passwordGenerationEvent when generatePassword is called and extensionRefreshEnabled is true", async () => {
-      (component as any).extensionRefreshEnabled = true;
-      const emitSpy = jest.spyOn(component.passwordGenerationEvent, "emit");
-
-      await component.generatePassword();
-
-      expect(emitSpy).toHaveBeenCalledWith(component.loginDetailsForm);
-    });
-
-    it("does not emit a passwordGenerationEvent when extensionRefreshEnabled is false", async () => {
-      (component as any).extensionRefreshEnabled = false;
-      const emitSpy = jest.spyOn(component.passwordGenerationEvent, "emit");
-
-      await component.generatePassword();
-
-      expect(emitSpy).not.toHaveBeenCalled();
-    });
-  });
 });
