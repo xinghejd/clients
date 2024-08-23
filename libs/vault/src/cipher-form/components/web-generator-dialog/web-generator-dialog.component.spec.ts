@@ -1,120 +1,108 @@
-// import { DialogRef, DIALOG_DATA } from "@angular/cdk/dialog";
-// import { ComponentFixture, fakeAsync, TestBed, tick } from "@angular/core/testing";
-// import { NoopAnimationsModule } from "@angular/platform-browser/animations";
-// import { mock, MockProxy } from "jest-mock-extended";
-// import { BehaviorSubject } from "rxjs";
+import { DialogRef, DIALOG_DATA } from "@angular/cdk/dialog";
+import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { NoopAnimationsModule } from "@angular/platform-browser/animations";
+import { mock, MockProxy } from "jest-mock-extended";
+import { BehaviorSubject } from "rxjs";
 
-// import { PasswordGeneratorPolicyOptions } from "@bitwarden/common/admin-console/models/domain/password-generator-policy-options";
-// import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-// import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-// import {
-//   UsernameGenerationServiceAbstraction,
-//   PasswordGenerationServiceAbstraction,
-//   PasswordGeneratorOptions,
-// } from "@bitwarden/generator-legacy";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legacy";
 
-// import {
-//   PasswordGeneratorComponent,
-//   PasswordGeneratorParams,
-// } from "./password-generator.component";
+import { UsernameGenerationServiceAbstraction } from "../../../../../../libs/tools/generator/extensions/legacy/src/username-generation.service.abstraction";
+import { CipherFormGeneratorComponent } from "../cipher-generator/cipher-form-generator.component";
 
-// describe("PasswordGeneratorComponent", () => {
-//   let component: PasswordGeneratorComponent;
-//   let fixture: ComponentFixture<PasswordGeneratorComponent>;
+import {
+  WebVaultGeneratorDialogComponent,
+  WebVaultGeneratorDialogParams,
+  WebVaultGeneratorDialogAction,
+} from "./web-generator-dialog.component";
 
-//   let mockPasswordGenerationService: MockProxy<PasswordGenerationServiceAbstraction>;
-//   let passwordOptions$: BehaviorSubject<[PasswordGeneratorOptions, PasswordGeneratorPolicyOptions]>;
-//   let dialogRef: MockProxy<DialogRef<any>>;
-//   let mockUsernameGenerationService: MockProxy<UsernameGenerationServiceAbstraction>;
+describe("WebVaultGeneratorDialogComponent", () => {
+  let component: WebVaultGeneratorDialogComponent;
+  let fixture: ComponentFixture<WebVaultGeneratorDialogComponent>;
 
-//   beforeEach(async () => {
-//     passwordOptions$ = new BehaviorSubject([
-//       {
-//         type: "password",
-//       },
-//       {
-//         minLength: 8,
-//         useNumbers: true,
-//         useSpecial: true,
-//       },
-//     ] as [PasswordGeneratorOptions, PasswordGeneratorPolicyOptions]);
+  let dialogRef: MockProxy<DialogRef<any>>;
+  let mockI18nService: MockProxy<I18nService>;
 
-//     mockPasswordGenerationService = mock<PasswordGenerationServiceAbstraction>();
-//     mockPasswordGenerationService.getOptions$.mockReturnValue(passwordOptions$);
+  beforeEach(async () => {
+    dialogRef = mock<DialogRef<any>>();
+    mockI18nService = mock<I18nService>();
 
-//     dialogRef = mock<DialogRef<any>>();
+    const mockDialogData: WebVaultGeneratorDialogParams = { type: "password" };
 
-//     const mockDialogData: PasswordGeneratorParams = {};
+    await TestBed.configureTestingModule({
+      imports: [NoopAnimationsModule, WebVaultGeneratorDialogComponent],
+      providers: [
+        {
+          provide: DialogRef,
+          useValue: dialogRef,
+        },
+        {
+          provide: DIALOG_DATA,
+          useValue: mockDialogData,
+        },
+        {
+          provide: I18nService,
+          useValue: mockI18nService,
+        },
+        {
+          provide: PlatformUtilsService,
+          useValue: mock<PlatformUtilsService>(),
+        },
+        {
+          provide: PasswordGenerationServiceAbstraction,
+          useValue: mock<PlatformUtilsService>(),
+        },
+        {
+          provide: UsernameGenerationServiceAbstraction,
+          useValue: mock<UsernameGenerationServiceAbstraction>(),
+        },
+        {
+          provide: CipherFormGeneratorComponent,
+          useValue: {
+            passwordOptions$: new BehaviorSubject([{ type: "default" }]),
+          },
+        },
+      ],
+    }).compileComponents();
 
-//     mockUsernameGenerationService = mock<UsernameGenerationServiceAbstraction>();
+    fixture = TestBed.createComponent(WebVaultGeneratorDialogComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+  });
 
-//     await TestBed.configureTestingModule({
-//       imports: [PasswordGeneratorComponent, NoopAnimationsModule],
-//       providers: [
-//         {
-//           provide: PasswordGenerationServiceAbstraction,
-//           useValue: mockPasswordGenerationService,
-//         },
-//         {
-//           provide: DialogRef,
-//           useValue: dialogRef,
-//         },
-//         {
-//           provide: DIALOG_DATA,
-//           useValue: mockDialogData,
-//         },
-//         {
-//           provide: I18nService,
-//           useValue: mock<I18nService>(),
-//         },
-//         {
-//           provide: UsernameGenerationServiceAbstraction,
-//           useValue: mockUsernameGenerationService,
-//         },
-//         {
-//           provide: PlatformUtilsService,
-//           useValue: mock<PlatformUtilsService>(),
-//         },
-//       ],
-//     }).compileComponents();
+  it("initializes without errors", () => {
+    fixture.detectChanges();
+    expect(component).toBeTruthy();
+  });
 
-//     fixture = TestBed.createComponent(PasswordGeneratorComponent);
-//     component = fixture.componentInstance;
-//   });
+  it("closes the dialog with 'canceled' result when close is called", () => {
+    const closeSpy = jest.spyOn(dialogRef, "close");
 
-//   it("initializes without errors", () => {
-//     fixture.detectChanges();
-//     expect(component).toBeTruthy();
-//   });
+    (component as any).close();
 
-//   it("sets a password when passwordGenerated is called", fakeAsync(() => {
-//     const generatedPassword = "generated-password";
-//     mockPasswordGenerationService.generatePassword.mockResolvedValue(generatedPassword);
+    expect(closeSpy).toHaveBeenCalledWith({
+      action: WebVaultGeneratorDialogAction.Canceled,
+    });
+  });
 
-//     component.passwordGenerated(generatedPassword);
-//     tick();
+  it("closes the dialog with 'selected' result when selectValue is called", () => {
+    const closeSpy = jest.spyOn(dialogRef, "close");
+    const generatedValue = "generated-value";
+    component.onValueGenerated(generatedValue);
 
-//     expect(component.password).toBe(generatedPassword);
-//   }));
+    (component as any).selectValue();
 
-//   it("closes the dialog with 'added' result when passwordAdded is called", () => {
-//     const closeSpy = jest.spyOn(dialogRef, "close");
+    expect(closeSpy).toHaveBeenCalledWith({
+      action: WebVaultGeneratorDialogAction.Selected,
+      generatedValue: generatedValue,
+    });
+  });
 
-//     component.passwordAdded();
+  it("updates generatedValue when onValueGenerated is called", () => {
+    const generatedValue = "new-generated-value";
+    component.onValueGenerated(generatedValue);
 
-//     expect(closeSpy).toHaveBeenCalledWith({
-//       action: "added",
-//       password: component.password,
-//     });
-//   });
-
-//   it("closes the dialog with 'closed' result when dialogClosed is called", () => {
-//     const closeSpy = jest.spyOn(dialogRef, "close");
-
-//     component.dialogClosed();
-
-//     expect(closeSpy).toHaveBeenCalledWith({
-//       action: "closed",
-//     });
-//   });
-// });
+    expect((component as any).generatedValue).toBe(generatedValue);
+  });
+});
