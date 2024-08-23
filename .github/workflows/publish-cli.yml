@@ -110,7 +110,7 @@ jobs:
         uses: samuelmeuli/action-snapcraft@d33c176a9b784876d966f80fb1b461808edc0641  # v2.1.1
 
       - name: Download artifacts
-        run: wget https://github.com/bitwarden/clients/releases/cli-v${{ env._PKG_VERSION }}/bw_${{ env._PKG_VERSION }}_amd64.snap
+        run: wget https://github.com/bitwarden/clients/releases/download/cli-v${{ env._PKG_VERSION }}/bw_${{ env._PKG_VERSION }}_amd64.snap
 
       - name: Publish Snap & logout
         if: ${{ inputs.publish_type != 'Dry Run' }}
@@ -153,7 +153,7 @@ jobs:
 
       - name: Download artifacts
         shell: bash
-        run: wget https://github.com/bitwarden/clients/releases/cli-v${{ env._PKG_VERSION }}/bitwarden-cli.${{ env._PKG_VERSION }}.nupkg
+        run: wget https://github.com/bitwarden/clients/releases/download/cli-v${{ env._PKG_VERSION }}/bitwarden-cli.${{ env._PKG_VERSION }}.nupkg
 
       - name: Push to Chocolatey
         if: ${{ inputs.publish_type != 'Dry Run' }}
@@ -185,7 +185,7 @@ jobs:
           secrets: "npm-api-key"
 
       - name: Download artifacts
-        run: wget https://github.com/bitwarden/clients/releases/cli-v${{ env._PKG_VERSION }}/bitwarden-cli-${{ env._PKG_VERSION }}-npm-build.zip
+        run: wget https://github.com/bitwarden/clients/releases/download/cli-v${{ env._PKG_VERSION }}/bitwarden-cli-${{ env._PKG_VERSION }}-npm-build.zip
 
       - name: Setup NPM
         run: |
