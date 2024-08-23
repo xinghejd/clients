@@ -21,7 +21,7 @@ import {
   TotpCaptureService,
 } from "@bitwarden/vault";
 
-import { QueryParams } from "../../../../../../../../libs/angular/src/utils/add-edit-query-params";
+import { CipherFormQueryParams } from "../../../../../../../../libs/vault/src/cipher-form/cipher-form-query-params";
 import { BrowserFido2UserInterfaceSession } from "../../../../../autofill/fido2/services/browser-fido2-user-interface.service";
 import BrowserPopupUtils from "../../../../../platform/popup/browser-popup-utils";
 import { PopOutComponent } from "../../../../../platform/popup/components/pop-out.component";
@@ -39,7 +39,7 @@ import {
 import { VaultPopoutType } from "../../../utils/vault-popout-window";
 import { OpenAttachmentsComponent } from "../attachments/open-attachments/open-attachments.component";
 
-export type AddEditQueryParams = Partial<Record<keyof QueryParams, string>>;
+export type AddEditQueryParams = Partial<Record<keyof CipherFormQueryParams, string>>;
 
 @Component({
   selector: "app-add-edit-v2",
@@ -176,7 +176,7 @@ export class AddEditV2Component implements OnInit {
     this.route.queryParams
       .pipe(
         takeUntilDestroyed(),
-        map((params) => new QueryParams(params)),
+        map((params) => new CipherFormQueryParams(params)),
         switchMap(async (params) => {
           let mode: CipherFormMode;
           if (params.cipherId == null) {
@@ -205,7 +205,7 @@ export class AddEditV2Component implements OnInit {
       });
   }
 
-  setInitialValuesFromParams(params: QueryParams, config: CipherFormConfig) {
+  setInitialValuesFromParams(params: CipherFormQueryParams, config: CipherFormConfig) {
     config.initialValues = {};
     if (params.folderId) {
       config.initialValues.folderId = params.folderId;

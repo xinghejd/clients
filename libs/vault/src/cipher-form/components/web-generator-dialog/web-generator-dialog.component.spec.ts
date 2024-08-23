@@ -23,10 +23,26 @@ describe("WebVaultGeneratorDialogComponent", () => {
 
   let dialogRef: MockProxy<DialogRef<any>>;
   let mockI18nService: MockProxy<I18nService>;
+  let passwordOptionsSubject: BehaviorSubject<any>;
+  let usernameOptionsSubject: BehaviorSubject<any>;
+  let mockPasswordGenerationService: MockProxy<PasswordGenerationServiceAbstraction>;
+  let mockUsernameGenerationService: MockProxy<UsernameGenerationServiceAbstraction>;
 
   beforeEach(async () => {
     dialogRef = mock<DialogRef<any>>();
     mockI18nService = mock<I18nService>();
+    passwordOptionsSubject = new BehaviorSubject([{ type: "password" }]);
+    usernameOptionsSubject = new BehaviorSubject([{ type: "username" }]);
+
+    mockPasswordGenerationService = mock<PasswordGenerationServiceAbstraction>();
+    mockPasswordGenerationService.getOptions$.mockReturnValue(
+      passwordOptionsSubject.asObservable(),
+    );
+
+    mockUsernameGenerationService = mock<UsernameGenerationServiceAbstraction>();
+    mockUsernameGenerationService.getOptions$.mockReturnValue(
+      usernameOptionsSubject.asObservable(),
+    );
 
     const mockDialogData: WebVaultGeneratorDialogParams = { type: "password" };
 
@@ -51,16 +67,17 @@ describe("WebVaultGeneratorDialogComponent", () => {
         },
         {
           provide: PasswordGenerationServiceAbstraction,
-          useValue: mock<PlatformUtilsService>(),
+          useValue: mockPasswordGenerationService,
         },
         {
           provide: UsernameGenerationServiceAbstraction,
-          useValue: mock<UsernameGenerationServiceAbstraction>(),
+          useValue: mockUsernameGenerationService,
         },
         {
           provide: CipherFormGeneratorComponent,
           useValue: {
-            passwordOptions$: new BehaviorSubject([{ type: "default" }]),
+            passwordOptions$: passwordOptionsSubject.asObservable(),
+            usernameOptions$: usernameOptionsSubject.asObservable(),
           },
         },
       ],
