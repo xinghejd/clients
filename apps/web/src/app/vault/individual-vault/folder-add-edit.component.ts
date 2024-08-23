@@ -36,6 +36,7 @@ export class FolderAddEditComponent extends BaseFolderAddEditComponent {
       logService,
       dialogService,
       formBuilder,
+      toastService,
     );
     params?.folderId ? (this.folderId = params.folderId) : null;
   }

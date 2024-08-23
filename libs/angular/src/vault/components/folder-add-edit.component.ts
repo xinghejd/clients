@@ -34,7 +34,7 @@ export class FolderAddEditComponent implements OnInit {
     protected logService: LogService,
     protected dialogService: DialogService,
     protected formBuilder: FormBuilder,
-    private toastService: ToastService,
+    protected toastService: ToastService,
   ) {}
 
   async ngOnInit() {

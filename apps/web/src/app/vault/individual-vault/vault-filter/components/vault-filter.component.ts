@@ -86,7 +86,7 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
     protected policyService: PolicyService,
     protected i18nService: I18nService,
     protected platformUtilsService: PlatformUtilsService,
-    private toastService: ToastService,
+    protected toastService: ToastService,
   ) {}
 
   async ngOnInit(): Promise<void> {

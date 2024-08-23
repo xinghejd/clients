@@ -18,7 +18,7 @@ import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.servi
 import { CipherData } from "@bitwarden/common/vault/models/data/cipher.data";
 import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
 import { AttachmentView } from "@bitwarden/common/vault/models/view/attachment.view";
-import { DialogService } from "@bitwarden/components";
+import { DialogService, ToastService } from "@bitwarden/components";
 
 import { AttachmentsComponent as BaseAttachmentsComponent } from "../individual-vault/attachments.component";
 
@@ -45,6 +45,7 @@ export class AttachmentsComponent extends BaseAttachmentsComponent implements On
     billingAccountProfileStateService: BillingAccountProfileStateService,
     accountService: AccountService,
     private configService: ConfigService,
+    toastService: ToastService,
   ) {
     super(
       cipherService,
@@ -58,6 +59,7 @@ export class AttachmentsComponent extends BaseAttachmentsComponent implements On
       dialogService,
       billingAccountProfileStateService,
       accountService,
+      toastService,
     );
   }
 

@@ -9,7 +9,7 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { FolderApiServiceAbstraction } from "@bitwarden/common/vault/abstractions/folder/folder-api.service.abstraction";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
-import { DialogService } from "@bitwarden/components";
+import { DialogService, ToastService } from "@bitwarden/components";
 
 @Component({
   selector: "app-folder-add-edit",
@@ -27,6 +27,7 @@ export class FolderAddEditComponent extends BaseFolderAddEditComponent implement
     logService: LogService,
     dialogService: DialogService,
     formBuilder: FormBuilder,
+    toastService: ToastService,
   ) {
     super(
       folderService,
@@ -36,6 +37,7 @@ export class FolderAddEditComponent extends BaseFolderAddEditComponent implement
       logService,
       dialogService,
       formBuilder,
+      toastService,
     );
   }
 

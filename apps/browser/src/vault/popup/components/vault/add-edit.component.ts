@@ -71,7 +71,7 @@ export class AddEditComponent extends BaseAddEditComponent implements OnInit {
     datePipe: DatePipe,
     configService: ConfigService,
     private fido2UserVerificationService: Fido2UserVerificationService,
-    private toastService: ToastService,
+    protected toastService: ToastService,
   ) {
     super(
       cipherService,
@@ -92,6 +92,7 @@ export class AddEditComponent extends BaseAddEditComponent implements OnInit {
       window,
       datePipe,
       configService,
+      toastService,
     );
   }
 
