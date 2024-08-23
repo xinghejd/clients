@@ -152,8 +152,7 @@ jobs:
         run: New-Item -ItemType directory -Path ./dist
 
       - name: Download artifacts
-        shell: bash
-        run: wget https://github.com/bitwarden/clients/releases/download/cli-v${{ env._PKG_VERSION }}/bitwarden-cli.${{ env._PKG_VERSION }}.nupkg
+        run: Invoke-WebRequest -Uri "https://github.com/bitwarden/clients/releases/download/cli-v${{ env._PKG_VERSION }}/bitwarden-cli.${{ env._PKG_VERSION }}.nupkg" -OutFile bitwarden-cli.${{ env._PKG_VERSION }}.nupkg
 
       - name: Push to Chocolatey
         if: ${{ inputs.publish_type != 'Dry Run' }}
