@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnInit, Output } from "@angular/core";
+import { Component, Input, OnInit } from "@angular/core";
 import { DomSanitizer, SafeUrl } from "@angular/platform-browser";
 
 import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
@@ -24,7 +24,6 @@ export class SendAccessFileComponent implements OnInit {
   @Input() send: SendAccessView;
   @Input() decKey: SymmetricCryptoKey;
   @Input() accessRequest: SendAccessRequest;
-  @Output() preview = new EventEmitter<void>();
 
   imageFileExtensions = ["jpg", "jpeg", "png", "avif"];
   imageMimeTypes = {
