@@ -28,11 +28,7 @@ import { WebCipherFormGenerationService } from "../../../../../../libs/vault/src
 import { CipherViewComponent } from "../../../../../../libs/vault/src/cipher-view/cipher-view.component";
 import { SharedModule } from "../../shared/shared.module";
 
-import {
-  AttachmentDialogCloseResult,
-  AttachmentDialogResult,
-  AttachmentsV2Component,
-} from "./attachments-v2.component";
+import { AttachmentsV2Component } from "./attachments-v2.component";
 
 export interface AddEditCipherDialogParams {
   cipher: CipherView;
@@ -86,7 +82,6 @@ export class AddEditComponentV2 implements OnInit, OnDestroy {
   constructor(
     @Inject(DIALOG_DATA) public params: AddEditCipherDialogParams,
     private dialogRef: DialogRef<AddEditCipherDialogCloseResult>,
-    private attachmentDialogRef: DialogRef<AttachmentDialogCloseResult>,
     private i18nService: I18nService,
     private dialogService: DialogService,
     private messagingService: MessagingService,
@@ -187,13 +182,6 @@ export class AddEditComponentV2 implements OnInit, OnDestroy {
         },
       },
     );
-  }
-
-  /**
-   * Closes the attachments dialog.
-   */
-  closeAttachmentsDialog() {
-    this.attachmentDialogRef.close({ action: AttachmentDialogResult.Closed });
   }
 }
 
