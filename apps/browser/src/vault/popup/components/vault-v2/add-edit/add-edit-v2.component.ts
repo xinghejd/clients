@@ -2,12 +2,12 @@ import { CommonModule } from "@angular/common";
 import { Component, OnInit } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormsModule } from "@angular/forms";
-import { ActivatedRoute, Router } from "@angular/router";
+import { ActivatedRoute, Params, Router } from "@angular/router";
 import { firstValueFrom, map, switchMap } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { CipherId } from "@bitwarden/common/types/guid";
+import { CipherId, CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { AsyncActionsModule, ButtonModule, SearchModule } from "@bitwarden/components";
@@ -21,7 +21,6 @@ import {
   TotpCaptureService,
 } from "@bitwarden/vault";
 
-import { CipherFormQueryParams } from "../../../../../../../../libs/vault/src/cipher-form/cipher-form-query-params";
 import { BrowserFido2UserInterfaceSession } from "../../../../../autofill/fido2/services/browser-fido2-user-interface.service";
 import BrowserPopupUtils from "../../../../../platform/popup/browser-popup-utils";
 import { PopOutComponent } from "../../../../../platform/popup/components/pop-out.component";
@@ -39,7 +38,69 @@ import {
 import { VaultPopoutType } from "../../../utils/vault-popout-window";
 import { OpenAttachmentsComponent } from "../attachments/open-attachments/open-attachments.component";
 
-export type AddEditQueryParams = Partial<Record<keyof CipherFormQueryParams, string>>;
+/**
+ * Helper class to parse query parameters for the AddEdit route.
+ */
+class QueryParams {
+  constructor(params: Params) {
+    this.cipherId = params.cipherId;
+    this.type = params.type != undefined ? parseInt(params.type, null) : undefined;
+    this.clone = params.clone === "true";
+    this.folderId = params.folderId;
+    this.organizationId = params.organizationId;
+    this.collectionId = params.collectionId;
+    this.uri = params.uri;
+    this.username = params.username;
+    this.name = params.name;
+  }
+
+  /**
+   * The ID of the cipher to edit or clone.
+   */
+  cipherId?: CipherId;
+
+  /**
+   * The type of cipher to create.
+   */
+  type?: CipherType;
+
+  /**
+   * Whether to clone the cipher.
+   */
+  clone?: boolean;
+
+  /**
+   * Optional folderId to pre-select.
+   */
+  folderId?: string;
+
+  /**
+   * Optional organizationId to pre-select.
+   */
+  organizationId?: OrganizationId;
+
+  /**
+   * Optional collectionId to pre-select.
+   */
+  collectionId?: CollectionId;
+
+  /**
+   * Optional URI to pre-fill for login ciphers.
+   */
+  uri?: string;
+
+  /**
+   * Optional username to pre-fill for login/identity ciphers.
+   */
+  username?: string;
+
+  /**
+   * Optional name to pre-fill for the cipher.
+   */
+  name?: string;
+}
+
+export type AddEditQueryParams = Partial<Record<keyof QueryParams, string>>;
 
 @Component({
   selector: "app-add-edit-v2",
@@ -176,7 +237,7 @@ export class AddEditV2Component implements OnInit {
     this.route.queryParams
       .pipe(
         takeUntilDestroyed(),
-        map((params) => new CipherFormQueryParams(params)),
+        map((params) => new QueryParams(params)),
         switchMap(async (params) => {
           let mode: CipherFormMode;
           if (params.cipherId == null) {
@@ -205,7 +266,7 @@ export class AddEditV2Component implements OnInit {
       });
   }
 
-  setInitialValuesFromParams(params: CipherFormQueryParams, config: CipherFormConfig) {
+  setInitialValuesFromParams(params: QueryParams, config: CipherFormConfig) {
     config.initialValues = {};
     if (params.folderId) {
       config.initialValues.folderId = params.folderId;
