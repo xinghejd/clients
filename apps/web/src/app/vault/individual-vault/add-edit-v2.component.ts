@@ -2,7 +2,6 @@ import { DIALOG_DATA, DialogConfig, DialogRef } from "@angular/cdk/dialog";
 import { CommonModule } from "@angular/common";
 import { Component, Inject, OnInit, OnDestroy } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { Router } from "@angular/router";
 import { Subject } from "rxjs";
 
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
@@ -17,11 +16,9 @@ import { AsyncActionsModule, DialogModule, DialogService, ItemModule } from "@bi
 import {
   CipherAttachmentsComponent,
   CipherFormConfig,
-  CipherFormConfigService,
   CipherFormGenerationService,
   CipherFormMode,
   CipherFormModule,
-  DefaultCipherFormConfigService,
 } from "@bitwarden/vault";
 
 import { WebCipherFormGenerationService } from "../../../../../../libs/vault/src/cipher-form/services/web-cipher-form-generation.service";
@@ -32,6 +29,7 @@ import { AttachmentsV2Component } from "./attachments-v2.component";
 
 export interface AddEditCipherDialogParams {
   cipher: CipherView;
+  cipherType?: CipherType;
   cloneMode?: boolean;
   cipherFormConfig: CipherFormConfig;
 }
@@ -64,10 +62,7 @@ export interface AddEditCipherDialogCloseResult {
     CipherAttachmentsComponent,
     ItemModule,
   ],
-  providers: [
-    { provide: CipherFormConfigService, useClass: DefaultCipherFormConfigService },
-    { provide: CipherFormGenerationService, useClass: WebCipherFormGenerationService },
-  ],
+  providers: [{ provide: CipherFormGenerationService, useClass: WebCipherFormGenerationService }],
 })
 export class AddEditComponentV2 implements OnInit, OnDestroy {
   cipher: CipherView;
@@ -87,7 +82,6 @@ export class AddEditComponentV2 implements OnInit, OnDestroy {
     private dialogService: DialogService,
     private messagingService: MessagingService,
     private organizationService: OrganizationService,
-    private router: Router,
     private billingAccountProfileStateService: BillingAccountProfileStateService,
   ) {
     this.billingAccountProfileStateService.hasPremiumFromAnySource$
@@ -103,15 +97,15 @@ export class AddEditComponentV2 implements OnInit, OnDestroy {
   async ngOnInit() {
     this.cipher = this.params.cipher;
     this.cipherId = this.cipher?.id as CipherId;
-    this.cipherType = this.params.cipherFormConfig?.cipherType;
-    this.cloneMode = this.params.cloneMode;
+    this.cipherType = this.params.cipherType || this.params.cipherFormConfig?.cipherType;
+    this.cloneMode = this.params.cloneMode || false;
     this.config = this.params.cipherFormConfig;
 
     if (this.cipher && this.cipher.organizationId) {
       this.organization = await this.organizationService.get(this.cipher.organizationId);
     }
 
-    this.headerText = this.setHeader(this.config.mode, this.cipherType);
+    this.headerText = this.setHeader(this.config?.mode, this.cipherType);
   }
 
   /**

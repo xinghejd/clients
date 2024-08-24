@@ -1,7 +1,7 @@
 import { DatePipe, NgIf } from "@angular/common";
-import { Component, inject, OnInit, Optional, Output, EventEmitter } from "@angular/core";
+import { Component, inject, OnInit, Optional } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { FormBuilder, FormGroup, ReactiveFormsModule } from "@angular/forms";
+import { FormBuilder, ReactiveFormsModule } from "@angular/forms";
 import { map } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
@@ -25,8 +25,6 @@ import {
 } from "@bitwarden/components";
 
 import { CipherFormGenerationService } from "../../abstractions/cipher-form-generation.service";
-import { WebCipherFormGenerationService } from "../../services/web-cipher-form-generation.service";
-import { DefaultCipherFormGenerationService } from "../../services/default-cipher-form-generation.service";
 import { TotpCaptureService } from "../../abstractions/totp-capture.service";
 import { CipherFormContainer } from "../../cipher-form-container";
 import { AutofillOptionsComponent } from "../autofill-options/autofill-options.component";
@@ -50,9 +48,6 @@ import { AutofillOptionsComponent } from "../autofill-options/autofill-options.c
     AutofillOptionsComponent,
     LinkModule,
   ],
-  // providers: [
-  //   { provide: CipherFormGenerationService, useClass: DefaultCipherFormGenerationService },
-  // ],
 })
 export class LoginDetailsSectionComponent implements OnInit {
   loginDetailsForm = this.formBuilder.group({
@@ -69,7 +64,7 @@ export class LoginDetailsSectionComponent implements OnInit {
   /**
    * Flag indicating whether the extension refresh feature flag is enabled.
    */
-  private extensionRefreshEnabled: boolean = false;
+  extensionRefreshEnabled: boolean = false;
 
   /**
    * Whether the TOTP field can be captured from the current tab. Only available in the browser extension.

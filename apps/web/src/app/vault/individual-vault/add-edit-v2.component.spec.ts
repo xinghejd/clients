@@ -25,7 +25,6 @@ import { AddEditCipherDialogParams, AddEditComponentV2 } from "./add-edit-v2.com
 describe("AddEditComponentV2", () => {
   let component: AddEditComponentV2;
   let fixture: ComponentFixture<AddEditComponentV2>;
-  let router: Router;
   let organizationService: MockProxy<OrganizationService>;
   let policyService: MockProxy<PolicyService>;
   let billingAccountProfileStateService: MockProxy<BillingAccountProfileStateService>;
@@ -112,7 +111,6 @@ describe("AddEditComponentV2", () => {
 
     fixture = TestBed.createComponent(AddEditComponentV2);
     component = fixture.componentInstance;
-    router = TestBed.inject(Router);
     component.params = mockParams;
     component.cipher = mockCipher;
   });
@@ -129,18 +127,10 @@ describe("AddEditComponentV2", () => {
   describe("cancel", () => {
     it("handles cancel action", async () => {
       const spyClose = jest.spyOn(dialogRef, "close");
-      const spyNavigate = jest.spyOn(router, "navigate").mockResolvedValue(true);
 
       await component.cancel();
 
       expect(spyClose).toHaveBeenCalled();
-      expect(spyNavigate).toHaveBeenCalledWith([], {
-        queryParams: {
-          itemId: null,
-          action: null,
-          organizationId: null,
-        },
-      });
     });
   });
 });

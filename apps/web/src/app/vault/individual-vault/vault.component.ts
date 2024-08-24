@@ -47,7 +47,7 @@ import { MessagingService } from "@bitwarden/common/platform/abstractions/messag
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { SyncService } from "@bitwarden/common/platform/sync";
-import { CipherId, OrganizationId } from "@bitwarden/common/types/guid";
+import { CipherId, OrganizationId, CollectionId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CollectionService } from "@bitwarden/common/vault/abstractions/collection.service";
 import { TotpService } from "@bitwarden/common/vault/abstractions/totp.service";
@@ -651,13 +651,11 @@ export class VaultComponent implements OnInit, OnDestroy {
   }
 
   async addCipher(cipherType?: CipherType) {
-    let component;
     if (this.extensionRefreshEnabled) {
-      component = (await this.editCipher(null, cipherType)) as AddEditComponentV2;
-      return component;
+      return this.addCipherV2(cipherType);
     }
 
-    component = (await this.editCipher(null)) as AddEditComponent;
+    const component = (await this.editCipher(null)) as AddEditComponent;
     component.type = cipherType || this.activeFilter.cipherType;
     if (
       this.activeFilter.organizationId !== "MyVault" &&
@@ -679,6 +677,36 @@ export class VaultComponent implements OnInit, OnDestroy {
       }
     }
     component.folderId = this.activeFilter.folderId;
+  }
+
+  /**
+   * Opens the add cipher dialog.
+   * @param cipherType The type of cipher to add.
+   * @returns The dialog reference.
+   */
+  async addCipherV2(cipherType?: CipherType) {
+    const config = await this.cipherFormConfigService.buildConfig("add", null, cipherType);
+    config.initialValues = {
+      organizationId:
+        this.activeFilter.organizationId !== "MyVault" && this.activeFilter.organizationId != null
+          ? (this.activeFilter.organizationId as OrganizationId)
+          : null,
+      collectionIds:
+        this.activeFilter.collectionId !== "AllCollections" &&
+        this.activeFilter.collectionId != null
+          ? [this.activeFilter.collectionId as CollectionId]
+          : [],
+      folderId: this.activeFilter.folderId,
+    };
+
+    return openAddEditCipherDialog(this.dialogService, {
+      data: {
+        cipher: null,
+        cipherType: cipherType || this.activeFilter.cipherType,
+        cloneMode: false,
+        cipherFormConfig: config,
+      },
+    });
   }
 
   async navigateToCipher(cipher: CipherView) {
