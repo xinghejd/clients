@@ -48,6 +48,9 @@ jobs:
       release-version: ${{ steps.version-output.outputs.version }}
       deployment-id: ${{ steps.deployment.outputs.deployment-id }}
     steps:
+      - name: Checkout repo
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+
       - name: Version output
         id: version-output
         run: |
