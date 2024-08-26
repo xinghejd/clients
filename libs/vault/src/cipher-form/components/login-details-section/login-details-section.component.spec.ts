@@ -4,6 +4,7 @@ import { ComponentFixture, fakeAsync, TestBed, tick } from "@angular/core/testin
 import { mock, MockProxy } from "jest-mock-extended";
 
 import { AuditService } from "@bitwarden/common/abstractions/audit.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { Fido2CredentialView } from "@bitwarden/common/vault/models/view/fido2-credential.view";
@@ -34,6 +35,7 @@ describe("LoginDetailsSectionComponent", () => {
   let toastService: MockProxy<ToastService>;
   let totpCaptureService: MockProxy<TotpCaptureService>;
   let i18nService: MockProxy<I18nService>;
+  let configService: MockProxy<ConfigService>;
 
   beforeEach(async () => {
     cipherFormContainer = mock<CipherFormContainer>();
@@ -43,6 +45,7 @@ describe("LoginDetailsSectionComponent", () => {
     toastService = mock<ToastService>();
     totpCaptureService = mock<TotpCaptureService>();
     i18nService = mock<I18nService>();
+    configService = mock<ConfigService>();
 
     await TestBed.configureTestingModule({
       imports: [LoginDetailsSectionComponent],
@@ -53,6 +56,7 @@ describe("LoginDetailsSectionComponent", () => {
         { provide: ToastService, useValue: toastService },
         { provide: TotpCaptureService, useValue: totpCaptureService },
         { provide: I18nService, useValue: i18nService },
+        { provide: ConfigService, useValue: configService },
       ],
     })
       .overrideComponent(LoginDetailsSectionComponent, {

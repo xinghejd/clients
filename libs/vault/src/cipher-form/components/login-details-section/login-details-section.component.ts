@@ -6,6 +6,8 @@ import { map } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { AuditService } from "@bitwarden/common/abstractions/audit.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Fido2CredentialView } from "@bitwarden/common/vault/models/view/fido2-credential.view";
 import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
@@ -60,6 +62,11 @@ export class LoginDetailsSectionComponent implements OnInit {
   newPasswordGenerated: boolean;
 
   /**
+   * Flag indicating whether the extension refresh feature flag is enabled.
+   */
+  extensionRefreshEnabled: boolean = false;
+
+  /**
    * Whether the TOTP field can be captured from the current tab. Only available in the browser extension.
    */
   get canCaptureTotp() {
@@ -102,6 +109,7 @@ export class LoginDetailsSectionComponent implements OnInit {
     private generationService: CipherFormGenerationService,
     private auditService: AuditService,
     private toastService: ToastService,
+    private configService: ConfigService,
     @Optional() private totpCaptureService?: TotpCaptureService,
   ) {
     this.cipherFormContainer.registerChildForm("loginDetails", this.loginDetailsForm);
@@ -135,6 +143,10 @@ export class LoginDetailsSectionComponent implements OnInit {
     if (this.cipherFormContainer.config.mode === "partial-edit") {
       this.loginDetailsForm.disable();
     }
+
+    this.extensionRefreshEnabled = await this.configService.getFeatureFlag(
+      FeatureFlag.ExtensionRefresh,
+    );
   }
 
   private initFromExistingCipher(existingLogin: LoginView) {
