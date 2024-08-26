@@ -1174,6 +1174,9 @@
   "premiumPurchaseAlert": {
     "message": "Puoi acquistare il un abbonamento Premium dalla cassaforte web su bitwarden.com. Vuoi visitare il sito?"
   },
+  "premiumPurchaseAlertV2": {
+    "message": "You can purchase Premium from your account settings on the Bitwarden web app."
+  },
   "premiumCurrentMember": {
     "message": "Sei un membro Premium!"
   },
@@ -1814,7 +1817,7 @@
     "message": "L'autenticazione biometrica del browser richiede che l'autenticazione biometrica del desktop sia stata già impostata nelle impostazioni."
   },
   "biometricsManualSetupTitle": {
-    "message": "Autometic setup not available"
+    "message": "Automatic setup not available"
   },
   "biometricsManualSetupDesc": {
     "message": "Due to the installation method, biometrics support could not be automatically enabled. Would you like to open the documentation on how to do this manually?"
