@@ -25,9 +25,6 @@
   "finishCreatingYourAccountBySettingAPassword": {
     "message": "Bir parol təyin edərək hesabınızı yaratmağı başa çatdırın"
   },
-  "login": {
-    "message": "Giriş et"
-  },
   "enterpriseSingleSignOn": {
     "message": "Müəssisə üçün tək daxil olma"
   },
@@ -1083,7 +1080,7 @@
     "message": "Fayl qoşmaları üçün 1 GB şifrələnmiş saxlama sahəsi"
   },
   "premiumSignUpEmergency": {
-    "message": "Emergency access"
+    "message": "Fövqəladə hal müraciəti"
   },
   "premiumSignUpTwoStepOptions": {
     "message": "YubiKey və Duo kimi mülkiyyətçi iki addımlı giriş seçimləri."
@@ -1107,7 +1104,7 @@
     "message": "Premium üzvlüyü bitwarden.com veb anbarında satın ala bilərsiniz. İndi saytı ziyarət etmək istəyirsiniz?"
   },
   "premiumPurchaseAlertV2": {
-    "message": "You can purchase Premium from your account settings on the Bitwarden web app."
+    "message": "Bitwarden veb tətbiqindəki hesab ayarlarınızda Premium satın ala bilərsiniz."
   },
   "premiumCurrentMember": {
     "message": "Premium üzvsünüz!"
@@ -1115,7 +1112,19 @@
   "premiumCurrentMemberThanks": {
     "message": "Bitwarden-i dəstəklədiyiniz üçün təşəkkürlər!"
   },
+  "premiumFeatures": {
+    "message": "Premium-a yüksəlt və bunları əldə et:"
+  },
   "premiumPrice": {
+    "message": "Hamısı sadəcə ildə $PRICE$!",
+    "placeholders": {
+      "price": {
+        "content": "$1",
+        "example": "$10"
+      }
+    }
+  },
+  "premiumPriceV2": {
     "message": "Hamısı sadəcə ildə $PRICE$!",
     "placeholders": {
       "price": {
@@ -2305,11 +2314,11 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "createdSendSuccessfully": {
-    "message": "Send created successfully!",
+    "message": "Send uğurla yaradıldı!",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendAvailability": {
-    "message": "The Send will be available to anyone with the link for the next $DAYS$ days.",
+    "message": "Send, növbəti $DAYS$ ərzində keçidə sahib olan hər kəsə əlçatan olacaq.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
     "placeholders": {
       "days": {
@@ -2319,7 +2328,7 @@
     }
   },
   "sendLinkCopied": {
-    "message": "Send link copied",
+    "message": "Send keçidi kopyalandı",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "editedSend": {
@@ -3960,6 +3969,12 @@
   "autoFillOnPageLoad": {
     "message": "Səhifə yüklənəndə avto-doldurulsun?"
   },
+  "cardExpiredTitle": {
+    "message": "Vaxtı bitmiş kart"
+  },
+  "cardExpiredMessage": {
+    "message": "Yeniləmisinizsə, kart məlumatlarınızı güncəlləyin"
+  },
   "cardDetails": {
     "message": "Kart detalları"
   },
@@ -3971,6 +3986,9 @@
         "example": "Visa"
       }
     }
+  },
+  "enableAnimations": {
+    "message": "Animasiyaları fəallaşdır"
   },
   "addAccount": {
     "message": "Hesab əlavə et"

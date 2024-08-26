@@ -25,9 +25,6 @@
   "finishCreatingYourAccountBySettingAPassword": {
     "message": "Finish creating your account by setting a password"
   },
-  "login": {
-    "message": "Log in"
-  },
   "enterpriseSingleSignOn": {
     "message": "Enterprise single sign-on"
   },
@@ -1116,7 +1113,7 @@
     "message": "Thank you for supporting Bitwarden."
   },
   "premiumFeatures": {
-    "message": "Upgrade to premium and receive:"
+    "message": "Upgrade to Premium and receive:"
   },
   "premiumPrice": {
     "message": "All for just $PRICE$ /year!",
@@ -3989,6 +3986,9 @@
         "example": "Visa"
       }
     }
+  },
+  "enableAnimations": {
+    "message": "Enable animations"
   },
   "addAccount": {
     "message": "Add account"
