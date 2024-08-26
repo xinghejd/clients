@@ -26,13 +26,31 @@ import { SharedModule } from "../../shared/shared.module";
 
 import { AttachmentsV2Component } from "./attachments-v2.component";
 
+/**
+ * Parameters for the AddEditCipherDialogV2 component.
+ */
 export interface AddEditCipherDialogParams {
+  /**
+   * The cipher to edit.
+   */
   cipher: CipherView;
+  /**
+   * The type of the cipher.
+   */
   cipherType?: CipherType;
+  /**
+   * Whether the cipher is being cloned.
+   */
   cloneMode?: boolean;
+  /**
+   * The configuration for the cipher form.
+   */
   cipherFormConfig: CipherFormConfig;
 }
 
+/**
+ * The result of the AddEditCipherDialogV2 component.
+ */
 export enum AddEditCipherDialogResult {
   Edited = "edited",
   Deleted = "deleted",
@@ -40,6 +58,9 @@ export enum AddEditCipherDialogResult {
   Canceled = "canceled",
 }
 
+/**
+ * The close result of the AddEditCipherDialogV2 component.
+ */
 export interface AddEditCipherDialogCloseResult {
   action: AddEditCipherDialogResult;
 }
@@ -74,6 +95,15 @@ export class AddEditComponentV2 implements OnInit, OnDestroy {
   protected destroy$ = new Subject<void>();
   canAccessAttachments: boolean = false;
 
+  /**
+   * Constructor for the AddEditComponentV2 component.
+   * @param params The parameters for the component.
+   * @param dialogRef The reference to the dialog.
+   * @param i18nService The internationalization service.
+   * @param dialogService The dialog service.
+   * @param organizationService The organization service.
+   * @param billingAccountProfileStateService The billing account profile state service.
+   */
   constructor(
     @Inject(DIALOG_DATA) public params: AddEditCipherDialogParams,
     private dialogRef: DialogRef<AddEditCipherDialogCloseResult>,
