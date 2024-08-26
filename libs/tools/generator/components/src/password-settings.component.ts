@@ -28,10 +28,10 @@ const Controls = Object.freeze({
 @Component({
   standalone: true,
   selector: "bit-password-settings",
-  templateUrl: "password.component.html",
+  templateUrl: "password-settings.component.html",
   imports: [DependenciesModule],
 })
-export class PasswordComponent implements OnInit, OnDestroy {
+export class PasswordSettingsComponent implements OnInit, OnDestroy {
   /** Instantiates the component
    *  @param accountService queries user availability
    *  @param generatorService settings and policy logic
