@@ -383,17 +383,41 @@
   "passwordMinLength": {
     "message": "Minimum password length"
   },
+  "include": {
+    "message": "Include",
+    "description": "Card header for password generator include block"
+  },
+  "uppercaseDescription": {
+    "message": "Include uppercase characters",
+    "description": "Tooltip for the password generator uppercase character checkbox"
+  },
   "uppercase": {
-    "message": "Uppercase (A-Z)"
+    "message": "A-Z",
+    "description": "Label for the password generator uppercase character checkbox"
+  },
+  "lowercaseDescription": {
+    "message": "Include lowercase characters",
+    "description": "Full description for the password generator lowercase character checkbox"
   },
   "lowercase": {
-    "message": "Lowercase (a-z)"
+    "message": "a-z",
+    "description": "Label for the password generator lowercase character checkbox"
+  },
+  "numbersDescription": {
+    "message": "Include numbers",
+    "description": "Full description for the password generator numbers checkbox"
   },
   "numbers": {
-    "message": "Numbers (0-9)"
+    "message": "0-9",
+    "description": "Label for the password generator numbers checkbox"
+  },
+  "specialCharactersDescription": {
+    "message": "Include special characters",
+    "description": "Full description for the password generator special characters checkbox"
   },
   "specialCharacters": {
-    "message": "Special characters (!@#$%^&*)"
+    "message": "!@#$%^&*",
+    "description": "Label for the password generator special characters checkbox"
   },
   "numWords": {
     "message": "Number of words"
@@ -414,7 +438,7 @@
   "minSpecial": {
     "message": "Minimum special"
   },
-  "avoidAmbChar": {
+  "ambiguous": {
     "message": "Avoid ambiguous characters"
   },
   "searchVault": {

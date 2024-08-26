@@ -17,7 +17,7 @@ const Controls = Object.freeze({
   length: "length",
   uppercase: "uppercase",
   lowercase: "lowercase",
-  number: "number",
+  numbers: "numbers",
   special: "special",
   minNumber: "minNumber",
   minSpecial: "minSpecial",
@@ -66,7 +66,7 @@ export class PasswordComponent implements OnInit, OnDestroy {
     [Controls.length]: [Generators.Password.settings.initial.length],
     [Controls.uppercase]: [Generators.Password.settings.initial.uppercase],
     [Controls.lowercase]: [Generators.Password.settings.initial.lowercase],
-    [Controls.number]: [Generators.Password.settings.initial.number],
+    [Controls.numbers]: [Generators.Password.settings.initial.number],
     [Controls.special]: [Generators.Password.settings.initial.special],
     [Controls.minNumber]: [Generators.Password.settings.initial.minNumber],
     [Controls.minSpecial]: [Generators.Password.settings.initial.minSpecial],
@@ -127,13 +127,13 @@ export class PasswordComponent implements OnInit, OnDestroy {
           policy.minSpecial?.max ?? Generators.Password.settings.constraints.minSpecial.max;
 
         const toggles = [
-          [Controls.length, policy.length.min === policy.length.max],
+          [Controls.length, policy.length.min < policy.length.max],
           [Controls.uppercase, !policy.policy.useUppercase],
           [Controls.lowercase, !policy.policy.useLowercase],
-          [Controls.number, !policy.policy.useNumbers],
+          [Controls.numbers, !policy.policy.useNumbers],
           [Controls.special, !policy.policy.useSpecial],
-          [Controls.minNumber, policy.minNumber.min === policy.minNumber.max],
-          [Controls.minSpecial, policy.minSpecial.min === policy.minSpecial.max],
+          [Controls.minNumber, policy.minNumber.min < policy.minNumber.max],
+          [Controls.minSpecial, policy.minSpecial.min < policy.minSpecial.max],
         ] as [keyof typeof Controls, boolean][];
 
         for (const [control, enabled] of toggles) {
