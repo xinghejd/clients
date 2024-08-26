@@ -1,12 +1,16 @@
-import { Directive, ElementRef, HostBinding, Input, Optional } from "@angular/core";
+import { CommonModule } from "@angular/common";
+import { Component, ElementRef, HostBinding, Input, Optional } from "@angular/core";
 
 import { FormControlComponent } from "./form-control.component";
 
 // Increments for each instance of this component
 let nextId = 0;
 
-@Directive({
+@Component({
   selector: "bit-label",
+  standalone: true,
+  templateUrl: "label.component.html",
+  imports: [CommonModule],
 })
 export class BitLabel {
   constructor(
@@ -15,16 +19,16 @@ export class BitLabel {
   ) {}
 
   @HostBinding("class") @Input() get classList() {
-    const classes = ["tw-inline-flex", "tw-gap-1", "tw-items-baseline", "tw-flex-row"];
-    /**
-     * We don't want to truncate checkboxes or radio buttons, which use form-control
-     */
-    return this.parentFormControl ? classes : classes.concat(["tw-truncate"]);
+    return ["tw-inline-flex", "tw-gap-1", "tw-items-baseline", "tw-flex-row", "tw-min-w-0"];
   }
 
   @HostBinding("title") get title() {
-    return this.elementRef.nativeElement.textContent;
+    return this.elementRef.nativeElement.textContent.trim();
   }
 
   @HostBinding() @Input() id = `bit-label-${nextId++}`;
+
+  get isInsideFormControl() {
+    return !!this.parentFormControl;
+  }
 }
