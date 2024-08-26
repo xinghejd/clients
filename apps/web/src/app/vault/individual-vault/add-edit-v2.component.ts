@@ -8,7 +8,6 @@ import { OrganizationService } from "@bitwarden/common/admin-console/abstraction
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { CipherId } from "@bitwarden/common/types/guid";
 import { CipherType } from "@bitwarden/common/vault/enums/cipher-type";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
@@ -80,7 +79,6 @@ export class AddEditComponentV2 implements OnInit, OnDestroy {
     private dialogRef: DialogRef<AddEditCipherDialogCloseResult>,
     private i18nService: I18nService,
     private dialogService: DialogService,
-    private messagingService: MessagingService,
     private organizationService: OrganizationService,
     private billingAccountProfileStateService: BillingAccountProfileStateService,
   ) {
@@ -121,14 +119,6 @@ export class AddEditComponentV2 implements OnInit, OnDestroy {
    */
   get loading() {
     return this.config == null;
-  }
-
-  /**
-   * Handles the event when a cipher is saved.
-   * @param cipher The saved cipher.
-   */
-  async onCipherSaved(cipher: CipherView) {
-    this.messagingService.send(cipher.edit ? "editedCipher" : "addedCipher");
   }
 
   /**
