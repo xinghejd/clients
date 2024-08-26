@@ -54,6 +54,7 @@ import { TotpService } from "@bitwarden/common/vault/abstractions/totp.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherRepromptType } from "@bitwarden/common/vault/enums/cipher-reprompt-type";
 import { CollectionData } from "@bitwarden/common/vault/models/data/collection.data";
+import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
 import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
 import { CollectionDetailsResponse } from "@bitwarden/common/vault/models/response/collection.response";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
@@ -731,42 +732,8 @@ export class VaultComponent implements OnInit, OnDestroy {
     }
 
     if (this.extensionRefreshEnabled) {
-      const activeUserId = await firstValueFrom(
-        this.accountService.activeAccount$.pipe(map((a) => a?.id)),
-      );
-
-      // Decrypt the cipher.
-      const cipherView = await cipher.decrypt(
-        await this.cipherService.getKeyForCipherKeyDecryption(cipher, activeUserId),
-      );
-
-      const cipherFormConfig = await this.cipherFormConfigService.buildConfig(
-        "edit",
-        cipher.id as CipherId,
-        cipher.type,
-      );
-
-      const dialogRef = openAddEditCipherDialog(this.dialogService, {
-        data: {
-          cipher: cipherView,
-          cloneMode: cloneMode,
-          cipherFormConfig,
-        },
-      });
-
-      const result: AddEditCipherDialogCloseResult = await firstValueFrom(dialogRef.closed);
-
-      if (
-        result.action === AddEditCipherDialogResult.Added ||
-        result.action === AddEditCipherDialogResult.Edited ||
-        result.action === AddEditCipherDialogResult.Deleted
-      ) {
-        this.refresh();
-      }
-
-      this.go({ cipherId: null, itemId: null });
-
-      return dialogRef.componentInstance;
+      await this.editCipherIdV2(cipher, cloneMode);
+      return;
     }
 
     const [modal, childComponent] = await this.modalService.openViewRef(
@@ -796,6 +763,49 @@ export class VaultComponent implements OnInit, OnDestroy {
     });
 
     return childComponent;
+  }
+
+  /**
+   * Edit a cipher using the new AddEditCipherDialogV2 component.
+   *
+   * @param cipher
+   * @param cloneMode
+   */
+  private async editCipherIdV2(cipher: Cipher, cloneMode?: boolean) {
+    const activeUserId = await firstValueFrom(
+      this.accountService.activeAccount$.pipe(map((a) => a?.id)),
+    );
+
+    // Decrypt the cipher.
+    const cipherView = await cipher.decrypt(
+      await this.cipherService.getKeyForCipherKeyDecryption(cipher, activeUserId),
+    );
+
+    const cipherFormConfig = await this.cipherFormConfigService.buildConfig(
+      "edit",
+      cipher.id as CipherId,
+      cipher.type,
+    );
+
+    const dialogRef = openAddEditCipherDialog(this.dialogService, {
+      data: {
+        cipher: cipherView,
+        cloneMode: cloneMode,
+        cipherFormConfig,
+      },
+    });
+
+    const result: AddEditCipherDialogCloseResult = await firstValueFrom(dialogRef.closed);
+
+    if (
+      result.action === AddEditCipherDialogResult.Added ||
+      result.action === AddEditCipherDialogResult.Edited ||
+      result.action === AddEditCipherDialogResult.Deleted
+    ) {
+      this.refresh();
+    }
+
+    this.go({ cipherId: null, itemId: null });
   }
 
   /**
