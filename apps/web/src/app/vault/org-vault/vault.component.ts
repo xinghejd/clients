@@ -840,6 +840,7 @@ export class VaultComponent implements OnInit, OnDestroy {
     }
 
     await this.editCipher(null, cipherType, false, null, (comp) => {
+      comp.type = cipherType || this.activeFilter.cipherType;
       comp.collections = collections;
       if (this.activeFilter.collectionId) {
         comp.collectionIds = [this.activeFilter.collectionId];

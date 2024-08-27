@@ -114,8 +114,6 @@ export class VaultHeaderComponent implements OnInit {
     this.extensionRefreshEnabled = await this.configService.getFeatureFlag(
       FeatureFlag.ExtensionRefresh,
     );
-
-    this.extensionRefreshEnabled = true;
   }
 
   get title() {
