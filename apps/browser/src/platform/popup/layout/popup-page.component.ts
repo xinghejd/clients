@@ -1,3 +1,4 @@
+import { ScrollingModule } from "@angular/cdk/scrolling";
 import { CommonModule } from "@angular/common";
 import { booleanAttribute, Component, inject, Input, signal } from "@angular/core";
 
@@ -10,7 +11,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
   host: {
     class: "tw-h-full tw-flex tw-flex-col tw-flex-1 tw-overflow-y-hidden",
   },
-  imports: [CommonModule],
+  imports: [CommonModule, ScrollingModule],
 })
 export class PopupPageComponent {
   protected i18nService = inject(I18nService);

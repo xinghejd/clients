@@ -1,13 +1,19 @@
+import { ScrollDispatcher } from "@angular/cdk/scrolling";
 import {
+  AfterViewInit,
   Component,
   ContentChildren,
+  DestroyRef,
   HostBinding,
+  inject,
+  Injectable,
   Input,
   Optional,
   QueryList,
   Self,
   ViewChild,
 } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ControlValueAccessor, NgControl, Validators } from "@angular/forms";
 import { NgSelectComponent } from "@ng-select/ng-select";
 
@@ -20,12 +26,33 @@ import { OptionComponent } from "./option.component";
 
 let nextId = 0;
 
+@Injectable({
+  providedIn: "root",
+})
+export class SelectScrollStrategy {
+  private scrollDispatcher = inject(ScrollDispatcher);
+
+  closeOnScroll(select: NgSelectComponent, destroyRef: DestroyRef) {
+    this.scrollDispatcher
+      .ancestorScrolled(select.element)
+      .pipe(takeUntilDestroyed(destroyRef))
+      .subscribe(() => {
+        select.close();
+      });
+  }
+}
+
 @Component({
   selector: "bit-select",
   templateUrl: "select.component.html",
   providers: [{ provide: BitFormFieldControl, useExisting: SelectComponent }],
 })
-export class SelectComponent<T> implements BitFormFieldControl, ControlValueAccessor {
+export class SelectComponent<T>
+  implements BitFormFieldControl, ControlValueAccessor, AfterViewInit
+{
+  private scrollStrategy = inject(SelectScrollStrategy);
+  private destroyRef = inject(DestroyRef);
+
   @ViewChild(NgSelectComponent) select: NgSelectComponent;
 
   /** Optional: Options can be provided using an array input or using `bit-option` */
@@ -46,6 +73,10 @@ export class SelectComponent<T> implements BitFormFieldControl, ControlValueAcce
     if (ngControl != null) {
       ngControl.valueAccessor = this;
     }
+  }
+
+  ngAfterViewInit(): void {
+    this.scrollStrategy.closeOnScroll(this.select, this.destroyRef);
   }
 
   @ContentChildren(OptionComponent)

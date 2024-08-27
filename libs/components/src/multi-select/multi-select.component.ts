@@ -2,13 +2,16 @@ import { hasModifierKey } from "@angular/cdk/keycodes";
 import {
   Component,
   Input,
-  OnInit,
   Output,
   ViewChild,
   EventEmitter,
   HostBinding,
   Optional,
   Self,
+  inject,
+  DestroyRef,
+  AfterViewInit,
+  OnInit,
 } from "@angular/core";
 import { ControlValueAccessor, NgControl, Validators } from "@angular/forms";
 import { NgSelectComponent } from "@ng-select/ng-select";
@@ -16,6 +19,7 @@ import { NgSelectComponent } from "@ng-select/ng-select";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
 import { BitFormFieldControl } from "../form-field/form-field-control";
+import { SelectScrollStrategy } from "../select";
 
 import { SelectItemView } from "./models/select-item-view";
 
@@ -30,7 +34,12 @@ let nextId = 0;
 /**
  * This component has been implemented to only support Multi-select list events
  */
-export class MultiSelectComponent implements OnInit, BitFormFieldControl, ControlValueAccessor {
+export class MultiSelectComponent
+  implements OnInit, AfterViewInit, BitFormFieldControl, ControlValueAccessor
+{
+  private scrollStrategy = inject(SelectScrollStrategy);
+  private destroyRef = inject(DestroyRef);
+
   @ViewChild(NgSelectComponent) select: NgSelectComponent;
 
   // Parent component should only pass selectable items (complete list - selected items = baseItems)
@@ -69,6 +78,10 @@ export class MultiSelectComponent implements OnInit, BitFormFieldControl, Contro
     // Default Text Values
     this.placeholder = this.placeholder ?? this.i18nService.t("multiSelectPlaceholder");
     this.loadingText = this.i18nService.t("multiSelectLoading");
+  }
+
+  ngAfterViewInit(): void {
+    this.scrollStrategy.closeOnScroll(this.select, this.destroyRef);
   }
 
   /** Function for customizing keyboard navigation */
