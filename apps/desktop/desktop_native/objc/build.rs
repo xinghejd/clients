@@ -1,16 +1,15 @@
+use glob::glob;
+
 fn main() {
-    // TODO: Auto discover all .m files in the src/native directory
-    cc::Build::new()
-        .file("src/native/commands/status.m")
-        .file("src/native/commands/sync.m")
-        .file("src/native/utils.m")
-        .file("src/native/interop.m")
-        .file("src/native/autofill.m")
+    let mut builder = cc::Build::new();
+
+    // Auto compile all .m files in the src/native directory
+    for entry in glob("src/native/**/*.m").expect("Failed to read glob pattern") {
+        let path = entry.expect("Failed to read glob entry");
+        builder.file(path);
+    }
+
+    builder
         .flag("-fobjc-arc") // Enable Auto Reference Counting (ARC)
         .compile("autofill");
-    println!("cargo::rerun-if-changed=src/native/commands/status.m");
-    println!("cargo::rerun-if-changed=src/native/commands/sync.m");
-    println!("cargo::rerun-if-changed=src/native/utils.m");
-    println!("cargo::rerun-if-changed=src/native/interop.m");
-    println!("cargo::rerun-if-changed=src/native/autofill.m");
 }
