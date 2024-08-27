@@ -1174,6 +1174,9 @@
   "premiumPurchaseAlert": {
     "message": "Svojim članstvom možeš upravljati na bitwarden.com web trezoru. Želiš li sada posjetiti web stranicu?"
   },
+  "premiumPurchaseAlertV2": {
+    "message": "You can purchase Premium from your account settings on the Bitwarden web app."
+  },
   "premiumCurrentMember": {
     "message": "Ti si premium član!"
   },
@@ -1814,7 +1817,7 @@
     "message": "Biometrija preglednika zahtijeva prethodno omogućenu biometriju u Bitwarden desktop aplikaciji."
   },
   "biometricsManualSetupTitle": {
-    "message": "Autometic setup not available"
+    "message": "Automatic setup not available"
   },
   "biometricsManualSetupDesc": {
     "message": "Due to the installation method, biometrics support could not be automatically enabled. Would you like to open the documentation on how to do this manually?"
