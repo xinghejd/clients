@@ -18,10 +18,10 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 
+import { OrganizationInvite } from "../../../../../../libs/auth/src/common/models/domain/organization-invite";
 import { RouterService } from "../../core";
 import { SharedModule } from "../../shared";
 import { AcceptOrganizationInviteService } from "../organization-invite/accept-organization.service";
-import { OrganizationInvite } from "../organization-invite/organization-invite";
 
 import { TrialInitiationComponent } from "./trial-initiation.component";
 import { VerticalStepperComponent } from "./vertical-stepper/vertical-stepper.component";
