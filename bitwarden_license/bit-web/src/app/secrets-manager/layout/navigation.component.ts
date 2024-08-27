@@ -18,6 +18,10 @@ import { Organization } from "@bitwarden/common/admin-console/models/domain/orga
 import { SecretsManagerLogo } from "@bitwarden/web-vault/app/layouts/secrets-manager-logo";
 
 import { OrganizationCounts } from "../models/view/counts.view";
+import {
+  SMOnboardingTasks,
+  SMOnboardingTasksService,
+} from "../overview/sm-onboarding-tasks.service";
 import { ProjectService } from "../projects/project.service";
 import { SecretService } from "../secrets/secret.service";
 import { ServiceAccountService } from "../service-accounts/service-account.service";
@@ -35,6 +39,9 @@ export class NavigationComponent implements OnInit, OnDestroy {
   protected isOrgEnabled$: Observable<boolean>;
   protected organizationCounts: OrganizationCounts;
   private destroy$: Subject<void> = new Subject<void>();
+  showOnboarding: boolean;
+  protected organizationId: string;
+  onboardingTasks$: Observable<SMOnboardingTasks>;
 
   constructor(
     protected route: ActivatedRoute,
@@ -44,9 +51,12 @@ export class NavigationComponent implements OnInit, OnDestroy {
     private secretService: SecretService,
     private serviceAccountService: ServiceAccountService,
     private portingApiService: SecretsManagerPortingApiService,
+    private smOnboardingTasksService: SMOnboardingTasksService,
   ) {}
 
   ngOnInit() {
+    this.onboardingTasks$ = this.smOnboardingTasksService.smOnboardingTasks$;
+
     const org$ = this.route.params.pipe(
       concatMap((params) => this.organizationService.get(params.organizationId)),
       distinctUntilChanged(),
@@ -81,6 +91,18 @@ export class NavigationComponent implements OnInit, OnDestroy {
           secrets: organizationCounts.secrets,
           serviceAccounts: organizationCounts.serviceAccounts,
         };
+      });
+
+    combineLatest([org$, this.onboardingTasks$])
+      .pipe(
+        filter(([org]) => org?.enabled),
+        switchMap(([org]) => {
+          return this.smOnboardingTasksService.findFirstFalseTask(org.isAdmin, org.id);
+        }),
+        takeUntil(this.destroy$),
+      )
+      .subscribe((value) => {
+        this.showOnboarding = value != "";
       });
   }
 

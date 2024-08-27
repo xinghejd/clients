@@ -4,11 +4,13 @@ import { RouterModule, Routes } from "@angular/router";
 import { authGuard } from "@bitwarden/angular/auth/guards";
 
 import { organizationEnabledGuard } from "./guards/sm-org-enabled.guard";
+import { organizationOnboardingGuard } from "./guards/sm-org-onboarding.guard";
 import { canActivateSM } from "./guards/sm.guard";
 import { IntegrationsModule } from "./integrations/integrations.module";
 import { LayoutComponent } from "./layout/layout.component";
 import { NavigationComponent } from "./layout/navigation.component";
 import { OverviewModule } from "./overview/overview.module";
+import { SMOnboardingModule } from "./overview/sm-onboarding.module";
 import { ProjectsModule } from "./projects/projects.module";
 import { SecretsModule } from "./secrets/secrets.module";
 import { ServiceAccountsModule } from "./service-accounts/service-accounts.module";
@@ -38,7 +40,7 @@ const routes: Routes = [
           },
           {
             path: "",
-            canActivate: [organizationEnabledGuard],
+            canActivate: [organizationEnabledGuard, organizationOnboardingGuard],
             children: [
               {
                 path: "secrets",
@@ -85,6 +87,13 @@ const routes: Routes = [
                 pathMatch: "full",
               },
             ],
+          },
+          {
+            path: "sm-onboarding",
+            loadChildren: () => SMOnboardingModule,
+            data: {
+              titleId: "smOnboarding",
+            },
           },
           {
             path: "organization-suspended",

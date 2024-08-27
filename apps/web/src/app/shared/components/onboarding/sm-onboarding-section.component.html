@@ -1,0 +1,23 @@
+<details #details class="tw-rounded-sm tw-text-main tw-mb-8 tw-mr-4" (toggle)="onToggle($event)">
+  <summary class="tw-list-none tw-p-2 tw-px-4 tw-mb-4">
+    <div class="tw-text-2xl tw-font-semibold tw-mb-4">{{ title }}</div>
+    <div class="tw-flex tw-select-none tw-items-center tw-gap-4">
+      <bit-progress class="tw-flex-1" [showText]="false" [barWidth]="barWidth"></bit-progress>
+      <span *ngIf="tasks.length > 0; else spinner">
+        {{ this.getCompletionPercentage + "%" }}
+      </span>
+      <i
+        class="bwi tw-my-auto"
+        [ngClass]="this.open ? 'bwi-angle-down' : 'bwi-angle-right'"
+        aria-hidden="true"
+      ></i>
+    </div>
+  </summary>
+  <ng-container *ngIf="detailsElement?.nativeElement?.open">
+    <ng-content></ng-content>
+  </ng-container>
+</details>
+
+<ng-template #spinner>
+  <i class="bwi bwi-spinner bwi-spin"></i>
+</ng-template>

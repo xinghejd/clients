@@ -1,0 +1,262 @@
+<app-header [title]="'getStarted' | i18n">
+  <sm-new-menu></sm-new-menu>
+</app-header>
+<div class="tw-grid tw-grid-cols-12 tw-gap-4">
+  <div class="tw-col-span-9">
+    <div *ngIf="view$ | async as view">
+      <ng-container *ngIf="!loading">
+        <sm-app-onboarding
+          [title]="'setUpSecretsManagerForYourOrganization' | i18n"
+          [open]="true"
+          *ngIf="userIsAdmin"
+        >
+          <sm-app-onboarding-task
+            *ngIf="userIsAdmin"
+            [title]="'importData' | i18n"
+            [route]="['../settings', 'import']"
+            [description]="'importDataDescriptionOnboarding' | i18n"
+            [completed]="view.tasks.importData"
+            [onCompleteButtonPress]="completeImportData.bind(this)"
+            [open]="'importData' === firstIncompleteTaskKey"
+          >
+          </sm-app-onboarding-task>
+          <sm-app-onboarding-task
+            *ngIf="userIsAdmin"
+            [title]="'inviteYourTeam' | i18n"
+            [description]="'inviteYourTeamDescription' | i18n"
+            [externalButton]="inviteYourTeamLink"
+            [onCompleteButtonPress]="completeInviteYourTeam.bind(this)"
+            [completed]="view.tasks.inviteYourTeam"
+            [open]="'inviteYourTeam' == firstIncompleteTaskKey"
+          >
+          </sm-app-onboarding-task>
+          <sm-app-onboarding-task
+            *ngIf="userIsAdmin"
+            [title]="'setUpIntegrations' | i18n"
+            [route]="['../integrations']"
+            [completed]="view.tasks.setUpIntegrations"
+            [onCompleteButtonPress]="completeSetUpIntegrations.bind(this)"
+            [open]="'setUpIntegrations' == firstIncompleteTaskKey"
+          >
+            {{ "setUpIntegrationsDescription" | i18n }}
+            <a href="https://contributing.bitwarden.com/" target="_blank">{{
+              "contributingGuide" | i18n
+            }}</a
+            >{{ "setUpIntegrationsDescription2" | i18n }}
+          </sm-app-onboarding-task>
+        </sm-app-onboarding>
+
+        <sm-app-onboarding [title]="'setUpYourFirstAutomation' | i18n" [open]="true">
+          <sm-app-onboarding-task
+            [title]="'installTheCLI' | i18n"
+            [description]="'' | i18n"
+            [completed]="view.tasks.installTheCLI"
+            [onCompleteButtonPress]="completeInstallTheCLI.bind(this)"
+            [open]="'installTheCLI' == firstIncompleteTaskKey"
+          >
+            <div class="tw-mb-2">{{ "installTheCLIDescription" | i18n }}</div>
+            <div class="tw-mt-1">
+              <bit-form-field>
+                <bit-label>{{ "linuxAndMacOS" | i18n }}</bit-label>
+                <input bitInput id="linuxAndMacOS1" [value]="linuxAndMacOS1" readonly />
+                <button
+                  bitIconButton="bwi-clone"
+                  bitSuffix
+                  type="button"
+                  [appCopyClick]="linuxAndMacOS1"
+                  showToast
+                  [appA11yTitle]="'copyValue' | i18n"
+                ></button>
+              </bit-form-field>
+            </div>
+            <div class="tw-mt-1">
+              <bit-form-field>
+                <input bitInput id="linuxAndMacOS2" [value]="linuxAndMacOS2" readonly />
+                <button
+                  bitIconButton="bwi-clone"
+                  bitSuffix
+                  type="button"
+                  [appCopyClick]="linuxAndMacOS2"
+                  [appA11yTitle]="'copyValue' | i18n"
+                  showToast
+                ></button>
+              </bit-form-field>
+            </div>
+            <div class="tw-mt-1 tw-mb-4">
+              <bit-form-field>
+                <bit-label>{{ "windows" | i18n }}</bit-label>
+                <input bitInput id="windows" [value]="windows" readonly />
+                <button
+                  bitIconButton="bwi-clone"
+                  bitSuffix
+                  type="button"
+                  [appCopyClick]="windows"
+                  [appA11yTitle]="'copyValue' | i18n"
+                  showToast
+                ></button>
+              </bit-form-field>
+            </div>
+          </sm-app-onboarding-task>
+          <sm-app-onboarding-task
+            [title]="'createProject' | i18n"
+            [callbackFunction]="openNewProjectDialog.bind(this)"
+            [completed]="view.tasks.createProject"
+            [onCompleteButtonPress]="completeCreateProject.bind(this)"
+            [open]="'createProject' == firstIncompleteTaskKey"
+          >
+            <a href="https://bitwarden.com/help/projects/" target="_blank">{{
+              "projects" | i18n
+            }}</a
+            >{{ "createAProjectOnboardingDescription" | i18n }}
+          </sm-app-onboarding-task>
+
+          <sm-app-onboarding-task
+            [title]="'createSecret' | i18n"
+            [callbackFunction]="openNewSecretDialog.bind(this)"
+            [completed]="view.tasks.createSecret"
+            [onCompleteButtonPress]="completeCreateSecret.bind(this)"
+            [open]="'createSecret' == firstIncompleteTaskKey"
+          >
+            <a href="https://bitwarden.com/help/secrets/" target="_blank">{{ "secrets" | i18n }}</a
+            >{{ "createASecretOnboardingDescription" | i18n }}
+          </sm-app-onboarding-task>
+          <sm-app-onboarding-task
+            [title]="'createMachineAccount' | i18n"
+            [completed]="view.tasks.createServiceAccount"
+            [callbackFunction]="openServiceAccountDialog.bind(this)"
+            [onCompleteButtonPress]="completeCreateMachineAccount.bind(this)"
+            [open]="'createServiceAccount' == firstIncompleteTaskKey"
+          >
+            <a href="https://bitwarden.com/help/machine-accounts/" target="_blank">{{
+              "machineAccounts" | i18n
+            }}</a
+            >{{ "createAServiceAccountOnboardingDescription" | i18n }}
+            <a href="https://bitwarden.com/help/secrets-manager-cli/#secret" target="_blank">{{
+              "createAServiceAccountOnboardingDescriptionLink2" | i18n
+            }}</a
+            >.
+          </sm-app-onboarding-task>
+          <sm-app-onboarding-task
+            [title]="'createAnAccessToken' | i18n"
+            [completed]="view.tasks.createAccessToken"
+            [callbackFunction]="openCreateAccessTokenDocumentation.bind(this)"
+            icon="bwi-collection"
+            [onCompleteButtonPress]="completeCreateAccessToken.bind(this)"
+            [open]="'createAccessToken' == firstIncompleteTaskKey"
+            [externalLink]="createAccessTokenCreationInstructionsLink"
+          >
+            <a href="https://bitwarden.com/help/access-tokens/" target="_blank">{{
+              "accessTokens" | i18n
+            }}</a
+            >{{ "createAnAccessTokenOnboardingDescription" | i18n }}
+          </sm-app-onboarding-task>
+        </sm-app-onboarding>
+      </ng-container>
+    </div>
+  </div>
+  <div class="tw-col-span-3">
+    <div class="card vault-filters">
+      <div class="card-body">
+        <ng-container>
+          <div class="tw-font-bold">
+            {{ "resources" | i18n }}
+          </div>
+          <div class="tw-mt-2">
+            <div>
+              {{ "resourcesDescription" | i18n }}
+            </div>
+            <div class="tw-my-4">
+              <a
+                bitLink
+                type="button"
+                linkType="primary"
+                target="_blank"
+                href="https://youtu.be/R6bt2auBEfA?si=d1zfwsXu__h_-_xq"
+              >
+                <i class="bwi bwi-lg bwi-play" aria-hidden="true"></i
+                >{{ "resourcesDescriptionLink1" | i18n }}
+              </a>
+            </div>
+            <div class="tw-my-4">
+              <a
+                bitLink
+                type="button"
+                linkType="primary"
+                target="_blank"
+                href="https://bitwarden.com/help/secrets-manager-quick-start/"
+              >
+                <i class="bwi bwi-lg bwi-thumb-tack" aria-hidden="true"></i
+                >{{ "resourcesDescriptionLink2" | i18n }}
+              </a>
+            </div>
+            <div class="tw-my-4">
+              <a
+                bitLink
+                type="button"
+                linkType="primary"
+                target="_blank"
+                href="https://bitwarden.com/help/developer-quick-start/"
+              >
+                <i class="bwi bwi-lg bwi-thumb-tack" aria-hidden="true"></i
+                >{{ "resourcesDescriptionLink3" | i18n }}
+              </a>
+            </div>
+            <div class="tw-my-4">
+              <a
+                bitLink
+                type="button"
+                linkType="primary"
+                target="_blank"
+                href="https://community.bitwarden.com/c/support/sm-ask-the-community/63"
+              >
+                <i class="bwi bwi-lg bwi-users" aria-hidden="true"></i
+                >{{ "resourcesDescriptionLink4" | i18n }}
+              </a>
+            </div>
+          </div>
+        </ng-container>
+      </div>
+    </div>
+    <div class="card vault-filters tw-mt-8">
+      <div class="card-body">
+        <ng-container>
+          <div class="tw-font-bold">
+            {{ "machineAccountsTip" | i18n }}
+          </div>
+          <div>
+            <div class="tw-mt-2">
+              {{ "machineAccountsTipDescription" | i18n }}
+              <a
+                bitLink
+                type="button"
+                linkType="primary"
+                href="https://bitwarden.com/resources/setting-up-administrative-accounts-with-lesser-privileges/"
+              >
+                {{ "machineAccountsTipDescriptionLink1" | i18n }}
+              </a>
+              {{ "machineAccountsTipDescription2" | i18n }}
+            </div>
+            <div class="tw-my-4">
+              <a
+                bitLink
+                type="button"
+                linkType="primary"
+                target="_blank"
+                href="https://bitwarden.com/help/machine-accounts/"
+              >
+                <i class="bwi bwi-lg bwi-thumb-tack" aria-hidden="true"></i
+                >{{ "machineAccountsTipLink2" | i18n }}
+              </a>
+            </div>
+          </div>
+        </ng-container>
+      </div>
+    </div>
+  </div>
+</div>
+
+<ng-template #spinner>
+  <div class="tw-items-center tw-justify-center tw-pt-64 tw-text-center">
+    <i class="bwi bwi-spinner bwi-spin bwi-3x"></i>
+  </div>
+</ng-template>

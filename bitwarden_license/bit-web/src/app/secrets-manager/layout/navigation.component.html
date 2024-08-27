@@ -1,5 +1,12 @@
 <app-side-nav>
   <bit-nav-logo [openIcon]="logo" route="." [label]="'secretsManager' | i18n"></bit-nav-logo>
+  <bit-nav-item
+    *ngIf="showOnboarding"
+    icon="bwi-dashboard"
+    [text]="'getStarted' | i18n"
+    route="sm-onboarding"
+    [relativeTo]="route.parent"
+  ></bit-nav-item>
   <org-switcher [filter]="orgFilter" [hideNewButton]="true"></org-switcher>
   <bit-nav-item
     icon="bwi-collection"
@@ -61,5 +68,35 @@
       route="settings/export"
       [relativeTo]="route.parent"
     ></bit-nav-item>
+  </bit-nav-group>
+  <bit-nav-group icon="bwi-info-circle" [text]="'help' | i18n" [relativeTo]="route.parent">
+    <bit-nav-item
+      *ngIf="!showOnboarding"
+      [text]="'getStarted' | i18n"
+      route="sm-onboarding"
+      [relativeTo]="route.parent"
+    ></bit-nav-item>
+    <section class="tw-flex tw-w-full tw-flex-col tw-border-0">
+      <a
+        href="https://bitwarden.com/help/secrets-manager-quick-start/"
+        target="_blank"
+        rel="noreferrer"
+        class="tw-flex tw-py-2 tw-px-8 tw-font-semibold !tw-text-alt2 !tw-no-underline hover:tw-bg-primary-300/60 [&>:not(.bwi)]:hover:tw-underline"
+      >
+        <div class="tw-px-3">
+          {{ "documentation" | i18n }}
+        </div>
+      </a>
+      <a
+        href="https://bitwarden.com/contact/"
+        target="_blank"
+        rel="noreferrer"
+        class="tw-flex tw-py-2 tw-px-8 tw-font-semibold !tw-text-alt2 !tw-no-underline hover:tw-bg-primary-300/60 [&>:not(.bwi)]:hover:tw-underline"
+      >
+        <div class="tw-px-3">
+          {{ "contactSMSupport" | i18n }}
+        </div>
+      </a>
+    </section>
   </bit-nav-group>
 </app-side-nav>

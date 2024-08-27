@@ -1,7 +1,7 @@
 export type OrganizationCounts = {
   projects: number;
   secrets: number;
-  serviceAccounts: number;
+  serviceAccounts?: number;
 };
 
 export type ProjectCounts = {

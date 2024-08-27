@@ -1,0 +1,99 @@
+<details
+  #details
+  class="tw-rounded-sm tw-text-main tw-ml-4 tw-mb-4"
+  (toggle)="onToggle($event)"
+  open
+>
+  <summary class="tw-list-none tw-p-2 tw-px-4">
+    <div class="tw-flex tw-select-none tw-items-center tw-gap-4">
+      <ng-container *ngIf="!completed">
+        <object
+          type="image/svg+xml"
+          data="../../images/domain-verification/circle-checkmark.svg"
+        ></object>
+      </ng-container>
+      <ng-container *ngIf="completed">
+        <object
+          type="image/svg+xml"
+          data="../../images/domain-verification/circle-checkmark-completed.svg"
+        ></object>
+      </ng-container>
+      <div class="tw-flex-1">
+        <div class="tw-text-lg tw-font-semibold">{{ title }}</div>
+      </div>
+      <i class="bwi tw-my-auto" [ngClass]="open ? 'bwi-angle-down' : 'bwi-angle-right'"></i>
+    </div>
+  </summary>
+  <ul
+    class="tw-mb-0 tw-ml-4 tw-flex tw-flex-col tw-gap-4"
+    *ngIf="detailsElement?.nativeElement?.open"
+  >
+    <li class="tw-list-none">
+      <ng-template #content>
+        <div>
+          {{ description }}
+        </div>
+        <ng-content> </ng-content>
+        <div class="tw-mt-4">
+          <a
+            bitLink
+            type="button"
+            linkType="primary"
+            class="tw-mr-2"
+            (click)="navigateExternalLink()"
+            *ngIf="this.externalLink"
+          >
+            <i class="bwi bwi-lg bwi-external-link"></i>{{ this.title }}
+          </a>
+
+          <a
+            bitButton
+            type="button"
+            class="tw-mr-1"
+            buttonType="primary"
+            target="_blank"
+            [href]="this.externalButton"
+            *ngIf="this.externalButton"
+          >
+            {{ this.title }}
+          </a>
+
+          <button
+            bitButton
+            type="button"
+            class="tw-mr-1"
+            buttonType="primary"
+            (click)="onClick()"
+            *ngIf="this.callbackFunction && !this.externalLink"
+          >
+            {{ title }}
+          </button>
+
+          <button
+            bitButton
+            [routerLink]="route"
+            class="tw-mr-1"
+            type="button"
+            buttonType="primary"
+            *ngIf="route"
+          >
+            {{ title }}
+          </button>
+
+          <button
+            bitButton
+            type="button"
+            class="tw-mr-1"
+            *ngIf="!completed"
+            (click)="completeButtonPress()"
+          >
+            {{ "markAsComplete" | i18n }}
+          </button>
+        </div>
+      </ng-template>
+      <ng-container *ngIf="detailsElement?.nativeElement?.open">
+        <ng-container *ngTemplateOutlet="content"></ng-container>
+      </ng-container>
+    </li>
+  </ul>
+</details>

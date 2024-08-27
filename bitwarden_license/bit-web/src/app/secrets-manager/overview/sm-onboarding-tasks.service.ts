@@ -1,5 +1,5 @@
 import { Injectable } from "@angular/core";
-import { Observable, map } from "rxjs";
+import { Observable, map, firstValueFrom } from "rxjs";
 
 import {
   ActiveUserState,
@@ -8,7 +8,8 @@ import {
   UserKeyDefinition,
 } from "@bitwarden/common/platform/state";
 
-export type SMOnboardingTasks = Record<string, Record<string, boolean>>;
+export type SMOnboardingTasks = Record<string, SMOnboardingTasksForOrg>;
+export type SMOnboardingTasksForOrg = Record<string, boolean>;
 
 const SM_ONBOARDING_TASKS_KEY = new UserKeyDefinition<SMOnboardingTasks>(
   SM_ONBOARDING_DISK,
@@ -31,9 +32,34 @@ export class SMOnboardingTasksService {
     this.smOnboardingTasks$ = this.smOnboardingTasks.state$.pipe(map((tasks) => tasks ?? {}));
   }
 
+  async getSmOnboardingTasks(orgId: string): Promise<SMOnboardingTasksForOrg> {
+    return firstValueFrom(this.smOnboardingTasks$).then((allOrgTasks) => allOrgTasks[orgId]);
+  }
+
   async setSmOnboardingTasks(newState: SMOnboardingTasks): Promise<void> {
     await this.smOnboardingTasks.update(() => {
       return { ...newState };
     });
+  }
+
+  async findFirstFalseTask(userIsAdmin: boolean, orgId: string): Promise<string> {
+    if (orgId == undefined) {
+      return null;
+    }
+
+    const excludeKeys = userIsAdmin ? [] : ["importData", "inviteYourTeam", "setUpIntegrations"];
+    const orgTasks = await this.getSmOnboardingTasks(orgId);
+
+    if (!orgTasks) {
+      return null;
+    }
+
+    for (const [taskKey, taskValue] of Object.entries(orgTasks)) {
+      if (!taskValue && !excludeKeys.includes(taskKey)) {
+        return taskKey;
+      }
+    }
+
+    return "";
   }
 }

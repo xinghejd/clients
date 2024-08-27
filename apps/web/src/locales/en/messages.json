@@ -9008,5 +9008,128 @@
   },
   "secretsManagerWithFreePasswordManagerInfo": {
     "message": "Your complementary one year Password Manager subscription will upgrade to the selected plan. You will not be charged until the complimentary period is over."
+  },
+  "setUpYourFirstAutomation" : {
+    "message": "Set up your first automation"
+  },
+  "setUpIntegrations" : {
+    "message": "Set up integrations"
+  },
+  "documentation" : {
+    "message": "Documentation"
+  },
+  "contactSMSupport" : {
+    "message": "Contact Support"
+  },
+  "inviteYourTeam" : {
+    "message": "Invite your team"
+  },
+  "installTheCLI" : {
+    "message": "Install the CLI"
+  },
+  "installTheCLIDescription" : {
+    "message": "The Bitwarden Secrets Manager CLI provides access to retrieve secrets from your organization to use locally or at runtime."
+  },
+  "createAnAccessToken" : {
+    "message": "Create an access token"
+  },
+  "importDataDescription" : {
+    "message": "Import data to Secrets Manager to quickly get started managing secrets. Supported filetypes are Bitwarden json and YAML."
+  },
+  "inviteYourTeamDescription" : {
+    "message": "See the Secrets Manager Quick Start for a guide to give members access to your organization's secrets."
+  },
+  "setUpIntegrationsDescription" : {
+    "message": "See the guides in the help center to set up integrations for your organization, or checkout our"
+  },
+  "contributingGuide" : {
+    "message": "contributing guide"
+  },
+  "setUpIntegrationsDescription2" : {
+    "message": " to build your own custom integration."
+  },
+  "linuxAndMacOS" : {
+    "message": "Linux and macOS"
+  },
+  "windows" : {
+    "message": "Windows"
+  },
+  "setUpSecretsManagerForYourOrganization" : {
+    "message": "Set up Secrets Manager for your organization"
+  },
+  "setUpYourAccount" : {
+    "message": "Set up your account"
+  },
+  "setUpYourOrganization" : {
+    "message": "Set up your organization"
+  },
+  "help" : {
+    "message": "Help"
+  },
+  "helpDocs" : {
+    "message": "Help Docs"
+  },
+  "developerDocs" : {
+    "message": "Developer Docs"
+  },
+  "machineAccountsTip" : {
+    "message": "Machine accounts tip"
+  },
+  "resources" : {
+    "message": "Resources"
+  },
+  "machineAccountsTipDescription" : {
+    "message": "Machine accounts should be used to enable the"
+  }, 
+  "machineAccountsTipDescriptionLink1" : {
+    "message": "principle of least privilege"
+  },
+  "machineAccountsTipDescription2" : {
+    "message": ", and should be configured to have access to only necessary secrets. In practice, this should generally be a machine account per service or application."
+  },
+  "machineAccountsTipLink2" : {
+    "message": "Machine accounts help"
+  },
+  "resourcesDescription" : {
+    "message": "Check out these other helpful resources to get up to speedusing Bitwarden Secrets Manager."
+  },
+  "resourcesDescriptionLink1" : {
+    "message": "Secrets Manager Demo"
+  },
+  "resourcesDescriptionLink2" : {
+    "message": "Organization Quick Start"
+  },
+  "resourcesDescriptionLink3" : {
+    "message": "Developer Quick Start"
+  },
+  "resourcesDescriptionLink4" : {
+    "message": "Community forums"
+  },
+  "importDataDescriptionOnboarding" : {
+    "message": "Import data to Secrets Manager for easy migration from another organization or secrets management solution. Secrets Manager supports direct import of both secrets and projects."
+  },
+  "createAProjectOnboardingDescription" : {
+    "message": " are collections of secrets logically grouped together for management access by your organization's members. They are the primary structures through which you assign other members access to secrets."
+  },
+  "createASecretOnboardingDescription" : {
+    "message": " are sensitive key-value pairs, such as API keys, SSH keys, or database credentials, that should not be exposed in plain code or transmitted over unencrypted channels."
+  },
+  "createAServiceAccountOnboardingDescription" : {
+    "message": " represent non-human machine users that require programmatic access to secrets. Use machine accounts to appropriately scope the selection of secrets a machine user can access, and to issue access tokens to facilitate programmatic access to secrets including"
+  },
+  "createAServiceAccountOnboardingDescriptionLink2" : {
+    "message": "CRUD operations"
+  },
+  "createAnAccessTokenOnboardingDescription" : {
+    "message": " facilitate programmatic access to, and the ability to decrypt and edit, secrets associated with a service account."
+  },
+  "markAsComplete" : {
+    "message": "Mark as complete"
+  }, 
+  "youveCompletedGettingStarted" : {
+    "message": "You've completed Get Started!"
+  }, 
+  "ifYouNeedToReferBackToTheGuide" : {
+    "message": "If you need to refer back to the guide, you can revisit it from Help in the left navigation. \n \n For more help, see our Help section in the left navigation."
   }
 }
