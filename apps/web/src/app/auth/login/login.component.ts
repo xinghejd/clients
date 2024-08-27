@@ -10,7 +10,6 @@ import {
   LoginStrategyServiceAbstraction,
   LoginEmailServiceAbstraction,
   RegisterRouteService,
-  OrganizationInvite,
 } from "@bitwarden/auth/common";
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
 import { InternalPolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
@@ -34,6 +33,7 @@ import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legac
 import { flagEnabled } from "../../../utils/flags";
 import { RouterService } from "../../core";
 import { AcceptOrganizationInviteService } from "../organization-invite/accept-organization.service";
+import { OrganizationInvite } from "../organization-invite/organization-invite";
 
 @Component({
   selector: "app-login",
