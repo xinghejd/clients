@@ -6,12 +6,9 @@ import { first, firstValueFrom, Subject, takeUntil } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { LoginEmailServiceAbstraction } from "@bitwarden/auth/common";
-import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
-import { InternalPolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/models/domain/master-password-policy-options";
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 import { ClientType } from "@bitwarden/common/enums";
-import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import {
   AsyncActionsModule,
@@ -56,10 +53,7 @@ export class LoginComponentV2 implements OnInit {
     private formBuilder: FormBuilder,
     private loginEmailService: LoginEmailServiceAbstraction,
     private loginService: LoginService,
-    private logService: LogService,
     private platformUtilsService: PlatformUtilsService,
-    private policyApiService: PolicyApiServiceAbstraction,
-    private policyService: InternalPolicyService,
     private router: Router,
   ) {
     this.clientType = this.platformUtilsService.getClientType();
@@ -93,15 +87,12 @@ export class LoginComponentV2 implements OnInit {
 
     if (this.clientType === ClientType.Web) {
       // If there's an existing org invite, use it to get the password policies
-      const orgInvite = await this.loginService.getOrganizationInvite();
-      if (orgInvite != null) {
-        const { policies, isPolicyAndAutoEnrollEnabled, enforcedPasswordPolicyOptions } =
-          await this.loginService.getPasswordPolicies(orgInvite);
+      const { policies, isPolicyAndAutoEnrollEnabled, enforcedPasswordPolicyOptions } =
+        await this.loginService.getOrgPolicies();
 
-        this.policies = policies;
-        this.showResetPasswordAutoEnrollWarning = isPolicyAndAutoEnrollEnabled;
-        this.enforcedPasswordPolicyOptions = enforcedPasswordPolicyOptions;
-      }
+      this.policies = policies;
+      this.showResetPasswordAutoEnrollWarning = isPolicyAndAutoEnrollEnabled;
+      this.enforcedPasswordPolicyOptions = enforcedPasswordPolicyOptions;
     }
   }
 

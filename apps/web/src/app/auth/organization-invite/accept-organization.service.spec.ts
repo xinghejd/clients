@@ -17,13 +17,13 @@ import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
 import { FakeGlobalState } from "@bitwarden/common/spec/fake-state";
 import { OrgKey } from "@bitwarden/common/types/key";
 
-import { OrganizationInvite } from "../../../../../../libs/auth/src/common/models/domain/organization-invite";
 import { I18nService } from "../../core/i18n.service";
 
 import {
   AcceptOrganizationInviteService,
   ORGANIZATION_INVITE,
 } from "./accept-organization.service";
+import { OrganizationInvite } from "./organization-invite";
 
 describe("AcceptOrganizationInviteService", () => {
   let sut: AcceptOrganizationInviteService;

@@ -15,8 +15,8 @@ import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/sym
 import { CsprngArray } from "@bitwarden/common/types/csprng";
 import { MasterKey, UserKey } from "@bitwarden/common/types/key";
 
-import { OrganizationInvite } from "../../../../../../../../libs/auth/src/common/models/domain/organization-invite";
 import { AcceptOrganizationInviteService } from "../../../organization-invite/accept-organization.service";
+import { OrganizationInvite } from "../../../organization-invite/organization-invite";
 
 import { WebRegistrationFinishService } from "./web-registration-finish.service";
 

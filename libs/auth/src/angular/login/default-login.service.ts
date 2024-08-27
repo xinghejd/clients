@@ -1,7 +1,5 @@
 import { UrlTree } from "@angular/router";
 
-import { OrganizationInvite } from "@bitwarden/auth/common";
-
 import { LoginService, PasswordPolicies } from "./login.service";
 
 export class DefaultLoginService implements LoginService {
@@ -9,11 +7,7 @@ export class DefaultLoginService implements LoginService {
     return null;
   }
 
-  async getOrganizationInvite(): Promise<OrganizationInvite | null> {
-    return null;
-  }
-
-  async getPasswordPolicies(invite: OrganizationInvite): Promise<PasswordPolicies | null> {
+  async getOrgPolicies(): Promise<PasswordPolicies | null> {
     return null;
   }
 }

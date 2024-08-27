@@ -8,7 +8,6 @@ import { InternalPolicyService } from "@bitwarden/common/admin-console/abstracti
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 
-import { OrganizationInvite } from "../../../../../../../../libs/auth/src/common/models/domain/organization-invite";
 import { RouterService } from "../../../../core/router.service";
 import { AcceptOrganizationInviteService } from "../../../organization-invite/accept-organization.service";
 
@@ -23,44 +22,44 @@ export class WebLoginService extends DefaultLoginService implements LoginService
     this.routerService.setPreviousUrl(route.toString());
   }
 
-  async getOrganizationInvite(): Promise<OrganizationInvite | null> {
-    return await this.acceptOrganizationInviteService.getOrganizationInvite();
-  }
+  async getOrgPolicies(): Promise<PasswordPolicies | null> {
+    const orgInvite = await this.acceptOrganizationInviteService.getOrganizationInvite();
 
-  async getPasswordPolicies(invite: OrganizationInvite): Promise<PasswordPolicies> {
-    let policies: Policy[];
+    if (orgInvite != null) {
+      let policies: Policy[];
 
-    try {
-      policies = await this.policyApiService.getPoliciesByToken(
-        invite.organizationId,
-        invite.token,
-        invite.email,
-        invite.organizationUserId,
+      try {
+        policies = await this.policyApiService.getPoliciesByToken(
+          orgInvite.organizationId,
+          orgInvite.token,
+          orgInvite.email,
+          orgInvite.organizationUserId,
+        );
+      } catch (e) {
+        this.logService.error(e);
+      }
+
+      if (policies == null) {
+        return;
+      }
+
+      const resetPasswordPolicy = this.policyService.getResetPasswordPolicyOptions(
+        policies,
+        orgInvite.organizationId,
       );
-    } catch (e) {
-      this.logService.error(e);
+
+      const isPolicyAndAutoEnrollEnabled =
+        resetPasswordPolicy[1] && resetPasswordPolicy[0].autoEnrollEnabled;
+
+      const enforcedPasswordPolicyOptions = await firstValueFrom(
+        this.policyService.masterPasswordPolicyOptions$(policies),
+      );
+
+      return {
+        policies,
+        isPolicyAndAutoEnrollEnabled,
+        enforcedPasswordPolicyOptions,
+      };
     }
-
-    if (policies == null) {
-      return;
-    }
-
-    const resetPasswordPolicy = this.policyService.getResetPasswordPolicyOptions(
-      policies,
-      invite.organizationId,
-    );
-
-    const isPolicyAndAutoEnrollEnabled =
-      resetPasswordPolicy[1] && resetPasswordPolicy[0].autoEnrollEnabled;
-
-    const enforcedPasswordPolicyOptions = await firstValueFrom(
-      this.policyService.masterPasswordPolicyOptions$(policies),
-    );
-
-    return {
-      policies,
-      isPolicyAndAutoEnrollEnabled,
-      enforcedPasswordPolicyOptions,
-    };
   }
 }

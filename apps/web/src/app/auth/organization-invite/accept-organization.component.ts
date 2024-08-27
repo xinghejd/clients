@@ -7,10 +7,10 @@ import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 
-import { OrganizationInvite } from "../../../../../../libs/auth/src/common/models/domain/organization-invite";
 import { BaseAcceptComponent } from "../../common/base.accept.component";
 
 import { AcceptOrganizationInviteService } from "./accept-organization.service";
+import { OrganizationInvite } from "./organization-invite";
 
 @Component({
   templateUrl: "accept-organization.component.html",

@@ -10,6 +10,7 @@ import {
   LoginStrategyServiceAbstraction,
   LoginEmailServiceAbstraction,
   RegisterRouteService,
+  OrganizationInvite,
 } from "@bitwarden/auth/common";
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
 import { InternalPolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
@@ -30,7 +31,6 @@ import { StateService } from "@bitwarden/common/platform/abstractions/state.serv
 import { PasswordStrengthServiceAbstraction } from "@bitwarden/common/tools/password-strength";
 import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legacy";
 
-import { OrganizationInvite } from "../../../../../../libs/auth/src/common/models/domain/organization-invite";
 import { flagEnabled } from "../../../utils/flags";
 import { RouterService } from "../../core";
 import { AcceptOrganizationInviteService } from "../organization-invite/accept-organization.service";
