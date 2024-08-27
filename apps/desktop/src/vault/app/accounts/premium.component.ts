@@ -9,7 +9,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
-import { DialogService } from "@bitwarden/components";
+import { DialogService, ToastService } from "@bitwarden/components";
 
 @Component({
   selector: "app-premium",
@@ -26,6 +26,7 @@ export class PremiumComponent extends BasePremiumComponent {
     dialogService: DialogService,
     environmentService: EnvironmentService,
     billingAccountProfileStateService: BillingAccountProfileStateService,
+    toastService: ToastService,
   ) {
     super(
       i18nService,
@@ -36,6 +37,7 @@ export class PremiumComponent extends BasePremiumComponent {
       dialogService,
       environmentService,
       billingAccountProfileStateService,
+      toastService,
     );
   }
 }

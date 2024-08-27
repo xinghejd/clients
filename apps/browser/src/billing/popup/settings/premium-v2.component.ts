@@ -17,6 +17,7 @@ import {
   DialogService,
   ItemModule,
   SectionComponent,
+  ToastService,
 } from "@bitwarden/components";
 
 import { CurrentAccountComponent } from "../../../auth/popup/account-switching/current-account.component";
@@ -56,6 +57,7 @@ export class PremiumV2Component extends BasePremiumComponent {
     dialogService: DialogService,
     environmentService: EnvironmentService,
     billingAccountProfileStateService: BillingAccountProfileStateService,
+    toastService: ToastService,
   ) {
     super(
       i18nService,
@@ -66,6 +68,7 @@ export class PremiumV2Component extends BasePremiumComponent {
       dialogService,
       environmentService,
       billingAccountProfileStateService,
+      toastService,
     );
 
     // Support old price string. Can be removed in future once all translations are properly updated.

@@ -8,6 +8,7 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
+import { ToastService } from "@bitwarden/components";
 
 @Component({
   selector: "app-password-history",
@@ -22,8 +23,9 @@ export class PasswordHistoryComponent extends BasePasswordHistoryComponent imple
     accountService: AccountService,
     private location: Location,
     private route: ActivatedRoute,
+    toastService: ToastService,
   ) {
-    super(cipherService, platformUtilsService, i18nService, accountService, window);
+    super(cipherService, platformUtilsService, i18nService, accountService, window, toastService);
   }
 
   async ngOnInit() {
