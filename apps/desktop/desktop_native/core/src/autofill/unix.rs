@@ -1,10 +1,5 @@
 use anyhow::Result;
 
-pub fn hello_world(value: String) -> Result<String> {
-    Ok(value)
-}
-
-#[cfg(test)]
-mod tests {
-    // use super::*;
+pub async fn run_command(value: String) -> Result<String> {
+    todo!("Unix does not support autofill");
 }
