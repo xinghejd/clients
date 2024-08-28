@@ -88,6 +88,7 @@ export interface SectionsEntity {
   title: string;
   name?: string | null;
   fields?: FieldsEntity[] | null;
+  hideAddAnotherField?: boolean | null;
 }
 export interface FieldsEntity {
   title: string;
@@ -153,6 +154,8 @@ export interface Overview {
   pbe?: number | null;
   pgrng?: boolean | null;
   tags?: string[] | null;
+  icons?: string | null;
+  watchtowerExclusions?: string | null;
 }
 export interface UrlsEntity {
   label: string;
