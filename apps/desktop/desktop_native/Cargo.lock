@@ -551,6 +551,7 @@ dependencies = [
  "anyhow",
  "cc",
  "core-foundation",
+ "glob",
  "thiserror",
  "tokio",
 ]

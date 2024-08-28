@@ -15,7 +15,6 @@ import {
   NativeAutofillPasswordCredential,
   NativeAutofillSyncCommand,
 } from "../../platform/main/autofill/sync.command";
-import { isDev } from "../../utils";
 
 @Injectable()
 export class DesktopAutofillService implements OnDestroy {
@@ -24,24 +23,15 @@ export class DesktopAutofillService implements OnDestroy {
   constructor(
     private logService: LogService,
     private cipherService: CipherService,
-  ) {
+  ) {}
+
+  async init() {
     this.cipherService.cipherViews$
       .pipe(
         mergeMap((cipherViewMap) => this.sync(Object.values(cipherViewMap))),
         takeUntil(this.destroy$),
       )
       .subscribe();
-  }
-
-  async init() {
-    if (isDev()) {
-      (window as any).DesktopAutofillService = this;
-    }
-  }
-
-  /** Used for development purposes. TODO: Remove before merging */
-  async manualSync() {
-    await this.sync(await this.cipherService.getAllDecrypted());
   }
 
   /** Give metadata about all available credentials in the users vault */
