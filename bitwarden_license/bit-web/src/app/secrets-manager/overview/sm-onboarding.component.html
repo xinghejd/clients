@@ -14,7 +14,7 @@
             *ngIf="userIsAdmin"
             [title]="'importData' | i18n"
             [route]="['../settings', 'import']"
-            [description]="'importDataDescriptionOnboarding' | i18n"
+            [description]="'importSMDataDescriptionOnboarding' | i18n"
             [completed]="view.tasks.importData"
             [onCompleteButtonPress]="completeImportData.bind(this)"
             [open]="'importData' === firstIncompleteTaskKey"
@@ -54,7 +54,7 @@
             [onCompleteButtonPress]="completeInstallTheCLI.bind(this)"
             [open]="'installTheCLI' == firstIncompleteTaskKey"
           >
-            <div class="tw-mb-2">{{ "installTheCLIDescription" | i18n }}</div>
+            <div class="tw-mb-2">{{ "installTheSMCLIDescription" | i18n }}</div>
             <div class="tw-mt-1">
               <bit-form-field>
                 <bit-label>{{ "linuxAndMacOS" | i18n }}</bit-label>
@@ -124,7 +124,7 @@
             [title]="'createMachineAccount' | i18n"
             [completed]="view.tasks.createServiceAccount"
             [callbackFunction]="openServiceAccountDialog.bind(this)"
-            [onCompleteButtonPress]="completeCreateMachineAccount.bind(this)"
+            [onCompleteButtonPress]="completeCreateServiceAccount.bind(this)"
             [open]="'createServiceAccount' == firstIncompleteTaskKey"
           >
             <a href="https://bitwarden.com/help/machine-accounts/" target="_blank">{{
@@ -148,7 +148,7 @@
             <a href="https://bitwarden.com/help/access-tokens/" target="_blank">{{
               "accessTokens" | i18n
             }}</a
-            >{{ "createAnAccessTokenOnboardingDescription" | i18n }}
+            >{{ "createAnSMAccessTokenOnboardingDescription" | i18n }}
           </sm-app-onboarding-task>
         </sm-app-onboarding>
       </ng-container>

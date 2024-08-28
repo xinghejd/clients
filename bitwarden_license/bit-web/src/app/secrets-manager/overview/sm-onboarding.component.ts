@@ -49,7 +49,8 @@ type OrganizationTasks = {
 })
 export class SMOnboardingComponent implements OnInit, OnDestroy {
   private destroy$: Subject<void> = new Subject<void>();
-
+  private prevOrgTasks: OrganizationTasks;
+  private prevTasks: any;
   private organizationId: string;
   protected userIsAdmin: boolean;
   protected loading = true;
@@ -83,7 +84,7 @@ export class SMOnboardingComponent implements OnInit, OnDestroy {
   installTheCLICompleted: boolean = false;
   setUpIntegrationsCompleted: boolean = false;
   createAccessTokenCompleted: boolean = false;
-  createMachineAccountCompleted: boolean = false;
+  createServiceAccountCompleted: boolean = false;
   createSecretCompleted: boolean = false;
   createProjectCompleted: boolean = false;
   inviteYourTeamCompleted: boolean = false;
@@ -105,11 +106,18 @@ export class SMOnboardingComponent implements OnInit, OnDestroy {
       this.route.params.pipe(map((p) => p.organizationId)),
       this.updateOnboardingTasks$.pipe(startWith(null)),
     ]).pipe(
-      distinctUntilChanged(([prevOrgId, prevOnboardingValue], [currOrgId, currOnboardingValue]) => {
-        return prevOrgId === currOrgId && prevOnboardingValue === currOnboardingValue;
-      }),
+      distinctUntilChanged(
+        ([prevOrgId, prevOnboardingValue], [currOrgId, currOnboardingValue]) =>
+          prevOrgId === currOrgId && prevOnboardingValue === currOnboardingValue,
+      ),
       switchMap(async ([orgId]) => {
         const org = await this.organizationService.get(orgId);
+        return {
+          org,
+          tasks: await this.updateOnboardingTasks(),
+        };
+      }),
+      tap(async ({ org, tasks }) => {
         this.organizationId = org.id;
         this.userIsAdmin = org.isAdmin;
         this.organizationEnabled = org.enabled;
@@ -119,11 +127,13 @@ export class SMOnboardingComponent implements OnInit, OnDestroy {
           org.id,
         );
 
-        return {
-          tasks: await this.updateOnboardingTasks(),
+        this.prevTasks = (await firstValueFrom(this.onboardingTasks$)) as {
+          [organizationId: string]: OrganizationTasks;
         };
+
+        this.prevOrgTasks = this.prevTasks[org.id];
+        this.loading = false;
       }),
-      tap((_) => (this.loading = false)),
       takeUntil(this.destroy$),
     );
   }
@@ -132,15 +142,10 @@ export class SMOnboardingComponent implements OnInit, OnDestroy {
     organizationId: string,
     orgTasks: OrganizationTasks,
   ): Promise<OrganizationTasks> {
-    const prevTasks = (await firstValueFrom(this.onboardingTasks$)) as {
-      [organizationId: string]: OrganizationTasks;
-    };
-    const prevOrgTasks = prevTasks[organizationId];
-
     let prevCompletedOrgTasks = null;
-    if (prevOrgTasks != null || prevOrgTasks != undefined) {
+    if (this.prevOrgTasks != null || this.prevOrgTasks != undefined) {
       prevCompletedOrgTasks = Object.fromEntries(
-        Object.entries(prevOrgTasks).filter(([_k, v]) => v === true),
+        Object.entries(this.prevOrgTasks).filter(([_k, v]) => v === true),
       );
     }
 
@@ -157,12 +162,12 @@ export class SMOnboardingComponent implements OnInit, OnDestroy {
       createSecret: false,
       createServiceAccount: false,
       createAccessToken: false,
-      ...prevTasks[organizationId],
+      ...this.prevOrgTasks,
       ...newlyCompletedOrgTasks,
     };
 
     await this.smOnboardingTasksService.setSmOnboardingTasks({
-      ...prevTasks,
+      ...this.prevTasks,
       [organizationId]: nextOrgTasks,
     });
 
@@ -182,7 +187,7 @@ export class SMOnboardingComponent implements OnInit, OnDestroy {
     const updatedTasks = await this.saveCompletedTasks(this.organizationId, {
       createSecret: this.createSecretCompleted,
       createProject: this.createProjectCompleted,
-      createServiceAccount: this.createMachineAccountCompleted,
+      createServiceAccount: this.createServiceAccountCompleted,
       createAccessToken: this.createAccessTokenCompleted,
       importData: this.importDataCompleted,
       inviteYourTeam: this.inviteYourTeamCompleted,
@@ -247,7 +252,7 @@ export class SMOnboardingComponent implements OnInit, OnDestroy {
 
   async openServiceAccountDialog(setComplete: boolean) {
     if (setComplete) {
-      await this.completeCreateMachineAccount();
+      await this.completeCreateServiceAccount();
     }
 
     this.dialogService.open<unknown, ServiceAccountOperation>(ServiceAccountDialogComponent, {
@@ -284,9 +289,9 @@ export class SMOnboardingComponent implements OnInit, OnDestroy {
     this.updateOnboardingTasks$.next("createAccessTokenCompleted");
   }
 
-  async completeCreateMachineAccount() {
-    this.createMachineAccountCompleted = true;
-    this.updateOnboardingTasks$.next("createMachineAccountCompleted");
+  async completeCreateServiceAccount() {
+    this.createServiceAccountCompleted = true;
+    this.updateOnboardingTasks$.next("createServiceAccountCompleted");
   }
 
   async completeCreateSecret() {

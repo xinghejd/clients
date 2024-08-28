@@ -40,7 +40,6 @@ export class NavigationComponent implements OnInit, OnDestroy {
   protected organizationCounts: OrganizationCounts;
   private destroy$: Subject<void> = new Subject<void>();
   showOnboarding: boolean;
-  protected organizationId: string;
   onboardingTasks$: Observable<SMOnboardingTasks>;
 
   constructor(
