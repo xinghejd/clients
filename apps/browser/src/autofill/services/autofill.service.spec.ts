@@ -10,9 +10,11 @@ import {
   DefaultDomainSettingsService,
   DomainSettingsService,
 } from "@bitwarden/common/autofill/services/domain-settings.service";
+import { UserNotificationSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/user-notification-settings.service";
 import { InlineMenuVisibilitySetting } from "@bitwarden/common/autofill/types";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { EventType } from "@bitwarden/common/enums";
+import { FeatureFlag, FeatureFlagValueType } from "@bitwarden/common/enums/feature-flag.enum";
 import { UriMatchStrategy } from "@bitwarden/common/models/domain/domain-service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -27,6 +29,7 @@ import {
   subscribeTo,
 } from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/types/guid";
+import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FieldType, LinkedIdType, LoginLinkedId, CipherType } from "@bitwarden/common/vault/enums";
 import { CipherRepromptType } from "@bitwarden/common/vault/enums/cipher-reprompt-type";
 import { CardView } from "@bitwarden/common/vault/models/view/card.view";
@@ -35,7 +38,6 @@ import { FieldView } from "@bitwarden/common/vault/models/view/field.view";
 import { IdentityView } from "@bitwarden/common/vault/models/view/identity.view";
 import { LoginUriView } from "@bitwarden/common/vault/models/view/login-uri.view";
 import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
-import { CipherService } from "@bitwarden/common/vault/services/cipher.service";
 import { TotpService } from "@bitwarden/common/vault/services/totp.service";
 
 import { BrowserApi } from "../../platform/browser/browser-api";
@@ -88,6 +90,9 @@ describe("AutofillService", () => {
   let activeAccountStatusMock$: BehaviorSubject<AuthenticationStatus>;
   let authService: MockProxy<AuthService>;
   let configService: MockProxy<ConfigService>;
+  let enableChangedPasswordPromptMock$: BehaviorSubject<boolean>;
+  let enableAddedLoginPromptMock$: BehaviorSubject<boolean>;
+  let userNotificationsSettings: MockProxy<UserNotificationSettingsServiceAbstraction>;
   let messageListener: MockProxy<MessageListener>;
 
   beforeEach(() => {
@@ -100,6 +105,11 @@ describe("AutofillService", () => {
     authService.activeAccountStatus$ = activeAccountStatusMock$;
     configService = mock<ConfigService>();
     messageListener = mock<MessageListener>();
+    enableChangedPasswordPromptMock$ = new BehaviorSubject(true);
+    enableAddedLoginPromptMock$ = new BehaviorSubject(true);
+    userNotificationsSettings = mock<UserNotificationSettingsServiceAbstraction>();
+    userNotificationsSettings.enableChangedPasswordPrompt$ = enableChangedPasswordPromptMock$;
+    userNotificationsSettings.enableAddedLoginPrompt$ = enableAddedLoginPromptMock$;
     autofillService = new AutofillService(
       cipherService,
       autofillSettingsService,
@@ -113,6 +123,7 @@ describe("AutofillService", () => {
       accountService,
       authService,
       configService,
+      userNotificationsSettings,
       messageListener,
     );
     domainSettingsService = new DefaultDomainSettingsService(fakeStateProvider);
@@ -349,13 +360,18 @@ describe("AutofillService", () => {
   describe("injectAutofillScripts", () => {
     const autofillBootstrapScript = "bootstrap-autofill.js";
     const autofillOverlayBootstrapScript = "bootstrap-autofill-overlay.js";
+    const autofillOverlayMenuBootstrapScript = "bootstrap-autofill-overlay-menu.js";
+    const autofillOverlayNotificationsBootstrapScript =
+      "bootstrap-autofill-overlay-notifications.js";
     const defaultAutofillScripts = ["autofiller.js", "notificationBar.js", "contextMenuHandler.js"];
     const defaultExecuteScriptOptions = { runAt: "document_start" };
     let tabMock: chrome.tabs.Tab;
     let sender: chrome.runtime.MessageSender;
 
     beforeEach(() => {
-      configService.getFeatureFlag.mockResolvedValue(true);
+      configService.getFeatureFlag.mockImplementation(
+        async (_feature) => true as FeatureFlagValueType<any>,
+      );
       tabMock = createChromeTabMock();
       sender = { tab: tabMock, frameId: 1 };
       jest.spyOn(BrowserApi, "executeScriptInTab").mockImplementation();
@@ -366,9 +382,16 @@ describe("AutofillService", () => {
     });
 
     it("accepts an extension message sender and injects the autofill scripts into the tab of the sender", async () => {
+      configService.getFeatureFlag.mockImplementation(async (_feature) => {
+        if (_feature === FeatureFlag.NotificationBarAddLoginImprovements) {
+          return false as FeatureFlagValueType<any>;
+        }
+
+        return true as FeatureFlagValueType<any>;
+      });
       await autofillService.injectAutofillScripts(sender.tab, sender.frameId, true);
 
-      [autofillOverlayBootstrapScript, ...defaultAutofillScripts].forEach((scriptName) => {
+      [autofillOverlayMenuBootstrapScript, ...defaultAutofillScripts].forEach((scriptName) => {
         expect(BrowserApi.executeScriptInTab).toHaveBeenCalledWith(tabMock.id, {
           file: `content/${scriptName}`,
           frameId: sender.frameId,
@@ -420,6 +443,13 @@ describe("AutofillService", () => {
       jest
         .spyOn(autofillService, "getInlineMenuVisibility")
         .mockResolvedValue(AutofillOverlayVisibility.Off);
+      configService.getFeatureFlag.mockImplementation(async (_feature) => {
+        if (_feature === FeatureFlag.NotificationBarAddLoginImprovements) {
+          return false as FeatureFlagValueType<any>;
+        }
+
+        return true as FeatureFlagValueType<any>;
+      });
 
       await autofillService.injectAutofillScripts(sender.tab, sender.frameId);
 
@@ -430,6 +460,21 @@ describe("AutofillService", () => {
       });
       expect(BrowserApi.executeScriptInTab).not.toHaveBeenCalledWith(tabMock.id, {
         file: `content/${autofillOverlayBootstrapScript}`,
+        frameId: sender.frameId,
+        ...defaultExecuteScriptOptions,
+      });
+    });
+
+    it("will inject the bootstrap-autofill-overlay-notifications script if the user has the notification bar turned on but does not have the inline menu turned on", async () => {
+      jest
+        .spyOn(autofillService, "getInlineMenuVisibility")
+        .mockResolvedValue(AutofillOverlayVisibility.Off);
+      enableChangedPasswordPromptMock$.next(true);
+
+      await autofillService.injectAutofillScripts(sender.tab, sender.frameId);
+
+      expect(BrowserApi.executeScriptInTab).toHaveBeenCalledWith(tabMock.id, {
+        file: `content/${autofillOverlayNotificationsBootstrapScript}`,
         frameId: sender.frameId,
         ...defaultExecuteScriptOptions,
       });
@@ -696,6 +741,7 @@ describe("AutofillService", () => {
           onlyVisibleFields: autofillOptions.onlyVisibleFields || false,
           fillNewPassword: autofillOptions.fillNewPassword || false,
           allowTotpAutofill: autofillOptions.allowTotpAutofill || false,
+          autoSubmitLogin: autofillOptions.allowTotpAutofill || false,
           cipher: autofillOptions.cipher,
           tabUrl: autofillOptions.tab.url,
           defaultUriMatch: 0,
@@ -709,7 +755,6 @@ describe("AutofillService", () => {
         {
           command: "fillForm",
           fillScript: {
-            autosubmit: null,
             metadata: {},
             properties: {
               delay_between_operations: 20,
@@ -1015,6 +1060,7 @@ describe("AutofillService", () => {
           fillNewPassword: fromCommand,
           allowUntrustedIframe: fromCommand,
           allowTotpAutofill: fromCommand,
+          autoSubmitLogin: false,
         });
         expect(result).toBe(totpCode);
       });
@@ -1044,6 +1090,7 @@ describe("AutofillService", () => {
           fillNewPassword: fromCommand,
           allowUntrustedIframe: fromCommand,
           allowTotpAutofill: fromCommand,
+          autoSubmitLogin: false,
         });
         expect(result).toBe(totpCode);
       });
@@ -1070,6 +1117,7 @@ describe("AutofillService", () => {
           fillNewPassword: fromCommand,
           allowUntrustedIframe: fromCommand,
           allowTotpAutofill: fromCommand,
+          autoSubmitLogin: false,
         });
         expect(result).toBe(totpCode);
       });
@@ -1548,7 +1596,6 @@ describe("AutofillService", () => {
 
       expect(autofillService["generateLoginFillScript"]).toHaveBeenCalledWith(
         {
-          autosubmit: null,
           metadata: {},
           properties: {},
           script: [
@@ -1587,7 +1634,6 @@ describe("AutofillService", () => {
 
       expect(autofillService["generateCardFillScript"]).toHaveBeenCalledWith(
         {
-          autosubmit: null,
           metadata: {},
           properties: {},
           script: [
@@ -1626,7 +1672,6 @@ describe("AutofillService", () => {
 
       expect(autofillService["generateIdentityFillScript"]).toHaveBeenCalledWith(
         {
-          autosubmit: null,
           metadata: {},
           properties: {},
           script: [

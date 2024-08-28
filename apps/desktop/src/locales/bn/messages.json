@@ -1174,6 +1174,9 @@
   "premiumPurchaseAlert": {
     "message": "আপনি bitwarden.com ওয়েব ভল্টে প্রিমিয়াম সদস্যতা কিনতে পারেন। আপনি কি এখনই ওয়েবসাইটটি দেখতে চান?"
   },
+  "premiumPurchaseAlertV2": {
+    "message": "You can purchase Premium from your account settings on the Bitwarden web app."
+  },
   "premiumCurrentMember": {
     "message": "আপনি প্রিমিয়াম সদস্য!"
   },
@@ -1814,7 +1817,7 @@
     "message": "ব্রাউজার বায়োমেট্রিক্সের জন্য প্রথমে সেটিংসে ডেস্কটপ বায়োমেট্রিক সক্ষম করা প্রয়োজন।"
   },
   "biometricsManualSetupTitle": {
-    "message": "Autometic setup not available"
+    "message": "Automatic setup not available"
   },
   "biometricsManualSetupDesc": {
     "message": "Due to the installation method, biometrics support could not be automatically enabled. Would you like to open the documentation on how to do this manually?"

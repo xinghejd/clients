@@ -39,6 +39,7 @@ import { OrganizationService } from "@bitwarden/common/admin-console/abstraction
 import { OrganizationUserService } from "@bitwarden/common/admin-console/abstractions/organization-user/organization-user.service";
 import { OrganizationUserUserDetailsResponse } from "@bitwarden/common/admin-console/abstractions/organization-user/responses";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { EventType } from "@bitwarden/common/enums";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
@@ -53,6 +54,7 @@ import { OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CollectionService } from "@bitwarden/common/vault/abstractions/collection.service";
 import { TotpService } from "@bitwarden/common/vault/abstractions/totp.service";
+import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherRepromptType } from "@bitwarden/common/vault/enums/cipher-reprompt-type";
 import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
@@ -89,6 +91,12 @@ import {
   RoutedVaultFilterModel,
   Unassigned,
 } from "../individual-vault/vault-filter/shared/models/routed-vault-filter.model";
+import {
+  openViewCipherDialog,
+  ViewCipherDialogCloseResult,
+  ViewCipherDialogResult,
+  ViewComponent,
+} from "../individual-vault/view.component";
 import { VaultHeaderComponent } from "../org-vault/vault-header/vault-header.component";
 import { getNestedCollectionTree } from "../utils/collection-utils";
 
@@ -121,6 +129,7 @@ enum AddAccessStatusType {
     VaultItemsModule,
     SharedModule,
     NoItemsModule,
+    ViewComponent,
   ],
   providers: [RoutedVaultFilterService, RoutedVaultFilterBridgeService],
 })
@@ -209,6 +218,7 @@ export class VaultComponent implements OnInit, OnDestroy {
     private organizationUserService: OrganizationUserService,
     protected configService: ConfigService,
     private toastService: ToastService,
+    private accountService: AccountService,
   ) {}
 
   async ngOnInit() {
@@ -517,7 +527,11 @@ export class VaultComponent implements OnInit, OnDestroy {
             (await firstValueFrom(allCipherMap$))[cipherId] != undefined;
 
           if (canEditCipher) {
-            await this.editCipherId(cipherId);
+            if (qParams.action === "view") {
+              await this.viewCipherById(cipherId);
+            } else {
+              await this.editCipherId(cipherId);
+            }
           } else {
             this.toastService.showToast({
               variant: "error",
@@ -773,14 +787,14 @@ export class VaultComponent implements OnInit, OnDestroy {
     }
   }
 
-  async addCipher() {
+  async addCipher(cipherType?: CipherType) {
     let collections: CollectionView[] = [];
 
     // Admins limited to only adding items to collections they have access to.
     collections = await firstValueFrom(this.editableCollections$);
 
     await this.editCipher(null, (comp) => {
-      comp.type = this.activeFilter.cipherType;
+      comp.type = cipherType || this.activeFilter.cipherType;
       comp.collections = collections;
       if (this.activeFilter.collectionId) {
         comp.collectionIds = [this.activeFilter.collectionId];
@@ -848,10 +862,65 @@ export class VaultComponent implements OnInit, OnDestroy {
     // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
     modal.onClosedPromise().then(() => {
-      this.go({ cipherId: null, itemId: null });
+      this.go({ cipherId: null, itemId: null, action: null });
     });
 
     return childComponent;
+  }
+
+  /**
+   * Takes a CipherView and opens a dialog where it can be viewed (wraps viewCipherById).
+   * @param cipher - CipherView
+   * @returns Promise<void>
+   */
+  viewCipher(cipher: CipherView) {
+    return this.viewCipherById(cipher.id);
+  }
+
+  /**
+   * Takes a cipher id and opens a dialog where it can be viewed.
+   * @param id - string
+   * @returns Promise<void>
+   */
+  async viewCipherById(id: string) {
+    const cipher = await this.cipherService.get(id);
+    // if cipher exists (cipher is null when new) and MP reprompt
+    // is on for this cipher, then show password reprompt.
+    if (
+      cipher &&
+      cipher.reprompt !== 0 &&
+      !(await this.passwordRepromptService.showPasswordPrompt())
+    ) {
+      // didn't pass password prompt, so don't open add / edit modal.
+      this.go({ cipherId: null, itemId: null });
+      return;
+    }
+
+    const activeUserId = await firstValueFrom(
+      this.accountService.activeAccount$.pipe(map((a) => a?.id)),
+    );
+    // Decrypt the cipher.
+    const cipherView = await cipher.decrypt(
+      await this.cipherService.getKeyForCipherKeyDecryption(cipher, activeUserId),
+    );
+
+    // Open the dialog.
+    const dialogRef = openViewCipherDialog(this.dialogService, {
+      data: { cipher: cipherView },
+    });
+
+    // Wait for the dialog to close.
+    const result: ViewCipherDialogCloseResult = await lastValueFrom(dialogRef.closed);
+
+    // If the dialog was closed by deleting the cipher, refresh the vault.
+    if (result.action === ViewCipherDialogResult.deleted) {
+      this.refresh();
+    }
+
+    // If the dialog was closed by any other action (close button, escape key, etc), navigate back to the vault.
+    if (!result.action) {
+      this.go({ cipherId: null, itemId: null, action: null });
+    }
   }
 
   async cloneCipher(cipher: CipherView) {
