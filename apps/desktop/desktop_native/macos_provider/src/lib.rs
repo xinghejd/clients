@@ -1,9 +1,15 @@
-use std::sync::{atomic::AtomicU64, Arc, Mutex};
+use std::{
+    collections::HashMap,
+    sync::{atomic::AtomicU64, Arc, Mutex},
+};
 
-use log::{error, warn};
+use log::{error, info, warn};
+use registration::{PasskeyRegistrationRequest, PreparePasskeyRegistrationCallback};
 use serde::{de::DeserializeOwned, Deserialize, Serialize};
 
 uniffi::setup_scaffolding!();
+
+mod registration;
 
 #[derive(uniffi::Enum, Debug, Serialize, Deserialize)]
 pub enum UserVerification {
@@ -12,33 +18,17 @@ pub enum UserVerification {
     Discouraged,
 }
 
-#[derive(uniffi::Record, Debug, Serialize, Deserialize)]
-pub struct PasskeyRegistrationRequest {
-    relying_party_id: String,
-    user_name: String,
-    user_handle: Vec<u8>,
-
-    client_data_hash: Vec<u8>,
-    user_verification: UserVerification,
-}
-
-#[derive(uniffi::Record, Serialize, Deserialize)]
-pub struct PasskeyRegistrationCredential {
-    relying_party: String,
-    client_data_hash: Vec<u8>,
-    credential_id: Vec<u8>,
-    attestation_object: Vec<u8>,
-}
-
 #[derive(uniffi::Error, Serialize, Deserialize)]
 pub enum BitwardenError {
     Internal(String),
 }
 
-#[uniffi::export(with_foreign)]
-pub trait PreparePasskeyRegistrationCallback: Send + Sync {
-    fn on_complete(&self, credential: PasskeyRegistrationCredential);
-    fn on_error(&self, error: BitwardenError);
+// TODO: These have to be named differently than the actual Uniffi traits otherwise
+// the generated code will lead to ambiguous trait implementations
+// These are only used internally, so it doesn't matter that much
+trait Callback: Send + Sync {
+    fn complete(&self, credential: serde_json::Value) -> Result<(), serde_json::Error>;
+    fn error(&self, error: BitwardenError);
 }
 
 #[derive(uniffi::Object)]
@@ -47,14 +37,13 @@ pub struct MacOSProviderClient {
 
     // We need to keep track of the callbacks so we can call them when we receive a response
     response_callbacks_counter: AtomicU64,
-    response_callbacks_queue: Arc<Mutex<Vec<(u64, Arc<dyn PreparePasskeyRegistrationCallback>)>>>,
+    response_callbacks_queue: Arc<Mutex<HashMap<u64, Box<dyn Callback>>>>,
 }
 
 #[uniffi::export]
 impl MacOSProviderClient {
-    #[allow(clippy::new_without_default)]
     #[uniffi::constructor]
-    pub fn new() -> Self {
+    pub fn connect() -> Self {
         let _ = oslog::OsLogger::new("com.bitwarden.desktop.autofill-extension")
             .level_filter(log::LevelFilter::Trace)
             .init();
@@ -65,7 +54,7 @@ impl MacOSProviderClient {
         let client = MacOSProviderClient {
             to_server_send,
             response_callbacks_counter: AtomicU64::new(0),
-            response_callbacks_queue: Arc::new(Mutex::new(Vec::new())),
+            response_callbacks_queue: Arc::new(Mutex::new(HashMap::new())),
         };
 
         let path = desktop_core::ipc::path("autofill");
@@ -85,19 +74,27 @@ impl MacOSProviderClient {
 
             rt.block_on(async move {
                 while let Some(message) = from_server_recv.recv().await {
-                    match serde_json::from_str::<SerializedMessage<PasskeyRegistrationCredential>>(
-                        &message,
-                    ) {
-                        Ok(message) => match get_callback(&queue, message.sequence_number) {
-                            Some(cb) => match message.value {
-                                Ok(value) => cb.on_complete(value),
-                                Err(e) => cb.on_error(e),
+                    match serde_json::from_str::<SerializedMessage>(&message) {
+                        Ok(SerializedMessage::Connected) => {
+                            info!("Connected to server");
+                        }
+                        Ok(SerializedMessage::Disconnected) => {
+                            info!("Disconnected from server");
+                        }
+                        Ok(SerializedMessage::Message {
+                            sequence_number,
+                            value,
+                        }) => match queue.lock().unwrap().remove(&sequence_number) {
+                            Some(cb) => match value {
+                                Ok(value) => {
+                                    if let Err(e) = cb.complete(value) {
+                                        error!("Error deserializing message: {}", e);
+                                    }
+                                }
+                                Err(e) => cb.error(e),
                             },
                             None => {
-                                error!(
-                                    "No callback found for sequence number: {}",
-                                    message.sequence_number
-                                );
+                                error!("No callback found for sequence number: {}", sequence_number)
                             }
                         },
                         Err(e) => {
@@ -118,19 +115,22 @@ impl MacOSProviderClient {
     ) {
         warn!("prepare_passkey_registration: {:?}", request);
 
-        self.send_message(request, callback);
+        self.send_message(request, Box::new(callback));
     }
 }
-
 #[derive(Serialize, Deserialize)]
-#[serde(bound = "T: Serialize + DeserializeOwned")]
-struct SerializedMessage<T: Serialize + DeserializeOwned> {
-    sequence_number: u64,
-    value: Result<T, BitwardenError>,
+#[serde(tag = "command")]
+enum SerializedMessage {
+    Connected,
+    Disconnected,
+    Message {
+        sequence_number: u64,
+        value: Result<serde_json::Value, BitwardenError>,
+    },
 }
 
 impl MacOSProviderClient {
-    fn add_callback(&self, callback: Arc<dyn PreparePasskeyRegistrationCallback>) -> u64 {
+    fn add_callback(&self, callback: Box<dyn Callback>) -> u64 {
         let sequence_number = self
             .response_callbacks_counter
             .fetch_add(1, std::sync::atomic::Ordering::SeqCst);
@@ -138,7 +138,7 @@ impl MacOSProviderClient {
         self.response_callbacks_queue
             .lock()
             .unwrap()
-            .push((sequence_number, callback));
+            .insert(sequence_number, callback);
 
         sequence_number
     }
@@ -146,33 +146,29 @@ impl MacOSProviderClient {
     fn send_message(
         &self,
         message: impl Serialize + DeserializeOwned,
-        callback: Arc<dyn PreparePasskeyRegistrationCallback>,
+        callback: Box<dyn Callback>,
     ) {
-        let sequence_number = self.add_callback(Arc::clone(&callback));
+        let sequence_number = self.add_callback(callback);
 
-        let message = serde_json::to_string(&SerializedMessage {
+        let message = serde_json::to_string(&SerializedMessage::Message {
             sequence_number,
-            value: Ok(message),
+            value: Ok(serde_json::to_value(message).unwrap()),
         })
         .expect("Can't serialize message");
 
         if let Err(e) = self.to_server_send.blocking_send(message) {
             // Make sure we remove the callback from the queue if we can't send the message
-            let _ = get_callback(&self.response_callbacks_queue, sequence_number);
-
-            callback.on_error(BitwardenError::Internal(format!(
-                "Error sending message: {}",
-                e
-            )));
+            if let Some(cb) = self
+                .response_callbacks_queue
+                .lock()
+                .unwrap()
+                .remove(&sequence_number)
+            {
+                cb.error(BitwardenError::Internal(format!(
+                    "Error sending message: {}",
+                    e
+                )));
+            }
         }
     }
-}
-
-fn get_callback(
-    response_callbacks_queue: &Mutex<Vec<(u64, Arc<dyn PreparePasskeyRegistrationCallback>)>>,
-    sequence_number: u64,
-) -> Option<Arc<dyn PreparePasskeyRegistrationCallback>> {
-    let mut queue = response_callbacks_queue.lock().unwrap();
-    let index = queue.iter().position(|(n, _)| *n == sequence_number)?;
-    Some(queue.remove(index).1)
 }

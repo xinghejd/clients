@@ -11,7 +11,7 @@ import os
 class CredentialProviderViewController: ASCredentialProviderViewController {
     let logger = Logger(subsystem: "com.bitwarden.desktop.autofill-extension", category: "credential-provider")
 
-    let client = MacOsProviderClient()
+    let client = MacOsProviderClient.connect()
     
     /*
      Implement this method if your extension supports showing credentials in the QuickType bar.
