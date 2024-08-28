@@ -156,12 +156,20 @@ pub mod autofill {
     use napi::threadsafe_function::{
         ErrorStrategy, ThreadsafeFunction, ThreadsafeFunctionCallMode,
     };
+    use serde::{de::DeserializeOwned, Deserialize, Serialize};
 
     #[napi(object)]
     pub struct IpcMessage {
         pub client_id: u32,
         pub kind: IpcMessageType,
         pub message: String,
+    }
+
+    #[napi]
+    pub enum IpcMessageType {
+        Connected,
+        Disconnected,
+        Message,
     }
 
     impl From<Message> for IpcMessage {
@@ -174,13 +182,6 @@ pub mod autofill {
         }
     }
 
-    #[napi]
-    pub enum IpcMessageType {
-        Connected,
-        Disconnected,
-        Message,
-    }
-
     impl From<MessageType> for IpcMessageType {
         fn from(message_type: MessageType) -> Self {
             match message_type {
@@ -189,6 +190,90 @@ pub mod autofill {
                 MessageType::Message => IpcMessageType::Message,
             }
         }
+    }
+
+    #[derive(Debug, serde::Serialize, serde:: Deserialize)]
+    pub enum BitwardenError {
+        Internal(String),
+    }
+
+    #[napi]
+    #[derive(Debug, Serialize, Deserialize)]
+    #[serde(rename_all = "camelCase")]
+    pub enum UserVerification {
+        Preferred,
+        Required,
+        Discouraged,
+    }
+
+    #[derive(Serialize, Deserialize)]
+    #[serde(bound = "T: Serialize + DeserializeOwned")]
+    pub struct PasskeyMessage<T: Serialize + DeserializeOwned> {
+        pub sequence_number: u32,
+        pub value: Result<T, BitwardenError>,
+    }
+
+    #[napi(object)]
+    pub struct PasskeyRegistrationMessage {
+        pub client_id: u32,
+        pub sequence_number: u32,
+        pub value: PasskeyRegistrationRequest,
+    }
+
+    #[napi(object)]
+    #[derive(Debug, Serialize, Deserialize)]
+    #[serde(rename_all = "camelCase")]
+    pub struct PasskeyRegistrationRequest {
+        pub relying_party_id: String,
+        pub user_name: String,
+        pub user_handle: Vec<u8>,
+
+        pub client_data_hash: Vec<u8>,
+        pub user_verification: UserVerification,
+    }
+
+    #[napi(object)]
+    #[derive(Serialize, Deserialize)]
+    #[serde(rename_all = "camelCase")]
+    pub struct PasskeyRegistrationResponse {
+        pub relying_party: String,
+        pub client_data_hash: Vec<u8>,
+        pub credential_id: Vec<u8>,
+        pub attestation_object: Vec<u8>,
+    }
+
+    #[napi(object)]
+    pub struct PasskeyAssertionMessage {
+        pub client_id: u32,
+        pub sequence_number: u32,
+        pub value: PasskeyAssertionRequest,
+    }
+
+    #[napi(object)]
+    #[derive(Debug, Serialize, Deserialize)]
+    #[serde(rename_all = "camelCase")]
+    pub struct PasskeyAssertionRequest {
+        pub relying_party_id: String,
+
+        pub user_name: String,
+        pub credential_id: Vec<u8>,
+        pub user_handle: Vec<u8>,
+        pub record_identifier: Option<String>,
+
+        pub client_data_hash: Vec<u8>,
+        pub user_verification: UserVerification,
+    }
+
+    #[napi(object)]
+    #[derive(Serialize, Deserialize)]
+    #[serde(rename_all = "camelCase")]
+    pub struct PasskeyAssertionResponse {
+        pub user_handle: Vec<u8>,
+        pub relying_party: String,
+        pub signature: Vec<u8>,
+        pub client_data_hash: Vec<u8>,
+        pub authenticator_data: Vec<u8>,
+        pub credential_id: Vec<u8>,
     }
 
     #[napi]
@@ -205,13 +290,73 @@ pub mod autofill {
         #[napi(factory)]
         pub async fn listen(
             name: String,
-            #[napi(ts_arg_type = "(error: null | Error, message: IpcMessage) => void")]
-            callback: ThreadsafeFunction<IpcMessage, ErrorStrategy::CalleeHandled>,
+            #[napi(
+                ts_arg_type = "(error: null | Error, message: PasskeyRegistrationMessage) => void"
+            )]
+            registration_callback: ThreadsafeFunction<
+                PasskeyRegistrationMessage,
+                ErrorStrategy::CalleeHandled,
+            >,
+            #[napi(
+                ts_arg_type = "(error: null | Error, message: PasskeyAssertionMessage) => void"
+            )]
+            assertion_callback: ThreadsafeFunction<
+                PasskeyAssertionMessage,
+                ErrorStrategy::CalleeHandled,
+            >,
         ) -> napi::Result<Self> {
             let (send, mut recv) = tokio::sync::mpsc::channel::<Message>(32);
             tokio::spawn(async move {
                 while let Some(message) = recv.recv().await {
-                    callback.call(Ok(message.into()), ThreadsafeFunctionCallMode::NonBlocking);
+                    match message.kind {
+                        // TODO: We're ignoring the connection and disconnection messages for now
+                        MessageType::Connected | MessageType::Disconnected => continue,
+                        MessageType::Message => {
+                            match serde_json::from_str::<PasskeyMessage<PasskeyAssertionRequest>>(
+                                &message.message,
+                            ) {
+                                Ok(passkey_message) => {
+                                    let value = passkey_message
+                                        .value
+                                        .map(|value| PasskeyAssertionMessage {
+                                            client_id: message.client_id,
+                                            sequence_number: passkey_message.sequence_number,
+                                            value,
+                                        })
+                                        .map_err(|e| napi::Error::from_reason(format!("{e:?}")));
+                                    assertion_callback
+                                        .call(value, ThreadsafeFunctionCallMode::NonBlocking);
+                                    continue;
+                                }
+                                Err(e) => {
+                                    println!("[ERROR] Error deserializing message1: {e}");
+                                }
+                            }
+
+                            match serde_json::from_str::<PasskeyMessage<PasskeyRegistrationRequest>>(
+                                &message.message,
+                            ) {
+                                Ok(passkey_message) => {
+                                    let value = passkey_message
+                                        .value
+                                        .map(|value| PasskeyRegistrationMessage {
+                                            client_id: message.client_id,
+                                            sequence_number: passkey_message.sequence_number,
+                                            value,
+                                        })
+                                        .map_err(|e| napi::Error::from_reason(format!("{e:?}")));
+                                    registration_callback
+                                        .call(value, ThreadsafeFunctionCallMode::NonBlocking);
+                                    continue;
+                                }
+                                Err(e) => {
+                                    println!("[ERROR] Error deserializing message2: {e}");
+                                }
+                            }
+
+                            println!("[ERROR] Received an unknown message2: {message:?}");
+                        }
+                    }
                 }
             });
 
@@ -233,12 +378,38 @@ pub mod autofill {
             Ok(())
         }
 
+        #[napi]
+        pub fn complete_registration(
+            &self,
+            request: PasskeyRegistrationMessage,
+            response: PasskeyRegistrationResponse,
+        ) -> napi::Result<u32> {
+            let message = PasskeyMessage {
+                sequence_number: request.sequence_number,
+                value: Ok(response),
+            };
+            self.send(serde_json::to_string(&message).unwrap())
+        }
+
+        #[napi]
+        pub fn complete_assertion(
+            &self,
+            request: PasskeyAssertionMessage,
+            response: PasskeyAssertionResponse,
+        ) -> napi::Result<u32> {
+            let message = PasskeyMessage {
+                sequence_number: request.sequence_number,
+                value: Ok(response),
+            };
+            self.send(serde_json::to_string(&message).unwrap())
+        }
+
         /// Send a message over the IPC server to all the connected clients
         ///
         /// @return The number of clients that the message was sent to. Note that the number of messages
         /// actually received may be less, as some clients could disconnect before receiving the message.
-        #[napi]
-        pub fn send(&self, message: String) -> napi::Result<u32> {
+        // #[napi]
+        fn send(&self, message: String) -> napi::Result<u32> {
             self.server
                 .send(message)
                 .map_err(|e| {

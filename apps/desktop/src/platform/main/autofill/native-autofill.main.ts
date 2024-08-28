@@ -30,8 +30,28 @@ export class NativeAutofillMain {
 
     this.ipcServer = await autofill.IpcServer.listen(
       "autofill",
-      (error: Error | null, data: autofill.IpcMessage) => {
-        this.logService.warning("autofill.IpcServer.listen", error, data);
+      (error: Error | null, data: autofill.PasskeyRegistrationMessage) => {
+        this.logService.warning("autofill.IpcServer.registration", error, data);
+
+        this.ipcServer.completeRegistration(data, {
+          relyingParty: data.value.relyingPartyId,
+          clientDataHash: data.value.clientDataHash,
+          credentialId: [],
+          attestationObject: [],
+        });
+      },
+
+      (error: Error | null, data: autofill.PasskeyAssertionMessage) => {
+        this.logService.warning("autofill.IpcServer.assertion", error, data);
+
+        this.ipcServer.completeAssertion(data, {
+          userHandle: [],
+          relyingParty: data.value.relyingPartyId,
+          signature: [],
+          clientDataHash: data.value.clientDataHash,
+          authenticatorData: [],
+          credentialId: [],
+        });
       },
     );
   }

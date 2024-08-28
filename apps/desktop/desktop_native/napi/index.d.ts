@@ -53,6 +53,51 @@ export namespace autofill {
     Disconnected = 1,
     Message = 2
   }
+  export const enum UserVerification {
+    Preferred = 0,
+    Required = 1,
+    Discouraged = 2
+  }
+  export interface PasskeyRegistrationMessage {
+    clientId: number
+    sequenceNumber: number
+    value: PasskeyRegistrationRequest
+  }
+  export interface PasskeyRegistrationRequest {
+    relyingPartyId: string
+    userName: string
+    userHandle: Array<number>
+    clientDataHash: Array<number>
+    userVerification: UserVerification
+  }
+  export interface PasskeyRegistrationResponse {
+    relyingParty: string
+    clientDataHash: Array<number>
+    credentialId: Array<number>
+    attestationObject: Array<number>
+  }
+  export interface PasskeyAssertionMessage {
+    clientId: number
+    sequenceNumber: number
+    value: PasskeyAssertionRequest
+  }
+  export interface PasskeyAssertionRequest {
+    relyingPartyId: string
+    userName: string
+    credentialId: Array<number>
+    userHandle: Array<number>
+    recordIdentifier?: string
+    clientDataHash: Array<number>
+    userVerification: UserVerification
+  }
+  export interface PasskeyAssertionResponse {
+    userHandle: Array<number>
+    relyingParty: string
+    signature: Array<number>
+    clientDataHash: Array<number>
+    authenticatorData: Array<number>
+    credentialId: Array<number>
+  }
   export class IpcServer {
     /**
      * Create and start the IPC server without blocking.
@@ -60,15 +105,10 @@ export namespace autofill {
      * @param name The endpoint name to listen on. This name uniquely identifies the IPC connection and must be the same for both the server and client.
      * @param callback This function will be called whenever a message is received from a client.
      */
-    static listen(name: string, callback: (error: null | Error, message: IpcMessage) => void): Promise<IpcServer>
+    static listen(name: string, registrationCallback: (error: null | Error, message: PasskeyRegistrationMessage) => void, assertionCallback: (error: null | Error, message: PasskeyAssertionMessage) => void): Promise<IpcServer>
     /** Stop the IPC server. */
     stop(): void
-    /**
-     * Send a message over the IPC server to all the connected clients
-     *
-     * @return The number of clients that the message was sent to. Note that the number of messages
-     * actually received may be less, as some clients could disconnect before receiving the message.
-     */
-    send(message: string): number
+    completeRegistration(request: PasskeyRegistrationMessage, response: PasskeyRegistrationResponse): number
+    completeAssertion(request: PasskeyAssertionMessage, response: PasskeyAssertionResponse): number
   }
 }
