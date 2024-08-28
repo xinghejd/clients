@@ -26,7 +26,7 @@ export const RewardsProgramData: ExportData = {
               favIndex: 0,
               createdAt: 1619467659,
               updatedAt: 1619467765,
-              trashed: false,
+              state: "active",
               categoryUuid: "107",
               details: {
                 loginFields: [],

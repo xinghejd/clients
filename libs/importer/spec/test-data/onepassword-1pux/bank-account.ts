@@ -26,7 +26,7 @@ export const BankAccountData: ExportData = {
               favIndex: 0,
               createdAt: 1619466056,
               updatedAt: 1619466187,
-              trashed: false,
+              state: "active",
               categoryUuid: "101",
               details: {
                 loginFields: [],

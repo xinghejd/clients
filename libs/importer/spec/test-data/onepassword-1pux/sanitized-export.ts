@@ -26,7 +26,7 @@ export const SanitizedExport: ExportData = {
               favIndex: 1,
               createdAt: 1619465029,
               updatedAt: 1636576578,
-              trashed: false,
+              state: "active",
               categoryUuid: "001",
               details: {
                 loginFields: [
@@ -115,7 +115,7 @@ export const SanitizedExport: ExportData = {
               favIndex: 0,
               createdAt: 1619467769,
               updatedAt: 1619467906,
-              trashed: false,
+              state: "active",
               categoryUuid: "110",
               details: {
                 loginFields: [],
@@ -315,7 +315,7 @@ export const SanitizedExport: ExportData = {
               favIndex: 0,
               createdAt: 1619465117,
               updatedAt: 1619465209,
-              trashed: false,
+              state: "active",
               categoryUuid: "001",
               details: {
                 loginFields: [
@@ -444,7 +444,7 @@ export const SanitizedExport: ExportData = {
               favIndex: 0,
               createdAt: 1619466056,
               updatedAt: 1619466187,
-              trashed: false,
+              state: "active",
               categoryUuid: "101",
               details: {
                 loginFields: [],
@@ -639,7 +639,7 @@ export const SanitizedExport: ExportData = {
               favIndex: 0,
               createdAt: 1619466193,
               updatedAt: 1619466276,
-              trashed: false,
+              state: "active",
               categoryUuid: "102",
               details: {
                 loginFields: [],
@@ -811,7 +811,7 @@ export const SanitizedExport: ExportData = {
               favIndex: 1,
               createdAt: 1619464754,
               updatedAt: 1619465025,
-              trashed: false,
+              state: "active",
               categoryUuid: "001",
               details: {
                 loginFields: [
@@ -854,7 +854,7 @@ export const SanitizedExport: ExportData = {
               favIndex: 0,
               createdAt: 1619466279,
               updatedAt: 1619466425,
-              trashed: false,
+              state: "active",
               categoryUuid: "103",
               details: {
                 loginFields: [],
@@ -1058,7 +1058,7 @@ export const SanitizedExport: ExportData = {
               favIndex: 0,
               createdAt: 1619466428,
               updatedAt: 1619466585,
-              trashed: false,
+              state: "active",
               categoryUuid: "111",
               details: {
                 loginFields: [],
@@ -1370,7 +1370,7 @@ export const SanitizedExport: ExportData = {
               favIndex: 1,
               createdAt: 1619467985,
               updatedAt: 1619468230,
-              trashed: false,
+              state: "active",
               categoryUuid: "100",
               details: {
                 loginFields: [],
@@ -1630,7 +1630,7 @@ export const SanitizedExport: ExportData = {
               favIndex: 0,
               createdAt: 1619467498,
               updatedAt: 1619467655,
-              trashed: false,
+              state: "active",
               categoryUuid: "106",
               details: {
                 loginFields: [],
@@ -1835,7 +1835,7 @@ export const SanitizedExport: ExportData = {
               favIndex: 0,
               createdAt: 1619467374,
               updatedAt: 1619467492,
-              trashed: false,
+              state: "active",
               categoryUuid: "104",
               details: {
                 loginFields: [],
@@ -1975,7 +1975,7 @@ export const SanitizedExport: ExportData = {
               favIndex: 0,
               createdAt: 1619465796,
               updatedAt: 1619465869,
-              trashed: false,
+              state: "active",
               categoryUuid: "005",
               details: {
                 loginFields: [],
@@ -2004,7 +2004,7 @@ export const SanitizedExport: ExportData = {
               favIndex: 0,
               createdAt: 1619468234,
               updatedAt: 1619468316,
-              trashed: false,
+              state: "active",
               categoryUuid: "109",
               details: {
                 loginFields: [],
@@ -2160,7 +2160,7 @@ export const SanitizedExport: ExportData = {
               favIndex: 0,
               createdAt: 1619467659,
               updatedAt: 1619467765,
-              trashed: false,
+              state: "active",
               categoryUuid: "107",
               details: {
                 loginFields: [],
@@ -2340,7 +2340,7 @@ export const SanitizedExport: ExportData = {
               favIndex: 1,
               createdAt: 1619467910,
               updatedAt: 1619467982,
-              trashed: false,
+              state: "active",
               categoryUuid: "108",
               details: {
                 loginFields: [],
@@ -2400,7 +2400,7 @@ export const SanitizedExport: ExportData = {
               favIndex: 1,
               createdAt: 1619467269,
               updatedAt: 1619467368,
-              trashed: false,
+              state: "active",
               categoryUuid: "105",
               details: {
                 loginFields: [],
@@ -2557,7 +2557,7 @@ export const SanitizedExport: ExportData = {
               favIndex: 0,
               createdAt: 1619465450,
               updatedAt: 1619465789,
-              trashed: false,
+              state: "active",
               categoryUuid: "004",
               details: {
                 loginFields: [],
@@ -3004,7 +3004,7 @@ export const SanitizedExport: ExportData = {
               favIndex: 0,
               createdAt: 1619465969,
               updatedAt: 1619466052,
-              trashed: false,
+              state: "active",
               categoryUuid: "112",
               details: {
                 loginFields: [],
@@ -3144,7 +3144,7 @@ export const SanitizedExport: ExportData = {
               favIndex: 0,
               createdAt: 1619465226,
               updatedAt: 1619465278,
-              trashed: false,
+              state: "active",
               categoryUuid: "003",
               details: {
                 loginFields: [],
@@ -3167,7 +3167,7 @@ export const SanitizedExport: ExportData = {
               favIndex: 0,
               createdAt: 1619465282,
               updatedAt: 1619465447,
-              trashed: false,
+              state: "active",
               categoryUuid: "002",
               details: {
                 loginFields: [],
@@ -3492,7 +3492,7 @@ export const SanitizedExport: ExportData = {
               favIndex: 0,
               createdAt: 1623365944,
               updatedAt: 1623365944,
-              trashed: false,
+              state: "active",
               categoryUuid: "001",
               details: {
                 loginFields: [
@@ -3525,7 +3525,7 @@ export const SanitizedExport: ExportData = {
               favIndex: 0,
               createdAt: 1577652307,
               updatedAt: 1577652307,
-              trashed: false,
+              state: "active",
               categoryUuid: "109",
               details: {
                 loginFields: [],
@@ -3678,7 +3678,7 @@ export const SanitizedExport: ExportData = {
               favIndex: 0,
               createdAt: 1595730395,
               updatedAt: 1624728074,
-              trashed: false,
+              state: "active",
               categoryUuid: "109",
               details: {
                 loginFields: [],
@@ -3830,7 +3830,7 @@ export const SanitizedExport: ExportData = {
               favIndex: 0,
               createdAt: 1635522833,
               updatedAt: 1635522872,
-              trashed: false,
+              state: "active",
               categoryUuid: "001",
               details: {
                 loginFields: [
@@ -3956,7 +3956,7 @@ export const SanitizedExport: ExportData = {
               favIndex: 0,
               createdAt: 1607125760,
               updatedAt: 1607125765,
-              trashed: false,
+              state: "active",
               categoryUuid: "100",
               details: {
                 loginFields: [],
@@ -4216,7 +4216,7 @@ export const SanitizedExport: ExportData = {
               favIndex: 0,
               createdAt: 1609647825,
               updatedAt: 1609647832,
-              trashed: false,
+              state: "active",
               categoryUuid: "003",
               details: {
                 loginFields: [],
@@ -4238,7 +4238,7 @@ export const SanitizedExport: ExportData = {
               favIndex: 0,
               createdAt: 1576938097,
               updatedAt: 1576938097,
-              trashed: false,
+              state: "active",
               categoryUuid: "003",
               details: {
                 loginFields: [],

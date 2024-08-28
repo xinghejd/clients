@@ -26,7 +26,7 @@ export const CreditCardData: ExportData = {
               favIndex: 0,
               createdAt: 1619465282,
               updatedAt: 1619465447,
-              trashed: false,
+              state: "active",
               categoryUuid: "002",
               details: {
                 loginFields: [],

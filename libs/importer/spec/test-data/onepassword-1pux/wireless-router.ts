@@ -26,7 +26,7 @@ export const WirelessRouterData: ExportData = {
               favIndex: 0,
               createdAt: 1577652307,
               updatedAt: 1577652307,
-              trashed: false,
+              state: "active",
               categoryUuid: "109",
               details: {
                 loginFields: [],

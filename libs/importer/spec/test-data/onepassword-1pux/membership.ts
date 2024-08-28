@@ -26,7 +26,7 @@ export const MembershipData: ExportData = {
               favIndex: 1,
               createdAt: 1619467269,
               updatedAt: 1619467368,
-              trashed: false,
+              state: "active",
               categoryUuid: "105",
               details: {
                 loginFields: [],

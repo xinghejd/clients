@@ -26,7 +26,7 @@ export const DatabaseData: ExportData = {
               favIndex: 0,
               createdAt: 1619466193,
               updatedAt: 1619466276,
-              trashed: false,
+              state: "active",
               categoryUuid: "102",
               details: {
                 loginFields: [],

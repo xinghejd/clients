@@ -26,7 +26,7 @@ export const DriversLicenseData: ExportData = {
               favIndex: 0,
               createdAt: 1619466279,
               updatedAt: 1619466425,
-              trashed: false,
+              state: "active",
               categoryUuid: "103",
               details: {
                 loginFields: [],

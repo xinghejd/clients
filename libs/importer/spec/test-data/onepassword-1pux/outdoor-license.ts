@@ -26,7 +26,7 @@ export const OutdoorLicenseData: ExportData = {
               favIndex: 0,
               createdAt: 1619467374,
               updatedAt: 1619467492,
-              trashed: false,
+              state: "active",
               categoryUuid: "104",
               details: {
                 loginFields: [],

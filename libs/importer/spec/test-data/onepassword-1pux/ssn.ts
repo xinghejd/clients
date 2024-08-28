@@ -26,7 +26,7 @@ export const SSNData: ExportData = {
               favIndex: 1,
               createdAt: 1619467910,
               updatedAt: 1619467982,
-              trashed: false,
+              state: "active",
               categoryUuid: "108",
               details: {
                 loginFields: [],

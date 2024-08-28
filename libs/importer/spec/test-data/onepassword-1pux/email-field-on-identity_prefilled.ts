@@ -26,7 +26,7 @@ export const EmailFieldOnIdentityPrefilledData: ExportData = {
               favIndex: 0,
               createdAt: 1619465450,
               updatedAt: 1619465789,
-              trashed: false,
+              state: "active",
               categoryUuid: "004",
               details: {
                 loginFields: [],

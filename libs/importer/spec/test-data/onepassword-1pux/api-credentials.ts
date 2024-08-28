@@ -26,7 +26,7 @@ export const APICredentialsData: ExportData = {
               favIndex: 0,
               createdAt: 1619465969,
               updatedAt: 1619466052,
-              trashed: false,
+              state: "active",
               categoryUuid: "112",
               details: {
                 loginFields: [],

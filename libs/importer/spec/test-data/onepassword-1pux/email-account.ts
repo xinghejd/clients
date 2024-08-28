@@ -26,7 +26,7 @@ export const EmailAccountData: ExportData = {
               favIndex: 0,
               createdAt: 1619466428,
               updatedAt: 1619466585,
-              trashed: false,
+              state: "active",
               categoryUuid: "111",
               details: {
                 loginFields: [],

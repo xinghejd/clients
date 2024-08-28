@@ -26,7 +26,7 @@ export const MedicalRecordData: ExportData = {
               favIndex: 0,
               createdAt: 1641220207,
               updatedAt: 1641220326,
-              trashed: false,
+              state: "active",
               categoryUuid: "113",
               details: {
                 loginFields: [],

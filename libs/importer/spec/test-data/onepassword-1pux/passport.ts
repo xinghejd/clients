@@ -26,7 +26,7 @@ export const PassportData: ExportData = {
               favIndex: 0,
               createdAt: 1619467498,
               updatedAt: 1619467655,
-              trashed: false,
+              state: "active",
               categoryUuid: "106",
               details: {
                 loginFields: [],

@@ -53,7 +53,7 @@ export interface Item {
   favIndex: number;
   createdAt: number;
   updatedAt: number;
-  trashed?: boolean;
+  state: "active" | "archived";
   categoryUuid: string;
   details: Details;
   overview: Overview;
