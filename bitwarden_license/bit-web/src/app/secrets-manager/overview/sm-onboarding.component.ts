@@ -106,18 +106,11 @@ export class SMOnboardingComponent implements OnInit, OnDestroy {
       this.route.params.pipe(map((p) => p.organizationId)),
       this.updateOnboardingTasks$.pipe(startWith(null)),
     ]).pipe(
-      distinctUntilChanged(
-        ([prevOrgId, prevOnboardingValue], [currOrgId, currOnboardingValue]) =>
-          prevOrgId === currOrgId && prevOnboardingValue === currOnboardingValue,
-      ),
+      distinctUntilChanged(([prevOrgId, prevOnboardingValue], [currOrgId, currOnboardingValue]) => {
+        return prevOrgId === currOrgId && prevOnboardingValue === currOnboardingValue;
+      }),
       switchMap(async ([orgId]) => {
         const org = await this.organizationService.get(orgId);
-        return {
-          org,
-          tasks: await this.updateOnboardingTasks(),
-        };
-      }),
-      tap(async ({ org, tasks }) => {
         this.organizationId = org.id;
         this.userIsAdmin = org.isAdmin;
         this.organizationEnabled = org.enabled;
@@ -132,8 +125,12 @@ export class SMOnboardingComponent implements OnInit, OnDestroy {
         };
 
         this.prevOrgTasks = this.prevTasks[org.id];
-        this.loading = false;
+
+        return {
+          tasks: await this.updateOnboardingTasks(),
+        };
       }),
+      tap((_) => (this.loading = false)),
       takeUntil(this.destroy$),
     );
   }
