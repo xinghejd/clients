@@ -402,7 +402,7 @@ export const SanitizedExport: ExportData = {
               favIndex: 0,
               createdAt: 1619465875,
               updatedAt: 1619535673,
-              trashed: true,
+              state: "archived",
               categoryUuid: "006",
               details: {
                 loginFields: [],
