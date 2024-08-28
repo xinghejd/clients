@@ -985,7 +985,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           monthYear: 203012,
                         },
-                        indexAtSource: 10,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -1721,7 +1720,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           date: 2524651260,
                         },
-                        indexAtSource: 10,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -2833,7 +2831,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           string: "super cool guy",
                         },
-                        indexAtSource: 10,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,

@@ -191,7 +191,6 @@ export const PassportData: ExportData = {
                         value: {
                           date: 2524651260,
                         },
-                        indexAtSource: 10,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,

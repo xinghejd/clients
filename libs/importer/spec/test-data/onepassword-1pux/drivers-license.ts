@@ -191,7 +191,6 @@ export const DriversLicenseData: ExportData = {
                         value: {
                           monthYear: 203012,
                         },
-                        indexAtSource: 10,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,

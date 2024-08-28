@@ -420,7 +420,6 @@ export const IdentityData: ExportData = {
                         value: {
                           string: "super cool guy",
                         },
-                        indexAtSource: 10,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
