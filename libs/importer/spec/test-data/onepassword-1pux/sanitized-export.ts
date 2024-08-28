@@ -57,7 +57,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           totp: "otpseed777",
                         },
-                        indexAtSource: 0,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -79,7 +78,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           date: 1637841660,
                         },
-                        indexAtSource: 0,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -130,7 +128,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           string: "https://coolserver.nullvalue.test",
                         },
-                        indexAtSource: 0,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -146,7 +143,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           string: "frankly-notsure",
                         },
-                        indexAtSource: 1,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -162,7 +158,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           concealed: "*&YHJI87yjy78u",
                         },
-                        indexAtSource: 2,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -184,7 +179,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           string: "https://coolserver.nullvalue.test/admin",
                         },
-                        indexAtSource: 0,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -200,7 +194,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           string: "frankly-idontknowwhatimdoing",
                         },
-                        indexAtSource: 1,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -216,7 +209,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           concealed: "^%RY&^YUiju8iUYHJI(U",
                         },
-                        indexAtSource: 2,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -238,7 +230,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           string: "Private Hosting Provider Inc.",
                         },
-                        indexAtSource: 0,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -254,7 +245,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           string: "https://phpi.nullvalue.test",
                         },
-                        indexAtSource: 1,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -270,7 +260,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           string: "https://phpi.nullvalue.test/support",
                         },
-                        indexAtSource: 2,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -286,7 +275,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           string: "8882569382",
                         },
-                        indexAtSource: 3,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -349,7 +337,6 @@ export const SanitizedExport: ExportData = {
                             provider: null,
                           },
                         },
-                        indexAtSource: 0,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -365,7 +352,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           date: null,
                         },
-                        indexAtSource: 1,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -381,7 +367,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           phone: "4565555555",
                         },
-                        indexAtSource: 2,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -459,7 +444,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           string: "Super Credit Union",
                         },
-                        indexAtSource: 0,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -475,7 +459,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           string: "Cool Guy",
                         },
-                        indexAtSource: 1,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -491,7 +474,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           menu: "checking",
                         },
-                        indexAtSource: 2,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -507,7 +489,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           string: "111000999",
                         },
-                        indexAtSource: 3,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -523,7 +504,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           string: "192837465918273645",
                         },
-                        indexAtSource: 4,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -539,7 +519,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           string: "",
                         },
-                        indexAtSource: 5,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -555,7 +534,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           string: "",
                         },
-                        indexAtSource: 6,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -571,7 +549,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           concealed: "5555",
                         },
-                        indexAtSource: 7,
                         guarded: false,
                         multiline: false,
                         dontGenerate: true,
@@ -593,7 +570,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           phone: "9399399933",
                         },
-                        indexAtSource: 0,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -609,7 +585,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           string: "1 Fifth Avenue",
                         },
-                        indexAtSource: 1,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -654,7 +629,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           menu: "postgresql",
                         },
-                        indexAtSource: 0,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -670,7 +644,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           string: "my.secret.db.server",
                         },
-                        indexAtSource: 1,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -686,7 +659,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           string: "1337",
                         },
-                        indexAtSource: 2,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -702,7 +674,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           string: "user_database",
                         },
-                        indexAtSource: 3,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -718,7 +689,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           string: "cooldbuser",
                         },
-                        indexAtSource: 4,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -734,7 +704,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           concealed: "^+kTjhLaN7wVPAhGU)*J",
                         },
-                        indexAtSource: 5,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -750,7 +719,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           string: "ASDIUFU-283234",
                         },
-                        indexAtSource: 6,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -766,7 +734,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           string: "cdbu",
                         },
-                        indexAtSource: 7,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -782,7 +749,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           string: "ssh",
                         },
-                        indexAtSource: 8,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -869,7 +835,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           string: "Michael Scarn",
                         },
-                        indexAtSource: 0,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -885,7 +850,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           string: "2120 Mifflin Rd.",
                         },
-                        indexAtSource: 1,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -901,7 +865,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           date: 252504060,
                         },
-                        indexAtSource: 2,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -917,7 +880,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           gender: "male",
                         },
-                        indexAtSource: 3,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -933,7 +895,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           string: "5'11\"",
                         },
-                        indexAtSource: 4,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -949,7 +910,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           string: "12345678901",
                         },
-                        indexAtSource: 5,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -965,7 +925,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           string: "C",
                         },
-                        indexAtSource: 6,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -981,7 +940,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           string: "B",
                         },
-                        indexAtSource: 7,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -997,7 +955,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           string: "Pennsylvania",
                         },
-                        indexAtSource: 8,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -1013,7 +970,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           string: "United States",
                         },
-                        indexAtSource: 9,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -1073,7 +1029,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           menu: "either",
                         },
-                        indexAtSource: 0,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -1089,7 +1044,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           string: "mscottscarn@nullvalue.test",
                         },
-                        indexAtSource: 1,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -1105,7 +1059,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           string: "mailserver.nullvalue.test",
                         },
-                        indexAtSource: 2,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -1121,7 +1074,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           string: "587",
                         },
-                        indexAtSource: 3,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -1137,7 +1089,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           concealed: "uajsf*UI*&YU&^T",
                         },
-                        indexAtSource: 4,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -1153,7 +1104,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           menu: "TLS",
                         },
-                        indexAtSource: 5,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -1169,7 +1119,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           menu: "kerberos_v5",
                         },
-                        indexAtSource: 6,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -1191,7 +1140,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           string: "mailserver.nullvalue.test",
                         },
-                        indexAtSource: 0,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -1207,7 +1155,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           string: "589",
                         },
-                        indexAtSource: 1,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -1223,7 +1170,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           string: "mscottscarn@nullvalue.test",
                         },
-                        indexAtSource: 2,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -1239,7 +1185,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           concealed: "(*UJUTT%^UIUJ*UI(IUI8u98uyy",
                         },
-                        indexAtSource: 3,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -1255,7 +1200,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           menu: "TLS",
                         },
-                        indexAtSource: 4,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -1271,7 +1215,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           menu: "password",
                         },
-                        indexAtSource: 5,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -1293,7 +1236,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           string: "Telum",
                         },
-                        indexAtSource: 0,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -1309,7 +1251,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           string: "https://telum.nullvalue.test",
                         },
-                        indexAtSource: 1,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -1325,7 +1266,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           string: "2346666666",
                         },
-                        indexAtSource: 2,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -1341,7 +1281,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           string: "18005557777",
                         },
-                        indexAtSource: 3,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -1385,7 +1324,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           string: "5.10.1000",
                         },
-                        indexAtSource: 0,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -1401,7 +1339,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           string: "265453-13457355-847327",
                         },
-                        indexAtSource: 1,
                         guarded: true,
                         multiline: true,
                         dontGenerate: false,
@@ -1423,7 +1360,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           string: "Kay Riddler",
                         },
-                        indexAtSource: 0,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -1442,7 +1378,6 @@ export const SanitizedExport: ExportData = {
                             provider: null,
                           },
                         },
-                        indexAtSource: 1,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -1458,7 +1393,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           string: "Riddles and Jigsaw Puzzles GmbH",
                         },
-                        indexAtSource: 2,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -1480,7 +1414,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           url: "https://limuxcompany.nullvalue.test/5.10.1000/isos",
                         },
-                        indexAtSource: 0,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -1496,7 +1429,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           string: "Limux Software and Hardware",
                         },
-                        indexAtSource: 1,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -1512,7 +1444,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           url: "https://limuxcompany.nullvalue.test/",
                         },
-                        indexAtSource: 2,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -1528,7 +1459,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           string: "$999",
                         },
-                        indexAtSource: 3,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -1547,7 +1477,6 @@ export const SanitizedExport: ExportData = {
                             provider: null,
                           },
                         },
-                        indexAtSource: 4,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -1569,7 +1498,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           date: 1617278460,
                         },
-                        indexAtSource: 0,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -1585,7 +1513,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           string: "594839",
                         },
-                        indexAtSource: 1,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -1601,7 +1528,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           string: "$1086.59",
                         },
-                        indexAtSource: 2,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -1645,7 +1571,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           string: "US Passport",
                         },
-                        indexAtSource: 0,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -1661,7 +1586,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           string: "United States of America",
                         },
-                        indexAtSource: 1,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -1677,7 +1601,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           string: "76436847",
                         },
-                        indexAtSource: 2,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -1693,7 +1616,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           string: "David Global",
                         },
-                        indexAtSource: 3,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -1709,7 +1631,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           gender: "female",
                         },
-                        indexAtSource: 4,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -1725,7 +1646,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           string: "International",
                         },
-                        indexAtSource: 5,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -1741,7 +1661,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           string: "Department of State",
                         },
-                        indexAtSource: 6,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -1757,7 +1676,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           date: 418046460,
                         },
-                        indexAtSource: 7,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -1773,7 +1691,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           string: "A cave somewhere in Maine",
                         },
-                        indexAtSource: 8,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -1789,7 +1706,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           date: 1577880060,
                         },
-                        indexAtSource: 9,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -1850,7 +1766,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           string: "Cash Bandit",
                         },
-                        indexAtSource: 0,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -1866,7 +1781,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           date: 1617278460,
                         },
-                        indexAtSource: 1,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -1882,7 +1796,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           date: 2343124860,
                         },
-                        indexAtSource: 2,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -1898,7 +1811,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           string: "Bananas,blueberries,corn",
                         },
-                        indexAtSource: 3,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -1914,7 +1826,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           string: "100/each",
                         },
-                        indexAtSource: 4,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -1930,7 +1841,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           string: "Washington",
                         },
-                        indexAtSource: 5,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -1946,7 +1856,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           string: "United States of America",
                         },
-                        indexAtSource: 6,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -2019,7 +1928,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           string: "Super-SSID",
                         },
-                        indexAtSource: 0,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -2035,7 +1943,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           concealed: "coolpasswordadmin",
                         },
-                        indexAtSource: 1,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -2051,7 +1958,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           string: "10.0.0.1",
                         },
-                        indexAtSource: 2,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -2067,7 +1973,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           string: "airport-1D",
                         },
-                        indexAtSource: 3,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -2083,7 +1988,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           string: "Super-SSID-name",
                         },
-                        indexAtSource: 4,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -2099,7 +2003,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           menu: "wpa3e",
                         },
-                        indexAtSource: 5,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -2115,7 +2018,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           concealed: "coolpasswordbuddy",
                         },
-                        indexAtSource: 6,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -2131,7 +2033,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           concealed: "coolpasswordbuddy",
                         },
-                        indexAtSource: 7,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -2175,7 +2076,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           string: "Super Cool Store Co.",
                         },
-                        indexAtSource: 0,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -2191,7 +2091,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           string: "Chef Coldroom",
                         },
-                        indexAtSource: 1,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -2207,7 +2106,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           string: "member-29813569",
                         },
-                        indexAtSource: 2,
                         guarded: false,
                         clipboardFilter:
                           "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz",
@@ -2225,7 +2123,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           concealed: "99913",
                         },
-                        indexAtSource: 3,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -2247,7 +2144,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           string: "",
                         },
-                        indexAtSource: 0,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -2263,7 +2159,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           monthYear: null,
                         },
-                        indexAtSource: 1,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -2279,7 +2174,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           phone: "",
                         },
-                        indexAtSource: 2,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -2295,7 +2189,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           phone: "",
                         },
-                        indexAtSource: 3,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -2311,7 +2204,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           url: "",
                         },
-                        indexAtSource: 4,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -2355,7 +2247,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           string: "Jack Judd",
                         },
-                        indexAtSource: 0,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -2371,7 +2262,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           concealed: "131-216-1900",
                         },
-                        indexAtSource: 1,
                         guarded: false,
                         multiline: false,
                         dontGenerate: true,
@@ -2415,7 +2305,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           string: "National Public Library",
                         },
-                        indexAtSource: 0,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -2431,7 +2320,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           url: "https://npl.nullvalue.gov.test",
                         },
-                        indexAtSource: 1,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -2447,7 +2335,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           phone: "9995555555",
                         },
-                        indexAtSource: 2,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -2463,7 +2350,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           string: "George Engels",
                         },
-                        indexAtSource: 3,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -2479,7 +2365,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           monthYear: 199901,
                         },
-                        indexAtSource: 4,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -2495,7 +2380,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           monthYear: 203412,
                         },
-                        indexAtSource: 5,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -2511,7 +2395,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           string: "64783862",
                         },
-                        indexAtSource: 6,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -2527,7 +2410,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           concealed: "19191",
                         },
-                        indexAtSource: 7,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -2573,7 +2455,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           string: "George",
                         },
-                        indexAtSource: 0,
                         guarded: true,
                         multiline: false,
                         dontGenerate: false,
@@ -2589,7 +2470,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           string: "S",
                         },
-                        indexAtSource: 1,
                         guarded: true,
                         multiline: false,
                         dontGenerate: false,
@@ -2605,7 +2485,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           string: "Engels",
                         },
-                        indexAtSource: 2,
                         guarded: true,
                         multiline: false,
                         dontGenerate: false,
@@ -2621,7 +2500,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           menu: "male",
                         },
-                        indexAtSource: 3,
                         guarded: true,
                         multiline: false,
                         dontGenerate: false,
@@ -2637,7 +2515,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           date: 347198460,
                         },
-                        indexAtSource: 4,
                         guarded: true,
                         multiline: false,
                         dontGenerate: false,
@@ -2653,7 +2530,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           string: "Steel Worker",
                         },
-                        indexAtSource: 5,
                         guarded: true,
                         multiline: false,
                         dontGenerate: false,
@@ -2669,7 +2545,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           string: "Acme Inc.",
                         },
-                        indexAtSource: 6,
                         guarded: true,
                         multiline: false,
                         dontGenerate: false,
@@ -2685,7 +2560,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           string: "QA",
                         },
-                        indexAtSource: 7,
                         guarded: true,
                         multiline: false,
                         dontGenerate: false,
@@ -2701,7 +2575,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           string: "Quality Assurance Manager",
                         },
-                        indexAtSource: 8,
                         guarded: true,
                         multiline: false,
                         dontGenerate: false,
@@ -2729,7 +2602,6 @@ export const SanitizedExport: ExportData = {
                             state: "California",
                           },
                         },
-                        indexAtSource: 0,
                         guarded: true,
                         multiline: false,
                         dontGenerate: false,
@@ -2745,7 +2617,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           phone: "4565555555",
                         },
-                        indexAtSource: 1,
                         guarded: true,
                         multiline: false,
                         dontGenerate: false,
@@ -2761,7 +2632,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           phone: "4575555555",
                         },
-                        indexAtSource: 2,
                         guarded: true,
                         multiline: false,
                         dontGenerate: false,
@@ -2777,7 +2647,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           phone: "4585555555",
                         },
-                        indexAtSource: 3,
                         guarded: true,
                         multiline: false,
                         dontGenerate: false,
@@ -2793,7 +2662,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           phone: "4595555555",
                         },
-                        indexAtSource: 4,
                         guarded: true,
                         multiline: false,
                         dontGenerate: false,
@@ -2815,7 +2683,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           string: "gengels",
                         },
-                        indexAtSource: 0,
                         guarded: true,
                         multiline: false,
                         dontGenerate: false,
@@ -2831,7 +2698,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           string: "Who's a super cool guy?",
                         },
-                        indexAtSource: 1,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -2847,7 +2713,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           string: "Me, buddy.",
                         },
-                        indexAtSource: 2,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -2863,7 +2728,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           string: "gengels@nullvalue.test",
                         },
-                        indexAtSource: 3,
                         guarded: true,
                         multiline: false,
                         dontGenerate: false,
@@ -2879,7 +2743,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           string: "cv.gengels.nullvalue.test",
                         },
-                        indexAtSource: 4,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -2895,7 +2758,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           string: "",
                         },
-                        indexAtSource: 5,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -2911,7 +2773,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           string: "skypeisbad1619",
                         },
-                        indexAtSource: 6,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -2927,7 +2788,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           string: "aollol@lololol.aol.com",
                         },
-                        indexAtSource: 7,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -2943,7 +2803,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           string: "sk8rboi13@yah00.com",
                         },
-                        indexAtSource: 8,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -2959,7 +2818,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           string: "msnothankyou@msn&m&m.com",
                         },
-                        indexAtSource: 9,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -3019,7 +2877,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           string: "apiuser@nullvalue.test",
                         },
-                        indexAtSource: 0,
                         guarded: true,
                         multiline: false,
                         dontGenerate: false,
@@ -3035,7 +2892,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           concealed: "apiapiapiapiapiapiappy",
                         },
-                        indexAtSource: 1,
                         guarded: true,
                         multiline: false,
                         dontGenerate: true,
@@ -3051,7 +2907,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           menu: "jwt",
                         },
-                        indexAtSource: 2,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -3067,7 +2922,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           string: "filename.jwt",
                         },
-                        indexAtSource: 3,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -3083,7 +2937,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           date: 1301918460,
                         },
-                        indexAtSource: 4,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -3099,7 +2952,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           date: 1932811260,
                         },
-                        indexAtSource: 5,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -3115,7 +2967,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           string: "not.your.everyday.hostname",
                         },
-                        indexAtSource: 6,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -3182,7 +3033,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           string: "Fred Engels",
                         },
-                        indexAtSource: 0,
                         guarded: true,
                         multiline: false,
                         dontGenerate: false,
@@ -3198,7 +3048,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           creditCardType: "discover",
                         },
-                        indexAtSource: 1,
                         guarded: true,
                         multiline: false,
                         dontGenerate: false,
@@ -3214,7 +3063,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           creditCardNumber: "1234123445676789",
                         },
-                        indexAtSource: 2,
                         guarded: true,
                         clipboardFilter: "0123456789",
                         multiline: false,
@@ -3231,7 +3079,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           concealed: "1312",
                         },
-                        indexAtSource: 3,
                         guarded: true,
                         multiline: false,
                         dontGenerate: true,
@@ -3247,7 +3094,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           monthYear: 209912,
                         },
-                        indexAtSource: 4,
                         guarded: true,
                         multiline: false,
                         dontGenerate: false,
@@ -3263,7 +3109,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           monthYear: 200101,
                         },
-                        indexAtSource: 5,
                         guarded: true,
                         multiline: false,
                         dontGenerate: false,
@@ -3279,7 +3124,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           string: "card",
                         },
-                        indexAtSource: 6,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -3301,7 +3145,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           string: "",
                         },
-                        indexAtSource: 0,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -3317,7 +3160,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           phone: "",
                         },
-                        indexAtSource: 1,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -3333,7 +3175,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           phone: "",
                         },
-                        indexAtSource: 2,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -3349,7 +3190,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           phone: "",
                         },
-                        indexAtSource: 3,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -3365,7 +3205,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           url: "",
                         },
-                        indexAtSource: 4,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -3387,7 +3226,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           concealed: "",
                         },
-                        indexAtSource: 0,
                         guarded: false,
                         multiline: false,
                         dontGenerate: true,
@@ -3403,7 +3241,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           string: "$1312",
                         },
-                        indexAtSource: 1,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -3419,7 +3256,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           string: "$500",
                         },
-                        indexAtSource: 2,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -3435,7 +3271,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           string: "1%",
                         },
-                        indexAtSource: 3,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -3451,7 +3286,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           string: "",
                         },
-                        indexAtSource: 4,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -3540,7 +3374,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           string: "pixel 2Xl",
                         },
-                        indexAtSource: 0,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -3556,7 +3389,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           concealed: "BqatGTVQ9TCN72tLbjrsHqkb",
                         },
-                        indexAtSource: 1,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -3572,7 +3404,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           string: "",
                         },
-                        indexAtSource: 2,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -3588,7 +3419,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           string: "",
                         },
-                        indexAtSource: 3,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -3604,7 +3434,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           string: "",
                         },
-                        indexAtSource: 4,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -3620,7 +3449,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           menu: "",
                         },
-                        indexAtSource: 5,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -3636,7 +3464,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           concealed: "",
                         },
-                        indexAtSource: 6,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -3652,7 +3479,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           concealed: "",
                         },
-                        indexAtSource: 7,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -3692,7 +3518,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           string: "",
                         },
-                        indexAtSource: 0,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -3708,7 +3533,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           concealed: "10.0.0.1",
                         },
-                        indexAtSource: 1,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -3724,7 +3548,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           string: "Username: admin",
                         },
-                        indexAtSource: 2,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -3740,7 +3563,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           string: "password: Password!",
                         },
-                        indexAtSource: 3,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -3756,7 +3578,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           string: "Astroworld",
                         },
-                        indexAtSource: 4,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -3772,7 +3593,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           menu: "",
                         },
-                        indexAtSource: 5,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -3788,7 +3608,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           concealed: "Password!",
                         },
-                        indexAtSource: 6,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -3804,7 +3623,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           concealed: "",
                         },
-                        indexAtSource: 7,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -3908,7 +3726,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           string: "username123123",
                         },
-                        indexAtSource: 0,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -3971,7 +3788,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           string: "",
                         },
-                        indexAtSource: 0,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -3987,7 +3803,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           string: "12345-C4702-349F5-D84A1-C1FDF-54321",
                         },
-                        indexAtSource: 1,
                         guarded: true,
                         multiline: true,
                         dontGenerate: false,
@@ -4009,7 +3824,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           string: "",
                         },
-                        indexAtSource: 0,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -4028,7 +3842,6 @@ export const SanitizedExport: ExportData = {
                             provider: null,
                           },
                         },
-                        indexAtSource: 1,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -4044,7 +3857,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           string: "",
                         },
-                        indexAtSource: 2,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -4066,7 +3878,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           url: "",
                         },
-                        indexAtSource: 0,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -4082,7 +3893,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           string: "",
                         },
-                        indexAtSource: 1,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -4098,7 +3908,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           url: "",
                         },
-                        indexAtSource: 2,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -4114,7 +3923,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           string: "",
                         },
-                        indexAtSource: 3,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -4133,7 +3941,6 @@ export const SanitizedExport: ExportData = {
                             provider: null,
                           },
                         },
-                        indexAtSource: 4,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -4155,7 +3962,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           date: null,
                         },
-                        indexAtSource: 0,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -4171,7 +3977,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           string: "",
                         },
-                        indexAtSource: 1,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -4187,7 +3992,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           string: "",
                         },
-                        indexAtSource: 2,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -4254,7 +4058,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           url: "https://1password.com/downloads",
                         },
-                        indexAtSource: 0,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -4270,7 +4073,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           string: "Install 1Password everywhere you need your passwords.",
                         },
-                        indexAtSource: 1,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -4292,7 +4094,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           url: "https://1password.com/downloads/#browsers",
                         },
-                        indexAtSource: 0,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -4308,7 +4109,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           string: "Install 1Password in your browser to save and fill passwords.",
                         },
-                        indexAtSource: 1,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -4330,7 +4130,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           string: "1. Sign in to your favorite website.",
                         },
-                        indexAtSource: 0,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -4346,7 +4145,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           string: "2. 1Password will ask to save your username and password.",
                         },
-                        indexAtSource: 1,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -4362,7 +4160,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           string: "3. Click Save Login.",
                         },
-                        indexAtSource: 2,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -4384,7 +4181,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           url: "https://support.1password.com/explore/extension/",
                         },
-                        indexAtSource: 0,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -4400,7 +4196,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           string: "Save and fill passwords, credit cards, and addresses.",
                         },
-                        indexAtSource: 1,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -4422,7 +4217,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           string: "Check out our videos and articles:",
                         },
-                        indexAtSource: 0,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -4438,7 +4232,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           url: "https://youtube.com/1PasswordVideos",
                         },
-                        indexAtSource: 1,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -4454,7 +4247,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           url: "https://support.1password.com/",
                         },
-                        indexAtSource: 2,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -4470,7 +4262,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           url: "https://blog.1password.com/",
                         },
-                        indexAtSource: 3,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -4486,7 +4277,6 @@ export const SanitizedExport: ExportData = {
                         value: {
                           url: "https://support.1password.com/contact-us/",
                         },
-                        indexAtSource: 4,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,

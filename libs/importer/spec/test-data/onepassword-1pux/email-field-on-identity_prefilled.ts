@@ -52,7 +52,6 @@ export const EmailFieldOnIdentityPrefilledData: ExportData = {
                         value: {
                           string: "gengels@nullvalue.test",
                         },
-                        indexAtSource: 4,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -71,7 +70,6 @@ export const EmailFieldOnIdentityPrefilledData: ExportData = {
                             provider: "myEmailProvider",
                           },
                         },
-                        indexAtSource: 1,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,

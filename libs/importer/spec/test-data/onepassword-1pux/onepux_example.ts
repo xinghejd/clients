@@ -50,7 +50,6 @@ export const OnePuxExampleFile: ExportData = {
                         value: {
                           concealed: "12345",
                         },
-                        indexAtSource: 0,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,

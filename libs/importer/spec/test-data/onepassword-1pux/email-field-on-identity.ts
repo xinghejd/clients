@@ -55,7 +55,6 @@ export const EmailFieldOnIdentityData: ExportData = {
                             provider: "myEmailProvider",
                           },
                         },
-                        indexAtSource: 4,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,

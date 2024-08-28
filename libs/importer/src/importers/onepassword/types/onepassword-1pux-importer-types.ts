@@ -94,7 +94,6 @@ export interface FieldsEntity {
   title: string;
   id: string;
   value: Value;
-  indexAtSource: number;
   guarded: boolean;
   multiline: boolean;
   dontGenerate: boolean;

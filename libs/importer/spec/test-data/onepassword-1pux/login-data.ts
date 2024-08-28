@@ -68,7 +68,6 @@ export const LoginData: ExportData = {
                         value: {
                           string: "username123123",
                         },
-                        indexAtSource: 0,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
@@ -84,7 +83,6 @@ export const LoginData: ExportData = {
                         value: {
                           totp: "otpseed777",
                         },
-                        indexAtSource: 0,
                         guarded: false,
                         multiline: false,
                         dontGenerate: false,
