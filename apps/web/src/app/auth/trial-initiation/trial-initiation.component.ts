@@ -9,6 +9,11 @@ import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abs
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/models/domain/master-password-policy-options";
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
+import {
+  OrganizationInformation,
+  PlanInformation,
+  OrganizationBillingServiceAbstraction as OrganizationBillingService,
+} from "@bitwarden/common/billing/abstractions/organization-billing.service";
 import { PlanType, ProductTierType } from "@bitwarden/common/billing/enums";
 import { ReferenceEventRequest } from "@bitwarden/common/models/request/reference-event.request";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -69,6 +74,7 @@ export class TrialInitiationComponent implements OnInit, OnDestroy {
   productTier: ProductTierType;
   accountCreateOnly = true;
   useTrialStepper = false;
+  isTrialPaymentEnabled: boolean = true;
   policies: Policy[];
   enforcedPolicyOptions: MasterPasswordPolicyOptions;
   trialFlowOrgs: string[] = [
@@ -127,6 +133,7 @@ export class TrialInitiationComponent implements OnInit, OnDestroy {
     private i18nService: I18nService,
     private routerService: RouterService,
     private acceptOrgInviteService: AcceptOrganizationInviteService,
+    private organizationBillingService: OrganizationBillingService,
   ) {}
 
   async ngOnInit(): Promise<void> {
@@ -213,6 +220,26 @@ export class TrialInitiationComponent implements OnInit, OnDestroy {
     if (event.selectedIndex === 2) {
       this.billingSubLabel = this.i18nService.t("billingTrialSubLabel");
     }
+  }
+
+  async createOrganizationOnFreeTrial() {
+    const organization: OrganizationInformation = {
+      name: this.orgInfoFormGroup.get("name").value,
+      billingEmail: this.orgInfoFormGroup.get("email").value,
+      initiationPath: "Password Manager trial from marketing website",
+    };
+
+    const plan: PlanInformation = {
+      type: this.plan,
+      passwordManagerSeats: 1,
+    };
+
+    const response = await this.organizationBillingService.startFree({ organization, plan });
+
+    this.orgId = response.id;
+    this.billingSubLabel = `${this.i18nService.t("annual")} ($${0}/${this.i18nService.t("yr")})`;
+
+    this.verticalStepper.next();
   }
 
   createdAccount(email: string) {
