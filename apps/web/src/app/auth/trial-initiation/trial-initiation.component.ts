@@ -3,7 +3,7 @@ import { TitleCasePipe } from "@angular/common";
 import { Component, OnDestroy, OnInit, ViewChild } from "@angular/core";
 import { UntypedFormBuilder, Validators } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
-import { Subject, takeUntil } from "rxjs";
+import { firstValueFrom, Subject, takeUntil } from "rxjs";
 
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
@@ -15,7 +15,9 @@ import {
   OrganizationBillingServiceAbstraction as OrganizationBillingService,
 } from "@bitwarden/common/billing/abstractions/organization-billing.service";
 import { PlanType, ProductTierType } from "@bitwarden/common/billing/enums";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ReferenceEventRequest } from "@bitwarden/common/models/request/reference-event.request";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 
@@ -74,7 +76,8 @@ export class TrialInitiationComponent implements OnInit, OnDestroy {
   productTier: ProductTierType;
   accountCreateOnly = true;
   useTrialStepper = false;
-  isTrialPaymentEnabled: boolean = true;
+  loading = false;
+  isTrialPaymentEnabled: boolean;
   policies: Policy[];
   enforcedPolicyOptions: MasterPasswordPolicyOptions;
   trialFlowOrgs: string[] = [
@@ -121,6 +124,9 @@ export class TrialInitiationComponent implements OnInit, OnDestroy {
   }
 
   private destroy$ = new Subject<void>();
+  protected enableTrialPayment$ = this.configService.getFeatureFlag$(
+    FeatureFlag.TrialPaymentEnabled,
+  );
 
   constructor(
     private route: ActivatedRoute,
@@ -134,6 +140,7 @@ export class TrialInitiationComponent implements OnInit, OnDestroy {
     private routerService: RouterService,
     private acceptOrgInviteService: AcceptOrganizationInviteService,
     private organizationBillingService: OrganizationBillingService,
+    private configService: ConfigService,
   ) {}
 
   async ngOnInit(): Promise<void> {
@@ -198,6 +205,8 @@ export class TrialInitiationComponent implements OnInit, OnDestroy {
       .subscribe(() => {
         this.orgInfoFormGroup.controls.name.markAsTouched();
       });
+
+    this.isTrialPaymentEnabled = await firstValueFrom(this.enableTrialPayment$);
   }
 
   ngOnDestroy(): void {
@@ -222,7 +231,8 @@ export class TrialInitiationComponent implements OnInit, OnDestroy {
     }
   }
 
-  async createOrganizationOnFreeTrial() {
+  async createOrganizationOnTrial() {
+    this.loading = true;
     const organization: OrganizationInformation = {
       name: this.orgInfoFormGroup.get("name").value,
       billingEmail: this.orgInfoFormGroup.get("email").value,
@@ -241,7 +251,7 @@ export class TrialInitiationComponent implements OnInit, OnDestroy {
 
     this.orgId = response.id;
     this.billingSubLabel = `${this.i18nService.t("annual")} ($${0}/${this.i18nService.t("yr")})`;
-
+    this.loading = false;
     this.verticalStepper.next();
   }
 

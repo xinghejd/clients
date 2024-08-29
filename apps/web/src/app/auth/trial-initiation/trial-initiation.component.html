@@ -91,7 +91,8 @@
                   bitButton
                   buttonType="primary"
                   [disabled]="orgInfoFormGroup.get('name').invalid"
-                  (click)="createOrganizationOnFreeTrial()"
+                  [loading]="loading"
+                  (click)="createOrganizationOnTrial()"
                 >
                   {{ isTrialPaymentEnabled ? ("startTrial" | i18n) : ("next" | i18n) }}
                 </button>

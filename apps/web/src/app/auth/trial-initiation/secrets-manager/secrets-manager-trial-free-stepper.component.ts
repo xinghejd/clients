@@ -1,13 +1,26 @@
 import { Component, OnInit, ViewChild } from "@angular/core";
 import { UntypedFormBuilder, Validators } from "@angular/forms";
-import { Router } from "@angular/router";
+import { ActivatedRoute, Router } from "@angular/router";
+import { firstValueFrom, Subject, takeUntil } from "rxjs";
 
 import { OrganizationBillingServiceAbstraction as OrganizationBillingService } from "@bitwarden/common/billing/abstractions/organization-billing.service";
 import { PlanType } from "@bitwarden/common/billing/enums";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ReferenceEventRequest } from "@bitwarden/common/models/request/reference-event.request";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
 import { VerticalStepperComponent } from "../../trial-initiation/vertical-stepper/vertical-stepper.component";
+
+enum ValidOrgParams {
+  families = "families",
+  enterprise = "enterprise",
+  teams = "teams",
+  teamsStarter = "teamsStarter",
+  individual = "individual",
+  premium = "premium",
+  free = "free",
+}
 
 @Component({
   selector: "app-secrets-manager-trial-free-stepper",
@@ -39,24 +52,80 @@ export class SecretsManagerTrialFreeStepperComponent implements OnInit {
   };
 
   organizationId: string;
+  isTrialPaymentEnabled: boolean;
+  plan: PlanType;
+  org = "";
+  loading = false;
+  trialFlowOrgs: string[] = [
+    ValidOrgParams.teams,
+    ValidOrgParams.teamsStarter,
+    ValidOrgParams.enterprise,
+    ValidOrgParams.families,
+  ];
 
   referenceEventRequest: ReferenceEventRequest;
+
+  private destroy$ = new Subject<void>();
+  protected enableTrialPayment$ = this.configService.getFeatureFlag$(
+    FeatureFlag.TrialPaymentEnabled,
+  );
 
   constructor(
     protected formBuilder: UntypedFormBuilder,
     protected i18nService: I18nService,
     protected organizationBillingService: OrganizationBillingService,
     private router: Router,
+    private route: ActivatedRoute,
+    private configService: ConfigService,
   ) {}
 
-  ngOnInit(): void {
+  async ngOnInit(): Promise<void> {
     this.referenceEventRequest = new ReferenceEventRequest();
     this.referenceEventRequest.initiationPath = "Secrets Manager trial from marketing website";
+    this.route.queryParams.pipe(takeUntil(this.destroy$)).subscribe((qParams) => {
+      if (this.trialFlowOrgs.includes(qParams.org)) {
+        this.org = qParams.org;
+
+        if (this.org === ValidOrgParams.families) {
+          this.plan = PlanType.FamiliesAnnually;
+        } else if (this.org === ValidOrgParams.teamsStarter) {
+          this.plan = PlanType.TeamsStarter;
+        } else if (this.org === ValidOrgParams.teams) {
+          this.plan = PlanType.TeamsAnnually;
+        } else if (this.org === ValidOrgParams.enterprise) {
+          this.plan = PlanType.EnterpriseAnnually;
+        }
+      }
+    });
+    this.isTrialPaymentEnabled = await firstValueFrom(this.enableTrialPayment$);
   }
 
   accountCreated(email: string): void {
     this.formGroup.get("email")?.setValue(email);
     this.subLabels.createAccount = email;
+    this.verticalStepper.next();
+  }
+
+  async createOrganizationOnTrial(): Promise<void> {
+    this.loading = true;
+    const response = await this.organizationBillingService.purchaseSubscriptionNoPaymentMethod({
+      organization: {
+        name: this.formGroup.get("name").value,
+        billingEmail: this.formGroup.get("email").value,
+        initiationPath: "Secrets Manager trial from marketing website",
+      },
+      plan: {
+        type: this.plan,
+        subscribeToSecretsManager: true,
+        isFromSecretsManagerTrial: true,
+        passwordManagerSeats: 1,
+        secretsManagerSeats: 1,
+      },
+    });
+
+    this.organizationId = response.id;
+    this.subLabels.organizationInfo = response.name;
+    this.loading = false;
     this.verticalStepper.next();
   }
 
