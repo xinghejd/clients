@@ -166,6 +166,7 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
                     userVerification: userVerification
                 )
                 client.preparePasskeyRegistration(request: req, callback: CallbackImpl(self.extensionContext))
+                return
             }
         }
 

@@ -22,7 +22,7 @@ pub enum UserVerification {
     Discouraged,
 }
 
-#[derive(uniffi::Error, Serialize, Deserialize)]
+#[derive(Debug, uniffi::Error, Serialize, Deserialize)]
 pub enum BitwardenError {
     Internal(String),
 }
@@ -96,7 +96,10 @@ impl MacOSProviderClient {
                                         error!("Error deserializing message: {}", e);
                                     }
                                 }
-                                Err(e) => cb.error(e),
+                                Err(e) => {
+                                    error!("Error processing message: {:?}", e);
+                                    cb.error(e)
+                                }
                             },
                             None => {
                                 error!("No callback found for sequence number: {}", sequence_number)
