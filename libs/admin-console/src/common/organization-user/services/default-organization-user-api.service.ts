@@ -19,6 +19,7 @@ import {
   OrganizationUserDetailsResponse,
   OrganizationUserResetPasswordDetailsResponse,
   OrganizationUserUserDetailsResponse,
+  OrganizationUserUserBasicResponse,
 } from "../models/responses";
 
 export class DefaultOrganizationUserApiService implements OrganizationUserApiService {
@@ -82,6 +83,13 @@ export class DefaultOrganizationUserApiService implements OrganizationUserApiSer
       true,
     );
     return new ListResponse(r, OrganizationUserUserDetailsResponse);
+  }
+
+  async getAllUsersBasic(
+    organizationId: string,
+  ): Promise<ListResponse<OrganizationUserUserBasicResponse>> {
+    // TODO
+    throw new Error("Not implemented");
   }
 
   async getOrganizationUserResetPasswordDetails(
