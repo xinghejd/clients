@@ -266,10 +266,13 @@ export class LockV2Component implements OnInit, OnDestroy {
     }
 
     await this.biometricStateService.setUserPromptCancelled();
-    const userKey = await this.cryptoService.getUserKeyFromStorage(KeySuffixOptions.Biometric);
+    const userKey = await this.cryptoService.getUserKeyFromStorage(
+      KeySuffixOptions.Biometric,
+      this.activeAccount.id,
+    );
 
     if (userKey) {
-      await this.setUserKeyAndContinue(userKey, false);
+      await this.setUserKeyAndContinue(userKey, this.activeAccount.id, false);
     }
 
     return !!userKey;
@@ -309,7 +312,7 @@ export class LockV2Component implements OnInit, OnDestroy {
       const userKey = await this.pinService.decryptUserKeyWithPin(this.pin, userId);
 
       if (userKey) {
-        await this.setUserKeyAndContinue(userKey);
+        await this.setUserKeyAndContinue(userKey, userId);
         return; // successfully unlocked
       }
 
@@ -392,10 +395,14 @@ export class LockV2Component implements OnInit, OnDestroy {
     const userKey = await this.masterPasswordService.decryptUserKeyWithMasterKey(
       response.masterKey,
     );
-    await this.setUserKeyAndContinue(userKey, true);
+    await this.setUserKeyAndContinue(userKey, userId, true);
   }
 
-  private async setUserKeyAndContinue(key: UserKey, evaluatePasswordAfterUnlock = false) {
+  private async setUserKeyAndContinue(
+    key: UserKey,
+    userId: UserId,
+    evaluatePasswordAfterUnlock = false,
+  ) {
     await this.cryptoService.setUserKey(key);
 
     // Now that we have a decrypted user key in memory, we can check if we
