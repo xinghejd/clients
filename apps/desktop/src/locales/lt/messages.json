@@ -1174,6 +1174,9 @@
   "premiumPurchaseAlert": {
     "message": "Galite įsigyti Premium narystę bitwarden.com interneto saugykloje. Ar norite aplankyti svetainę dabar?"
   },
+  "premiumPurchaseAlertV2": {
+    "message": "You can purchase Premium from your account settings on the Bitwarden web app."
+  },
   "premiumCurrentMember": {
     "message": "Esate Premium narys!"
   },
@@ -1814,7 +1817,7 @@
     "message": "Pirma reikia nustatymuose nustatyti darbalaukio biometrinius duomenys, prieš juos naudojant naršyklėje."
   },
   "biometricsManualSetupTitle": {
-    "message": "Autometic setup not available"
+    "message": "Automatic setup not available"
   },
   "biometricsManualSetupDesc": {
     "message": "Due to the installation method, biometrics support could not be automatically enabled. Would you like to open the documentation on how to do this manually?"

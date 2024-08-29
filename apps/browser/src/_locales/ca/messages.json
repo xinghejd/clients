@@ -25,9 +25,6 @@
   "finishCreatingYourAccountBySettingAPassword": {
     "message": "Acabeu de crear el vostre compte establint una contrasenya"
   },
-  "login": {
-    "message": "Inicia sessió"
-  },
   "enterpriseSingleSignOn": {
     "message": "Inici de sessió únic d'empresa"
   },
@@ -305,16 +302,16 @@
     "message": "Edita la carpeta"
   },
   "newFolder": {
-    "message": "New folder"
+    "message": "Carpeta nova"
   },
   "folderName": {
-    "message": "Folder name"
+    "message": "Nom de la carpeta"
   },
   "folderHintText": {
-    "message": "Nest a folder by adding the parent folder's name followed by a “/”. Example: Social/Forums"
+    "message": "Imbriqueu una carpeta afegint el nom de la carpeta principal seguit d'una \"/\". Exemple: Social/Fòrums"
   },
   "noFoldersAdded": {
-    "message": "No folders added"
+    "message": "No s'ha afegit cap carpeta"
   },
   "createFoldersToOrganize": {
     "message": "Create folders to organize your vault items"
@@ -451,7 +448,7 @@
     "message": "Preferit"
   },
   "unfavorite": {
-    "message": "Suprimeix de Preferits"
+    "message": "Trau dels preferits"
   },
   "itemAddedToFavorites": {
     "message": "Element afegit als preferits"
@@ -850,7 +847,7 @@
     "message": "Mostra les identitats a la pàgina de pestanya"
   },
   "showIdentitiesCurrentTabDesc": {
-    "message": "Llista els elements d'identitat de la pàgina de pestanya per facilitar l'autoemplenat."
+    "message": "Llista els elements d'identitat de la pestanya de la pàgina per facilitar l'autoemplenat."
   },
   "clearClipboard": {
     "message": "Buida el porta-retalls",
@@ -1083,7 +1080,7 @@
     "message": "1 GB d'emmagatzematge xifrat per als fitxers adjunts."
   },
   "premiumSignUpEmergency": {
-    "message": "Emergency access"
+    "message": "Emergency access."
   },
   "premiumSignUpTwoStepOptions": {
     "message": "Opcions propietàries de doble factor com ara YubiKey i Duo."
@@ -1115,8 +1112,20 @@
   "premiumCurrentMemberThanks": {
     "message": "Gràcies per donar suport a Bitwarden."
   },
+  "premiumFeatures": {
+    "message": "Upgrade to premium and receive:"
+  },
   "premiumPrice": {
     "message": "Tot per només $PRICE$ / any!",
+    "placeholders": {
+      "price": {
+        "content": "$1",
+        "example": "$10"
+      }
+    }
+  },
+  "premiumPriceV2": {
+    "message": "All for just $PRICE$ per year!",
     "placeholders": {
       "price": {
         "content": "$1",
@@ -3132,11 +3141,11 @@
     "message": "Alies de domini"
   },
   "passwordRepromptDisabledAutofillOnPageLoad": {
-    "message": "Els elements amb una nova sol·licitud de contrasenya mestra no es poden omplir automàticament en carregar la pàgina. L'emplenament automàtic en carregar de la pàgina està desactivat.",
+    "message": "Els elements amb una nova sol·licitud de contrasenya mestra no es poden omplir automàticament en carregar la pàgina. L'emplenament automàtic en carregar la pàgina està desactivat.",
     "description": "Toast message for describing that master password re-prompt cannot be autofilled on page load."
   },
   "autofillOnPageLoadSetToDefault": {
-    "message": "S'ha configurat l'emplenament automàtic en carregar la pàgina per que utilitze la configuració predeterminada.",
+    "message": "S'ha configurat l'emplenament automàtic en carregar la pàgina perquè utilitze la configuració predeterminada.",
     "description": "Toast message for informing the user that autofill on page load has been set to the default setting."
   },
   "turnOffMasterPasswordPromptToEditField": {
@@ -3960,6 +3969,12 @@
   "autoFillOnPageLoad": {
     "message": "Autofill on page load?"
   },
+  "cardExpiredTitle": {
+    "message": "Expired card"
+  },
+  "cardExpiredMessage": {
+    "message": "If you've renewed it, update the card's information"
+  },
   "cardDetails": {
     "message": "Card details"
   },
@@ -3971,6 +3986,9 @@
         "example": "Visa"
       }
     }
+  },
+  "enableAnimations": {
+    "message": "Enable animations"
   },
   "addAccount": {
     "message": "Afig compte"

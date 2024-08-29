@@ -46,13 +46,13 @@
     "message": "Kortinnehavarens namn"
   },
   "loginCredentials": {
-    "message": "Login credentials"
+    "message": "Inloggningsuppgifter"
   },
   "authenticatorKey": {
     "message": "Autentiseringsnyckel"
   },
   "autofillOptions": {
-    "message": "Autofill options"
+    "message": "Alternativ för autofyll"
   },
   "websiteUri": {
     "message": "Webbplats (URI)"
@@ -193,6 +193,12 @@
   },
   "dr": {
     "message": "Dr"
+  },
+  "cardExpiredTitle": {
+    "message": "Expired card"
+  },
+  "cardExpiredMessage": {
+    "message": "If you've renewed it, update the card's information"
   },
   "expirationMonth": {
     "message": "Utgångsmånad"
@@ -474,6 +480,15 @@
   },
   "viewItem": {
     "message": "Visa objekt"
+  },
+  "viewItemType": {
+    "message": "Visa $ITEMTYPE$",
+    "placeholders": {
+      "itemtype": {
+        "content": "$1",
+        "example": "login"
+      }
+    }
   },
   "new": {
     "message": "Nytt",
@@ -889,6 +904,9 @@
   },
   "masterPassHint": {
     "message": "Huvudlösenordsledtråd (valfritt)"
+  },
+  "newMasterPassHint": {
+    "message": "Ny huvudlösenordsledtråd (valfritt)"
   },
   "masterPassHintLabel": {
     "message": "Huvudlösenordsledtråd"
@@ -8939,5 +8957,56 @@
   },
   "additionalStorageGbMessage": {
     "message": "GB additional storage"
+  },
+  "premiumAccounts": {
+    "message": "6 premium accounts"
+  },
+  "unlimitedSharing": {
+    "message": "Obegränsad delning"
+  },
+  "unlimitedCollections": {
+    "message": "Obegränsat antal samlingar"
+  },
+  "secureDataSharing": {
+    "message": "Säker datadelning"
+  },
+  "eventLogMonitoring": {
+    "message": "Event log monitoring"
+  },
+  "directoryIntegration": {
+    "message": "Directory integration"
+  },
+  "passwordLessSso": {
+    "message": "PasswordLess SSO"
+  },
+  "accountRecovery": {
+    "message": "Kontoåterställning"
+  },
+  "customRoles": {
+    "message": "Anpassade roller"
+  },
+  "unlimitedSecretsStorage": {
+    "message": "Unlimited secrets storage"
+  },
+  "unlimitedUsers": {
+    "message": "Obegränsat antal användare"
+  },
+  "UpTo50MachineAccounts": {
+    "message": "Up to 50 machine accounts"
+  },
+  "UpTo20MachineAccounts": {
+    "message": "Up to 20 machine accounts"
+  },
+  "current": {
+    "message": "Current"
+  },
+  "secretsManagerSubInfo": {
+    "message": "Your Secrets Manager subscription will upgrade base on the plan selected"
+  },
+  "bitwardenPasswordManager": {
+    "message": "Bitwarden Password Manager"
+  },
+  "secretsManagerWithFreePasswordManagerInfo": {
+    "message": "Your complementary one year Password Manager subscription will upgrade to the selected plan. You will not be charged until the complimentary period is over."
   }
 }
