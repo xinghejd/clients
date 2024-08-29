@@ -257,7 +257,7 @@ export class Fido2V1Component implements OnInit, OnDestroy {
         sessionId: this.sessionId,
         cipherId: this.cipher.id,
         type: BrowserFido2MessageTypes.ConfirmNewCredentialResponse,
-        userVerified,
+        userVerified: true,
       });
     }
 
@@ -266,6 +266,7 @@ export class Fido2V1Component implements OnInit, OnDestroy {
 
   protected async saveNewLogin() {
     const data = this.message$.value;
+    console.log('saveNewLogin:', data);
     if (data?.type === BrowserFido2MessageTypes.ConfirmNewCredentialRequest) {
       const name = data.credentialName || data.rpId;
       // TODO: Revert to check for user verification once user verification for passkeys is approved for production.

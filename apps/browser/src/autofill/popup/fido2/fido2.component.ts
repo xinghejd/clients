@@ -18,6 +18,7 @@ import {
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { SearchService } from "@bitwarden/common/abstractions/search.service";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
@@ -121,6 +122,7 @@ export class Fido2Component implements OnInit, OnDestroy {
     private dialogService: DialogService,
     private browserMessagingApi: ZonedMessageListenerService,
     private passwordRepromptService: PasswordRepromptService,
+    private accountService: AccountService,
     private fido2UserVerificationService: Fido2UserVerificationService,
   ) {}
 
@@ -201,11 +203,15 @@ export class Fido2Component implements OnInit, OnDestroy {
           }
 
           case BrowserFido2MessageTypes.PickCredentialRequest: {
+            const activeUserId = await firstValueFrom(
+              this.accountService.activeAccount$.pipe(map((a) => a?.id)),
+            );
+
             this.ciphers = await Promise.all(
               message.cipherIds.map(async (cipherId) => {
                 const cipher = await this.cipherService.get(cipherId);
                 return cipher.decrypt(
-                  await this.cipherService.getKeyForCipherKeyDecryption(cipher),
+                  await this.cipherService.getKeyForCipherKeyDecryption(cipher, activeUserId),
                 );
               }),
             );
@@ -218,11 +224,15 @@ export class Fido2Component implements OnInit, OnDestroy {
           }
 
           case BrowserFido2MessageTypes.InformExcludedCredentialRequest: {
+            const activeUserId = await firstValueFrom(
+              this.accountService.activeAccount$.pipe(map((a) => a?.id)),
+            );
+
             this.ciphers = await Promise.all(
               message.existingCipherIds.map(async (cipherId) => {
                 const cipher = await this.cipherService.get(cipherId);
                 return cipher.decrypt(
-                  await this.cipherService.getKeyForCipherKeyDecryption(cipher),
+                  await this.cipherService.getKeyForCipherKeyDecryption(cipher, activeUserId),
                 );
               }),
             );
@@ -260,11 +270,16 @@ export class Fido2Component implements OnInit, OnDestroy {
 
   protected async submit() {
     const data = this.message$.value;
+    console.log('submit data:', data);
+    // console.log('selected cipher:', this.cipher);
 
-    if (data?.type === BrowserFido2MessageTypes.PickCredentialRequest) {
+    if (
+    data?.type === BrowserFido2MessageTypes.PickCredentialRequest
+    ) {
       // TODO: Revert to use fido2 user verification service once user verification for passkeys is approved for production.
       // PM-4577 - https://github.com/bitwarden/clients/pull/8746
       const userVerified = await this.handleUserVerification(data.userVerification, this.cipher);
+      console.log('PickCredentialRequest userVerified:', userVerified);
 
       this.send({
         sessionId: this.sessionId,
@@ -272,7 +287,31 @@ export class Fido2Component implements OnInit, OnDestroy {
         type: BrowserFido2MessageTypes.PickCredentialResponse,
         userVerified,
       });
-    } else if (data?.type === BrowserFido2MessageTypes.ConfirmNewCredentialRequest) {
+    // } else if () {
+    //   if (this.cipher.login.hasFido2Credentials) {
+    //     const confirmed = await this.dialogService.openSimpleDialog({
+    //       title: { key: "overwritePasskey" },
+    //       content: { key: "overwritePasskeyAlert" },
+    //       type: "info",
+    //     });
+
+    //     if (!confirmed) {
+    //       return false;
+    //     }
+    //   }
+
+    //   // TODO: Revert to use fido2 user verification service once user verification for passkeys is approved for production.
+    //   // PM-4577 - https://github.com/bitwarden/clients/pull/8746
+    //   const userVerified = await this.handleUserVerification(data.userVerification, this.cipher);
+    //   console.log('InformExcludedCredentialRequest userVerified:', userVerified);
+
+    //   // this.send({
+    //   //   sessionId: this.sessionId,
+    //   //   cipherId: this.cipher.id,
+    //   //   type: BrowserFido2MessageTypes.InformExcludedCredentialResponse,
+    //   //   userVerified,
+    //   // });
+    } else if (data?.type === BrowserFido2MessageTypes.InformExcludedCredentialRequest || data?.type === BrowserFido2MessageTypes.ConfirmNewCredentialRequest) {
       if (this.cipher.login.hasFido2Credentials) {
         const confirmed = await this.dialogService.openSimpleDialog({
           title: { key: "overwritePasskey" },
@@ -288,6 +327,7 @@ export class Fido2Component implements OnInit, OnDestroy {
       // TODO: Revert to use fido2 user verification service once user verification for passkeys is approved for production.
       // PM-4577 - https://github.com/bitwarden/clients/pull/8746
       const userVerified = await this.handleUserVerification(data.userVerification, this.cipher);
+      console.log('ConfirmNewCredentialRequest userVerified:', userVerified);
 
       this.send({
         sessionId: this.sessionId,
@@ -322,6 +362,7 @@ export class Fido2Component implements OnInit, OnDestroy {
   }
 
   async handleCipherItemSelect(item: CipherView) {
+    console.log('handleCipherItemSelect item:', item);
     this.cipher = item;
 
     await this.submit();
@@ -411,8 +452,14 @@ export class Fido2Component implements OnInit, OnDestroy {
   }
 
   private async createNewCipher(name: string, username: string) {
+    const activeUserId = await firstValueFrom(
+      this.accountService.activeAccount$.pipe(map((a) => a?.id)),
+    );
+
     this.buildCipher(name, username);
-    const cipher = await this.cipherService.encrypt(this.cipher);
+
+    const cipher = await this.cipherService.encrypt(this.cipher, activeUserId);
+
     try {
       await this.cipherService.createWithServer(cipher);
       this.cipher.id = cipher.id;
