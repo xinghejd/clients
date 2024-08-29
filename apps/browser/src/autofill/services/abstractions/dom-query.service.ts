@@ -9,4 +9,8 @@ export interface DomQueryService {
     filterCallback: CallableFunction,
     mutationObserver?: MutationObserver,
   ): Node[];
+  queryShadowRoots(
+    root: Document | ShadowRoot | Element,
+    returnSingleShadowRoot?: boolean,
+  ): ShadowRoot[];
 }

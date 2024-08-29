@@ -72,14 +72,23 @@ export class DomQueryService implements DomQueryServiceInterface {
    * Queries any immediate shadow roots found within the given root element.
    *
    * @param root - The root element to start the query from
+   * @param returnSingleShadowRoot - Whether to return a single shadow root or an array of shadow roots
    */
-  private queryShadowRoots(root: Document | ShadowRoot | Element): ShadowRoot[] {
+  queryShadowRoots(
+    root: Document | ShadowRoot | Element,
+    returnSingleShadowRoot = false,
+  ): ShadowRoot[] {
     const shadowRoots: ShadowRoot[] = [];
     const potentialShadowRoots = root.querySelectorAll(":defined");
     for (let index = 0; index < potentialShadowRoots.length; index++) {
       const shadowRoot = this.getShadowRoot(potentialShadowRoots[index]);
-      if (shadowRoot) {
-        shadowRoots.push(shadowRoot);
+      if (!shadowRoot) {
+        continue;
+      }
+
+      shadowRoots.push(shadowRoot);
+      if (returnSingleShadowRoot) {
+        break;
       }
     }
 

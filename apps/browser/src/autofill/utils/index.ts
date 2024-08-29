@@ -356,3 +356,11 @@ export function throttle(callback: (_args: any) => any, limit: number) {
     }
   };
 }
+
+export function debounce(callback: (_args: any) => any, delay: number) {
+  let timeout: NodeJS.Timeout;
+  return function (...args: unknown[]) {
+    clearTimeout(timeout);
+    timeout = globalThis.setTimeout(() => callback.apply(this, args), delay);
+  };
+}
