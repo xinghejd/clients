@@ -38,8 +38,8 @@ import { FileDownloadService } from "@bitwarden/common/platform/abstractions/fil
 import { I18nService as I18nServiceAbstraction } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService as PlatformUtilsServiceAbstraction } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { AbstractStorageService } from "@bitwarden/common/platform/abstractions/storage.service";
+import { BiometricsService } from "@bitwarden/common/platform/biometrics/biometric.service";
 import { ThemeType } from "@bitwarden/common/platform/enums";
 import { MemoryStorageService } from "@bitwarden/common/platform/services/memory-storage.service";
 // eslint-disable-next-line import/no-restricted-paths -- Implementation for memory storage
@@ -50,6 +50,7 @@ import { StorageServiceProvider } from "@bitwarden/common/platform/services/stor
 import { GlobalStateProvider, StateProvider } from "@bitwarden/common/platform/state";
 import { MemoryStorageService as MemoryStorageServiceForStateProviders } from "@bitwarden/common/platform/state/storage/memory-storage.service";
 /* eslint-enable import/no-restricted-paths -- Implementation for memory storage */
+import { WindowStorageService } from "@bitwarden/common/platform/storage/window-storage.service";
 import {
   DefaultThemeStateService,
   ThemeStateService,
@@ -61,17 +62,16 @@ import { WebSetPasswordJitService, WebRegistrationFinishService } from "../auth"
 import { AcceptOrganizationInviteService } from "../auth/organization-invite/accept-organization.service";
 import { HtmlStorageService } from "../core/html-storage.service";
 import { I18nService } from "../core/i18n.service";
+import { WebBiometricsService } from "../platform/web-biometric.service";
 import { WebEnvironmentService } from "../platform/web-environment.service";
 import { WebMigrationRunner } from "../platform/web-migration-runner";
 import { WebStorageServiceProvider } from "../platform/web-storage-service.provider";
-import { WindowStorageService } from "../platform/window-storage.service";
 import { CollectionAdminService } from "../vault/core/collection-admin.service";
 
 import { EventService } from "./event.service";
 import { InitService } from "./init.service";
 import { ModalService } from "./modal.service";
 import { RouterService } from "./router.service";
-import { StateService as WebStateService } from "./state";
 import { WebFileDownloadService } from "./web-file-download.service";
 import { WebPlatformUtilsService } from "./web-platform-utils.service";
 
@@ -135,11 +135,6 @@ const safeProviders: SafeProvider[] = [
     useClass: ModalService,
     useAngularDecorators: true,
   }),
-  safeProvider(WebStateService),
-  safeProvider({
-    provide: StateService,
-    useExisting: WebStateService,
-  }),
   safeProvider({
     provide: FileDownloadService,
     useClass: WebFileDownloadService,
@@ -169,6 +164,11 @@ const safeProviders: SafeProvider[] = [
     provide: EnvironmentService,
     useClass: WebEnvironmentService,
     deps: [WINDOW, StateProvider, AccountService],
+  }),
+  safeProvider({
+    provide: BiometricsService,
+    useClass: WebBiometricsService,
+    deps: [],
   }),
   safeProvider({
     provide: ThemeStateService,

@@ -1,5 +1,5 @@
 import { CommonModule } from "@angular/common";
-import { Component, Inject, OnInit } from "@angular/core";
+import { Component, Inject, OnDestroy, OnInit } from "@angular/core";
 import { FormBuilder, ReactiveFormsModule } from "@angular/forms";
 import { ActivatedRoute, Router, RouterLink } from "@angular/router";
 
@@ -32,6 +32,7 @@ import {
   LinkModule,
   TypographyModule,
   DialogService,
+  ToastService,
 } from "@bitwarden/components";
 
 import {
@@ -71,7 +72,10 @@ import { TwoFactorAuthEmailComponent } from "./two-factor-auth-email.component";
   ],
   providers: [I18nPipe],
 })
-export class TwoFactorAuthComponent extends BaseTwoFactorAuthComponent implements OnInit {
+export class TwoFactorAuthComponent
+  extends BaseTwoFactorAuthComponent
+  implements OnInit, OnDestroy
+{
   constructor(
     protected loginStrategyService: LoginStrategyServiceAbstraction,
     protected router: Router,
@@ -92,6 +96,7 @@ export class TwoFactorAuthComponent extends BaseTwoFactorAuthComponent implement
     @Inject(WINDOW) protected win: Window,
     private syncService: SyncService,
     private messagingService: MessagingService,
+    toastService: ToastService,
   ) {
     super(
       loginStrategyService,
@@ -111,6 +116,7 @@ export class TwoFactorAuthComponent extends BaseTwoFactorAuthComponent implement
       accountService,
       formBuilder,
       win,
+      toastService,
     );
     super.onSuccessfulLoginTdeNavigate = async () => {
       this.win.close();

@@ -78,8 +78,8 @@ export class AutofillComponent implements OnInit {
    * Default values set here are used in component state operations
    * until corresponding stored settings have loaded on init.
    */
-  protected canOverrideBrowserAutofillSetting = false;
-  protected defaultBrowserAutofillDisabled = false;
+  protected canOverrideBrowserAutofillSetting: boolean = false;
+  protected defaultBrowserAutofillDisabled: boolean = false;
   protected inlineMenuVisibility: InlineMenuVisibilitySetting =
     AutofillOverlayVisibility.OnFieldFocus;
   protected browserClientVendor: BrowserClientVendor = BrowserClientVendors.Unknown;
@@ -87,21 +87,24 @@ export class AutofillComponent implements OnInit {
     DisablePasswordManagerUris.Unknown;
   protected browserShortcutsURI: BrowserShortcutsUri = BrowserShortcutsUris.Unknown;
   protected browserClientIsUnknown: boolean;
-  enableAutofillOnPageLoad = false;
-  enableInlineMenu = false;
-  enableInlineMenuOnIconSelect = false;
-  autofillOnPageLoadDefault = false;
+  protected autofillOnPageLoadFromPolicy$ =
+    this.autofillSettingsService.activateAutofillOnPageLoadFromPolicy$;
+
+  enableAutofillOnPageLoad: boolean = false;
+  enableInlineMenu: boolean = false;
+  enableInlineMenuOnIconSelect: boolean = false;
+  autofillOnPageLoadDefault: boolean = false;
   autofillOnPageLoadOptions: { name: string; value: boolean }[];
-  enableContextMenuItem = false;
-  enableAutoTotpCopy = false;
+  enableContextMenuItem: boolean = false;
+  enableAutoTotpCopy: boolean = false;
   clearClipboard: ClearClipboardDelaySetting;
   clearClipboardOptions: { name: string; value: ClearClipboardDelaySetting }[];
   defaultUriMatch: UriMatchStrategySetting = UriMatchStrategy.Domain;
   uriMatchOptions: { name: string; value: UriMatchStrategySetting }[];
-  showCardsCurrentTab = true;
-  showIdentitiesCurrentTab = true;
+  showCardsCurrentTab: boolean = true;
+  showIdentitiesCurrentTab: boolean = true;
   autofillKeyboardHelperText: string;
-  accountSwitcherEnabled = false;
+  accountSwitcherEnabled: boolean = false;
 
   constructor(
     private i18nService: I18nService,
@@ -126,7 +129,7 @@ export class AutofillComponent implements OnInit {
       { name: i18nService.t("fiveMinutes"), value: ClearClipboardDelay.FiveMinutes },
     ];
     this.uriMatchOptions = [
-      { name: i18nService.t("baseDomain"), value: UriMatchStrategy.Domain },
+      { name: i18nService.t("baseDomainOptionRecommended"), value: UriMatchStrategy.Domain },
       { name: i18nService.t("host"), value: UriMatchStrategy.Host },
       { name: i18nService.t("startsWith"), value: UriMatchStrategy.StartsWith },
       { name: i18nService.t("regEx"), value: UriMatchStrategy.RegularExpression },
@@ -215,9 +218,9 @@ export class AutofillComponent implements OnInit {
 
   private async setAutofillKeyboardHelperText(command: string) {
     if (command) {
-      this.autofillKeyboardHelperText = this.i18nService.t("autofillShortcutText", command);
+      this.autofillKeyboardHelperText = this.i18nService.t("autofillLoginShortcutText", command);
     } else {
-      this.autofillKeyboardHelperText = this.i18nService.t("autofillShortcutNotSet");
+      this.autofillKeyboardHelperText = this.i18nService.t("autofillLoginShortcutNotSet");
     }
   }
 

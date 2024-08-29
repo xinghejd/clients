@@ -184,11 +184,13 @@ export class CollectionService implements CollectionServiceAbstraction {
     });
   }
 
-  async replace(collections: Record<CollectionId, CollectionData>): Promise<void> {
-    await this.encryptedCollectionDataState.update(() => collections);
+  async replace(collections: Record<CollectionId, CollectionData>, userId: UserId): Promise<void> {
+    await this.stateProvider
+      .getUser(userId, ENCRYPTED_COLLECTION_DATA_KEY)
+      .update(() => collections);
   }
 
-  async clear(userId?: UserId): Promise<any> {
+  async clear(userId?: UserId): Promise<void> {
     if (userId == null) {
       await this.encryptedCollectionDataState.update(() => null);
       await this.decryptedCollectionDataState.forceValue(null);
