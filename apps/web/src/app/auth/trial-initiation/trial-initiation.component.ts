@@ -234,7 +234,10 @@ export class TrialInitiationComponent implements OnInit, OnDestroy {
       passwordManagerSeats: 1,
     };
 
-    const response = await this.organizationBillingService.startFree({ organization, plan });
+    const response = await this.organizationBillingService.purchaseSubscriptionNoPaymentMethod({
+      organization,
+      plan,
+    });
 
     this.orgId = response.id;
     this.billingSubLabel = `${this.i18nService.t("annual")} ($${0}/${this.i18nService.t("yr")})`;

@@ -6,6 +6,7 @@ import { SecretVerificationRequest } from "../../../auth/models/request/secret-v
 import { ApiKeyResponse } from "../../../auth/models/response/api-key.response";
 import { OrganizationSsoResponse } from "../../../auth/models/response/organization-sso.response";
 import { ExpandedTaxInfoUpdateRequest } from "../../../billing/models/request/expanded-tax-info-update.request";
+import { OrganizationNoPaymentMethodCreateRequest } from "../../../billing/models/request/organization-no-payment-method-create-request";
 import { OrganizationSmSubscriptionUpdateRequest } from "../../../billing/models/request/organization-sm-subscription-update.request";
 import { OrganizationSubscriptionUpdateRequest } from "../../../billing/models/request/organization-subscription-update.request";
 import { PaymentRequest } from "../../../billing/models/request/payment.request";
@@ -39,7 +40,9 @@ export class OrganizationApiServiceAbstraction {
   getSubscription: (id: string) => Promise<OrganizationSubscriptionResponse>;
   getLicense: (id: string, installationId: string) => Promise<unknown>;
   getAutoEnrollStatus: (identifier: string) => Promise<OrganizationAutoEnrollStatusResponse>;
-  create: (request: OrganizationCreateRequest) => Promise<OrganizationResponse>;
+  create: (
+    request: OrganizationCreateRequest | OrganizationNoPaymentMethodCreateRequest,
+  ) => Promise<OrganizationResponse>;
   createLicense: (data: FormData) => Promise<OrganizationResponse>;
   save: (id: string, request: OrganizationUpdateRequest) => Promise<OrganizationResponse>;
   updatePayment: (id: string, request: PaymentRequest) => Promise<void>;
