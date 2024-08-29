@@ -272,7 +272,7 @@ export class LockV2Component implements OnInit, OnDestroy {
     );
 
     if (userKey) {
-      await this.setUserKeyAndContinue(userKey, this.activeAccount.id, false);
+      await this.setUserKeyAndContinue(userKey, false);
     }
 
     return !!userKey;
@@ -308,11 +308,10 @@ export class LockV2Component implements OnInit, OnDestroy {
     const MAX_INVALID_PIN_ENTRY_ATTEMPTS = 5;
 
     try {
-      const userId = (await firstValueFrom(this.accountService.activeAccount$))?.id;
-      const userKey = await this.pinService.decryptUserKeyWithPin(this.pin, userId);
+      const userKey = await this.pinService.decryptUserKeyWithPin(this.pin, this.activeAccount.id);
 
       if (userKey) {
-        await this.setUserKeyAndContinue(userKey, userId);
+        await this.setUserKeyAndContinue(userKey);
         return; // successfully unlocked
       }
 
@@ -357,8 +356,6 @@ export class LockV2Component implements OnInit, OnDestroy {
   }
 
   private async doUnlockWithMasterPassword() {
-    const userId = (await firstValueFrom(this.accountService.activeAccount$))?.id;
-
     const verification = {
       type: VerificationType.MasterPassword,
       secret: this.masterPassword,
@@ -369,7 +366,7 @@ export class LockV2Component implements OnInit, OnDestroy {
     try {
       this.formPromise = this.userVerificationService.verifyUserByMasterPassword(
         verification,
-        userId,
+        this.activeAccount.id,
         this.activeAccount.email,
       );
       response = await this.formPromise;
@@ -395,20 +392,15 @@ export class LockV2Component implements OnInit, OnDestroy {
     const userKey = await this.masterPasswordService.decryptUserKeyWithMasterKey(
       response.masterKey,
     );
-    await this.setUserKeyAndContinue(userKey, userId, true);
+    await this.setUserKeyAndContinue(userKey, true);
   }
 
-  private async setUserKeyAndContinue(
-    key: UserKey,
-    userId: UserId,
-    evaluatePasswordAfterUnlock = false,
-  ) {
-    await this.cryptoService.setUserKey(key);
+  private async setUserKeyAndContinue(key: UserKey, evaluatePasswordAfterUnlock = false) {
+    await this.cryptoService.setUserKey(key, this.activeAccount.id);
 
     // Now that we have a decrypted user key in memory, we can check if we
     // need to establish trust on the current device
-    const activeAccount = await firstValueFrom(this.accountService.activeAccount$);
-    await this.deviceTrustService.trustDeviceIfRequired(activeAccount.id);
+    await this.deviceTrustService.trustDeviceIfRequired(this.activeAccount.id);
 
     await this.doContinue(evaluatePasswordAfterUnlock);
   }
