@@ -39,6 +39,7 @@ import {
   DialogService,
   FormFieldModule,
   IconButtonModule,
+  ToastService,
 } from "@bitwarden/components";
 
 import { PinServiceAbstraction } from "../../common/abstractions";
@@ -148,6 +149,7 @@ export class LockV2Component implements OnInit, OnDestroy {
     private policyService: InternalPolicyService,
     private passwordStrengthService: PasswordStrengthServiceAbstraction,
     private formBuilder: FormBuilder,
+    private toastService: ToastService,
 
     private lockComponentService: LockComponentService,
     private anonLayoutWrapperDataService: AnonLayoutWrapperDataService,
@@ -288,11 +290,11 @@ export class LockV2Component implements OnInit, OnDestroy {
 
   private async handlePinRequiredUnlock() {
     if (this.pin == null || this.pin === "") {
-      this.platformUtilsService.showToast(
-        "error",
-        this.i18nService.t("errorOccurred"),
-        this.i18nService.t("pinRequired"),
-      );
+      this.toastService.showToast({
+        variant: "error",
+        title: this.i18nService.t("errorOccurred"),
+        message: this.i18nService.t("pinRequired"),
+      });
       return;
     }
 
@@ -316,36 +318,36 @@ export class LockV2Component implements OnInit, OnDestroy {
 
       // Log user out if they have entered an invalid PIN too many times
       if (this.invalidPinAttempts >= MAX_INVALID_PIN_ENTRY_ATTEMPTS) {
-        this.platformUtilsService.showToast(
-          "error",
-          null,
-          this.i18nService.t("tooManyInvalidPinEntryAttemptsLoggingOut"),
-        );
+        this.toastService.showToast({
+          variant: "error",
+          title: null,
+          message: this.i18nService.t("tooManyInvalidPinEntryAttemptsLoggingOut"),
+        });
         this.messagingService.send("logout");
         return;
       }
 
-      this.platformUtilsService.showToast(
-        "error",
-        this.i18nService.t("errorOccurred"),
-        this.i18nService.t("invalidPin"),
-      );
+      this.toastService.showToast({
+        variant: "error",
+        title: this.i18nService.t("errorOccurred"),
+        message: this.i18nService.t("invalidPin"),
+      });
     } catch {
-      this.platformUtilsService.showToast(
-        "error",
-        this.i18nService.t("errorOccurred"),
-        this.i18nService.t("unexpectedError"),
-      );
+      this.toastService.showToast({
+        variant: "error",
+        title: this.i18nService.t("errorOccurred"),
+        message: this.i18nService.t("unexpectedError"),
+      });
     }
   }
 
   private async handleMasterPasswordRequiredUnlock() {
     if (this.masterPassword == null || this.masterPassword === "") {
-      this.platformUtilsService.showToast(
-        "error",
-        this.i18nService.t("errorOccurred"),
-        this.i18nService.t("masterPasswordRequired"),
-      );
+      this.toastService.showToast({
+        variant: "error",
+        title: this.i18nService.t("errorOccurred"),
+        message: this.i18nService.t("masterPasswordRequired"),
+      });
       return;
     }
     await this.doUnlockWithMasterPassword();
@@ -379,11 +381,11 @@ export class LockV2Component implements OnInit, OnDestroy {
     }
 
     if (!passwordValid) {
-      this.platformUtilsService.showToast(
-        "error",
-        this.i18nService.t("errorOccurred"),
-        this.i18nService.t("invalidMasterPassword"),
-      );
+      this.toastService.showToast({
+        variant: "error",
+        title: this.i18nService.t("errorOccurred"),
+        message: this.i18nService.t("invalidMasterPassword"),
+      });
       return;
     }
 
