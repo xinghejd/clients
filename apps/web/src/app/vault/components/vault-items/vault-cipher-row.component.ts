@@ -35,7 +35,6 @@ export class VaultCipherRowComponent implements OnInit {
   @Input() collections: CollectionView[];
   @Input() viewingOrgVault: boolean;
   @Input() canEditCipher: boolean;
-  @Input() vaultBulkManagementActionEnabled: boolean;
 
   @Output() onEvent = new EventEmitter<VaultItemEvent>();
 
@@ -66,7 +65,6 @@ export class VaultCipherRowComponent implements OnInit {
   protected get showFixOldAttachments() {
     return this.cipher.hasOldAttachments && this.cipher.organizationId == null;
   }
-
   protected get showAttachments() {
     return this.canEditCipher || this.cipher.attachments?.length > 0;
   }
@@ -100,17 +98,15 @@ export class VaultCipherRowComponent implements OnInit {
   }
 
   protected get disableMenu() {
-    return (
-      !(
-        this.isNotDeletedLoginCipher ||
-        this.showCopyPassword ||
-        this.showCopyTotp ||
-        this.showLaunchUri ||
-        this.showAttachments ||
-        this.showClone ||
-        this.canEditCipher ||
-        this.cipher.isDeleted
-      ) && this.vaultBulkManagementActionEnabled
+    return !(
+      this.isNotDeletedLoginCipher ||
+      this.showCopyPassword ||
+      this.showCopyTotp ||
+      this.showLaunchUri ||
+      this.showAttachments ||
+      this.showClone ||
+      this.canEditCipher ||
+      this.cipher.isDeleted
     );
   }
 
@@ -122,14 +118,6 @@ export class VaultCipherRowComponent implements OnInit {
     this.onEvent.emit({ type: "clone", item: this.cipher });
   }
 
-  protected moveToOrganization() {
-    this.onEvent.emit({ type: "moveToOrganization", items: [this.cipher] });
-  }
-
-  protected editCollections() {
-    this.onEvent.emit({ type: "viewCipherCollections", item: this.cipher });
-  }
-
   protected events() {
     this.onEvent.emit({ type: "viewEvents", item: this.cipher });
   }
@@ -137,7 +125,6 @@ export class VaultCipherRowComponent implements OnInit {
   protected restore() {
     this.onEvent.emit({ type: "restore", items: [this.cipher] });
   }
-
   protected deleteCipher() {
     this.onEvent.emit({ type: "delete", items: [{ cipher: this.cipher }] });
   }

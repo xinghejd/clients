@@ -47,7 +47,6 @@ export class VaultItemsComponent {
   @Input() addAccessStatus: number;
   @Input() addAccessToggle: boolean;
   @Input() restrictProviderAccess: boolean;
-  @Input() vaultBulkManagementActionEnabled = false;
 
   private _ciphers?: CipherView[] = [];
   @Input() get ciphers(): CipherView[] {
@@ -94,21 +93,15 @@ export class VaultItemsComponent {
   }
 
   get disableMenu() {
-    return (
-      this.vaultBulkManagementActionEnabled &&
-      !this.bulkMoveAllowed &&
-      !this.showAssignToCollections() &&
-      !this.showDelete()
-    );
+    return !this.bulkMoveAllowed && !this.showAssignToCollections() && !this.showDelete();
   }
 
   get bulkAssignToCollectionsAllowed() {
     return this.showBulkAddToCollections && this.ciphers.length > 0;
   }
 
-  // Use new bulk management delete if vaultBulkManagementActionEnabled feature flag is enabled
   get deleteAllowed() {
-    return this.vaultBulkManagementActionEnabled ? this.showDelete() : true;
+    return this.showDelete();
   }
 
   protected canEditCollection(collection: CollectionView): boolean {
@@ -151,15 +144,6 @@ export class VaultItemsComponent {
   protected bulkMoveToFolder() {
     this.event({
       type: "moveToFolder",
-      items: this.selection.selected
-        .filter((item) => item.cipher !== undefined)
-        .map((item) => item.cipher),
-    });
-  }
-
-  protected bulkMoveToOrganization() {
-    this.event({
-      type: "moveToOrganization",
       items: this.selection.selected
         .filter((item) => item.cipher !== undefined)
         .map((item) => item.cipher),
