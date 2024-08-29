@@ -14,12 +14,14 @@ import { VaultTimeoutSettingsService } from "@bitwarden/common/abstractions/vaul
 import { DeviceType } from "@bitwarden/common/enums";
 import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { BiometricsService } from "@bitwarden/common/platform/biometrics/biometric.service";
 import { KeySuffixOptions } from "@bitwarden/common/platform/enums";
 import { UserId } from "@bitwarden/common/types/guid";
 
 export class DesktopLockComponentService implements LockComponentService {
   private readonly userDecryptionOptionsService = inject(UserDecryptionOptionsServiceAbstraction);
   private readonly platformUtilsService = inject(PlatformUtilsService);
+  private readonly biometricsService = inject(BiometricsService);
   private readonly pinService = inject(PinServiceAbstraction);
   private readonly vaultTimeoutSettingsService = inject(VaultTimeoutSettingsService);
   private readonly cryptoService = inject(CryptoService);
@@ -69,7 +71,7 @@ export class DesktopLockComponentService implements LockComponentService {
   private async isBiometricsSupportedAndReady(
     userId: UserId,
   ): Promise<{ supportsBiometric: boolean; biometricReady: boolean }> {
-    const supportsBiometric = await this.platformUtilsService.supportsBiometric();
+    const supportsBiometric = await this.biometricsService.supportsBiometric();
     const biometricReady = await ipc.platform.biometric.enabled(userId);
     return { supportsBiometric, biometricReady };
   }
