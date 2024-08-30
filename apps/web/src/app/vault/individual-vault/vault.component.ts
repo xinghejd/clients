@@ -167,6 +167,9 @@ export class VaultComponent implements OnInit, OnDestroy {
   protected vaultBulkManagementActionEnabled$ = this.configService.getFeatureFlag$(
     FeatureFlag.VaultBulkManagementAction,
   );
+  protected extensionRefreshEnabled$ = this.configService.getFeatureFlag$(
+    FeatureFlag.ExtensionRefresh,
+  );
   private searchText$ = new Subject<string>();
   private refresh$ = new BehaviorSubject<void>(null);
   private destroy$ = new Subject<void>();
@@ -632,11 +635,13 @@ export class VaultComponent implements OnInit, OnDestroy {
 
   async editCipherId(id: string) {
     const cipher = await this.cipherService.get(id);
+    const extensionRefreshEnabled = await firstValueFrom(this.extensionRefreshEnabled$);
     // if cipher exists (cipher is null when new) and MP reprompt
     // is on for this cipher, then show password reprompt
     if (
       cipher &&
       cipher.reprompt !== 0 &&
+      !extensionRefreshEnabled &&
       !(await this.passwordRepromptService.showPasswordPrompt())
     ) {
       // didn't pass password prompt, so don't open add / edit modal

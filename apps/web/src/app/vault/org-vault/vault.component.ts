@@ -175,6 +175,11 @@ export class VaultComponent implements OnInit, OnDestroy {
     return this._restrictProviderAccessFlagEnabled;
   }
 
+  private _extensionRefreshEnabled: boolean;
+  protected get extensionRefreshEnabled(): boolean {
+    return this._extensionRefreshEnabled;
+  }
+
   protected get hideVaultFilters(): boolean {
     return (
       this.restrictProviderAccessEnabled &&
@@ -230,6 +235,10 @@ export class VaultComponent implements OnInit, OnDestroy {
 
     this._restrictProviderAccessFlagEnabled = await this.configService.getFeatureFlag(
       FeatureFlag.RestrictProviderAccess,
+    );
+
+    this._extensionRefreshEnabled = await this.configService.getFeatureFlag(
+      FeatureFlag.ExtensionRefresh,
     );
 
     const filter$ = this.routedVaultFilterService.filter$;
@@ -823,6 +832,7 @@ export class VaultComponent implements OnInit, OnDestroy {
     if (
       cipher &&
       cipher.reprompt !== 0 &&
+      !this.extensionRefreshEnabled &&
       !(await this.passwordRepromptService.showPasswordPrompt())
     ) {
       // didn't pass password prompt, so don't open add / edit modal
