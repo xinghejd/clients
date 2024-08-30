@@ -5,7 +5,7 @@ import { ActivatedRoute, Router, RouterModule } from "@angular/router";
 import { first, firstValueFrom, Subject, take, takeUntil } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
-import { LoginEmailServiceAbstraction } from "@bitwarden/auth/common";
+import { LoginEmailServiceAbstraction, RegisterRouteService } from "@bitwarden/auth/common";
 import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/models/domain/master-password-policy-options";
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 import { DevicesApiServiceAbstraction } from "@bitwarden/common/auth/abstractions/devices-api.service.abstraction";
@@ -42,6 +42,7 @@ export class LoginComponentV2 implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
 
   clientType: ClientType;
+  registerRoute$ = this.registerRouteService.registerRoute$(); // TODO: remove when email verification flag is removed
   showLoginWithDevice = false;
   validatedEmail = false;
 
@@ -53,6 +54,10 @@ export class LoginComponentV2 implements OnInit, OnDestroy {
     ],
     rememberEmail: [false],
   });
+
+  get emailFormControl() {
+    return this.formGroup.controls.email;
+  }
 
   get loggedEmail() {
     return this.formGroup.value.email;
@@ -72,6 +77,7 @@ export class LoginComponentV2 implements OnInit, OnDestroy {
     private loginService: LoginService,
     private ngZone: NgZone,
     private platformUtilsService: PlatformUtilsService,
+    private registerRouteService: RegisterRouteService,
     private router: Router,
   ) {
     this.clientType = this.platformUtilsService.getClientType();
@@ -150,6 +156,20 @@ export class LoginComponentV2 implements OnInit, OnDestroy {
         });
       }
     }
+  }
+
+  protected async goToRegister() {
+    // TODO: remove when email verification flag is removed
+    const registerRoute = await firstValueFrom(this.registerRoute$);
+
+    if (this.emailFormControl.valid) {
+      await this.router.navigate([registerRoute], {
+        queryParams: { email: this.emailFormControl.value },
+      });
+      return;
+    }
+
+    await this.router.navigate([registerRoute]);
   }
 
   private async getLoginWithDevice(email: string): Promise<void> {
