@@ -37,6 +37,7 @@ import { IdentityView } from "@bitwarden/common/vault/models/view/identity.view"
 import { LoginUriView } from "@bitwarden/common/vault/models/view/login-uri.view";
 import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
 import { SecureNoteView } from "@bitwarden/common/vault/models/view/secure-note.view";
+import { SSHKeyView } from "@bitwarden/common/vault/models/view/ssh-key.view";
 import { DialogService } from "@bitwarden/components";
 import { PasswordRepromptService } from "@bitwarden/vault";
 
@@ -128,6 +129,7 @@ export class AddEditComponent implements OnInit, OnDestroy {
       { name: i18nService.t("typeIdentity"), value: CipherType.Identity },
       { name: i18nService.t("typeSecureNote"), value: CipherType.SecureNote },
     ];
+
     this.cardBrandOptions = [
       { name: "-- " + i18nService.t("select") + " --", value: null },
       { name: "Visa", value: "Visa" },
@@ -277,6 +279,7 @@ export class AddEditComponent implements OnInit, OnDestroy {
         this.cipher.identity = new IdentityView();
         this.cipher.secureNote = new SecureNoteView();
         this.cipher.secureNote.type = SecureNoteType.Generic;
+        this.cipher.sshKey = new SSHKeyView();
         this.cipher.reprompt = CipherRepromptType.None;
       }
     }
