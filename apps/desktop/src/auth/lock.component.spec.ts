@@ -461,7 +461,7 @@ describe("LockComponent", () => {
       stateServiceMock.getUserId.mockResolvedValue("userId");
       await component["canUseBiometric"]();
 
-      expect(ipc.platform.biometric.enabled).toHaveBeenCalledWith("userId");
+      expect(ipc.keyManagement.biometric.enabled).toHaveBeenCalledWith("userId");
     });
   });
 

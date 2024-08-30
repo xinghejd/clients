@@ -184,7 +184,7 @@ export class LockComponent extends BaseLockComponent implements OnInit, OnDestro
 
   private async canUseBiometric() {
     const userId = await this.stateService.getUserId();
-    return await ipc.platform.biometric.enabled(userId);
+    return await ipc.keyManagement.biometric.enabled(userId);
   }
 
   private focusInput() {

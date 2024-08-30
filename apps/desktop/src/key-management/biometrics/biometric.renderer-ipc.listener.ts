@@ -6,7 +6,7 @@ import { BiometricMessage, BiometricAction } from "../../types/biometric-message
 
 import { DesktopBiometricsService } from "./desktop.biometrics.service";
 
-export class DesktopCredentialStorageListener {
+export class BiometricsRendererIPCListener {
   constructor(
     private serviceName: string,
     private biometricService: DesktopBiometricsService,

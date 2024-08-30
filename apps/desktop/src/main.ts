@@ -44,6 +44,7 @@ import { I18nMainService } from "./platform/services/i18n.main.service";
 import { SSOLocalhostCallbackService } from "./platform/services/sso-localhost-callback.service";
 import { ElectronMainMessagingService } from "./services/electron-main-messaging.service";
 import { isMacAppStore } from "./utils";
+import { BiometricsRendererIPCListener } from "./key-management/biometrics/biometric.renderer-ipc.listener";
 
 export class Main {
   logService: ElectronLogMainService;
@@ -54,6 +55,7 @@ export class Main {
   messagingService: MessageSender;
   environmentService: DefaultEnvironmentService;
   desktopCredentialStorageListener: DesktopCredentialStorageListener;
+  biometricsRendererIPCListener: BiometricsRendererIPCListener;
   desktopSettingsService: DesktopSettingsService;
   mainCryptoFunctionService: MainCryptoFunctionService;
   migrationRunner: MigrationRunner;
@@ -214,6 +216,11 @@ export class Main {
       this.biometricsService,
       this.logService,
     );
+    this.biometricsRendererIPCListener = new BiometricsRendererIPCListener(
+      "Bitwarden",
+      this.biometricsService,
+      this.logService,
+    );
 
     this.nativeMessagingMain = new NativeMessagingMain(
       this.logService,
@@ -233,6 +240,7 @@ export class Main {
 
   bootstrap() {
     this.desktopCredentialStorageListener.init();
+    this.biometricsRendererIPCListener.init();
     // Run migrations first, then other things
     this.migrationRunner.run().then(
       async () => {

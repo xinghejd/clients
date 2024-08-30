@@ -2,6 +2,7 @@ import { contextBridge } from "electron";
 
 import auth from "./auth/preload";
 import platform from "./platform/preload";
+import keyManagement from "./key-management/preload";
 
 /**
  * Bitwarden Preload script.
@@ -17,6 +18,7 @@ import platform from "./platform/preload";
 export const ipc = {
   auth,
   platform,
+  keyManagement,
 };
 
 contextBridge.exposeInMainWorld("ipc", ipc);
