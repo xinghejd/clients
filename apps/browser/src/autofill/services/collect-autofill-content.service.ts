@@ -1356,6 +1356,19 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
   }
 
   /**
+   * Validates whether a password field is within the document.
+   */
+  isPasswordFieldWithinDocument(): boolean {
+    return (
+      this.domQueryService.query<HTMLInputElement>(
+        globalThis.document.documentElement,
+        `input[type="password"]`,
+        (node: Node) => nodeIsInputElement(node) && node.type === "password",
+      )?.length > 0
+    );
+  }
+
+  /**
    * Destroys the CollectAutofillContentService. Clears all
    * timeouts and disconnects the mutation observer.
    */
@@ -1365,15 +1378,5 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     }
     this.mutationObserver?.disconnect();
     this.intersectionObserver?.disconnect();
-  }
-
-  isPasswordFieldWithinDocument(): boolean {
-    return (
-      this.domQueryService.query<HTMLInputElement>(
-        document,
-        `input[type="password"]`,
-        (node: Node) => nodeIsInputElement(node) && node.type === "password",
-      )?.length > 0
-    );
   }
 }
