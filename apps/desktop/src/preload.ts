@@ -1,8 +1,8 @@
 import { contextBridge } from "electron";
 
 import auth from "./auth/preload";
-import platform from "./platform/preload";
 import keyManagement from "./key-management/preload";
+import platform from "./platform/preload";
 
 /**
  * Bitwarden Preload script.
