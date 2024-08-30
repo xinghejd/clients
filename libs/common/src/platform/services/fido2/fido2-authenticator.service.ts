@@ -222,15 +222,17 @@ export class Fido2AuthenticatorService implements Fido2AuthenticatorServiceAbstr
       let cipherOptions: CipherView[];
 
       await userInterfaceSession.ensureUnlockedVault();
-      await this.syncService.fullSync(false);
 
-      if (params.allowCredentialDescriptorList?.length > 0) {
-        cipherOptions = await this.findCredentialsById(
-          params.allowCredentialDescriptorList,
-          params.rpId,
-        );
-      } else {
-        cipherOptions = await this.findCredentialsByRp(params.rpId);
+      // Try to find the passkey locally before causing a sync to speed things up
+      // only skip syncing if we found credentials AND all of them have a counter = 0
+      cipherOptions = await this.findCredential(params, cipherOptions);
+      if (
+        cipherOptions.length === 0 ||
+        cipherOptions.some((c) => c.login.fido2Credentials.some((p) => p.counter > 0))
+      ) {
+        // If no passkey is found, or any had a non-zero counter, sync to get the latest data
+        await this.syncService.fullSync(false);
+        cipherOptions = await this.findCredential(params, cipherOptions);
       }
 
       if (cipherOptions.length === 0) {
@@ -325,6 +327,21 @@ export class Fido2AuthenticatorService implements Fido2AuthenticatorServiceAbstr
     } finally {
       userInterfaceSession.close();
     }
+  }
+
+  private async findCredential(
+    params: Fido2AuthenticatorGetAssertionParams,
+    cipherOptions: CipherView[],
+  ) {
+    if (params.allowCredentialDescriptorList?.length > 0) {
+      cipherOptions = await this.findCredentialsById(
+        params.allowCredentialDescriptorList,
+        params.rpId,
+      );
+    } else {
+      cipherOptions = await this.findCredentialsByRp(params.rpId);
+    }
+    return cipherOptions;
   }
 
   private requiresUserVerificationPrompt(
