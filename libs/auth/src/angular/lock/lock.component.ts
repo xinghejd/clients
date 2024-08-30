@@ -1,8 +1,17 @@
 import { CommonModule } from "@angular/common";
 import { Component, NgZone, OnDestroy, OnInit } from "@angular/core";
-import { FormBuilder, ReactiveFormsModule } from "@angular/forms";
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
-import { BehaviorSubject, firstValueFrom, Subject, switchMap, take, takeUntil } from "rxjs";
+import {
+  BehaviorSubject,
+  firstValueFrom,
+  Observable,
+  Subject,
+  switchMap,
+  take,
+  takeUntil,
+  tap,
+} from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { InternalPolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
@@ -73,7 +82,8 @@ export class LockV2Component implements OnInit, OnDestroy {
   clientType: ClientType;
   ClientType = ClientType;
 
-  unlockOptions: UnlockOptions = null;
+  private unlockOptions: UnlockOptions = null;
+  unlockOptions$: Observable<UnlockOptions> = null;
 
   private _activeUnlockOptionBSubject: BehaviorSubject<UnlockOptionKey> =
     new BehaviorSubject<UnlockOptionKey>(null);
@@ -108,13 +118,7 @@ export class LockV2Component implements OnInit, OnDestroy {
   // TODO: ensure hostname is shown in anon-layout footer
   // envHostname = "";
 
-  formGroup = this.formBuilder.group(
-    {
-      masterPassword: ["", []],
-      pin: ["", []],
-    },
-    { updateOn: "submit" },
-  );
+  formGroup: FormGroup;
 
   // Desktop properties:
   private deferFocus: boolean = null;
@@ -128,6 +132,8 @@ export class LockV2Component implements OnInit, OnDestroy {
   pendingBiometric = false;
   isFido2Session: boolean = false;
 
+  defaultUnlockOptionSetForUser = false;
+
   constructor(
     private accountService: AccountService,
     private authService: AuthService,
@@ -135,7 +141,7 @@ export class LockV2Component implements OnInit, OnDestroy {
     private userVerificationService: UserVerificationService,
     private cryptoService: CryptoService,
     private platformUtilsService: PlatformUtilsService,
-    private environmentService: EnvironmentService,
+    private environmentService: EnvironmentService, // TODO: evaluate if this is required or not
     private router: Router,
     private dialogService: DialogService,
     private messagingService: MessagingService,
@@ -189,7 +195,31 @@ export class LockV2Component implements OnInit, OnDestroy {
   private listenForActiveUnlockOptionChanges() {
     this.activeUnlockOption$
       .pipe(takeUntil(this.destroy$))
-      .subscribe((activeUnlockOption: UnlockOptionKey) => {});
+      .subscribe((activeUnlockOption: UnlockOptionKey) => {
+        if (activeUnlockOption === "pin") {
+          this.buildPinForm();
+        } else if (activeUnlockOption === "masterPassword") {
+          this.buildMasterPasswordForm();
+        }
+      });
+  }
+
+  private buildMasterPasswordForm() {
+    this.formGroup = this.formBuilder.group(
+      {
+        masterPassword: ["", [Validators.required]],
+      },
+      { updateOn: "submit" },
+    );
+  }
+
+  private buildPinForm() {
+    this.formGroup = this.formBuilder.group(
+      {
+        pin: ["", [Validators.required]],
+      },
+      { updateOn: "submit" },
+    );
   }
 
   private listenForActiveAccountChanges() {
@@ -207,16 +237,27 @@ export class LockV2Component implements OnInit, OnDestroy {
   private async handleActiveAccountChange(activeAccount: { id: UserId | undefined } & AccountInfo) {
     this.setEmailAsPageSubtitle(activeAccount.email);
 
-    // TODO: what do I do if biometrics loads later?
-    this.unlockOptions = await firstValueFrom(
-      this.lockComponentService.getAvailableUnlockOptions$(activeAccount.id),
-    );
+    // reset default unlock option on account change
+    this.defaultUnlockOptionSetForUser = false;
 
-    this.setDefaultActiveUnlockOption(this.unlockOptions);
+    this.unlockOptions$ = this.lockComponentService
+      .getAvailableUnlockOptions$(activeAccount.id)
+      .pipe(
+        tap((unlockOptions) => {
+          this.unlockOptions = unlockOptions;
 
-    if (this.unlockOptions.biometrics.enabled) {
-      this.biometricUnlockBtnText = this.lockComponentService.getBiometricsUnlockBtnText();
-    }
+          // Unlock options can emit multiple times, but we only want to set the default unlock option once
+          // so that, if the user chooses a different unlock option, it won't be overridden upon subsequent emissions
+          if (!this.defaultUnlockOptionSetForUser) {
+            this.setDefaultActiveUnlockOption(unlockOptions);
+            this.defaultUnlockOptionSetForUser = true;
+          }
+
+          if (unlockOptions.biometrics.enabled) {
+            this.biometricUnlockBtnText = this.lockComponentService.getBiometricsUnlockBtnText();
+          }
+        }),
+      );
   }
 
   private setDefaultActiveUnlockOption(unlockOptions: UnlockOptions) {
