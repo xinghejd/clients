@@ -1,6 +1,7 @@
 use std::{
     collections::HashMap,
     sync::{atomic::AtomicU32, Arc, Mutex},
+    time::Instant,
 };
 
 use log::{error, info, warn};
@@ -41,7 +42,8 @@ pub struct MacOSProviderClient {
 
     // We need to keep track of the callbacks so we can call them when we receive a response
     response_callbacks_counter: AtomicU32,
-    response_callbacks_queue: Arc<Mutex<HashMap<u32, Box<dyn Callback>>>>,
+    #[allow(clippy::type_complexity)]
+    response_callbacks_queue: Arc<Mutex<HashMap<u32, (Box<dyn Callback>, Instant)>>>,
 }
 
 #[uniffi::export]
@@ -64,6 +66,7 @@ impl MacOSProviderClient {
         let path = desktop_core::ipc::path("autofill");
 
         let queue = client.response_callbacks_queue.clone();
+
         std::thread::spawn(move || {
             let rt = tokio::runtime::Builder::new_current_thread()
                 .enable_all()
@@ -78,7 +81,6 @@ impl MacOSProviderClient {
 
             rt.block_on(async move {
                 while let Some(message) = from_server_recv.recv().await {
-                    warn!("Received: {:?}", message);
                     match serde_json::from_str::<SerializedMessage>(&message) {
                         Ok(SerializedMessage::Command(CommandMessage::Connected)) => {
                             info!("Connected to server");
@@ -90,23 +92,31 @@ impl MacOSProviderClient {
                             sequence_number,
                             value,
                         }) => match queue.lock().unwrap().remove(&sequence_number) {
-                            Some(cb) => match value {
-                                Ok(value) => {
-                                    if let Err(e) = cb.complete(value) {
-                                        error!("Error deserializing message: {}", e);
+                            Some((cb, request_start_time)) => {
+                                warn!("Received request: {sequence_number} {value:?}");
+
+                                info!(
+                                    "Time to process request: {:?}",
+                                    request_start_time.elapsed()
+                                );
+                                match value {
+                                    Ok(value) => {
+                                        if let Err(e) = cb.complete(value) {
+                                            error!("Error deserializing message: {e}");
+                                        }
+                                    }
+                                    Err(e) => {
+                                        error!("Error processing message: {e:?}");
+                                        cb.error(e)
                                     }
                                 }
-                                Err(e) => {
-                                    error!("Error processing message: {:?}", e);
-                                    cb.error(e)
-                                }
-                            },
+                            }
                             None => {
-                                error!("No callback found for sequence number: {}", sequence_number)
+                                error!("No callback found for sequence number: {sequence_number}")
                             }
                         },
                         Err(e) => {
-                            error!("Error deserializing message: {}", e);
+                            error!("Error deserializing message: {e}");
                         }
                     };
                 }
@@ -126,12 +136,12 @@ impl MacOSProviderClient {
         self.send_message(request, Box::new(callback));
     }
 
-    pub fn prepare_passkey_Assertion(
+    pub fn prepare_passkey_assertion(
         &self,
         request: PasskeyAssertionRequest,
         callback: Arc<dyn PreparePasskeyAssertionCallback>,
     ) {
-        warn!("prepare_passkey_Assertion: {:?}", request);
+        warn!("prepare_passkey_assertion: {:?}", request);
 
         self.send_message(request, Box::new(callback));
     }
@@ -163,7 +173,7 @@ impl MacOSProviderClient {
         self.response_callbacks_queue
             .lock()
             .unwrap()
-            .insert(sequence_number, callback);
+            .insert(sequence_number, (callback, Instant::now()));
 
         sequence_number
     }
@@ -183,7 +193,7 @@ impl MacOSProviderClient {
 
         if let Err(e) = self.to_server_send.blocking_send(message) {
             // Make sure we remove the callback from the queue if we can't send the message
-            if let Some(cb) = self
+            if let Some((cb, _)) = self
                 .response_callbacks_queue
                 .lock()
                 .unwrap()

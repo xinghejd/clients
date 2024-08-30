@@ -9,9 +9,35 @@ import AuthenticationServices
 import os
 
 class CredentialProviderViewController: ASCredentialProviderViewController {
-    let logger = Logger(subsystem: "com.bitwarden.desktop.autofill-extension", category: "credential-provider")
+    let logger: Logger
+    
+    // There is something a bit strange about the initialization/deinitialization in this class.
+    // Sometimes deinit won't be called after a request has successfully finished,
+    // which would leave this class hanging in memory and the IPC connection open.
+    //
+    // If instead I make this a static, the deinit gets called correctly after each request.
+    // I think we still might want a static regardless, to be able to reuse the connection if possible.
+    static let client: MacOsProviderClient = {
+        let instance = MacOsProviderClient.connect()
+         // setup code
+         return instance
+     }()
+    
+    init() {
+        logger = Logger(subsystem: "com.bitwarden.desktop.autofill-extension", category: "credential-provider")
+        
+        logger.log("[autofill-extension] initializing extension")
 
-    let client = MacOsProviderClient.connect()
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
+    deinit {
+        logger.log("[autofill-extension] deinitializing extension")
+    }
     
     
     @IBAction func cancel(_ sender: AnyObject?) {
@@ -97,7 +123,7 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
                     userVerification: userVerification
                 )
                 
-                client.preparePasskeyAssertion(request: req, callback: CallbackImpl(self.extensionContext))
+                CredentialProviderViewController.client.preparePasskeyAssertion(request: req, callback: CallbackImpl(self.extensionContext))
                 return
             }
         }
@@ -165,7 +191,7 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
                     clientDataHash: passkeyRegistration.clientDataHash,
                     userVerification: userVerification
                 )
-                client.preparePasskeyRegistration(request: req, callback: CallbackImpl(self.extensionContext))
+                CredentialProviderViewController.client.preparePasskeyRegistration(request: req, callback: CallbackImpl(self.extensionContext))
                 return
             }
         }
