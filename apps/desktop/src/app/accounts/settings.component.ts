@@ -13,14 +13,14 @@ import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/s
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
 import { DeviceType } from "@bitwarden/common/enums";
 import { VaultTimeoutAction } from "@bitwarden/common/enums/vault-timeout-action.enum";
+import { BiometricStateService } from "@bitwarden/common/key-management/biometrics/biometric-state.service";
+import { BiometricsService } from "@bitwarden/common/key-management/biometrics/biometric.service";
 import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
-import { BiometricStateService } from "@bitwarden/common/platform/biometrics/biometric-state.service";
-import { BiometricsService } from "@bitwarden/common/platform/biometrics/biometric.service";
 import { KeySuffixOptions, ThemeType } from "@bitwarden/common/platform/enums";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { ThemeStateService } from "@bitwarden/common/platform/theming/theme-state.service";

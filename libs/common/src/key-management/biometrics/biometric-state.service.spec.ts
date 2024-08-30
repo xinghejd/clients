@@ -4,8 +4,8 @@ import { makeEncString, trackEmissions } from "../../../spec";
 import { FakeAccountService, mockAccountServiceWith } from "../../../spec/fake-account-service";
 import { FakeGlobalState, FakeSingleUserState } from "../../../spec/fake-state";
 import { FakeStateProvider } from "../../../spec/fake-state-provider";
+import { EncryptedString } from "../../platform/models/domain/enc-string";
 import { UserId } from "../../types/guid";
-import { EncryptedString } from "../models/domain/enc-string";
 
 import { BiometricStateService, DefaultBiometricStateService } from "./biometric-state.service";
 import {

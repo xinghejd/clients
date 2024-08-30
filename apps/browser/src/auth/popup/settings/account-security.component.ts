@@ -26,14 +26,14 @@ import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { VaultTimeoutAction } from "@bitwarden/common/enums/vault-timeout-action.enum";
+import { BiometricStateService } from "@bitwarden/common/key-management/biometrics/biometric-state.service";
+import { BiometricsService } from "@bitwarden/common/key-management/biometrics/biometric.service";
 import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
-import { BiometricStateService } from "@bitwarden/common/platform/biometrics/biometric-state.service";
-import { BiometricsService } from "@bitwarden/common/platform/biometrics/biometric.service";
 import {
   VaultTimeout,
   VaultTimeoutOption,

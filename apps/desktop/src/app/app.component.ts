@@ -30,6 +30,7 @@ import { UserVerificationService } from "@bitwarden/common/auth/abstractions/use
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/force-set-password-reason";
 import { VaultTimeoutAction } from "@bitwarden/common/enums/vault-timeout-action.enum";
+import { BiometricStateService } from "@bitwarden/common/key-management/biometrics/biometric-state.service";
 import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
@@ -39,7 +40,6 @@ import { MessagingService } from "@bitwarden/common/platform/abstractions/messag
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { SystemService } from "@bitwarden/common/platform/abstractions/system.service";
-import { BiometricStateService } from "@bitwarden/common/platform/biometrics/biometric-state.service";
 import { clearCaches } from "@bitwarden/common/platform/misc/sequentialize";
 import { StateEventRunnerService } from "@bitwarden/common/platform/state";
 import { SyncService } from "@bitwarden/common/platform/sync";

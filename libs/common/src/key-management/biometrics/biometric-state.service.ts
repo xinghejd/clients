@@ -1,8 +1,8 @@
 import { Observable, firstValueFrom, map, combineLatest } from "rxjs";
 
+import { EncryptedString, EncString } from "../../platform/models/domain/enc-string";
+import { ActiveUserState, GlobalState, StateProvider } from "../../platform/state";
 import { UserId } from "../../types/guid";
-import { EncryptedString, EncString } from "../models/domain/enc-string";
-import { ActiveUserState, GlobalState, StateProvider } from "../state";
 
 import {
   BIOMETRIC_UNLOCK_ENABLED,

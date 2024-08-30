@@ -1,12 +1,12 @@
 import { mock, MockProxy } from "jest-mock-extended";
 
+import { BiometricStateService } from "@bitwarden/common/key-management/biometrics/biometric-state.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
-import { BiometricStateService } from "@bitwarden/common/platform/biometrics/biometric-state.service";
 import { UserId } from "@bitwarden/common/types/guid";
 
-import { WindowMain } from "../../../main/window.main";
+import { WindowMain } from "../../main/window.main";
 
 import BiometricDarwinMain from "./biometric.darwin.main";
 import BiometricWindowsMain from "./biometric.windows.main";

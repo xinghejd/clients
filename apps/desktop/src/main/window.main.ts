@@ -5,9 +5,9 @@ import * as url from "url";
 import { app, BrowserWindow, ipcMain, nativeTheme, screen, session } from "electron";
 import { firstValueFrom } from "rxjs";
 
+import { BiometricStateService } from "@bitwarden/common/key-management/biometrics/biometric-state.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { AbstractStorageService } from "@bitwarden/common/platform/abstractions/storage.service";
-import { BiometricStateService } from "@bitwarden/common/platform/biometrics/biometric-state.service";
 import { processisolations } from "@bitwarden/desktop-napi";
 
 import { WindowState } from "../platform/models/domain/window-state";

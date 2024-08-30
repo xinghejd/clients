@@ -1,5 +1,5 @@
-import { EncryptedString } from "../models/domain/enc-string";
-import { KeyDefinition, UserKeyDefinition } from "../state";
+import { EncryptedString } from "../../platform/models/domain/enc-string";
+import { KeyDefinition, UserKeyDefinition } from "../../platform/state";
 
 import {
   BIOMETRIC_UNLOCK_ENABLED,

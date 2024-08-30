@@ -55,14 +55,14 @@ import {
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { DefaultBillingAccountProfileStateService } from "@bitwarden/common/billing/services/account/billing-account-profile-state.service";
 import { ClientType } from "@bitwarden/common/enums";
+import {
+  BiometricStateService,
+  DefaultBiometricStateService,
+} from "@bitwarden/common/key-management/biometrics/biometric-state.service";
 import { ConfigApiServiceAbstraction } from "@bitwarden/common/platform/abstractions/config/config-api.service.abstraction";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { KeyGenerationService as KeyGenerationServiceAbstraction } from "@bitwarden/common/platform/abstractions/key-generation.service";
-import {
-  BiometricStateService,
-  DefaultBiometricStateService,
-} from "@bitwarden/common/platform/biometrics/biometric-state.service";
 import { KeySuffixOptions, LogLevelType } from "@bitwarden/common/platform/enums";
 import { StateFactory } from "@bitwarden/common/platform/factories/state-factory";
 import { MessageSender } from "@bitwarden/common/platform/messaging";

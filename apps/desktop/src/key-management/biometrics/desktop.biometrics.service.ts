@@ -1,4 +1,4 @@
-import { BiometricsService } from "@bitwarden/common/platform/biometrics/biometric.service";
+import { BiometricsService } from "@bitwarden/common/key-management/biometrics/biometric.service";
 
 /**
  * This service extends the base biometrics service to provide desktop specific functions,

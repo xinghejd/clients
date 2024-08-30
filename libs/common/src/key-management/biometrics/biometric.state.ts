@@ -1,6 +1,6 @@
+import { EncryptedString } from "../../platform/models/domain/enc-string";
+import { KeyDefinition, BIOMETRIC_SETTINGS_DISK, UserKeyDefinition } from "../../platform/state";
 import { UserId } from "../../types/guid";
-import { EncryptedString } from "../models/domain/enc-string";
-import { KeyDefinition, BIOMETRIC_SETTINGS_DISK, UserKeyDefinition } from "../state";
 
 /**
  * Indicates whether the user elected to store a biometric key to unlock their vault.

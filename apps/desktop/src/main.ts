@@ -5,7 +5,7 @@ import { Subject, firstValueFrom } from "rxjs";
 
 import { AccountServiceImplementation } from "@bitwarden/common/auth/services/account.service";
 import { ClientType } from "@bitwarden/common/enums";
-import { DefaultBiometricStateService } from "@bitwarden/common/platform/biometrics/biometric-state.service";
+import { DefaultBiometricStateService } from "@bitwarden/common/key-management/biometrics/biometric-state.service";
 import { Message, MessageSender } from "@bitwarden/common/platform/messaging";
 // eslint-disable-next-line no-restricted-imports -- For dependency creation
 import { SubjectMessageSender } from "@bitwarden/common/platform/messaging/internal";
@@ -25,6 +25,7 @@ import { MemoryStorageService as MemoryStorageServiceForStateProviders } from "@
 /* eslint-enable import/no-restricted-paths */
 
 import { DesktopAutofillSettingsService } from "./autofill/services/desktop-autofill-settings.service";
+import { BiometricsService, DesktopBiometricsService } from "./key-management/biometrics/index";
 import { MenuMain } from "./main/menu/menu.main";
 import { MessagingMain } from "./main/messaging.main";
 import { NativeMessagingMain } from "./main/native-messaging.main";
@@ -32,7 +33,6 @@ import { PowerMonitorMain } from "./main/power-monitor.main";
 import { TrayMain } from "./main/tray.main";
 import { UpdaterMain } from "./main/updater.main";
 import { WindowMain } from "./main/window.main";
-import { BiometricsService, DesktopBiometricsService } from "./platform/main/biometric/index";
 import { ClipboardMain } from "./platform/main/clipboard.main";
 import { DesktopCredentialStorageListener } from "./platform/main/desktop-credential-storage-listener";
 import { MainCryptoFunctionService } from "./platform/main/main-crypto-function.service";
