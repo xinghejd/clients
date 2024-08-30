@@ -10,10 +10,6 @@ export class DomQueryService implements DomQueryServiceInterface {
   private useTreeWalkerStrategyFlagSet = false; // TODO REMOVE THIS AND UNCOMMENT THE ABOVE LINE
 
   constructor() {
-    this.init();
-  }
-
-  private init(): void {
     // void sendExtensionMessage("getUseTreeWalkerApiForPageDetailsCollectionFeatureFlag").then(
     //   (useTreeWalkerStrategyFlag) =>
     //     (this.useTreeWalkerStrategyFlagSet = !!useTreeWalkerStrategyFlag?.result),
@@ -21,12 +17,20 @@ export class DomQueryService implements DomQueryServiceInterface {
 
     if (globalThis.document.readyState === "complete") {
       this.checkPageContainsShadowDom();
-      return;
+    } else {
+      globalThis.addEventListener(EVENTS.LOAD, this.checkPageContainsShadowDom);
     }
-
-    globalThis.addEventListener(EVENTS.LOAD, this.checkPageContainsShadowDom);
   }
 
+  /**
+   * Sets up a query that will trigger a deepQuery of the DOM, querying all elements that match the given query string.
+   * If the deepQuery fails or reaches a max recursion depth, it will fall back to a treeWalker query.
+   *
+   * @param root - The root element to start the query from
+   * @param queryString - The query string to match elements against
+   * @param treeWalkerFilter - The filter callback to use for the treeWalker query
+   * @param mutationObserver - The MutationObserver to use for observing shadow roots
+   */
   query<T>(
     root: Document | ShadowRoot | Element,
     queryString: string,
@@ -238,10 +242,16 @@ export class DomQueryService implements DomQueryServiceInterface {
     }
   }
 
+  /**
+   * Checks if the page contains any shadow DOM elements.
+   */
   private checkPageContainsShadowDom = (): void => {
     this.pageContainsShadowDom = this.queryShadowRoots(globalThis.document.body, true).length > 0;
   };
 
+  /**
+   * Determines whether to use the treeWalker strategy for querying the DOM.
+   */
   private shouldUseTreeWalkerStrategy(): boolean {
     return this.useTreeWalkerStrategyFlagSet || this.pageContainsShadowDom;
   }
