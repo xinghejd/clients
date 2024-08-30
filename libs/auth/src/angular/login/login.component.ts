@@ -66,6 +66,7 @@ export class LoginComponentV2 implements OnInit, OnDestroy {
   // Web specific properties
   enforcedPasswordPolicyOptions: MasterPasswordPolicyOptions;
   policies: Policy[];
+  showPasswordless = false;
   showResetPasswordAutoEnrollWarning = false;
 
   constructor(
@@ -81,6 +82,7 @@ export class LoginComponentV2 implements OnInit, OnDestroy {
     private router: Router,
   ) {
     this.clientType = this.platformUtilsService.getClientType();
+    this.showPasswordless = this.loginService.getShowPasswordlessFlag();
   }
 
   async ngOnInit(): Promise<void> {
@@ -158,6 +160,11 @@ export class LoginComponentV2 implements OnInit, OnDestroy {
     }
   }
 
+  protected async goToHint() {
+    await this.saveEmailSettings();
+    await this.router.navigateByUrl("/hint");
+  }
+
   protected async goToRegister() {
     // TODO: remove when email verification flag is removed
     const registerRoute = await firstValueFrom(this.registerRoute$);
@@ -170,6 +177,12 @@ export class LoginComponentV2 implements OnInit, OnDestroy {
     }
 
     await this.router.navigate([registerRoute]);
+  }
+
+  protected async saveEmailSettings() {
+    this.loginEmailService.setEmail(this.formGroup.value.email);
+    this.loginEmailService.setRememberEmail(this.formGroup.value.rememberEmail);
+    await this.loginEmailService.saveEmailSettings();
   }
 
   private async getLoginWithDevice(email: string): Promise<void> {

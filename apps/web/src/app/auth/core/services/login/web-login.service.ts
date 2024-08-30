@@ -8,6 +8,7 @@ import { InternalPolicyService } from "@bitwarden/common/admin-console/abstracti
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 
+import { flagEnabled } from "../../../../../utils/flags";
 import { RouterService } from "../../../../core/router.service";
 import { AcceptOrganizationInviteService } from "../../../organization-invite/accept-organization.service";
 
@@ -17,6 +18,10 @@ export class WebLoginService extends DefaultLoginService implements LoginService
   policyApiService = inject(PolicyApiServiceAbstraction);
   policyService = inject(InternalPolicyService);
   routerService = inject(RouterService);
+
+  getShowPasswordlessFlag(): boolean {
+    return flagEnabled("showPasswordless");
+  }
 
   setPreviousUrl(route: UrlTree): void | null {
     this.routerService.setPreviousUrl(route.toString());

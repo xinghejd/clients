@@ -11,6 +11,7 @@ export interface PasswordPolicies {
 
 export abstract class LoginService {
   // Web specific
+  getShowPasswordlessFlag: () => boolean;
   getOrgPolicies: () => Promise<PasswordPolicies | null>;
   setPreviousUrl: (route: UrlTree) => void | null;
 }
