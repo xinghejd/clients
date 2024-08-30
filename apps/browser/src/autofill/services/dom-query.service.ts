@@ -52,7 +52,7 @@ export class DomQueryService implements DomQueryServiceInterface {
    * @param queryString - The query string to match elements against
    * @param mutationObserver - The MutationObserver to use for observing shadow roots
    */
-  deepQueryElements<T>(
+  private deepQueryElements<T>(
     root: Document | ShadowRoot | Element,
     queryString: string,
     mutationObserver?: MutationObserver,
@@ -176,7 +176,7 @@ export class DomQueryService implements DomQueryServiceInterface {
    * @param filterCallback
    * @param mutationObserver
    */
-  queryAllTreeWalkerNodes<T>(
+  private queryAllTreeWalkerNodes<T>(
     rootNode: Node,
     filterCallback: CallableFunction,
     mutationObserver?: MutationObserver,
