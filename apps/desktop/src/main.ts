@@ -25,6 +25,7 @@ import { MemoryStorageService as MemoryStorageServiceForStateProviders } from "@
 /* eslint-enable import/no-restricted-paths */
 
 import { DesktopAutofillSettingsService } from "./autofill/services/desktop-autofill-settings.service";
+import { BiometricsRendererIPCListener } from "./key-management/biometrics/biometric.renderer-ipc.listener";
 import { BiometricsService, DesktopBiometricsService } from "./key-management/biometrics/index";
 import { MenuMain } from "./main/menu/menu.main";
 import { MessagingMain } from "./main/messaging.main";
@@ -44,7 +45,6 @@ import { I18nMainService } from "./platform/services/i18n.main.service";
 import { SSOLocalhostCallbackService } from "./platform/services/sso-localhost-callback.service";
 import { ElectronMainMessagingService } from "./services/electron-main-messaging.service";
 import { isMacAppStore } from "./utils";
-import { BiometricsRendererIPCListener } from "./key-management/biometrics/biometric.renderer-ipc.listener";
 
 export class Main {
   logService: ElectronLogMainService;
