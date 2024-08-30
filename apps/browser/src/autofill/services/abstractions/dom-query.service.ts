@@ -1,4 +1,10 @@
 export interface DomQueryService {
+  query<T>(
+    root: Document | ShadowRoot | Element,
+    queryString: string,
+    treeWalkerFilter: CallableFunction,
+    mutationObserver?: MutationObserver,
+  ): T[];
   deepQueryElements<T>(
     root: Document | ShadowRoot | Element,
     queryString: string,
@@ -9,8 +15,4 @@ export interface DomQueryService {
     filterCallback: CallableFunction,
     mutationObserver?: MutationObserver,
   ): Node[];
-  queryShadowRoots(
-    root: Document | ShadowRoot | Element,
-    returnSingleShadowRoot?: boolean,
-  ): ShadowRoot[];
 }

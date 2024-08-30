@@ -1,8 +1,49 @@
+import { EVENTS, MAX_DEEP_QUERY_RECURSION_DEPTH } from "@bitwarden/common/autofill/constants";
+
 import { nodeIsElement } from "../utils";
 
 import { DomQueryService as DomQueryServiceInterface } from "./abstractions/dom-query.service";
 
 export class DomQueryService implements DomQueryServiceInterface {
+  private pageContainsShadowDom: boolean;
+  // private useTreeWalkerStrategyFlagSet = true;
+  private useTreeWalkerStrategyFlagSet = false; // TODO REMOVE THIS AND UNCOMMENT THE ABOVE LINE
+
+  constructor() {
+    this.init();
+  }
+
+  private init(): void {
+    // void sendExtensionMessage("getUseTreeWalkerApiForPageDetailsCollectionFeatureFlag").then(
+    //   (useTreeWalkerStrategyFlag) =>
+    //     (this.useTreeWalkerStrategyFlagSet = !!useTreeWalkerStrategyFlag?.result),
+    // );
+
+    if (globalThis.document.readyState === "complete") {
+      this.checkPageContainsShadowDom();
+      return;
+    }
+
+    globalThis.addEventListener(EVENTS.LOAD, this.checkPageContainsShadowDom);
+  }
+
+  query<T>(
+    root: Document | ShadowRoot | Element,
+    queryString: string,
+    treeWalkerFilter: CallableFunction,
+    mutationObserver?: MutationObserver,
+  ): T[] {
+    if (this.shouldUseTreeWalkerStrategy()) {
+      return this.queryAllTreeWalkerNodes<T>(root, treeWalkerFilter, mutationObserver);
+    }
+
+    try {
+      return this.deepQueryElements<T>(root, queryString, mutationObserver);
+    } catch {
+      return this.queryAllTreeWalkerNodes<T>(root, treeWalkerFilter, mutationObserver);
+    }
+  }
+
   /**
    * Queries all elements in the DOM that match the given query string.
    * Also, recursively queries all shadow roots for the element.
@@ -17,10 +58,18 @@ export class DomQueryService implements DomQueryServiceInterface {
     mutationObserver?: MutationObserver,
   ): T[] {
     let elements = this.queryElements<T>(root, queryString);
-    const shadowRoots = this.recursivelyQueryShadowRoots(root, mutationObserver);
+    const shadowRoots = this.recursivelyQueryShadowRoots(root);
     for (let index = 0; index < shadowRoots.length; index++) {
       const shadowRoot = shadowRoots[index];
       elements = elements.concat(this.queryElements<T>(shadowRoot, queryString));
+
+      if (mutationObserver) {
+        mutationObserver.observe(shadowRoot, {
+          attributes: true,
+          childList: true,
+          subtree: true,
+        });
+      }
     }
 
     return elements;
@@ -46,23 +95,20 @@ export class DomQueryService implements DomQueryServiceInterface {
    * `isObservingShadowRoot` parameter is set to true.
    *
    * @param root - The root element to start the query from
-   * @param mutationObserver - The MutationObserver to use for observing shadow roots
+   * @param depth - The depth of the recursion
    */
   private recursivelyQueryShadowRoots(
     root: Document | ShadowRoot | Element,
-    mutationObserver?: MutationObserver,
+    depth: number = 0,
   ): ShadowRoot[] {
+    if (depth >= MAX_DEEP_QUERY_RECURSION_DEPTH) {
+      throw new Error("Max recursion depth reached");
+    }
+
     let shadowRoots = this.queryShadowRoots(root);
     for (let index = 0; index < shadowRoots.length; index++) {
       const shadowRoot = shadowRoots[index];
-      shadowRoots = shadowRoots.concat(this.recursivelyQueryShadowRoots(shadowRoot));
-      if (mutationObserver) {
-        mutationObserver.observe(shadowRoot, {
-          attributes: true,
-          childList: true,
-          subtree: true,
-        });
-      }
+      shadowRoots = shadowRoots.concat(this.recursivelyQueryShadowRoots(shadowRoot, depth + 1));
     }
 
     return shadowRoots;
@@ -74,7 +120,7 @@ export class DomQueryService implements DomQueryServiceInterface {
    * @param root - The root element to start the query from
    * @param returnSingleShadowRoot - Whether to return a single shadow root or an array of shadow roots
    */
-  queryShadowRoots(
+  private queryShadowRoots(
     root: Document | ShadowRoot | Element,
     returnSingleShadowRoot = false,
   ): ShadowRoot[] {
@@ -130,12 +176,12 @@ export class DomQueryService implements DomQueryServiceInterface {
    * @param filterCallback
    * @param mutationObserver
    */
-  queryAllTreeWalkerNodes(
+  queryAllTreeWalkerNodes<T>(
     rootNode: Node,
     filterCallback: CallableFunction,
     mutationObserver?: MutationObserver,
-  ): Node[] {
-    const treeWalkerQueryResults: Node[] = [];
+  ): T[] {
+    const treeWalkerQueryResults: T[] = [];
 
     this.buildTreeWalkerNodesQueryResults(
       rootNode,
@@ -156,9 +202,9 @@ export class DomQueryService implements DomQueryServiceInterface {
    * @param filterCallback
    * @param mutationObserver
    */
-  private buildTreeWalkerNodesQueryResults(
+  private buildTreeWalkerNodesQueryResults<T>(
     rootNode: Node,
-    treeWalkerQueryResults: Node[],
+    treeWalkerQueryResults: T[],
     filterCallback: CallableFunction,
     mutationObserver?: MutationObserver,
   ) {
@@ -167,7 +213,7 @@ export class DomQueryService implements DomQueryServiceInterface {
 
     while (currentNode) {
       if (filterCallback(currentNode)) {
-        treeWalkerQueryResults.push(currentNode);
+        treeWalkerQueryResults.push(currentNode as T);
       }
 
       const nodeShadowRoot = this.getShadowRoot(currentNode);
@@ -190,5 +236,13 @@ export class DomQueryService implements DomQueryServiceInterface {
 
       currentNode = treeWalker?.nextNode();
     }
+  }
+
+  private checkPageContainsShadowDom = (): void => {
+    this.pageContainsShadowDom = this.queryShadowRoots(globalThis.document.body, true).length > 0;
+  };
+
+  private shouldUseTreeWalkerStrategy(): boolean {
+    return this.useTreeWalkerStrategyFlagSet || this.pageContainsShadowDom;
   }
 }

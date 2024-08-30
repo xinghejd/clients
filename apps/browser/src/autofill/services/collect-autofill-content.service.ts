@@ -59,8 +59,6 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     "image",
     "file",
   ]);
-  // private useTreeWalkerStrategyFlagSet = true;
-  private useTreeWalkerStrategyFlagSet = false;
 
   constructor(
     private domElementVisibilityService: DomElementVisibilityService,
@@ -72,11 +70,6 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
       inputQuery += `:not([type="${type}"])`;
     }
     this.formFieldQueryString = `${inputQuery}, textarea:not([data-bwignore]), select:not([data-bwignore]), span[data-bwautofill]`;
-
-    // void sendExtensionMessage("getUseTreeWalkerApiForPageDetailsCollectionFeatureFlag").then(
-    //   (useTreeWalkerStrategyFlag) =>
-    //     (this.useTreeWalkerStrategyFlagSet = !!useTreeWalkerStrategyFlag?.result),
-    // );
   }
 
   get autofillFormElements(): AutofillFormElements {
@@ -91,12 +84,6 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
    * @public
    */
   async getPageDetails(): Promise<AutofillPageDetails> {
-    if (typeof this.pageContainsShadowDom === "undefined") {
-      this.pageContainsShadowDom =
-        this.domQueryService.queryShadowRoots(globalThis.document.body, true).length > 0;
-    }
-    // console.log("this.pageContainsShadowDom", this.pageContainsShadowDom);
-
     if (!this.mutationObserver) {
       this.setupMutationObserver();
     }
@@ -306,13 +293,12 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
   ): FormFieldElement[] {
     let formFieldElements = previouslyFoundFormFieldElements;
     if (!formFieldElements) {
-      formFieldElements = this.shouldUseTreeWalkerStrategy()
-        ? this.queryTreeWalkerForAutofillFormFieldElements()
-        : this.domQueryService.deepQueryElements(
-            document,
-            this.formFieldQueryString,
-            this.mutationObserver,
-          );
+      formFieldElements = this.domQueryService.query<FormFieldElement>(
+        globalThis.document.documentElement,
+        this.formFieldQueryString,
+        (node: Node) => this.isNodeFormFieldElement(node),
+        this.mutationObserver,
+      );
     }
 
     if (!fieldsLimit || formFieldElements.length <= fieldsLimit) {
@@ -342,10 +328,6 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     }
 
     return priorityFormFields;
-  }
-
-  private shouldUseTreeWalkerStrategy(): boolean {
-    return this.useTreeWalkerStrategyFlagSet || this.pageContainsShadowDom;
   }
 
   /**
@@ -845,17 +827,32 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     formElements: HTMLFormElement[];
     formFieldElements: FormFieldElement[];
   } {
-    if (this.shouldUseTreeWalkerStrategy()) {
-      return this.queryTreeWalkerForAutofillFormAndFieldElements();
-    }
-
-    const queriedElements = this.domQueryService.deepQueryElements<HTMLElement>(
-      document,
-      `form, ${this.formFieldQueryString}`,
-      this.mutationObserver,
-    );
     const formElements: HTMLFormElement[] = [];
     const formFieldElements: FormFieldElement[] = [];
+
+    const queriedElements = this.domQueryService.query<HTMLElement>(
+      globalThis.document.documentElement,
+      `form, ${this.formFieldQueryString}`,
+      (node: Node) => {
+        if (nodeIsFormElement(node)) {
+          formElements.push(node);
+          return true;
+        }
+
+        if (this.isNodeFormFieldElement(node)) {
+          formFieldElements.push(node as FormFieldElement);
+          return true;
+        }
+
+        return false;
+      },
+      this.mutationObserver,
+    );
+
+    if (formElements.length || formFieldElements.length) {
+      return { formElements, formFieldElements };
+    }
+
     for (let index = 0; index < queriedElements.length; index++) {
       const element = queriedElements[index];
       if (elementIsFormElement(element)) {
@@ -901,34 +898,6 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
   }
 
   /**
-   * Attempts to get the ShadowRoot of the passed node. If support for the
-   * extension based openOrClosedShadowRoot API is available, it will be used.
-   * Will return null if the node is not an HTMLElement or if the node has
-   * child nodes.
-   *
-   * @param {Node} node
-   */
-  private getShadowRoot(node: Node): ShadowRoot | null {
-    if (!nodeIsElement(node)) {
-      return null;
-    }
-
-    if (node.shadowRoot) {
-      return node.shadowRoot;
-    }
-
-    if ((chrome as any).dom?.openOrClosedShadowRoot) {
-      try {
-        return (chrome as any).dom.openOrClosedShadowRoot(node);
-      } catch (error) {
-        return null;
-      }
-    }
-
-    return (node as any).openOrClosedShadowRoot;
-  }
-
-  /**
    * Sets up a mutation observer on the body of the document. Observes changes to
    * DOM elements to ensure we have an updated set of autofill field data.
    * @private
@@ -957,8 +926,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     }
 
     if (!this.mutationsQueue.length) {
-      // console.log("setting debounce");
-      debounce(this.processMutations, 100);
+      requestIdleCallbackPolyfill(debounce(this.processMutations, 100), { timeout: 500 });
     }
     this.mutationsQueue.push(mutations);
   };
@@ -989,7 +957,6 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
    * within an idle callback to help with performance and prevent excessive updates.
    */
   private processMutations = () => {
-    // console.log("processing mutations");
     const queueLength = this.mutationsQueue.length;
     for (let queueIndex = 0; queueIndex < queueLength; queueIndex++) {
       const mutations = this.mutationsQueue[queueIndex];
@@ -1058,20 +1025,18 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
         continue;
       }
 
-      if (
-        !this.useTreeWalkerStrategyFlagSet &&
-        (nodeIsFormElement(node) || this.isNodeFormFieldElement(node))
-      ) {
+      if (nodeIsFormElement(node) || this.isNodeFormFieldElement(node)) {
         mutatedElements.push(node as HTMLElement);
       }
 
-      const autofillElements = this.useTreeWalkerStrategyFlagSet
-        ? this.queryTreeWalkerForMutatedElements(node)
-        : this.domQueryService.deepQueryElements<HTMLElement>(
-            node,
-            `form, ${this.formFieldQueryString}`,
-            this.mutationObserver,
-          );
+      const autofillElements = this.domQueryService.query<HTMLElement>(
+        node,
+        `form, ${this.formFieldQueryString}`,
+        (walkerNode: Node) =>
+          nodeIsFormElement(walkerNode) || this.isNodeFormFieldElement(walkerNode),
+        this.mutationObserver,
+      );
+
       if (autofillElements.length) {
         mutatedElements = mutatedElements.concat(autofillElements);
       }
@@ -1402,67 +1367,13 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     this.intersectionObserver?.disconnect();
   }
 
-  private queryTreeWalkerForAutofillFormAndFieldElements(): {
-    formElements: HTMLFormElement[];
-    formFieldElements: FormFieldElement[];
-  } {
-    const formElements: HTMLFormElement[] = [];
-    const formFieldElements: FormFieldElement[] = [];
-    this.domQueryService.queryAllTreeWalkerNodes(
-      document.documentElement,
-      (node: Node) => {
-        if (nodeIsFormElement(node)) {
-          formElements.push(node);
-          return true;
-        }
-
-        if (this.isNodeFormFieldElement(node)) {
-          formFieldElements.push(node as FormFieldElement);
-          return true;
-        }
-
-        return false;
-      },
-      this.mutationObserver,
-    );
-
-    return { formElements, formFieldElements };
-  }
-
-  private queryTreeWalkerForAutofillFormFieldElements(): FormFieldElement[] {
-    return this.domQueryService.queryAllTreeWalkerNodes(
-      document.documentElement,
-      (node: Node) => this.isNodeFormFieldElement(node),
-      this.mutationObserver,
-    ) as FormFieldElement[];
-  }
-
-  /**
-   * @param node - The node to query
-   */
-  private queryTreeWalkerForMutatedElements(node: Node): HTMLElement[] {
-    return this.domQueryService.queryAllTreeWalkerNodes(
-      node,
-      (walkerNode: Node) =>
-        nodeIsFormElement(walkerNode) || this.isNodeFormFieldElement(walkerNode),
-      this.mutationObserver,
-    ) as HTMLElement[];
-  }
-
-  private queryTreeWalkerForPasswordElements(): HTMLElement[] {
-    return this.domQueryService.queryAllTreeWalkerNodes(
-      document.documentElement,
-      (node: Node) => nodeIsInputElement(node) && node.type === "password",
-    ) as HTMLElement[];
-  }
-
   isPasswordFieldWithinDocument(): boolean {
-    if (this.shouldUseTreeWalkerStrategy()) {
-      return Boolean(this.queryTreeWalkerForPasswordElements()?.length);
-    }
-
-    return Boolean(
-      this.domQueryService.deepQueryElements(document, `input[type="password"]`)?.length,
+    return (
+      this.domQueryService.query<HTMLInputElement>(
+        document,
+        `input[type="password"]`,
+        (node: Node) => nodeIsInputElement(node) && node.type === "password",
+      )?.length > 0
     );
   }
 }
