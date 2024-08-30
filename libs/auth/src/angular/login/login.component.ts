@@ -1,15 +1,18 @@
 import { CommonModule } from "@angular/common";
-import { Component, OnInit } from "@angular/core";
+import { Component, ElementRef, NgZone, OnDestroy, OnInit, ViewChild } from "@angular/core";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
 import { ActivatedRoute, Router, RouterModule } from "@angular/router";
-import { first, firstValueFrom, Subject, takeUntil } from "rxjs";
+import { first, firstValueFrom, Subject, take, takeUntil } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { LoginEmailServiceAbstraction } from "@bitwarden/auth/common";
 import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/models/domain/master-password-policy-options";
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
+import { DevicesApiServiceAbstraction } from "@bitwarden/common/auth/abstractions/devices-api.service.abstraction";
 import { ClientType } from "@bitwarden/common/enums";
+import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { Utils } from "@bitwarden/common/platform/misc/utils";
 import {
   AsyncActionsModule,
   ButtonModule,
@@ -33,15 +36,27 @@ import { LoginService } from "./login.service";
     RouterModule,
   ],
 })
-export class LoginComponentV2 implements OnInit {
+export class LoginComponentV2 implements OnInit, OnDestroy {
+  @ViewChild("masterPasswordInput", { static: true }) masterPasswordInput: ElementRef;
+
+  private destroy$ = new Subject<void>();
+
   clientType: ClientType;
+  showLoginWithDevice = false;
+  validatedEmail = false;
 
   formGroup = this.formBuilder.group({
     email: ["", [Validators.required, Validators.email]],
+    masterPassword: [
+      "",
+      [Validators.required, Validators.minLength(Utils.originalMinimumPasswordLength)],
+    ],
     rememberEmail: [false],
   });
 
-  private destroy$ = new Subject<void>();
+  get loggedEmail() {
+    return this.formGroup.value.email;
+  }
 
   // Web specific properties
   enforcedPasswordPolicyOptions: MasterPasswordPolicyOptions;
@@ -50,9 +65,12 @@ export class LoginComponentV2 implements OnInit {
 
   constructor(
     private activatedRoute: ActivatedRoute,
+    private appIdService: AppIdService,
+    private devicesApiService: DevicesApiServiceAbstraction,
     private formBuilder: FormBuilder,
     private loginEmailService: LoginEmailServiceAbstraction,
     private loginService: LoginService,
+    private ngZone: NgZone,
     private platformUtilsService: PlatformUtilsService,
     private router: Router,
   ) {
@@ -96,11 +114,57 @@ export class LoginComponentV2 implements OnInit {
     }
   }
 
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
   submit = async () => {};
 
-  async validateEmail() {}
+  protected async validateEmail(): Promise<void> {
+    this.formGroup.controls.email.markAsTouched();
+    const emailValid = this.formGroup.controls.email.valid;
 
-  private async loadEmailSettings() {
+    if (emailValid) {
+      this.toggleValidateEmail(true);
+      await this.getLoginWithDevice(this.loggedEmail);
+    }
+  }
+
+  protected toggleValidateEmail(value: boolean): void {
+    this.validatedEmail = value;
+
+    if (!this.validatedEmail) {
+      // Reset master password only when going from validated to not validated so that autofill can work properly
+      this.formGroup.controls.masterPassword.reset();
+    } else {
+      // Mark MP as untouched so that, when users enter email and hit enter, the MP field doesn't load with validation errors
+      this.formGroup.controls.masterPassword.markAsUntouched();
+
+      // When email is validated, focus on master password after waiting for input to be rendered
+      if (this.ngZone.isStable) {
+        this.masterPasswordInput?.nativeElement?.focus();
+      } else {
+        this.ngZone.onStable.pipe(take(1), takeUntil(this.destroy$)).subscribe(() => {
+          this.masterPasswordInput?.nativeElement?.focus();
+        });
+      }
+    }
+  }
+
+  private async getLoginWithDevice(email: string): Promise<void> {
+    try {
+      const deviceIdentifier = await this.appIdService.getAppId();
+      this.showLoginWithDevice = await this.devicesApiService.getKnownDevice(
+        email,
+        deviceIdentifier,
+      );
+    } catch (e) {
+      this.showLoginWithDevice = false;
+    }
+  }
+
+  private async loadEmailSettings(): Promise<void> {
     // Try to load the email from memory first
     const email = this.loginEmailService.getEmail();
     const rememberEmail = this.loginEmailService.getRememberEmail();
