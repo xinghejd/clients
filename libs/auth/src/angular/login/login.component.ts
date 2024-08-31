@@ -1,5 +1,5 @@
 import { CommonModule } from "@angular/common";
-import { Component, ElementRef, NgZone, OnDestroy, OnInit, ViewChild } from "@angular/core";
+import { Component, ElementRef, Input, NgZone, OnDestroy, OnInit, ViewChild } from "@angular/core";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
 import { ActivatedRoute, Router, RouterModule } from "@angular/router";
 import { first, firstValueFrom, Subject, take, takeUntil } from "rxjs";
@@ -9,8 +9,11 @@ import { LoginEmailServiceAbstraction, RegisterRouteService } from "@bitwarden/a
 import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/models/domain/master-password-policy-options";
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 import { DevicesApiServiceAbstraction } from "@bitwarden/common/auth/abstractions/devices-api.service.abstraction";
+import { CaptchaIFrame } from "@bitwarden/common/auth/captcha-iframe";
 import { ClientType } from "@bitwarden/common/enums";
 import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
+import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import {
@@ -18,6 +21,7 @@ import {
   ButtonModule,
   CheckboxModule,
   FormFieldModule,
+  ToastService,
 } from "@bitwarden/components";
 
 import { LoginService } from "./login.service";
@@ -38,9 +42,12 @@ import { LoginService } from "./login.service";
 })
 export class LoginComponentV2 implements OnInit, OnDestroy {
   @ViewChild("masterPasswordInput", { static: true }) masterPasswordInput: ElementRef;
+  @Input() captchaSiteKey: string = null;
 
   private destroy$ = new Subject<void>();
 
+  captcha: CaptchaIFrame;
+  captchaToken: string = null;
   clientType: ClientType;
   registerRoute$ = this.registerRouteService.registerRoute$(); // TODO: remove when email verification flag is removed
   showLoginWithDevice = false;
@@ -73,13 +80,16 @@ export class LoginComponentV2 implements OnInit, OnDestroy {
     private activatedRoute: ActivatedRoute,
     private appIdService: AppIdService,
     private devicesApiService: DevicesApiServiceAbstraction,
+    private environmentService: EnvironmentService,
     private formBuilder: FormBuilder,
+    private i18nService: I18nService,
     private loginEmailService: LoginEmailServiceAbstraction,
     private loginService: LoginService,
     private ngZone: NgZone,
     private platformUtilsService: PlatformUtilsService,
     private registerRouteService: RegisterRouteService,
     private router: Router,
+    private toastService: ToastService,
   ) {
     this.clientType = this.platformUtilsService.getClientType();
     this.showPasswordless = this.loginService.getShowPasswordlessFlag();
@@ -128,6 +138,48 @@ export class LoginComponentV2 implements OnInit, OnDestroy {
   }
 
   submit = async () => {};
+
+  protected async setupCaptcha() {
+    const env = await firstValueFrom(this.environmentService.environment$);
+    const webVaultUrl = env.getWebVaultUrl();
+
+    this.captcha = new CaptchaIFrame(
+      window,
+      webVaultUrl,
+      this.i18nService,
+      (token: string) => {
+        this.captchaToken = token;
+      },
+      (error: string) => {
+        this.toastService.showToast({
+          variant: "error",
+          title: this.i18nService.t("errorOccurred"),
+          message: error,
+        });
+      },
+      (info: string) => {
+        this.toastService.showToast({
+          variant: "info",
+          title: this.i18nService.t("info"),
+          message: info,
+        });
+      },
+    );
+  }
+
+  protected showCaptcha() {
+    return !Utils.isNullOrWhitespace(this.captchaSiteKey);
+  }
+
+  protected handleCaptchaRequired(response: { captchaSiteKey: string }): boolean {
+    if (Utils.isNullOrWhitespace(response.captchaSiteKey)) {
+      return false;
+    }
+
+    this.captchaSiteKey = response.captchaSiteKey;
+    this.captcha.init(response.captchaSiteKey);
+    return true;
+  }
 
   protected async validateEmail(): Promise<void> {
     this.formGroup.controls.email.markAsTouched();
