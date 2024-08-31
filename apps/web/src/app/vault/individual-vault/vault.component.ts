@@ -1,3 +1,4 @@
+import { Organization } from "./../../../../../../libs/common/src/admin-console/models/domain/organization";
 import {
   ChangeDetectorRef,
   Component,
@@ -34,7 +35,6 @@ import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
 import { SearchService } from "@bitwarden/common/abstractions/search.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
-import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { EventType } from "@bitwarden/common/enums";
@@ -59,7 +59,7 @@ import { CollectionDetailsResponse } from "@bitwarden/common/vault/models/respon
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { CollectionView } from "@bitwarden/common/vault/models/view/collection.view";
 import { ServiceUtils } from "@bitwarden/common/vault/service-utils";
-import { DialogService, Icons, ToastService } from "@bitwarden/components";
+import { BannerModule, DialogService, Icons, ToastService } from "@bitwarden/components";
 import { CollectionAssignmentResult, PasswordRepromptService } from "@bitwarden/vault";
 
 import { SharedModule } from "../../shared/shared.module";
@@ -129,6 +129,7 @@ const SearchTextDebounceInterval = 200;
     VaultBannersComponent,
     VaultFilterModule,
     VaultItemsModule,
+    BannerModule,
     SharedModule,
   ],
   providers: [RoutedVaultFilterService, RoutedVaultFilterBridgeService],
@@ -148,6 +149,7 @@ export class VaultComponent implements OnInit, OnDestroy {
   trashCleanupWarning: string = null;
   kdfIterations: number;
   activeFilter: VaultFilter = new VaultFilter();
+  organizationId: string;
 
   protected noItemIcon = Icons.Search;
   protected performingInitialLoad = true;
@@ -220,6 +222,7 @@ export class VaultComponent implements OnInit, OnDestroy {
         }
         const cipherView = new CipherView();
         cipherView.id = cipherId;
+        this.organizationId = cipherView.organizationId;
         if (params.action === "clone") {
           await this.cloneCipher(cipherView);
         } else if (params.action === "view") {
@@ -416,6 +419,14 @@ export class VaultComponent implements OnInit, OnDestroy {
           this.refreshing = false;
         },
       );
+
+    this.organizationService.memberOrganizations$.subscribe({
+      next: console.log,
+    });
+  }
+
+  gotoPaymentMethod() {
+    // this.router.navigate(['organizations',`${this.organizationId}`,'billing','payment-method'], {state: {launchPaymentModalAutomatically: true}});
   }
 
   ngOnDestroy() {

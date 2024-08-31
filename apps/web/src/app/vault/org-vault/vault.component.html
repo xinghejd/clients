@@ -1,3 +1,19 @@
+<bit-banner
+  id="update-browser-banner"
+  class="-tw-m-6 tw-flex tw-flex-col tw-pb-6"
+  icon="bwi-billing"
+  bannerType="premium"
+  [showClose]="false"
+  *ngIf="true"
+  (onClose)="handleClose()"
+>
+  {{ "freeTrialEndPrompt" | i18n }}
+  <a bitLink linkType="contrast" (click)="gotoPaymentMethod()" rel="noreferrer noopener">
+    {{ "routeToPaymentPageTrigger" | i18n }}
+  </a>
+  <!--  href="https://browser-update.org/update-browser.html" -->
+</bit-banner>
+
 <app-org-vault-header
   [filter]="filter"
   [loading]="refreshing"

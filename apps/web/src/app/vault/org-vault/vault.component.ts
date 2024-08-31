@@ -7,7 +7,7 @@ import {
   ViewChild,
   ViewContainerRef,
 } from "@angular/core";
-import { ActivatedRoute, Params, Router } from "@angular/router";
+import { ActivatedRoute, NavigationEnd, Params, Router } from "@angular/router";
 import {
   BehaviorSubject,
   combineLatest,
@@ -109,6 +109,7 @@ import {
 import { CollectionAccessRestrictedComponent } from "./collection-access-restricted.component";
 import { openOrgVaultCollectionsDialog } from "./collections.component";
 import { VaultFilterModule } from "./vault-filter/vault-filter.module";
+import { BannerModule } from "@bitwarden/components";
 
 const BroadcasterSubscriptionId = "OrgVaultComponent";
 const SearchTextDebounceInterval = 200;
@@ -128,6 +129,7 @@ enum AddAccessStatusType {
     VaultFilterModule,
     VaultItemsModule,
     SharedModule,
+    BannerModule,
     NoItemsModule,
     ViewComponent,
   ],
@@ -623,6 +625,15 @@ export class VaultComponent implements OnInit, OnDestroy {
           this.performingInitialLoad = false;
         },
       );
+  }
+
+  handleClose() {}
+
+  gotoPaymentMethod() {
+    this.router.navigate(
+      ["organizations", `${this.organization.id}`, "billing", "payment-method"],
+      { state: { launchPaymentModalAutomatically: true } },
+    );
   }
 
   addAccessToggle(e: AddAccessStatusType) {

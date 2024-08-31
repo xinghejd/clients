@@ -1,5 +1,5 @@
 import { Component, OnDestroy, OnInit } from "@angular/core";
-import { ActivatedRoute } from "@angular/router";
+import { ActivatedRoute, Router } from "@angular/router";
 import {
   map,
   Observable,
@@ -104,6 +104,7 @@ export class OverviewComponent implements OnInit, OnDestroy {
     private i18nService: I18nService,
     private smOnboardingTasksService: SMOnboardingTasksService,
     private logService: LogService,
+    private router: Router,
   ) {}
 
   ngOnInit() {
@@ -195,6 +196,15 @@ export class OverviewComponent implements OnInit, OnDestroy {
         this.showOnboarding = Object.values(view.tasks).includes(false);
         this.loading = false;
       });
+  }
+
+  async gotoPaymentMethod() {
+    await this.router.navigate(
+      ["organizations", `${this.organizationId}`, "billing", "payment-method"],
+      {
+        state: { launchPaymentModalAutomatically: true },
+      },
+    );
   }
 
   ngOnDestroy(): void {
