@@ -29,7 +29,7 @@ import { WebAuthnLoginAdminApiService } from "./webauthn-login-admin-api.service
 export class WebauthnLoginAdminService
   implements UserKeyRotationDataProvider<WebauthnRotateCredentialRequest>
 {
-  static readonly MaxCredentialCount = 5;
+  static readonly MaxCredentialCount = 10;
 
   private navigatorCredentials: CredentialsContainer;
   private _refresh$ = new BehaviorSubject<void>(undefined);
