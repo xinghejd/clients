@@ -50,7 +50,7 @@ import { MessagingService } from "@bitwarden/common/platform/abstractions/messag
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { SyncService } from "@bitwarden/common/platform/sync";
-import { OrganizationId } from "@bitwarden/common/types/guid";
+import { CipherId, OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CollectionService } from "@bitwarden/common/vault/abstractions/collection.service";
 import { TotpService } from "@bitwarden/common/vault/abstractions/totp.service";
@@ -161,6 +161,11 @@ export class VaultComponent implements OnInit, OnDestroy {
   protected isEmpty: boolean;
   protected showCollectionAccessRestricted: boolean;
   protected currentSearchText$: Observable<string>;
+
+  /**
+   * This is used to prevent the password re-prompt from being triggered if the cipher was edited from the view dialog.
+   */
+  protected cipherEditedFromViewDialog: boolean;
   /**
    * A list of collections that the user can assign items to and edit those items within.
    * @protected
@@ -539,6 +544,16 @@ export class VaultComponent implements OnInit, OnDestroy {
             if (qParams.action === "view") {
               await this.viewCipherById(cipherId);
             } else {
+              /**
+               * We need to trigger the password re-prompt here in case a user navigates directly to the cipher edit dialog via the URL.
+               * The password reprompt should not be triggered if the cipher was edited from the view dialog.
+               */
+              if (this.extensionRefreshEnabled && !this.cipherEditedFromViewDialog) {
+                if (!(await this.triggerPasswordReprompt(cipherId as CipherId))) {
+                  return;
+                }
+              }
+
               await this.editCipherId(cipherId);
             }
           } else {
@@ -826,18 +841,10 @@ export class VaultComponent implements OnInit, OnDestroy {
     cipherId: string,
     additionalComponentParameters?: (comp: AddEditComponent) => void,
   ) {
-    const cipher = await this.cipherService.get(cipherId);
-    // if cipher exists (cipher is null when new) and MP reprompt
-    // is on for this cipher, then show password reprompt
-    if (
-      cipher &&
-      cipher.reprompt !== 0 &&
-      !this.extensionRefreshEnabled &&
-      !(await this.passwordRepromptService.showPasswordPrompt())
-    ) {
-      // didn't pass password prompt, so don't open add / edit modal
-      this.go({ cipherId: null, itemId: null });
-      return;
+    if (!this.extensionRefreshEnabled) {
+      if (!(await this.triggerPasswordReprompt(cipherId as CipherId))) {
+        return;
+      }
     }
 
     const defaultComponentParameters = (comp: AddEditComponent) => {
@@ -872,6 +879,7 @@ export class VaultComponent implements OnInit, OnDestroy {
     // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
     modal.onClosedPromise().then(() => {
+      this.cipherEditedFromViewDialog = false;
       this.go({ cipherId: null, itemId: null, action: null });
     });
 
@@ -893,18 +901,13 @@ export class VaultComponent implements OnInit, OnDestroy {
    * @returns Promise<void>
    */
   async viewCipherById(id: string) {
-    const cipher = await this.cipherService.get(id);
     // if cipher exists (cipher is null when new) and MP reprompt
     // is on for this cipher, then show password reprompt.
-    if (
-      cipher &&
-      cipher.reprompt !== 0 &&
-      !(await this.passwordRepromptService.showPasswordPrompt())
-    ) {
-      // didn't pass password prompt, so don't open add / edit modal.
-      this.go({ cipherId: null, itemId: null });
+    if (!(await this.triggerPasswordReprompt(id as CipherId))) {
       return;
     }
+
+    const cipher = await this.cipherService.get(id);
 
     const activeUserId = await firstValueFrom(
       this.accountService.activeAccount$.pipe(map((a) => a?.id)),
@@ -923,8 +926,14 @@ export class VaultComponent implements OnInit, OnDestroy {
     const result: ViewCipherDialogCloseResult = await lastValueFrom(dialogRef.closed);
 
     // If the dialog was closed by deleting the cipher, refresh the vault.
-    if (result.action === ViewCipherDialogResult.deleted) {
+    if (result?.action === ViewCipherDialogResult.deleted) {
       this.refresh();
+    }
+
+    if (result?.action === ViewCipherDialogResult.edited) {
+      this.cipherEditedFromViewDialog = true;
+      await this.editCipher(cipherView);
+      this.go({ cipherId: null, itemId: cipherView.id, action: "edit" });
     }
 
     // If the dialog was closed by any other action (close button, escape key, etc), navigate back to the vault.
@@ -946,6 +955,10 @@ export class VaultComponent implements OnInit, OnDestroy {
       }
     }
 
+    if (!(await this.triggerPasswordReprompt(cipher.id as CipherId))) {
+      return;
+    }
+
     let collections: CollectionView[] = [];
 
     // Admins limited to only adding items to collections they have access to.
@@ -956,6 +969,25 @@ export class VaultComponent implements OnInit, OnDestroy {
       comp.collections = collections;
       comp.collectionIds = cipher.collectionIds;
     });
+  }
+
+  /**
+   * Triggers a password reprompt for a cipher.
+   * @param cipherId - The ID of the cipher to trigger the password reprompt for.
+   * @returns True if the password prompt was shown, false otherwise.
+   */
+  async triggerPasswordReprompt(cipherId: CipherId): Promise<boolean> {
+    const cipher = await this.cipherService.get(cipherId);
+    if (
+      cipher &&
+      cipher.reprompt !== 0 &&
+      !(await this.passwordRepromptService.showPasswordPrompt())
+    ) {
+      // didn't pass password prompt, so don't open add / edit modal
+      this.go({ cipherId: null, itemId: null, action: null });
+      return false;
+    }
+    return true;
   }
 
   async restore(c: CipherView): Promise<boolean> {

@@ -1,7 +1,6 @@
 import { DIALOG_DATA, DialogConfig, DialogRef } from "@angular/cdk/dialog";
 import { CommonModule } from "@angular/common";
 import { Component, Inject, OnInit, EventEmitter, OnDestroy } from "@angular/core";
-import { Router } from "@angular/router";
 import { Subject } from "rxjs";
 
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
@@ -66,7 +65,6 @@ export class ViewComponent implements OnInit, OnDestroy {
     private cipherService: CipherService,
     private toastService: ToastService,
     private organizationService: OrganizationService,
-    private router: Router,
     private configService: ConfigService,
   ) {}
 
@@ -145,13 +143,6 @@ export class ViewComponent implements OnInit, OnDestroy {
    */
   async edit(): Promise<void> {
     this.dialogRef.close({ action: ViewCipherDialogResult.edited });
-    await this.router.navigate([], {
-      queryParams: {
-        itemId: this.cipher.id,
-        action: "edit",
-        organizationId: this.cipher.organizationId,
-      },
-    });
   }
 
   /**

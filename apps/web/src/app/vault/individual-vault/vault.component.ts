@@ -47,7 +47,7 @@ import { MessagingService } from "@bitwarden/common/platform/abstractions/messag
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { SyncService } from "@bitwarden/common/platform/sync";
-import { OrganizationId } from "@bitwarden/common/types/guid";
+import { CipherId, OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CollectionService } from "@bitwarden/common/vault/abstractions/collection.service";
 import { TotpService } from "@bitwarden/common/vault/abstractions/totp.service";
@@ -228,6 +228,16 @@ export class VaultComponent implements OnInit, OnDestroy {
         } else if (params.action === "view") {
           await this.viewCipher(cipherView);
         } else if (params.action === "edit") {
+          /**
+           * We need to trigger the password reprompt here in case a user navigates directly to the cipher edit dialog via the URL.
+           */
+          const extensionRefreshEnabled = await firstValueFrom(this.extensionRefreshEnabled$);
+          if (extensionRefreshEnabled) {
+            if (!(await this.triggerPasswordReprompt(cipherId as CipherId))) {
+              return;
+            }
+          }
+
           await this.editCipher(cipherView);
         }
       }),
@@ -634,19 +644,13 @@ export class VaultComponent implements OnInit, OnDestroy {
   }
 
   async editCipherId(id: string) {
-    const cipher = await this.cipherService.get(id);
     const extensionRefreshEnabled = await firstValueFrom(this.extensionRefreshEnabled$);
-    // if cipher exists (cipher is null when new) and MP reprompt
-    // is on for this cipher, then show password reprompt
-    if (
-      cipher &&
-      cipher.reprompt !== 0 &&
-      !extensionRefreshEnabled &&
-      !(await this.passwordRepromptService.showPasswordPrompt())
-    ) {
-      // didn't pass password prompt, so don't open add / edit modal
-      this.go({ cipherId: null, itemId: null, action: null });
-      return;
+    // if cipher exists (cipher is null when new) and MP re-prompt
+    // is on for this cipher, then show password re=prompt
+    if (!extensionRefreshEnabled) {
+      if (!(await this.triggerPasswordReprompt(id as CipherId))) {
+        return;
+      }
     }
 
     const [modal, childComponent] = await this.modalService.openViewRef(
@@ -693,18 +697,13 @@ export class VaultComponent implements OnInit, OnDestroy {
    * @returns Promise<void>
    */
   async viewCipherById(id: string) {
-    const cipher = await this.cipherService.get(id);
-    // If cipher exists (cipher is null when new) and MP reprompt
+    // If cipher exists (cipher is null when new) and MP re-prompt
     // is on for this cipher, then show password reprompt.
-    if (
-      cipher &&
-      cipher.reprompt !== 0 &&
-      !(await this.passwordRepromptService.showPasswordPrompt())
-    ) {
-      // Didn't pass password prompt, so don't open add / edit modal.
-      this.go({ cipherId: null, itemId: null });
+    if (!(await this.triggerPasswordReprompt(id as CipherId))) {
       return;
     }
+
+    const cipher = await this.cipherService.get(id);
 
     const activeUserId = await firstValueFrom(
       this.accountService.activeAccount$.pipe(map((a) => a?.id)),
@@ -725,6 +724,11 @@ export class VaultComponent implements OnInit, OnDestroy {
     // If the dialog was closed by deleting the cipher, refresh the vault.
     if (result?.action === ViewCipherDialogResult.deleted) {
       this.refresh();
+    }
+
+    if (result?.action === ViewCipherDialogResult.edited) {
+      await this.editCipher(cipherView);
+      this.go({ cipherId: null, itemId: cipherView.id, action: "edit" });
     }
 
     // If the dialog was closed by any other action (close button, escape key, etc), navigate back to the vault.
@@ -878,8 +882,31 @@ export class VaultComponent implements OnInit, OnDestroy {
       }
     }
 
+    if (!(await this.triggerPasswordReprompt(cipher.id as CipherId))) {
+      return;
+    }
+
     const component = await this.editCipher(cipher);
     component.cloneMode = true;
+  }
+
+  /**
+   * Triggers a password reprompt for a cipher.
+   * @param cipherId - The ID of the cipher to trigger the password reprompt for.
+   * @returns True if the password prompt was shown, false otherwise.
+   */
+  async triggerPasswordReprompt(cipherId: CipherId): Promise<boolean> {
+    const cipher = await this.cipherService.get(cipherId);
+    if (
+      cipher &&
+      cipher.reprompt !== 0 &&
+      !(await this.passwordRepromptService.showPasswordPrompt())
+    ) {
+      // didn't pass password prompt, so don't open add / edit modal
+      this.go({ cipherId: null, itemId: null, action: null });
+      return false;
+    }
+    return true;
   }
 
   async restore(c: CipherView): Promise<boolean> {
