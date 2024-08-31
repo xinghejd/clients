@@ -181,6 +181,18 @@ export class LoginComponentV2 implements OnInit, OnDestroy {
     return true;
   }
 
+  protected async startAuthRequestLogin() {
+    this.formGroup.get("masterPassword")?.clearValidators();
+    this.formGroup.get("masterPassword")?.updateValueAndValidity();
+
+    if (!this.formGroup.valid) {
+      return;
+    }
+
+    await this.saveEmailSettings();
+    await this.router.navigate(["/login-with-device"]);
+  }
+
   protected async validateEmail(): Promise<void> {
     this.formGroup.controls.email.markAsTouched();
     const emailValid = this.formGroup.controls.email.valid;

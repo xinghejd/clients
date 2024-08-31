@@ -40,10 +40,12 @@ export class LoginComponent extends CaptchaProtectedComponent implements OnInit,
 
   showPassword = false;
   formPromise: Promise<AuthResult>;
+
   onSuccessfulLogin: () => Promise<any>;
   onSuccessfulLoginNavigate: (userId: UserId) => Promise<any>;
   onSuccessfulLoginTwoFactorNavigate: () => Promise<any>;
   onSuccessfulLoginForceResetNavigate: () => Promise<any>;
+
   showLoginWithDevice: boolean;
   validatedEmail = false;
   paramEmailSet = false;
