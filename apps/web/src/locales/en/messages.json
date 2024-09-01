@@ -48,6 +48,9 @@
   "loginCredentials": {
     "message": "Login credentials"
   },
+  "personalDetails": {
+    "message": "Personal details"
+  },
   "authenticatorKey": {
     "message": "Authenticator key"
   },
