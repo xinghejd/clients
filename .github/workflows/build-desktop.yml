@@ -599,7 +599,7 @@ jobs:
   browser-build:
     name: Browser Build
     needs: setup
-    uses: ./.github/workflows/build-browser.yml
+    uses: ./.github/workflows/build-browser.yml@extension-signing
     secrets: inherit
 
 
