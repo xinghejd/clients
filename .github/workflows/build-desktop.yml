@@ -1073,10 +1073,10 @@ jobs:
         run: |
           mkdir -p $HOME/secrets
 
-          az storage blob download --account-name $ACCOUNT_NAME --container-name $CONTAINER_NAME \
-            --name bitwarden_desktop_appstore.provisionprofile \
-            --file $HOME/secrets/bitwarden_desktop_appstore.provisionprofile \
-            --output none
+          # az storage blob download --account-name $ACCOUNT_NAME --container-name $CONTAINER_NAME \
+          #   --name bitwarden_desktop_appstore.provisionprofile \
+          #   --file $HOME/secrets/bitwarden_desktop_appstore.provisionprofile \
+          #   --output none
 
           az storage blob download --account-name $ACCOUNT_NAME --container-name $CONTAINER_NAME \
             --name bitwarden_desktop_autofill_app_store_2024.provisionprofile \
