@@ -283,6 +283,9 @@ jobs:
             --file $HOME/secrets/bitwarden_desktop_autofill_app_store_2024.provisionprofile \
             --output none
 
+      - name: Get xcode version
+        run: /usr/bin/xcodebuild -version
+
       - name: Set up provisioning profiles
         run: |
           AUTOFILL_PROFILE_PATH=$HOME/secrets/bitwarden_desktop_autofill_app_store_2024.provisionprofile
