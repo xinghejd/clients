@@ -332,8 +332,7 @@ export class LoginComponent extends CaptchaProtectedComponent implements OnInit,
     await this.loginEmailService.saveEmailSettings();
   }
 
-  // Legacy accounts used the master key to encrypt data. Migration is required
-  // but only performed on web
+  // Legacy accounts used the master key to encrypt data. Migration is required but only performed on web
   protected async handleMigrateEncryptionKey(result: AuthResult): Promise<boolean> {
     if (!result.requiresEncryptionKeyMigration) {
       return false;

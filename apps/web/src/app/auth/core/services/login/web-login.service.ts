@@ -1,11 +1,12 @@
 import { inject } from "@angular/core";
-import { UrlTree } from "@angular/router";
+import { Router, UrlTree } from "@angular/router";
 import { firstValueFrom } from "rxjs";
 
 import { DefaultLoginService, LoginService, PasswordPolicies } from "@bitwarden/auth/angular";
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
 import { InternalPolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
+import { AuthResult } from "@bitwarden/common/auth/models/domain/auth-result";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 
 import { flagEnabled } from "../../../../../utils/flags";
@@ -17,6 +18,7 @@ export class WebLoginService extends DefaultLoginService implements LoginService
   logService = inject(LogService);
   policyApiService = inject(PolicyApiServiceAbstraction);
   policyService = inject(InternalPolicyService);
+  router = inject(Router);
   routerService = inject(RouterService);
 
   getShowPasswordlessFlag(): boolean {
@@ -66,5 +68,13 @@ export class WebLoginService extends DefaultLoginService implements LoginService
         enforcedPasswordPolicyOptions,
       };
     }
+  }
+
+  override async handleMigrateEncryptionKey(result: AuthResult): Promise<boolean> {
+    if (!result.requiresEncryptionKeyMigration) {
+      return false;
+    }
+    await this.router.navigate(["migrate-legacy-encryption"]);
+    return true;
   }
 }

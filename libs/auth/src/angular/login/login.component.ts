@@ -5,11 +5,17 @@ import { ActivatedRoute, Router, RouterModule } from "@angular/router";
 import { first, firstValueFrom, Subject, take, takeUntil } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
-import { LoginEmailServiceAbstraction, RegisterRouteService } from "@bitwarden/auth/common";
+import {
+  LoginEmailServiceAbstraction,
+  LoginStrategyServiceAbstraction,
+  PasswordLoginCredentials,
+  RegisterRouteService,
+} from "@bitwarden/auth/common";
 import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/models/domain/master-password-policy-options";
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 import { DevicesApiServiceAbstraction } from "@bitwarden/common/auth/abstractions/devices-api.service.abstraction";
 import { CaptchaIFrame } from "@bitwarden/common/auth/captcha-iframe";
+import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/force-set-password-reason";
 import { ClientType } from "@bitwarden/common/enums";
 import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
@@ -85,6 +91,7 @@ export class LoginComponentV2 implements OnInit, OnDestroy {
     private i18nService: I18nService,
     private loginEmailService: LoginEmailServiceAbstraction,
     private loginService: LoginService,
+    private loginStrategyService: LoginStrategyServiceAbstraction,
     private ngZone: NgZone,
     private platformUtilsService: PlatformUtilsService,
     private registerRouteService: RegisterRouteService,
@@ -137,7 +144,42 @@ export class LoginComponentV2 implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  submit = async () => {};
+  submit = async (showToast: boolean): Promise<void> => {
+    const data = this.formGroup.value;
+
+    await this.setupCaptcha();
+
+    this.formGroup.markAllAsTouched();
+
+    // Web specific (start)
+    if (this.formGroup.invalid && !showToast) {
+      return;
+    }
+    // Web specific (end)
+
+    const credentials = new PasswordLoginCredentials(
+      data.email,
+      data.masterPassword,
+      this.captchaToken,
+      null,
+    );
+
+    const response = await this.loginStrategyService.logIn(credentials);
+
+    await this.saveEmailSettings();
+
+    if (this.handleCaptchaRequired(response)) {
+      return;
+    } else if (await this.handleMigrateEncryptionKey(response)) {
+      return;
+    } else if (response.requiresTwoFactor) {
+      // code ...
+    } else if (response.forcePasswordReset != ForceSetPasswordReason.None) {
+      // code ...
+    } else {
+      // code ...
+    }
+  };
 
   protected async setupCaptcha() {
     const env = await firstValueFrom(this.environmentService.environment$);
