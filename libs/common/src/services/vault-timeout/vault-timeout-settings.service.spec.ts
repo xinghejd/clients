@@ -15,9 +15,9 @@ import { PolicyService } from "../../admin-console/abstractions/policy/policy.se
 import { Policy } from "../../admin-console/models/domain/policy";
 import { TokenService } from "../../auth/abstractions/token.service";
 import { VaultTimeoutAction } from "../../enums/vault-timeout-action.enum";
+import { BiometricStateService } from "../../key-management/biometrics/biometric-state.service";
 import { CryptoService } from "../../platform/abstractions/crypto.service";
 import { LogService } from "../../platform/abstractions/log.service";
-import { BiometricStateService } from "../../platform/biometrics/biometric-state.service";
 import {
   VAULT_TIMEOUT,
   VAULT_TIMEOUT_ACTION,
