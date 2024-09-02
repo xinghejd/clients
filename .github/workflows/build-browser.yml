@@ -291,7 +291,7 @@ jobs:
           mkdir -p "$PROFILES_DIR_PATH"
 
           AUTOFILL_UUID=$(grep UUID -A1 -a $AUTOFILL_PROFILE_PATH | grep -io "[-A-F0-9]\{36\}")
-          cp $AUTOFILL_PROFILE_PATH "$PROFILES_DIR_PATH/safari.provisionprofile"
+          cp $AUTOFILL_PROFILE_PATH "$PROFILES_DIR_PATH/$AUTOFILL_UUID.provisionprofile"
 
       - name: Get certificates
         run: |
