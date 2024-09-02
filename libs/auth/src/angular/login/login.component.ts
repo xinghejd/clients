@@ -11,6 +11,8 @@ import {
   PasswordLoginCredentials,
   RegisterRouteService,
 } from "@bitwarden/auth/common";
+import { InternalPolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
+import { PolicyData } from "@bitwarden/common/admin-console/models/data/policy.data";
 import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/models/domain/master-password-policy-options";
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 import { DevicesApiServiceAbstraction } from "@bitwarden/common/auth/abstractions/devices-api.service.abstraction";
@@ -22,6 +24,8 @@ import { EnvironmentService } from "@bitwarden/common/platform/abstractions/envi
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { PasswordStrengthServiceAbstraction } from "@bitwarden/common/tools/password-strength";
+import { UserId } from "@bitwarden/common/types/guid";
 import {
   AsyncActionsModule,
   ButtonModule,
@@ -93,7 +97,9 @@ export class LoginComponentV2 implements OnInit, OnDestroy {
     private loginService: LoginService,
     private loginStrategyService: LoginStrategyServiceAbstraction,
     private ngZone: NgZone,
+    private passwordStrengthService: PasswordStrengthServiceAbstraction,
     private platformUtilsService: PlatformUtilsService,
+    private policyService: InternalPolicyService,
     private registerRouteService: RegisterRouteService,
     private router: Router,
     private toastService: ToastService,
@@ -170,16 +176,50 @@ export class LoginComponentV2 implements OnInit, OnDestroy {
 
     if (this.handleCaptchaRequired(response)) {
       return;
-    } else if (await this.handleMigrateEncryptionKey(response)) {
+    } else if (await this.loginService.handleMigrateEncryptionKey(response)) {
       return;
     } else if (response.requiresTwoFactor) {
-      // code ...
+      await this.router.navigate(["2fa"]);
     } else if (response.forcePasswordReset != ForceSetPasswordReason.None) {
-      // code ...
+      this.loginEmailService.clearValues();
+      await this.router.navigate(["update-temp-password"]);
     } else {
-      // code ...
+      // Web specific (start)
+      await this.goAfterLogIn(response.userId);
+      // Web specific (end)
     }
   };
+
+  protected async goAfterLogIn(userId: UserId) {
+    const masterPassword = this.formGroup.value.masterPassword;
+
+    // Check master password against policy
+    if (this.enforcedPasswordPolicyOptions != null) {
+      const strengthResult = this.passwordStrengthService.getPasswordStrength(
+        masterPassword,
+        this.formGroup.value.email,
+      );
+      const masterPasswordScore = strengthResult == null ? null : strengthResult.score;
+
+      // If invalid, save policies and require update
+      if (
+        !this.policyService.evaluateMasterPassword(
+          masterPasswordScore,
+          masterPassword,
+          this.enforcedPasswordPolicyOptions,
+        )
+      ) {
+        const policiesData: { [id: string]: PolicyData } = {};
+        this.policies.map((p) => (policiesData[p.id] = PolicyData.fromPolicy(p)));
+        await this.policyService.replace(policiesData, userId);
+        await this.router.navigate(["update-password"]);
+        return;
+      }
+    }
+
+    this.loginEmailService.clearValues();
+    await this.router.navigate(["vault"]);
+  }
 
   protected async setupCaptcha() {
     const env = await firstValueFrom(this.environmentService.environment$);

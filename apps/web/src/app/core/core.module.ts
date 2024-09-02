@@ -57,6 +57,7 @@ import {
   ThemeStateService,
 } from "@bitwarden/common/platform/theming/theme-state.service";
 import { VaultTimeout, VaultTimeoutStringType } from "@bitwarden/common/types/vault-timeout.type";
+import { ToastService } from "@bitwarden/components";
 
 import { PolicyListService } from "../admin-console/core/policy-list.service";
 import { WebSetPasswordJitService, WebRegistrationFinishService, WebLoginService } from "../auth";
@@ -211,7 +212,7 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: LoginService,
     useClass: WebLoginService,
-    deps: [],
+    deps: [I18nServiceAbstraction, ToastService],
   }),
 ];
 
