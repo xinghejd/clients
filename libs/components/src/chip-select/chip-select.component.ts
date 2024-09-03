@@ -1,4 +1,11 @@
-import { Component, HostListener, Input, booleanAttribute, signal } from "@angular/core";
+import {
+  Component,
+  HostBinding,
+  HostListener,
+  Input,
+  booleanAttribute,
+  signal,
+} from "@angular/core";
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from "@angular/forms";
 
 import { compareValues } from "../../../common/src/platform/misc/compare-values";
@@ -62,6 +69,11 @@ export class ChipSelectComponent<T = unknown> implements ControlValueAccessor {
     this.focusVisibleWithin.set(false);
   }
 
+  @HostBinding("class")
+  get classList() {
+    return ["tw-inline-block"];
+  }
+
   /** Tree constructed from `this.options` */
   private rootTree: ChipSelectOption<T>;
 
@@ -79,6 +91,10 @@ export class ChipSelectComponent<T = unknown> implements ControlValueAccessor {
   /** The icon to show in the chip button */
   protected get icon(): string {
     return this.selectedOption?.icon || this.placeholderIcon;
+  }
+
+  protected handleMenuClosed(): void {
+    this.renderedOptions = this.selectedOption ?? this.rootTree;
   }
 
   protected selectOption(option: ChipSelectOption<T>, _event: MouseEvent) {
