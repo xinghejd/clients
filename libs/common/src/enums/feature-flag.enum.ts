@@ -33,6 +33,7 @@ export enum FeatureFlag {
   DelayFido2PageScriptInitWithinMv2 = "delay-fido2-page-script-init-within-mv2",
   AccountDeprovisioning = "pm-10308-account-deprovisioning",
   NotificationBarAddLoginImprovements = "notification-bar-add-login-improvements",
+  AC2476_DeprecateStripeSourcesAPI = "AC-2476-deprecate-stripe-sources-api",
   TrialPaymentEnabled = "PM-8163-trial-payment",
 }
 
@@ -77,6 +78,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.DelayFido2PageScriptInitWithinMv2]: FALSE,
   [FeatureFlag.AccountDeprovisioning]: FALSE,
   [FeatureFlag.NotificationBarAddLoginImprovements]: FALSE,
+  [FeatureFlag.AC2476_DeprecateStripeSourcesAPI]: FALSE,
   [FeatureFlag.TrialPaymentEnabled]: FALSE,
 } satisfies Record<FeatureFlag, AllowedFeatureFlagTypes>;
 
