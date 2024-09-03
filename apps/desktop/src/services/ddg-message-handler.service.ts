@@ -26,7 +26,7 @@ const HashAlgorithmForAsymmetricEncryption = "sha1";
 
 // This service handles messages using the protocol created for the DuckDuckGo integration.
 @Injectable()
-export class NativeMessageHandlerService {
+export class DDGMessageHandlerService {
   private ddgSharedSecret: SymmetricCryptoKey;
 
   constructor(
