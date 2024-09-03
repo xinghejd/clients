@@ -289,7 +289,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       this.closeInlineMenuAfterCiphersUpdate().catch((error) => this.logService.error(error));
     }
 
-    if (!currentTab) {
+    if (!currentTab || !currentTab.url?.startsWith("http")) {
       return;
     }
 
@@ -923,6 +923,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
         cipher.login.fido2Credentials[0].credentialId,
       );
       this.updateLastUsedInlineMenuCipher(inlineMenuCipherId, cipher);
+      this.closeInlineMenu(sender, { forceCloseInlineMenu: true });
 
       return;
     }
