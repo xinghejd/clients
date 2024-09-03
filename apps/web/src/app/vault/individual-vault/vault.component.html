@@ -1,17 +1,28 @@
-<bit-banner
-  id="update-browser-banner"
-  class="-tw-m-6 tw-flex tw-flex-col tw-pb-6"
-  bannerType="premium"
-  icon="bwi-billing"
-  [showClose]="false"
-  *ngIf="true"
->
-  {{ "freeTrialEndPrompt" | i18n }}
-  <a bitLink linkType="contrast" (click)="gotoPaymentMethod()" rel="noreferrer noopener">
-    {{ "routeToPaymentPageTrigger" | i18n }}
-  </a>
-  <!--  href="https://browser-update.org/update-browser.html" -->
-</bit-banner>
+<ng-container *ngFor="let banner of bannersToDisplay; index as i">
+  <bit-banner
+    id="update-browser-banner"
+    class="-tw-m-6 tw-flex tw-flex-col tw-pb-6"
+    bannerType="premium"
+    icon="bwi-billing"
+    [showClose]="false"
+  >
+    {{
+      banner?.trialRemainingDays >= 2
+        ? ("freeTrialEndPromptAboveTwoDays" | i18n: banner?.orgName : banner?.trialRemainingDays)
+        : banner?.trialRemainingDays == 1
+          ? ("freeTrialEndPromptForOneDay" | i18n: banner?.orgName)
+          : ("freeTrialEndPromptForLessThanADay" | i18n: banner?.orgName)
+    }}
+    <a
+      bitLink
+      linkType="contrast"
+      (click)="navigateToPaymentMethod(banner?.orgId)"
+      rel="noreferrer noopener"
+    >
+      {{ "routeToPaymentPageTrigger" | i18n }}
+    </a>
+  </bit-banner>
+</ng-container>
 <app-vault-banners></app-vault-banners>
 
 <app-vault-header

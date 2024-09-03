@@ -1,6 +1,8 @@
-import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from "@angular/core";
+import { Component, EventEmitter, inject, Input, OnDestroy, OnInit, Output } from "@angular/core";
+import { Router } from "@angular/router";
 import { firstValueFrom, Subject } from "rxjs";
 
+import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -40,7 +42,7 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
   isLoaded = false;
 
   protected destroy$: Subject<void> = new Subject<void>();
-
+  private router = inject(Router);
   get filtersList() {
     return this.filters ? Object.values(this.filters) : [];
   }
@@ -85,6 +87,7 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
     protected policyService: PolicyService,
     protected i18nService: I18nService,
     protected platformUtilsService: PlatformUtilsService,
+    protected organizationApiService: OrganizationApiServiceAbstraction,
   ) {}
 
   async ngOnInit(): Promise<void> {
@@ -111,6 +114,13 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
         null,
         this.i18nService.t("disabledOrganizationFilterError"),
       );
+      const sub = await this.organizationApiService.getSubscription(orgNode.node.id);
+      if (sub?.subscription.status === "unpaid") {
+        await this.router.navigate(
+          ["organizations", `${orgNode.node.id}`, "billing", "payment-method"],
+          { state: { launchPaymentModalAutomatically: true } },
+        );
+      }
       return;
     }
     const filter = this.activeFilter;

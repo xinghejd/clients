@@ -1,6 +1,7 @@
-import { AfterViewInit, Component, OnDestroy, OnInit, ViewChild } from "@angular/core";
+import { Location } from "@angular/common";
+import { Component, OnDestroy, OnInit, ViewChild } from "@angular/core";
 import { FormBuilder, FormControl, Validators } from "@angular/forms";
-import { ActivatedRoute, NavigationEnd, Router, Scroll } from "@angular/router";
+import { ActivatedRoute, Router } from "@angular/router";
 import { lastValueFrom } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
@@ -21,13 +22,12 @@ import {
   openAdjustPaymentDialog,
 } from "./adjust-payment-dialog.component";
 import { TaxInfoComponent } from "./tax-info.component";
-import { Location } from "@angular/common";
 
 @Component({
   templateUrl: "payment-method.component.html",
 })
 // eslint-disable-next-line rxjs-angular/prefer-takeuntil
-export class PaymentMethodComponent implements OnInit, AfterViewInit, OnDestroy {
+export class PaymentMethodComponent implements OnInit, OnDestroy {
   @ViewChild(TaxInfoComponent) taxInfo: TaxInfoComponent;
 
   loading = false;
@@ -69,11 +69,16 @@ export class PaymentMethodComponent implements OnInit, AfterViewInit, OnDestroy 
   ) {
     const state = this.router.getCurrentNavigation()?.extras?.state;
     const redundant: any = location.getState();
-    if (state && state.hasOwnProperty("launchPaymentModalAutomatically")) {
+    if (state && Object.prototype.hasOwnProperty.call(state, "launchPaymentModalAutomatically")) {
       this.launchPaymentModalAutomatically = state.launchPaymentModalAutomatically;
-    } else if (redundant && redundant.hasOwnProperty("launchPaymentModalAutomatically")) {
+    } else if (
+      redundant &&
+      Object.prototype.hasOwnProperty.call(redundant, "launchPaymentModalAutomatically")
+    ) {
       this.launchPaymentModalAutomatically = redundant.launchPaymentModalAutomatically;
-    } else this.launchPaymentModalAutomatically = false;
+    } else {
+      this.launchPaymentModalAutomatically = false;
+    }
   }
 
   async ngOnInit() {
@@ -91,13 +96,6 @@ export class PaymentMethodComponent implements OnInit, AfterViewInit, OnDestroy 
       await this.load();
       this.firstLoaded = true;
     });
-  }
-
-  ngAfterViewInit() {
-    if (this.launchPaymentModalAutomatically)
-      setTimeout(() => {
-        (document.querySelector(".payment_trigger_button")! as HTMLButtonElement).click();
-      }, 800);
   }
 
   load = async () => {
@@ -126,6 +124,11 @@ export class PaymentMethodComponent implements OnInit, AfterViewInit, OnDestroy 
     this.isUnpaid = this.subscription?.status === "unpaid" ?? false;
 
     this.loading = false;
+    if (this.launchPaymentModalAutomatically) {
+      window.setTimeout(() => {
+        (document.querySelector(".payment_trigger_button")! as HTMLButtonElement).click();
+      }, 800);
+    }
   };
 
   addCredit = async () => {

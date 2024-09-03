@@ -1,4 +1,3 @@
-import { Organization } from "./../../../../../../libs/common/src/admin-console/models/domain/organization";
 import {
   ChangeDetectorRef,
   Component,
@@ -34,7 +33,9 @@ import { ModalService } from "@bitwarden/angular/services/modal.service";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
 import { SearchService } from "@bitwarden/common/abstractions/search.service";
+import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { EventType } from "@bitwarden/common/enums";
@@ -119,6 +120,15 @@ import {
 const BroadcasterSubscriptionId = "VaultComponent";
 const SearchTextDebounceInterval = 200;
 
+type PaymentCheckOfOrganization = {
+  isTrialing: boolean;
+  isOwner: boolean;
+  trialRemainingDays: number;
+  isPaymentSourceEmpty: boolean;
+  orgId: any;
+  orgName: string;
+};
+
 @Component({
   standalone: true,
   selector: "app-vault",
@@ -172,6 +182,8 @@ export class VaultComponent implements OnInit, OnDestroy {
   private searchText$ = new Subject<string>();
   private refresh$ = new BehaviorSubject<void>(null);
   private destroy$ = new Subject<void>();
+  protected organization: Organization;
+  protected bannersToDisplay: PaymentCheckOfOrganization[] = [];
 
   constructor(
     private syncService: SyncService,
@@ -202,6 +214,7 @@ export class VaultComponent implements OnInit, OnDestroy {
     private billingAccountProfileStateService: BillingAccountProfileStateService,
     private toastService: ToastService,
     private accountService: AccountService,
+    private organizationApiService: OrganizationApiServiceAbstraction,
   ) {}
 
   async ngOnInit() {
@@ -390,8 +403,8 @@ export class VaultComponent implements OnInit, OnDestroy {
         ),
         takeUntil(this.destroy$),
       )
-      .subscribe(
-        ([
+      .subscribe({
+        next: async ([
           filter,
           canAccessPremium,
           allCollections,
@@ -414,19 +427,80 @@ export class VaultComponent implements OnInit, OnDestroy {
 
           this.showBulkMove = filter.type !== "trash";
           this.isEmpty = collections?.length === 0 && ciphers?.length === 0;
-
+          if (this.allOrganizations.length > 0) {
+            this.refreshing = true;
+            await this.identifyOrganizationsWithUpcomingPaymentIssues();
+            this.refreshing = false;
+          }
           this.performingInitialLoad = false;
           this.refreshing = false;
         },
-      );
-
-    this.organizationService.memberOrganizations$.subscribe({
-      next: console.log,
-    });
+      });
   }
 
-  gotoPaymentMethod() {
-    // this.router.navigate(['organizations',`${this.organizationId}`,'billing','payment-method'], {state: {launchPaymentModalAutomatically: true}});
+  async navigateToPaymentMethod(organizationId: string): Promise<void> {
+    const navigationExtras = {
+      state: { launchPaymentModalAutomatically: true },
+    };
+
+    await this.router.navigate(
+      ["organizations", organizationId, "billing", "payment-method"],
+      navigationExtras,
+    );
+  }
+
+  async identifyOrganizationsWithUpcomingPaymentIssues(): Promise<void> {
+    const checks = this.allOrganizations.map(async (org) => {
+      const result: PaymentCheckOfOrganization = await this.evaluateOrganizationPaymentConditions(
+        org.id,
+      );
+
+      if (result.isOwner && result.isTrialing && result.isPaymentSourceEmpty) {
+        return result;
+      }
+
+      return null;
+    });
+
+    const results = await Promise.all(checks);
+    this.bannersToDisplay = results.filter(
+      (result) => result !== null,
+    ) as PaymentCheckOfOrganization[];
+  }
+
+  async evaluateOrganizationPaymentConditions(
+    organizationId: string,
+  ): Promise<PaymentCheckOfOrganization> {
+    const org = await this.organizationService.get(organizationId);
+    const sub = await this.organizationApiService.getSubscription(organizationId);
+    const billing = await this.organizationApiService.getBilling(organizationId);
+
+    const isTrialing = sub?.subscription.status === "trialing";
+    const isOwner = org?.isOwner ?? false;
+    const isPaymentSourceEmpty = !billing?.paymentSource;
+
+    const trialRemainingDays = this.calculateTrialRemainingDays(sub?.subscription.trialEndDate);
+
+    return {
+      isTrialing,
+      isOwner,
+      trialRemainingDays,
+      isPaymentSourceEmpty,
+      orgId: organizationId,
+      orgName: org?.name ?? "Unknown Organization",
+    };
+  }
+
+  private calculateTrialRemainingDays(trialEndDate?: string): number | undefined {
+    if (!trialEndDate) {
+      return undefined;
+    }
+
+    const today = new Date();
+    const trialEnd = new Date(trialEndDate);
+    const timeDifference = trialEnd.getTime() - today.getTime();
+
+    return Math.ceil(timeDifference / (1000 * 60 * 60 * 24));
   }
 
   ngOnDestroy() {

@@ -7,7 +7,7 @@ import {
   ViewChild,
   ViewContainerRef,
 } from "@angular/core";
-import { ActivatedRoute, NavigationEnd, Params, Router } from "@angular/router";
+import { ActivatedRoute, Params, Router } from "@angular/router";
 import {
   BehaviorSubject,
   combineLatest,
@@ -35,11 +35,13 @@ import { ModalService } from "@bitwarden/angular/services/modal.service";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
 import { SearchService } from "@bitwarden/common/abstractions/search.service";
+import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { OrganizationUserService } from "@bitwarden/common/admin-console/abstractions/organization-user/organization-user.service";
 import { OrganizationUserUserDetailsResponse } from "@bitwarden/common/admin-console/abstractions/organization-user/responses";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { BillingPaymentResponse } from "@bitwarden/common/billing/models/response/billing-payment.response";
 import { EventType } from "@bitwarden/common/enums";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
@@ -60,7 +62,13 @@ import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { CollectionView } from "@bitwarden/common/vault/models/view/collection.view";
 import { ServiceUtils } from "@bitwarden/common/vault/service-utils";
-import { DialogService, Icons, NoItemsModule, ToastService } from "@bitwarden/components";
+import {
+  DialogService,
+  Icons,
+  NoItemsModule,
+  ToastService,
+  BannerModule,
+} from "@bitwarden/components";
 import { CollectionAssignmentResult, PasswordRepromptService } from "@bitwarden/vault";
 
 import { GroupService, GroupView } from "../../admin-console/organizations/core";
@@ -109,7 +117,6 @@ import {
 import { CollectionAccessRestrictedComponent } from "./collection-access-restricted.component";
 import { openOrgVaultCollectionsDialog } from "./collections.component";
 import { VaultFilterModule } from "./vault-filter/vault-filter.module";
-import { BannerModule } from "@bitwarden/components";
 
 const BroadcasterSubscriptionId = "OrgVaultComponent";
 const SearchTextDebounceInterval = 200;
@@ -153,6 +160,10 @@ export class VaultComponent implements OnInit, OnDestroy {
   protected performingInitialLoad = true;
   protected refreshing = false;
   protected processingEvent = false;
+  protected trialRemainingDays: number;
+  protected defaultPaymentSource: BillingPaymentResponse;
+  protected isOwner: boolean;
+  protected isTrailing: boolean;
   protected filter: RoutedVaultFilterModel = {};
   protected organization: Organization;
   protected allCollections: CollectionAdminView[];
@@ -221,6 +232,7 @@ export class VaultComponent implements OnInit, OnDestroy {
     protected configService: ConfigService,
     private toastService: ToastService,
     private accountService: AccountService,
+    private organizationApiService: OrganizationApiServiceAbstraction,
   ) {}
 
   async ngOnInit() {
@@ -595,8 +607,8 @@ export class VaultComponent implements OnInit, OnDestroy {
         ),
         takeUntil(this.destroy$),
       )
-      .subscribe(
-        ([
+      .subscribe({
+        next: async ([
           organization,
           filter,
           allCollections,
@@ -620,17 +632,36 @@ export class VaultComponent implements OnInit, OnDestroy {
           // This is a temporary fix to avoid double fetching collections.
           // TODO: Remove when implementing new VVR menu
           this.vaultFilterService.reloadCollections(allCollections);
-
+          if (this.organization.id) {
+            await this.identifyOrganizationsWithUpcomingPaymentIssues();
+          }
           this.refreshing = false;
           this.performingInitialLoad = false;
         },
-      );
+      });
+  }
+
+  private async identifyOrganizationsWithUpcomingPaymentIssues() {
+    this.refreshing = true;
+    const sub = await this.organizationApiService.getSubscription(this.organization.id);
+    const billing = await this.organizationApiService.getBilling(this.organization.id);
+    this.isTrailing = sub.subscription.status == "trialing";
+    const trialEndDate = sub?.subscription?.trialEndDate;
+    this.isOwner = this.organization.isOwner;
+    this.defaultPaymentSource = billing;
+    if (trialEndDate) {
+      const today = new Date();
+      const trialEnd = new Date(trialEndDate);
+      const timeDifference = trialEnd.getTime() - today.getTime();
+      this.trialRemainingDays = Math.ceil(timeDifference / (1000 * 60 * 60 * 24));
+    }
+    this.refreshing = false;
   }
 
   handleClose() {}
 
-  gotoPaymentMethod() {
-    this.router.navigate(
+  async navigateToPaymentMethod() {
+    await this.router.navigate(
       ["organizations", `${this.organization.id}`, "billing", "payment-method"],
       { state: { launchPaymentModalAutomatically: true } },
     );

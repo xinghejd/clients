@@ -15,7 +15,10 @@ import {
   concatMap,
 } from "rxjs";
 
+import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { BillingPaymentResponse } from "@bitwarden/common/billing/models/response/billing-payment.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -81,6 +84,11 @@ export class OverviewComponent implements OnInit, OnDestroy {
   protected showOnboarding = false;
   protected loading = true;
   protected organizationEnabled = false;
+  protected organization: Organization;
+  protected trialRemainingDays: number;
+  protected defaultPaymentSource: BillingPaymentResponse;
+  protected isOwner: boolean;
+  protected isTrailing: boolean;
   protected onboardingTasks$: Observable<SMOnboardingTasks>;
 
   protected view$: Observable<{
@@ -105,6 +113,8 @@ export class OverviewComponent implements OnInit, OnDestroy {
     private smOnboardingTasksService: SMOnboardingTasksService,
     private logService: LogService,
     private router: Router,
+
+    private organizationApiService: OrganizationApiServiceAbstraction,
   ) {}
 
   ngOnInit() {
@@ -122,6 +132,7 @@ export class OverviewComponent implements OnInit, OnDestroy {
       )
       .subscribe((org) => {
         this.organizationId = org.id;
+        this.organization = org;
         this.organizationName = org.name;
         this.userIsAdmin = org.isAdmin;
         this.loading = true;
@@ -192,13 +203,33 @@ export class OverviewComponent implements OnInit, OnDestroy {
         switchMap(() => this.view$.pipe(take(1))),
         takeUntil(this.destroy$),
       )
-      .subscribe((view) => {
-        this.showOnboarding = Object.values(view.tasks).includes(false);
-        this.loading = false;
+      .subscribe({
+        next: async (view) => {
+          this.showOnboarding = Object.values(view.tasks).includes(false);
+          if (this.organizationId) {
+            await this.identifyOrganizationsWithUpcomingPaymentIssues();
+          }
+          this.loading = false;
+        },
       });
   }
 
-  async gotoPaymentMethod() {
+  private async identifyOrganizationsWithUpcomingPaymentIssues() {
+    const sub = await this.organizationApiService.getSubscription(this.organizationId);
+    const billing = await this.organizationApiService.getBilling(this.organizationId);
+    const trialEndDate = sub?.subscription?.trialEndDate;
+    this.isOwner = this.organization.isOwner;
+    this.isTrailing = sub.subscription.status == "trialing";
+    this.defaultPaymentSource = billing;
+    if (trialEndDate) {
+      const today = new Date();
+      const trialEnd = new Date(trialEndDate);
+      const timeDifference = trialEnd.getTime() - today.getTime();
+      this.trialRemainingDays = Math.ceil(timeDifference / (1000 * 60 * 60 * 24));
+    }
+  }
+
+  async navigateToPaymentMethod() {
     await this.router.navigate(
       ["organizations", `${this.organizationId}`, "billing", "payment-method"],
       {

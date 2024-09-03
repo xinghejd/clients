@@ -1,6 +1,7 @@
 import { Component, Input, OnChanges, OnDestroy, OnInit, SimpleChanges } from "@angular/core";
 import { firstValueFrom, Subject } from "rxjs";
 
+import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -38,8 +39,15 @@ export class VaultFilterComponent
     protected policyService: PolicyService,
     protected i18nService: I18nService,
     protected platformUtilsService: PlatformUtilsService,
+    protected organizationApiService: OrganizationApiServiceAbstraction,
   ) {
-    super(vaultFilterService, policyService, i18nService, platformUtilsService);
+    super(
+      vaultFilterService,
+      policyService,
+      i18nService,
+      platformUtilsService,
+      organizationApiService,
+    );
   }
 
   async ngOnInit() {

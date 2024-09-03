@@ -4,14 +4,19 @@
   icon="bwi-billing"
   bannerType="premium"
   [showClose]="false"
-  *ngIf="true"
+  *ngIf="!refreshing && !defaultPaymentSource?.paymentSource && isOwner && isTrailing"
   (onClose)="handleClose()"
 >
-  {{ "freeTrialEndPrompt" | i18n }}
-  <a bitLink linkType="contrast" (click)="gotoPaymentMethod()" rel="noreferrer noopener">
+  {{
+    trialRemainingDays >= 2
+      ? ("freeTrialEndPrompt" | i18n: trialRemainingDays)
+      : trialRemainingDays == 1
+        ? ("freeTrialEndPromptForOneDayNoOrgName" | i18n)
+        : ("freeTrialEndPromptForLessThanADayNoOrgName" | i18n)
+  }}
+  <a bitLink linkType="contrast" (click)="navigateToPaymentMethod()" rel="noreferrer noopener">
     {{ "routeToPaymentPageTrigger" | i18n }}
   </a>
-  <!--  href="https://browser-update.org/update-browser.html" -->
 </bit-banner>
 
 <app-org-vault-header
