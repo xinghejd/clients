@@ -163,6 +163,7 @@ export class OrganizationOptionsComponent implements OnInit, OnDestroy {
         this.syncService,
         this.logService,
         this.userVerificationService,
+        this.toastService,
       );
     } else {
       // Remove reset password

@@ -603,6 +603,12 @@
   "newAccountCreated": {
     "message": "Váš účet byl vytvořen! Můžete se přihlásit."
   },
+  "newAccountCreated2": {
+    "message": "Váš nový účet byl vytvořen!"
+  },
+  "youHaveBeenLoggedIn": {
+    "message": "Byli jste přihlášeni!"
+  },
   "masterPassSent": {
     "message": "Poslali jsme vám e-mail s nápovědou k hlavnímu heslu."
   },
@@ -1173,6 +1179,9 @@
   },
   "premiumPurchaseAlert": {
     "message": "Prémiové členství můžete zakoupit na webové stránce bitwarden.com. Chcete tuto stránku nyní otevřít?"
+  },
+  "premiumPurchaseAlertV2": {
+    "message": "Premium si můžete zakoupit v nastavení účtu ve webové aplikaci Bitwarden."
   },
   "premiumCurrentMember": {
     "message": "Jste prémiovým členem!"
@@ -3049,5 +3058,8 @@
   },
   "textSends": {
     "message": "Sends s texty"
+  },
+  "ssoError": {
+    "message": "Pro přihlášení SSO nebyly nalezeny žádné volné porty."
   }
 }

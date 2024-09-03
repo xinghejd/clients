@@ -194,6 +194,12 @@
   "dr": {
     "message": "Dr."
   },
+  "cardExpiredTitle": {
+    "message": "Abgelaufene Karte"
+  },
+  "cardExpiredMessage": {
+    "message": "Wenn du die Karte erneuert hast, aktualisiere die Angaben zur Karte"
+  },
   "expirationMonth": {
     "message": "Ablaufmonat"
   },
@@ -474,6 +480,15 @@
   },
   "viewItem": {
     "message": "Eintrag anzeigen"
+  },
+  "viewItemType": {
+    "message": "$ITEMTYPE$ anzeigen",
+    "placeholders": {
+      "itemtype": {
+        "content": "$1",
+        "example": "login"
+      }
+    }
   },
   "new": {
     "message": "Neu",
@@ -890,6 +905,9 @@
   "masterPassHint": {
     "message": "Master-Passwort-Hinweis (optional)"
   },
+  "newMasterPassHint": {
+    "message": "Neuer Master-Passwort-Hinweis (optional)"
+  },
   "masterPassHintLabel": {
     "message": "Master-Passwort-Hinweis"
   },
@@ -945,6 +963,12 @@
   },
   "newAccountCreated": {
     "message": "Ihr neues Konto wurde erstellt! Sie können sich jetzt anmelden."
+  },
+  "newAccountCreated2": {
+    "message": "Dein neues Konto wurde erstellt!"
+  },
+  "youHaveBeenLoggedIn": {
+    "message": "Du wurdest angemeldet!"
   },
   "trialAccountCreated": {
     "message": "Konto erfolgreich erstellt."
@@ -1514,11 +1538,11 @@
     "message": "Daten importieren"
   },
   "onboardingImportDataDetailsPartOne": {
-    "message": "Wenn du keine Daten zu importieren hast, kannst du stattdessen einen ",
+    "message": "Wenn du keine Daten zu importieren hast, kannst du stattdessen ",
     "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead. (Optional second half: You may need to wait until your administrator confirms your organization membership.)"
   },
   "onboardingImportDataDetailsLink": {
-    "message": "neuen Eintrag",
+    "message": "einen neuen Eintrag",
     "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead. (Optional second half: You may need to wait until your administrator confirms your organization membership.)"
   },
   "onboardingImportDataDetailsLoginLink": {
@@ -4929,7 +4953,7 @@
     "message": "Mitgliedern Zugriff geben:"
   },
   "viewAndSelectTheMembers": {
-    "message": "Die Mitgliedern anzeigen und auswählen, denen du Zugriff auf den Secrets Manager gewähren möchtest."
+    "message": "Die Mitglieder anzeigen und auswählen, denen du Zugriff auf den Secrets Manager gewähren möchtest."
   },
   "openYourOrganizations": {
     "message": "Open your organization's"
@@ -4964,6 +4988,10 @@
         "example": "An email address"
       }
     }
+  },
+  "viewSend": {
+    "message": "Sends anzeigen",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "viewSendHiddenEmailWarning": {
     "message": "Der Bitwarden Benutzer, der dieses Send erstellt hat, hat sich entschieden, seine E-Mail-Adresse zu verstecken. Du solltest sicherstellen, dass du der Quelle dieses Links vertraust, bevor du dessen Inhalt verwendest oder herunterlädst.",
@@ -8939,5 +8967,63 @@
   },
   "additionalStorageGbMessage": {
     "message": "GB zusätzlicher Speicher"
+  },
+  "premiumAccounts": {
+    "message": "6 Premium-Konten"
+  },
+  "unlimitedSharing": {
+    "message": "Unbegrenztes Teilen"
+  },
+  "unlimitedCollections": {
+    "message": "Unbegrenzte Sammlungen"
+  },
+  "secureDataSharing": {
+    "message": "Sicherer Datenaustausch"
+  },
+  "eventLogMonitoring": {
+    "message": "Ereignisprotokoll-Überwachung"
+  },
+  "directoryIntegration": {
+    "message": "Directory-Integration"
+  },
+  "passwordLessSso": {
+    "message": "Passwortloses SSO"
+  },
+  "accountRecovery": {
+    "message": "Konto-Wiederherstellung"
+  },
+  "customRoles": {
+    "message": "Benutzerdefinierte Rollen"
+  },
+  "unlimitedSecretsStorage": {
+    "message": "Unbegrenzter Geheimnis-Speicher"
+  },
+  "unlimitedUsers": {
+    "message": "Unbegrenzte Benutzeranzahl"
+  },
+  "UpTo50MachineAccounts": {
+    "message": "Bis zu 50 Gerätekonten"
+  },
+  "UpTo20MachineAccounts": {
+    "message": "Bis zu 20 Gerätekonten"
+  },
+  "current": {
+    "message": "Aktuell"
+  },
+  "secretsManagerSubInfo": {
+    "message": "Dein Secrets Manager Abonnement wird sich auf Grundlage des ausgewählten Plan upgraden"
+  },
+  "bitwardenPasswordManager": {
+    "message": "Bitwarden Passwortmanager"
+  },
+  "secretsManagerWithFreePasswordManagerInfo": {
+    "message": "Dein kostenloses einjähriges Passwortmanager-Abonnement wird auf den ausgewählten Tarif umgestellt. Dir wird nichts berechnet, bis der kostenlose Zeitraum abgelaufen ist."
+  },
+  "publicApi": {
+    "message": "Öffentliche API",
+    "description": "The text, 'API', is an acronymn and should not be translated."
+  },
+  "additionalContentAvailable": {
+    "message": "Zusätzlicher Inhalt ist verfügbar"
   }
 }

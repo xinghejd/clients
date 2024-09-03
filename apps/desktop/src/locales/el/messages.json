@@ -603,6 +603,12 @@
   "newAccountCreated": {
     "message": "Ο λογαριασμός σας έχει δημιουργηθεί! Τώρα μπορείτε να συνδεθείτε."
   },
+  "newAccountCreated2": {
+    "message": "Your new account has been created!"
+  },
+  "youHaveBeenLoggedIn": {
+    "message": "You have been logged in!"
+  },
   "masterPassSent": {
     "message": "Σας στείλαμε ένα email με την υπόδειξη του κύριου κωδικού."
   },
@@ -1173,6 +1179,9 @@
   },
   "premiumPurchaseAlert": {
     "message": "Μπορείτε να αγοράσετε συνδρομή premium στο bitwarden.com web vault. Θέλετε να επισκεφθείτε την ιστοσελίδα τώρα;"
+  },
+  "premiumPurchaseAlertV2": {
+    "message": "Μπορείτε να αγοράσετε το Premium από τις ρυθμίσεις λογαριασμού σας στη διαδικτυακή εφαρμογή του Bitwarden."
   },
   "premiumCurrentMember": {
     "message": "Είστε ένα premium μέλος!"
@@ -3049,5 +3058,8 @@
   },
   "textSends": {
     "message": "Send κειμένων"
+  },
+  "ssoError": {
+    "message": "No free ports could be found for the sso login."
   }
 }
