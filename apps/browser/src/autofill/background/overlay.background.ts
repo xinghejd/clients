@@ -6,6 +6,8 @@ import {
   throttleTime,
   switchMap,
   debounceTime,
+  Observable,
+  map,
 } from "rxjs";
 import { parse } from "tldts";
 
@@ -20,7 +22,8 @@ import { DomainSettingsService } from "@bitwarden/common/autofill/services/domai
 import { InlineMenuVisibilitySetting } from "@bitwarden/common/autofill/types";
 import { NeverDomains } from "@bitwarden/common/models/domain/domain-service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
-import { Fido2ClientService } from "@bitwarden/common/platform/abstractions/fido2/fido2-client.service.abstraction";
+import { Fido2ActiveRequestManager } from "@bitwarden/common/platform/abstractions/fido2/fido2-active-request-manager.abstraction";
+// import { Fido2ClientService } from "@bitwarden/common/platform/abstractions/fido2/fido2-client.service.abstraction";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -144,6 +147,10 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     addEditCipherSubmitted: () => this.updateOverlayCiphers(),
     editedCipher: () => this.updateOverlayCiphers(),
     deletedCipher: () => this.updateOverlayCiphers(),
+    fido2AbortRequest: ({ message, sender }) => {
+      this.fido2ActiveRequestManager.removeActiveRequest(sender.tab.id);
+      void this.updateOverlayCiphers(false);
+    },
   };
   private readonly inlineMenuButtonPortMessageHandlers: InlineMenuButtonPortMessageHandlers = {
     triggerDelayedAutofillInlineMenuClosure: () => this.triggerDelayedInlineMenuClosure(),
@@ -175,10 +182,21 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     private autofillSettingsService: AutofillSettingsServiceAbstraction,
     private i18nService: I18nService,
     private platformUtilsService: PlatformUtilsService,
-    private fido2ClientService: Fido2ClientService,
+    private fido2ActiveRequestManager: Fido2ActiveRequestManager,
     private themeStateService: ThemeStateService,
   ) {
     this.initOverlayEventObservables();
+  }
+
+  availablePasskeyAuthCredentials$(tabId: number): Observable<Fido2CredentialView[]> {
+    return this.fido2ActiveRequestManager
+      .getActiveRequest$(tabId)
+      .pipe(map((request) => request?.credentials ?? []));
+  }
+
+  async authenticatePasskeyCredential(tabId: number, credentialId: string) {
+    const request = this.fido2ActiveRequestManager.getActiveRequest(tabId);
+    request.subject.next(credentialId);
   }
 
   /**
@@ -196,7 +214,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
    */
   private initOverlayEventObservables() {
     this.storeInlineMenuFido2CredentialsSubject
-      .pipe(switchMap((tabId) => this.fido2ClientService.availableAutofillCredentials$(tabId)))
+      .pipe(switchMap((tabId) => this.availablePasskeyAuthCredentials$(tabId)))
       .subscribe((credentials) => this.storeInlineMenuFido2Credentials(credentials));
     this.repositionInlineMenuSubject
       .pipe(
@@ -274,6 +292,11 @@ export class OverlayBackground implements OverlayBackgroundInterface {
 
     if (!currentTab) {
       return;
+    }
+
+    const request = this.fido2ActiveRequestManager.getActiveRequest(currentTab.id);
+    if (request) {
+      request.subject.next(null);
     }
 
     this.inlineMenuFido2Credentials.clear();
@@ -511,10 +534,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       return false;
     }
 
-    return (
-      this.inlineMenuFido2Credentials.size === 0 ||
-      this.inlineMenuFido2Credentials.has(credentialId)
-    );
+    return this.inlineMenuFido2Credentials.has(credentialId);
   }
 
   /**
@@ -632,6 +652,8 @@ export class OverlayBackground implements OverlayBackgroundInterface {
    * @param credentials - The FIDO2 credentials to store
    */
   private storeInlineMenuFido2Credentials(credentials: Fido2CredentialView[]) {
+    this.inlineMenuFido2Credentials.clear();
+
     credentials.forEach(
       (credential) =>
         credential?.credentialId && this.inlineMenuFido2Credentials.add(credential.credentialId),
@@ -897,7 +919,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     const cipher = this.inlineMenuCiphers.get(inlineMenuCipherId);
 
     if (usePasskey && cipher.login?.hasFido2Credentials) {
-      await this.fido2ClientService.autofillCredential(
+      await this.authenticatePasskeyCredential(
         sender.tab.id,
         cipher.login.fido2Credentials[0].credentialId,
       );

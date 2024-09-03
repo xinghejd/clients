@@ -91,6 +91,7 @@ export class Fido2ActiveRequestManager implements Fido2ActiveRequestManagerAbstr
    * @param tabId - The tab id to abort the active request for.
    */
   private abortActiveRequest(tabId: number): void {
+    this.activeRequests$.value[tabId]?.subject.next("abort-request");
     this.activeRequests$.value[tabId]?.subject.error(
       new DOMException("The operation either timed out or was not allowed.", "AbortError"),
     );
