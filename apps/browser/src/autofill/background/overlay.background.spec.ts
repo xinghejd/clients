@@ -163,9 +163,6 @@ describe("OverlayBackground", () => {
     i18nService = mock<I18nService>();
     platformUtilsService = mock<BrowserPlatformUtilsService>();
     activeRequestsMock = mock<ActiveRequest>();
-    // fido2ClientService = mock<Fido2ClientService>({
-    //   availableAutofillCredentials$: (_tabId) => activeRequestsMock,
-    // });
     fido2ActiveRequestManager = mock<Fido2ActiveRequestManager>({
       getActiveRequest$: (_tabId) => of(activeRequestsMock),
     });
@@ -2907,40 +2904,37 @@ describe("OverlayBackground", () => {
         expect(copyToClipboardSpy).toHaveBeenCalledWith("totp-code");
       });
 
-      // it("triggers passkey authentication through mediated conditional UI", async () => {
-      //   const fido2Credential = mock<Fido2CredentialView>({ credentialId: "credential-id" });
-      //   const cipher1 = mock<CipherView>({
-      //     id: "inline-menu-cipher-1",
-      //     login: {
-      //       username: "username1",
-      //       password: "password1",
-      //       fido2Credentials: [fido2Credential],
-      //     },
-      //   });
-      //   overlayBackground["inlineMenuCiphers"] = new Map([["inline-menu-cipher-1", cipher1]]);
-      //   const pageDetailsForTab = {
-      //     frameId: sender.frameId,
-      //     tab: sender.tab,
-      //     details: pageDetails,
-      //   };
-      //   overlayBackground["pageDetailsForTab"][sender.tab.id] = new Map([
-      //     [sender.frameId, pageDetailsForTab],
-      //   ]);
-      //   autofillService.isPasswordRepromptRequired.mockResolvedValue(false);
-      //
-      //   sendPortMessage(listMessageConnectorSpy, {
-      //     command: "fillAutofillInlineMenuCipher",
-      //     inlineMenuCipherId: "inline-menu-cipher-1",
-      //     usePasskey: true,
-      //     portKey,
-      //   });
-      //   await flushPromises();
-      //
-      //   expect(fido2ClientService.autofillCredential).toHaveBeenCalledWith(
-      //     sender.tab.id,
-      //     fido2Credential.credentialId,
-      //   );
-      // });
+      it("triggers passkey authentication through mediated conditional UI", async () => {
+        const fido2Credential = mock<Fido2CredentialView>({ credentialId: "credential-id" });
+        const cipher1 = mock<CipherView>({
+          id: "inline-menu-cipher-1",
+          login: {
+            username: "username1",
+            password: "password1",
+            fido2Credentials: [fido2Credential],
+          },
+        });
+        overlayBackground["inlineMenuCiphers"] = new Map([["inline-menu-cipher-1", cipher1]]);
+        const pageDetailsForTab = {
+          frameId: sender.frameId,
+          tab: sender.tab,
+          details: pageDetails,
+        };
+        overlayBackground["pageDetailsForTab"][sender.tab.id] = new Map([
+          [sender.frameId, pageDetailsForTab],
+        ]);
+        autofillService.isPasswordRepromptRequired.mockResolvedValue(false);
+
+        sendPortMessage(listMessageConnectorSpy, {
+          command: "fillAutofillInlineMenuCipher",
+          inlineMenuCipherId: "inline-menu-cipher-1",
+          usePasskey: true,
+          portKey,
+        });
+        await flushPromises();
+
+        expect(fido2ActiveRequestManager.getActiveRequest).toHaveBeenCalledWith(sender.tab.id);
+      });
     });
 
     describe("addNewVaultItem message handler", () => {
