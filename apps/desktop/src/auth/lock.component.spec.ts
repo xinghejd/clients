@@ -44,10 +44,12 @@ import { LockComponent } from "./lock.component";
 const isWindowVisibleMock = jest.fn();
 (global as any).ipc = {
   platform: {
+    isWindowVisible: isWindowVisibleMock,
+  },
+  keyManagement: {
     biometric: {
       enabled: jest.fn(),
     },
-    isWindowVisible: isWindowVisibleMock,
   },
 };
 
