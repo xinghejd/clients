@@ -109,8 +109,8 @@ apps/desktop/src/key-management @bitwarden/team-key-management-dev
 apps/web/src/key-management @bitwarden/team-key-management-dev
 apps/browser/src/key-management @bitwarden/team-key-management-dev
 apps/cli/src/key-management @bitwarden/team-key-management-dev
-apps/desktop/src/services/native-messaging.service.ts @bitwarden/team-auth-dev
-apps/browser/src/background/nativeMessaging.background.ts @bitwarden/team-auth-dev
+apps/desktop/src/services/native-messaging.service.ts @bitwarden/team-key-management-dev
+apps/browser/src/background/nativeMessaging.background.ts @bitwarden/team-key-management-dev
 
 ## DevOps team files ##
 /.github/workflows @bitwarden/dept-devops
