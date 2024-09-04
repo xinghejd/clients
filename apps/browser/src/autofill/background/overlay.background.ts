@@ -145,7 +145,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       this.triggerDestroyInlineMenuListeners(sender.tab, message.subFrameData.frameId),
     collectPageDetailsResponse: ({ message, sender }) => this.storePageDetails(message, sender),
     unlockCompleted: ({ message }) => this.unlockCompleted(message),
-    doFullSync: () => this.updateOverlayCiphers(true),
+    doFullSync: () => this.updateOverlayCiphers(),
     addedCipher: () => this.updateOverlayCiphers(),
     addEditCipherSubmitted: () => this.updateOverlayCiphers(),
     editedCipher: () => this.updateOverlayCiphers(),
@@ -297,6 +297,9 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     }
 
     if (!currentTab || !currentTab.url?.startsWith("http")) {
+      if (updateAllCipherTypes) {
+        this.cardAndIdentityCiphers = null;
+      }
       return;
     }
 
