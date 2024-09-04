@@ -19,7 +19,7 @@ pub struct PasskeyAssertionRequest {
 #[derive(uniffi::Record, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct PasskeyAssertionResponse {
-    relying_party: String,
+    relying_party_id: String,
     user_handle: Vec<u8>,
     signature: Vec<u8>,
     client_data_hash: Vec<u8>,

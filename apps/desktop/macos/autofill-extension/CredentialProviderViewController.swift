@@ -91,7 +91,7 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
                     func onComplete(credential: PasskeyAssertionResponse) {
                         ctx.completeAssertionRequest(using: ASPasskeyAssertionCredential(
                             userHandle: credential.userHandle,
-                            relyingParty: credential.relyingParty,
+                            relyingParty: credential.relyingPartyId,
                             signature: credential.signature,
                             clientDataHash: credential.clientDataHash,
                             authenticatorData: credential.authenticatorData,
@@ -163,7 +163,7 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
 
                     func onComplete(credential: PasskeyRegistrationResponse) {
                         ctx.completeRegistrationRequest(using: ASPasskeyRegistrationCredential(
-                            relyingParty: credential.relyingParty,
+                            relyingParty: credential.relyingPartyId,
                             clientDataHash: credential.clientDataHash,
                             credentialID: credential.credentialId,
                             attestationObject: credential.attestationObject

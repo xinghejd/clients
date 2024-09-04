@@ -304,7 +304,7 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: NativeAutofillRendererService,
     useClass: NativeAutofillRendererService,
-    deps: [LogService, Fido2AuthenticatorServiceAbstraction],
+    deps: [CipherServiceAbstraction, Fido2AuthenticatorServiceAbstraction, LogService],
   }),
   safeProvider({
     provide: NativeMessagingManifestService,

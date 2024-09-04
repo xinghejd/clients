@@ -18,7 +18,7 @@ pub struct PasskeyRegistrationRequest {
 #[derive(uniffi::Record, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct PasskeyRegistrationResponse {
-    relying_party: String,
+    relying_party_id: String,
     client_data_hash: Vec<u8>,
     credential_id: Vec<u8>,
     attestation_object: Vec<u8>,

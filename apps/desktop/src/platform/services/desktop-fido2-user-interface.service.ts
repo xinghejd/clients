@@ -55,6 +55,7 @@ export class DesktopFido2UserInterfaceSession implements Fido2UserInterfaceSessi
     userVerification,
   }: PickCredentialParams): Promise<{ cipherId: string; userVerified: boolean }> {
     this.logService.warning("pickCredential", cipherIds, userVerification);
+
     return { cipherId: cipherIds[0], userVerified: userVerification };
   }
 
@@ -72,17 +73,7 @@ export class DesktopFido2UserInterfaceSession implements Fido2UserInterfaceSessi
       rpId,
     );
 
-    const ciphers = await this.cipherService.getAllDecryptedForUrl(rpId);
-
-    for (const cipher of ciphers) {
-      // Return the first cipher that does not have Fido2 credentials,
-      // so we don't accidentally overwrite an existing credential
-      if (!cipher.login.hasFido2Credentials) {
-        return { cipherId: cipher.id, userVerified: userVerification };
-      }
-    }
-
-    // Create the cipher if it doesn't exist
+    // Store the passkey on a new cipher to avoid replacing something important
     const cipher = new CipherView();
     cipher.name = credentialName;
 

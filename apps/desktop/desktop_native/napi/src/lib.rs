@@ -232,7 +232,7 @@ pub mod autofill {
     #[derive(Serialize, Deserialize)]
     #[serde(rename_all = "camelCase")]
     pub struct PasskeyRegistrationResponse {
-        pub relying_party: String,
+        pub relying_party_id: String,
         pub client_data_hash: Vec<u8>,
         pub credential_id: Vec<u8>,
         pub attestation_object: Vec<u8>,
@@ -255,7 +255,7 @@ pub mod autofill {
     #[derive(Serialize, Deserialize)]
     #[serde(rename_all = "camelCase")]
     pub struct PasskeyAssertionResponse {
-        pub relying_party: String,
+        pub relying_party_id: String,
         pub user_handle: Vec<u8>,
         pub signature: Vec<u8>,
         pub client_data_hash: Vec<u8>,
@@ -296,24 +296,23 @@ pub mod autofill {
         ) -> napi::Result<Self> {
             let (send, mut recv) = tokio::sync::mpsc::channel::<Message>(32);
             tokio::spawn(async move {
-                while let Some(message) = recv.recv().await {
-                    match message.kind {
+                while let Some(Message {
+                    client_id,
+                    kind,
+                    message,
+                }) = recv.recv().await
+                {
+                    match kind {
                         // TODO: We're ignoring the connection and disconnection messages for now
                         MessageType::Connected | MessageType::Disconnected => continue,
                         MessageType::Message => {
                             match serde_json::from_str::<PasskeyMessage<PasskeyAssertionRequest>>(
-                                &message.message,
+                                &message,
                             ) {
-                                Ok(passkey_message) => {
-                                    let value = passkey_message
+                                Ok(msg) => {
+                                    let value = msg
                                         .value
-                                        .map(|value| {
-                                            (
-                                                message.client_id,
-                                                passkey_message.sequence_number,
-                                                value,
-                                            )
-                                        })
+                                        .map(|value| (client_id, msg.sequence_number, value))
                                         .map_err(|e| napi::Error::from_reason(format!("{e:?}")));
 
                                     assertion_callback
@@ -326,18 +325,12 @@ pub mod autofill {
                             }
 
                             match serde_json::from_str::<PasskeyMessage<PasskeyRegistrationRequest>>(
-                                &message.message,
+                                &message,
                             ) {
-                                Ok(passkey_message) => {
-                                    let value = passkey_message
+                                Ok(msg) => {
+                                    let value = msg
                                         .value
-                                        .map(|value| {
-                                            (
-                                                message.client_id,
-                                                passkey_message.sequence_number,
-                                                value,
-                                            )
-                                        })
+                                        .map(|value| (client_id, msg.sequence_number, value))
                                         .map_err(|e| napi::Error::from_reason(format!("{e:?}")));
                                     registration_callback
                                         .call(value, ThreadsafeFunctionCallMode::NonBlocking);

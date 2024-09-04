@@ -67,7 +67,7 @@ export namespace autofill {
     supportedAlgorithms: Array<number>
   }
   export interface PasskeyRegistrationResponse {
-    relyingParty: string
+    relyingPartyId: string
     clientDataHash: Array<number>
     credentialId: Array<number>
     attestationObject: Array<number>
@@ -82,7 +82,7 @@ export namespace autofill {
     userVerification: UserVerification
   }
   export interface PasskeyAssertionResponse {
-    relyingParty: string
+    relyingPartyId: string
     userHandle: Array<number>
     signature: Array<number>
     clientDataHash: Array<number>
