@@ -920,6 +920,10 @@ export class CryptoService implements CryptoServiceAbstraction {
   }
 
   private async derivePublicKey(privateKey: UserPrivateKey) {
+    if (privateKey == null) {
+      return null;
+    }
+
     return (await this.cryptoFunctionService.rsaExtractPublicKey(privateKey)) as UserPublicKey;
   }
 
