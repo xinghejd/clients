@@ -32,6 +32,7 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { ThemeStateService } from "@bitwarden/common/platform/theming/theme-state.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
+import { VaultSettingsService } from "@bitwarden/common/vault/abstractions/vault-settings/vault-settings.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { buildCipherIcon } from "@bitwarden/common/vault/icon/build-cipher-icon";
 import { CardView } from "@bitwarden/common/vault/models/view/card.view";
@@ -181,6 +182,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     private autofillSettingsService: AutofillSettingsServiceAbstraction,
     private i18nService: I18nService,
     private platformUtilsService: PlatformUtilsService,
+    private vaultSettingsService: VaultSettingsService,
     private fido2ActiveRequestManager: Fido2ActiveRequestManager,
     private themeStateService: ThemeStateService,
   ) {
@@ -483,7 +485,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
         continue;
       }
 
-      if (!this.showCipherAsPasskey(cipher, domainExclusionsSet)) {
+      if (!(await this.showCipherAsPasskey(cipher, domainExclusionsSet))) {
         inlineMenuCipherData.push(
           this.buildCipherData({ inlineMenuCipherId, cipher, showFavicons }),
         );
@@ -521,8 +523,16 @@ export class OverlayBackground implements OverlayBackgroundInterface {
    * @param cipher - The cipher to check
    * @param domainExclusions - The domain exclusions to check against
    */
-  private showCipherAsPasskey(cipher: CipherView, domainExclusions: Set<string> | null): boolean {
+  private async showCipherAsPasskey(
+    cipher: CipherView,
+    domainExclusions: Set<string> | null,
+  ): Promise<boolean> {
     if (cipher.type !== CipherType.Login || !this.focusedFieldData?.showPasskeys) {
+      return false;
+    }
+
+    const passkeysEnabled = await firstValueFrom(this.vaultSettingsService.enablePasskeys$);
+    if (!passkeysEnabled) {
       return false;
     }
 

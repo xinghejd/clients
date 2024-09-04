@@ -35,6 +35,7 @@ import {
 } from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
+import { VaultSettingsService } from "@bitwarden/common/vault/abstractions/vault-settings/vault-settings.service";
 import { CipherRepromptType, CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { Fido2CredentialView } from "@bitwarden/common/vault/models/view/fido2-credential.view";
@@ -93,6 +94,7 @@ describe("OverlayBackground", () => {
   let i18nService: MockProxy<I18nService>;
   let platformUtilsService: MockProxy<BrowserPlatformUtilsService>;
   let activeRequestsMock: MockProxy<ActiveRequest>;
+  let vaultSettingsServiceMock: MockProxy<VaultSettingsService>;
   let fido2ActiveRequestManager: MockProxy<Fido2ActiveRequestManager>;
   let selectedThemeMock$: BehaviorSubject<ThemeType>;
   let themeStateService: MockProxy<ThemeStateService>;
@@ -162,6 +164,7 @@ describe("OverlayBackground", () => {
     autofillSettingsService.inlineMenuVisibility$ = inlineMenuVisibilityMock$;
     i18nService = mock<I18nService>();
     platformUtilsService = mock<BrowserPlatformUtilsService>();
+    vaultSettingsServiceMock = mock<VaultSettingsService>();
     activeRequestsMock = mock<ActiveRequest>();
     fido2ActiveRequestManager = mock<Fido2ActiveRequestManager>({
       getActiveRequest$: (_tabId) => of(activeRequestsMock),
@@ -179,6 +182,7 @@ describe("OverlayBackground", () => {
       autofillSettingsService,
       i18nService,
       platformUtilsService,
+      vaultSettingsServiceMock,
       fido2ActiveRequestManager,
       themeStateService,
     );

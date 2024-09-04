@@ -1582,6 +1582,7 @@ export default class MainBackground {
         this.autofillSettingsService,
         this.i18nService,
         this.platformUtilsService,
+        this.vaultSettingsService,
         this.fido2ActiveRequestManager,
         this.themeStateService,
       );
