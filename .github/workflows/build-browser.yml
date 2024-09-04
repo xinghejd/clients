@@ -283,15 +283,15 @@ jobs:
       #       --file $HOME/secrets/bitwarden_desktop_autofill_app_store_2024.provisionprofile \
       #       --output none
 
-      - name: Set up provisioning profiles
-        run: |
-          AUTOFILL_PROFILE_PATH=$HOME/secrets/bitwarden_desktop_appstore.provisionprofile
-          PROFILES_DIR_PATH=$HOME/Library/MobileDevice/Provisioning\ Profiles
+      # - name: Set up provisioning profiles
+      #   run: |
+      #     AUTOFILL_PROFILE_PATH=$HOME/secrets/bitwarden_desktop_appstore.provisionprofile
+      #     PROFILES_DIR_PATH=$HOME/Library/MobileDevice/Provisioning\ Profiles
 
-          mkdir -p "$PROFILES_DIR_PATH"
+      #     mkdir -p "$PROFILES_DIR_PATH"
 
-          AUTOFILL_UUID=$(grep UUID -A1 -a $AUTOFILL_PROFILE_PATH | grep -io "[-A-F0-9]\{36\}")
-          cp $AUTOFILL_PROFILE_PATH "$PROFILES_DIR_PATH/$AUTOFILL_UUID.provisionprofile"
+      #     AUTOFILL_UUID=$(grep UUID -A1 -a $AUTOFILL_PROFILE_PATH | grep -io "[-A-F0-9]\{36\}")
+      #     cp $AUTOFILL_PROFILE_PATH "$PROFILES_DIR_PATH/$AUTOFILL_UUID.provisionprofile"
 
       - name: Get certificates
         run: |
