@@ -7,6 +7,7 @@ import { Organization } from "@bitwarden/common/admin-console/models/domain/orga
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
+import { DialogService } from "@bitwarden/components";
 
 import { VaultFilterComponent as BaseVaultFilterComponent } from "../../individual-vault/vault-filter/components/vault-filter.component"; //../../vault/vault-filter/components/vault-filter.component";
 import { VaultFilterService } from "../../individual-vault/vault-filter/services/abstractions/vault-filter.service";
@@ -40,6 +41,7 @@ export class VaultFilterComponent
     protected i18nService: I18nService,
     protected platformUtilsService: PlatformUtilsService,
     protected organizationApiService: OrganizationApiServiceAbstraction,
+    protected dialogService: DialogService,
   ) {
     super(
       vaultFilterService,
@@ -47,6 +49,7 @@ export class VaultFilterComponent
       i18nService,
       platformUtilsService,
       organizationApiService,
+      dialogService,
     );
   }
 

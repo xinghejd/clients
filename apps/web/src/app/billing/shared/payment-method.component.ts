@@ -6,6 +6,8 @@ import { lastValueFrom } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { PaymentMethodType } from "@bitwarden/common/billing/enums";
 import { BillingPaymentResponse } from "@bitwarden/common/billing/models/response/billing-payment.response";
 import { OrganizationSubscriptionResponse } from "@bitwarden/common/billing/models/response/organization-subscription.response";
@@ -38,6 +40,11 @@ export class PaymentMethodComponent implements OnInit, OnDestroy {
   paymentMethodType = PaymentMethodType;
   organizationId: string;
   isUnpaid = false;
+  isOwner: boolean = false;
+  isTrailing: boolean;
+  defaultPaymentSource: BillingPaymentResponse;
+  trialRemainingDays: number;
+  organization: Organization;
 
   verifyBankForm = this.formBuilder.group({
     amount1: new FormControl<number>(null, [
@@ -54,6 +61,7 @@ export class PaymentMethodComponent implements OnInit, OnDestroy {
 
   taxForm = this.formBuilder.group({});
   launchPaymentModalAutomatically = false;
+
   constructor(
     protected apiService: ApiService,
     protected organizationApiService: OrganizationApiServiceAbstraction,
@@ -66,6 +74,7 @@ export class PaymentMethodComponent implements OnInit, OnDestroy {
     private formBuilder: FormBuilder,
     private dialogService: DialogService,
     private toastService: ToastService,
+    private organizationService: OrganizationService,
   ) {
     const state = this.router.getCurrentNavigation()?.extras?.state;
     const redundant: any = location.getState();
@@ -103,33 +112,40 @@ export class PaymentMethodComponent implements OnInit, OnDestroy {
       return;
     }
     this.loading = true;
-
     if (this.forOrganization) {
       const billingPromise = this.organizationApiService.getBilling(this.organizationId);
       const organizationSubscriptionPromise = this.organizationApiService.getSubscription(
         this.organizationId,
       );
+      const organizationPromise = await this.organizationService.get(this.organizationId);
 
-      [this.billing, this.org] = await Promise.all([
+      [this.billing, this.org, this.organization] = await Promise.all([
         billingPromise,
         organizationSubscriptionPromise,
+        organizationPromise,
       ]);
+      this.identifyOrganizationsWithUpcomingPaymentIssues();
     } else {
       const billingPromise = this.apiService.getUserBillingPayment();
       const subPromise = this.apiService.getUserSubscription();
 
       [this.billing, this.sub] = await Promise.all([billingPromise, subPromise]);
+      this.identifyOrganizationsWithUpcomingPaymentIssues();
     }
-
     this.isUnpaid = this.subscription?.status === "unpaid" ?? false;
-
     this.loading = false;
     if (this.launchPaymentModalAutomatically) {
       window.setTimeout(() => {
-        (document.querySelector(".payment_trigger_button")! as HTMLButtonElement).click();
+        this.triggerPaymentModal();
+        this.launchPaymentModalAutomatically = false;
+        this.location.replaceState(this.location.path(), "", {});
       }, 800);
     }
   };
+
+  triggerPaymentModal() {
+    (document.querySelector(".payment_trigger_button")! as HTMLButtonElement).click();
+  }
 
   addCredit = async () => {
     const dialogRef = openAddCreditDialog(this.dialogService, {
@@ -152,6 +168,7 @@ export class PaymentMethodComponent implements OnInit, OnDestroy {
     });
     const result = await lastValueFrom(dialogRef.closed);
     if (result === AdjustPaymentDialogResult.Adjusted) {
+      this.location.replaceState(this.location.path(), "", {});
       await this.load();
     }
   };
@@ -181,6 +198,28 @@ export class PaymentMethodComponent implements OnInit, OnDestroy {
       message: this.i18nService.t("taxInfoUpdated"),
     });
   };
+
+  identifyOrganizationsWithUpcomingPaymentIssues() {
+    const trialEndDate = this.org?.subscription?.trialEndDate;
+    this.isOwner = this.organization?.isOwner;
+    this.isTrailing = this.org.subscription.status == "trialing";
+    this.defaultPaymentSource = this.billing;
+    if (trialEndDate) {
+      const today = new Date();
+      const trialEnd = new Date(trialEndDate);
+      const timeDifference = trialEnd.getTime() - today.getTime();
+      this.trialRemainingDays = Math.ceil(timeDifference / (1000 * 60 * 60 * 24));
+    }
+  }
+
+  async navigateToPaymentMethod() {
+    await this.router.navigate(
+      ["organizations", `${this.organizationId}`, "billing", "payment-method"],
+      {
+        state: { launchPaymentModalAutomatically: true },
+      },
+    );
+  }
 
   get isCreditBalance() {
     return this.billing == null || this.billing.balance <= 0;

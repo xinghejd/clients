@@ -5,10 +5,12 @@ import { firstValueFrom, Subject } from "rxjs";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
+import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
+import { DialogService } from "@bitwarden/components";
 
 import { VaultFilterService } from "../services/abstractions/vault-filter.service";
 import {
@@ -88,6 +90,7 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
     protected i18nService: I18nService,
     protected platformUtilsService: PlatformUtilsService,
     protected organizationApiService: OrganizationApiServiceAbstraction,
+    protected dialogService: DialogService,
   ) {}
 
   async ngOnInit(): Promise<void> {
@@ -116,10 +119,10 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
       );
       const sub = await this.organizationApiService.getSubscription(orgNode.node.id);
       if (sub?.subscription.status === "unpaid") {
-        await this.router.navigate(
-          ["organizations", `${orgNode.node.id}`, "billing", "payment-method"],
-          { state: { launchPaymentModalAutomatically: true } },
-        );
+        const confirmed = await this.promptForPaymentNavigation(orgNode.node);
+        if (confirmed) {
+          await this.navigateToPaymentMethod(orgNode.node.id);
+        }
       }
       return;
     }
@@ -132,6 +135,24 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
     this.vaultFilterService.setOrganizationFilter(orgNode.node);
     await this.vaultFilterService.expandOrgFilter();
   };
+
+  private async promptForPaymentNavigation(org: Organization): Promise<boolean> {
+    return await this.dialogService.openSimpleDialog({
+      title: this.i18nService.t("suspendedOrganizationTitle", org.name),
+      content: org.isOwner
+        ? { key: "suspendedOwnerOrgMessage" }
+        : { key: "suspendedUserOrgMessage" },
+      type: "danger",
+      acceptButtonText: this.i18nService.t("continue"),
+      cancelButtonText: this.i18nService.t("close"),
+    });
+  }
+
+  private async navigateToPaymentMethod(orgId: string) {
+    await this.router.navigate(["organizations", `${orgId}`, "billing", "payment-method"], {
+      state: { launchPaymentModalAutomatically: true },
+    });
+  }
 
   applyTypeFilter = async (filterNode: TreeNode<CipherTypeFilter>): Promise<void> => {
     const filter = this.activeFilter;

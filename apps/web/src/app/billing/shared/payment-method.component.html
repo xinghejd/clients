@@ -1,3 +1,23 @@
+<bit-banner
+  id="update-browser-banner"
+  class="-tw-m-6 tw-flex tw-flex-col tw-pb-6"
+  bannerType="premium"
+  icon="bwi-billing"
+  [showClose]="false"
+  *ngIf="!defaultPaymentSource?.paymentSource && isOwner"
+>
+  {{
+    trialRemainingDays >= 2
+      ? ("freeTrialEndPrompt" | i18n: trialRemainingDays)
+      : trialRemainingDays == 1
+        ? ("freeTrialEndPromptForOneDayNoOrgName" | i18n)
+        : ("freeTrialEndPromptForLessThanADayNoOrgName" | i18n)
+  }}
+  <a bitLink linkType="contrast" (click)="triggerPaymentModal()" rel="noreferrer noopener">
+    {{ "routeToPaymentPageTrigger" | i18n }}
+  </a>
+</bit-banner>
+
 <app-header *ngIf="organizationId">
   <button
     type="button"

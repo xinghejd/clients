@@ -1,5 +1,7 @@
 import { NgModule } from "@angular/core";
 
+import { BannerModule } from "@bitwarden/components";
+
 import { HeaderModule } from "../../layouts/header/header.module";
 import { SharedModule } from "../../shared";
 
@@ -24,6 +26,7 @@ import { VerifyBankAccountComponent } from "./verify-bank-account/verify-bank-ac
     PaymentComponent,
     TaxInfoComponent,
     HeaderModule,
+    BannerModule,
     PaymentV2Component,
     VerifyBankAccountComponent,
   ],
