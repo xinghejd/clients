@@ -104,7 +104,7 @@ apps/web/src/app/layouts @bitwarden/team-design-system
 apps/desktop/desktop_native @bitwarden/team-platform-dev
 
 ## Key management team files ##
-apps/desktop/destkop_native/src/biometric/ @bitwarden/team-key-management-dev
+apps/desktop/destkop_native/core/src/biometric/ @bitwarden/team-key-management-dev
 apps/desktop/src/key-management @bitwarden/team-key-management-dev
 apps/web/src/key-management @bitwarden/team-key-management-dev
 apps/browser/src/key-management @bitwarden/team-key-management-dev
