@@ -160,6 +160,7 @@ export class Fido2AuthenticatorService implements Fido2AuthenticatorServiceAbstr
         }
         const reencrypted = await this.cipherService.encrypt(cipher, activeUserId);
         await this.cipherService.updateWithServer(reencrypted);
+        await this.cipherService.clearCache(activeUserId);
         credentialId = fido2Credential.credentialId;
       } catch (error) {
         this.logService?.error(
@@ -298,6 +299,7 @@ export class Fido2AuthenticatorService implements Fido2AuthenticatorServiceAbstr
           );
           const encrypted = await this.cipherService.encrypt(selectedCipher, activeUserId);
           await this.cipherService.updateWithServer(encrypted);
+          await this.cipherService.clearCache(activeUserId);
         }
 
         const authenticatorData = await generateAuthData({
