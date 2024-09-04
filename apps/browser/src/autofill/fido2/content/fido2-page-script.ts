@@ -151,7 +151,6 @@ import { Messenger } from "./messaging/messenger";
         browserCredentials.get({ ...options, signal: internalAbortController.signal });
       const abortListener = () => {
         void messenger.request({
-          // TODO: Not sure I'd do a void call on here, make sure we are fine with doing that
           type: MessageType.AbortRequest,
           abortedRequestId: abortSignal.toString(),
         });
