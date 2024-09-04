@@ -173,9 +173,9 @@ export class SetPasswordComponent extends BaseChangePasswordComponent implements
       const existingUserPrivateKey = (await firstValueFrom(
         this.cryptoService.userPrivateKey$(this.userId),
       )) as Uint8Array;
-      const existingUserPublicKey = await firstValueFrom(
-        this.cryptoService.userPublicKey$(this.userId),
-      );
+      const existingUserPublicKey = existingUserPrivateKey
+        ? await firstValueFrom(this.cryptoService.userPublicKey$(this.userId))
+        : undefined;
       if (existingUserPrivateKey != null && existingUserPublicKey != null) {
         const existingUserPublicKeyB64 = Utils.fromBufferToB64(existingUserPublicKey);
         newKeyPair = [
