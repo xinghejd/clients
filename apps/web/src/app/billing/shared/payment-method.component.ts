@@ -77,14 +77,15 @@ export class PaymentMethodComponent implements OnInit, OnDestroy {
     private organizationService: OrganizationService,
   ) {
     const state = this.router.getCurrentNavigation()?.extras?.state;
-    const redundant: any = location.getState();
+    // incase the above state is undefined or null we use redundantState
+    const redundantState: any = location.getState();
     if (state && Object.prototype.hasOwnProperty.call(state, "launchPaymentModalAutomatically")) {
       this.launchPaymentModalAutomatically = state.launchPaymentModalAutomatically;
     } else if (
-      redundant &&
-      Object.prototype.hasOwnProperty.call(redundant, "launchPaymentModalAutomatically")
+      redundantState &&
+      Object.prototype.hasOwnProperty.call(redundantState, "launchPaymentModalAutomatically")
     ) {
-      this.launchPaymentModalAutomatically = redundant.launchPaymentModalAutomatically;
+      this.launchPaymentModalAutomatically = redundantState.launchPaymentModalAutomatically;
     } else {
       this.launchPaymentModalAutomatically = false;
     }

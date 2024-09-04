@@ -3557,11 +3557,11 @@
     "placeholders": {
       "count": {
         "content": "$2",
-        "example": "You must set up 2FA on your user account before you can join this organization."
+        "example": "organization name"
       },
       "organization": {
         "content": "$1",
-        "example": "You must set up 2FA on your user account before you can join this organization."
+        "example": "remaining days"
       }
     }
   },
@@ -3570,7 +3570,7 @@
     "placeholders": {
       "organization": {
         "content": "$1",
-        "example": "You must set up 2FA on your user account before you can join this organization."
+        "example": "organization name"
       }
     }
   },
@@ -3581,7 +3581,7 @@
     "message": "$ORGANIZATION$, your free trial ends today. To maintain your subscription,",
       "organization": {
         "content": "$1",
-        "example": "You must set up 2FA on your user account before you can join this organization."
+        "example": "organization name"
       }
     },
     "freeTrialEndPromptForLessThanADayNoOrgName": {
