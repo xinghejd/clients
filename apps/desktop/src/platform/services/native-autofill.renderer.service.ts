@@ -5,12 +5,6 @@ import {
   Fido2AuthenticatorMakeCredentialsParams,
   Fido2AuthenticatorService as Fido2AuthenticatorServiceAbstraction,
 } from "@bitwarden/common/platform/abstractions/fido2/fido2-authenticator.service.abstraction";
-import {
-  Fido2UserInterfaceService as Fido2UserInterfaceServiceAbstraction,
-  Fido2UserInterfaceSession,
-  NewCredentialParams,
-  PickCredentialParams,
-} from "@bitwarden/common/platform/abstractions/fido2/fido2-user-interface.service.abstraction";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { Fido2Utils } from "@bitwarden/common/platform/services/fido2/fido2-utils";
 import type { autofill } from "@bitwarden/desktop-napi";
@@ -18,7 +12,7 @@ import type { autofill } from "@bitwarden/desktop-napi";
 export class NativeAutofillRendererService {
   constructor(
     private logService: LogService,
-    private fido2AuthenticatorService: Fido2AuthenticatorServiceAbstraction<number>,
+    private fido2AuthenticatorService: Fido2AuthenticatorServiceAbstraction<void>,
   ) {
     ipc.autofill.listenPasskeyRegistration((clientId, sequenceNumber, request, callback) => {
       this.logService.warning("listenPasskeyRegistration", clientId, sequenceNumber, request);
@@ -29,7 +23,7 @@ export class NativeAutofillRendererService {
 
       const controller = new AbortController();
       void this.fido2AuthenticatorService
-        .makeCredential(this.convertRegistrationRequest(request), sequenceNumber, controller)
+        .makeCredential(this.convertRegistrationRequest(request), null, controller)
         .then((response) => {
           callback(null, this.convertRegistrationResponse(request, response));
         })
@@ -44,7 +38,7 @@ export class NativeAutofillRendererService {
 
       const controller = new AbortController();
       void this.fido2AuthenticatorService
-        .getAssertion(this.convertAssertionRequest(request), sequenceNumber, controller)
+        .getAssertion(this.convertAssertionRequest(request), null, controller)
         .then((response) => {
           callback(null, this.convertAssertionResponse(request, response));
         })
@@ -121,67 +115,5 @@ export class NativeAutofillRendererService {
       authenticatorData: Array.from(response.authenticatorData),
       credentialId: Array.from(response.selectedCredential.id),
     };
-  }
-}
-
-// TODO: Move this somewhere else
-
-export class DesktopFido2UserInterfaceService
-  implements Fido2UserInterfaceServiceAbstraction<number>
-{
-  constructor(private logService: LogService) {}
-
-  async newSession(
-    fallbackSupported: boolean,
-    tab: number,
-    abortController?: AbortController,
-  ): Promise<DesktopFido2UserInterfaceSession> {
-    this.logService.warning("newSession", fallbackSupported, tab, abortController);
-    return new DesktopFido2UserInterfaceSession(this.logService);
-  }
-}
-
-export class DesktopFido2UserInterfaceSession implements Fido2UserInterfaceSession {
-  constructor(private logService: LogService) {}
-
-  async pickCredential({
-    cipherIds,
-    userVerification,
-  }: PickCredentialParams): Promise<{ cipherId: string; userVerified: boolean }> {
-    this.logService.warning("pickCredential", cipherIds, userVerification);
-    return { cipherId: cipherIds[0], userVerified: userVerification };
-  }
-
-  async confirmNewCredential({
-    credentialName,
-    userName,
-    userVerification,
-    rpId,
-  }: NewCredentialParams): Promise<{ cipherId: string; userVerified: boolean }> {
-    this.logService.warning(
-      "confirmNewCredential",
-      credentialName,
-      userName,
-      userVerification,
-      rpId,
-    );
-    // TODO: Implement this correctly
-    return { cipherId: "a046ec6e-9764-436d-b15a-b1db0144782c", userVerified: userVerification };
-  }
-
-  async informExcludedCredential(existingCipherIds: string[]): Promise<void> {
-    this.logService.warning("informExcludedCredential", existingCipherIds);
-  }
-
-  async ensureUnlockedVault(): Promise<void> {
-    this.logService.warning("ensureUnlockedVault");
-  }
-
-  async informCredentialNotFound(): Promise<void> {
-    this.logService.warning("informCredentialNotFound");
-  }
-
-  async close() {
-    this.logService.warning("close");
   }
 }

@@ -69,6 +69,7 @@ import { PinServiceAbstraction } from "../../../../../libs/auth/src/common/abstr
 import { DesktopAutofillSettingsService } from "../../autofill/services/desktop-autofill-settings.service";
 import { DesktopAutofillService } from "../../autofill/services/desktop-autofill.service";
 import { Account } from "../../models/account";
+import { DesktopFido2UserInterfaceService } from "../../platform/services/desktop-fido2-user-interface.service";
 import { DesktopSettingsService } from "../../platform/services/desktop-settings.service";
 import { ElectronCryptoService } from "../../platform/services/electron-crypto.service";
 import { ElectronLogRendererService } from "../../platform/services/electron-log.renderer.service";
@@ -81,10 +82,7 @@ import { ElectronRendererSecureStorageService } from "../../platform/services/el
 import { ElectronRendererStorageService } from "../../platform/services/electron-renderer-storage.service";
 import { ElectronStateService } from "../../platform/services/electron-state.service";
 import { I18nRendererService } from "../../platform/services/i18n.renderer.service";
-import {
-  NativeAutofillRendererService,
-  DesktopFido2UserInterfaceService,
-} from "../../platform/services/native-autofill.renderer.service";
+import { NativeAutofillRendererService } from "../../platform/services/native-autofill.renderer.service";
 import { fromIpcMessaging } from "../../platform/utils/from-ipc-messaging";
 import { fromIpcSystemTheme } from "../../platform/utils/from-ipc-system-theme";
 import { EncryptedMessageHandlerService } from "../../services/encrypted-message-handler.service";
@@ -296,7 +294,7 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: Fido2UserInterfaceServiceAbstraction,
     useClass: DesktopFido2UserInterfaceService,
-    deps: [LogService],
+    deps: [AuthServiceAbstraction, CipherServiceAbstraction, LogService],
   }),
   safeProvider({
     provide: Fido2AuthenticatorServiceAbstraction,
