@@ -6,7 +6,10 @@ import { AuthenticationStatus } from "../../../auth/enums/authentication-status"
 import { DomainSettingsService } from "../../../autofill/services/domain-settings.service";
 import { VaultSettingsService } from "../../../vault/abstractions/vault-settings/vault-settings.service";
 import { ConfigService } from "../../abstractions/config/config.service";
-import { Fido2ActiveRequestManager } from "../../abstractions/fido2/fido2-active-request-manager.abstraction";
+import {
+  Fido2ActiveRequestEvents,
+  Fido2ActiveRequestManager,
+} from "../../abstractions/fido2/fido2-active-request-manager.abstraction";
 import {
   Fido2AuthenticatorError,
   Fido2AuthenticatorErrorCode,
@@ -379,13 +382,8 @@ export class Fido2ClientService implements Fido2ClientServiceAbstraction {
         abortController,
       );
 
-      if (credentialId === null) {
+      if (credentialId === Fido2ActiveRequestEvents.Refresh) {
         continue;
-      }
-
-      if (credentialId === "abort-request") {
-        this.logService?.info(`[Fido2Client] Aborted by user`);
-        break;
       }
 
       params.allowedCredentialIds = [Fido2Utils.bufferToString(guidToRawFormat(credentialId))];

@@ -22,7 +22,10 @@ import { DomainSettingsService } from "@bitwarden/common/autofill/services/domai
 import { InlineMenuVisibilitySetting } from "@bitwarden/common/autofill/types";
 import { NeverDomains } from "@bitwarden/common/models/domain/domain-service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
-import { Fido2ActiveRequestManager } from "@bitwarden/common/platform/abstractions/fido2/fido2-active-request-manager.abstraction";
+import {
+  Fido2ActiveRequestEvents,
+  Fido2ActiveRequestManager,
+} from "@bitwarden/common/platform/abstractions/fido2/fido2-active-request-manager.abstraction";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -146,10 +149,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     addEditCipherSubmitted: () => this.updateOverlayCiphers(),
     editedCipher: () => this.updateOverlayCiphers(),
     deletedCipher: () => this.updateOverlayCiphers(),
-    fido2AbortRequest: ({ message, sender }) => {
-      this.fido2ActiveRequestManager.removeActiveRequest(sender.tab.id);
-      void this.updateOverlayCiphers(false);
-    },
+    fido2AbortRequest: ({ sender }) => this.abortFido2ActiveRequest(sender),
   };
   private readonly inlineMenuButtonPortMessageHandlers: InlineMenuButtonPortMessageHandlers = {
     triggerDelayedAutofillInlineMenuClosure: () => this.triggerDelayedInlineMenuClosure(),
@@ -196,6 +196,11 @@ export class OverlayBackground implements OverlayBackgroundInterface {
   async authenticatePasskeyCredential(tabId: number, credentialId: string) {
     const request = this.fido2ActiveRequestManager.getActiveRequest(tabId);
     request.subject.next(credentialId);
+  }
+
+  private async abortFido2ActiveRequest(sender: chrome.runtime.MessageSender) {
+    this.fido2ActiveRequestManager.removeActiveRequest(sender.tab.id);
+    await this.updateOverlayCiphers(false);
   }
 
   /**
@@ -295,7 +300,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
 
     const request = this.fido2ActiveRequestManager.getActiveRequest(currentTab.id);
     if (request) {
-      request.subject.next(null);
+      request.subject.next(Fido2ActiveRequestEvents.Refresh);
     }
 
     this.inlineMenuFido2Credentials.clear();

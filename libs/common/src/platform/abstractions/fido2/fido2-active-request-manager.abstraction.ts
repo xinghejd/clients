@@ -2,6 +2,10 @@ import { Observable, Subject } from "rxjs";
 
 import { Fido2CredentialView } from "../../../vault/models/view/fido2-credential.view";
 
+export const Fido2ActiveRequestEvents = {
+  Refresh: "refresh-fido2-active-request",
+} as const;
+
 export interface ActiveRequest {
   credentials: Fido2CredentialView[];
   subject: Subject<string>;
