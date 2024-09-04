@@ -10,9 +10,9 @@ pub struct PasskeyRegistrationRequest {
     relying_party_id: String,
     user_name: String,
     user_handle: Vec<u8>,
-
     client_data_hash: Vec<u8>,
     user_verification: UserVerification,
+    supported_algorithms: Vec<i32>,
 }
 
 #[derive(uniffi::Record, Serialize, Deserialize)]

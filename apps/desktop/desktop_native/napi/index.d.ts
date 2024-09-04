@@ -54,14 +54,9 @@ export namespace autofill {
     Message = 2
   }
   export const enum UserVerification {
-    Preferred = 0,
-    Required = 1,
-    Discouraged = 2
-  }
-  export interface PasskeyRegistrationMessage {
-    clientId: number
-    sequenceNumber: number
-    value: PasskeyRegistrationRequest
+    Preferred = 'preferred',
+    Required = 'required',
+    Discouraged = 'discouraged'
   }
   export interface PasskeyRegistrationRequest {
     relyingPartyId: string
@@ -69,6 +64,7 @@ export namespace autofill {
     userHandle: Array<number>
     clientDataHash: Array<number>
     userVerification: UserVerification
+    supportedAlgorithms: Array<number>
   }
   export interface PasskeyRegistrationResponse {
     relyingParty: string
@@ -76,23 +72,18 @@ export namespace autofill {
     credentialId: Array<number>
     attestationObject: Array<number>
   }
-  export interface PasskeyAssertionMessage {
-    clientId: number
-    sequenceNumber: number
-    value: PasskeyAssertionRequest
-  }
   export interface PasskeyAssertionRequest {
     relyingPartyId: string
-    userName: string
     credentialId: Array<number>
+    userName: string
     userHandle: Array<number>
     recordIdentifier?: string
     clientDataHash: Array<number>
     userVerification: UserVerification
   }
   export interface PasskeyAssertionResponse {
-    userHandle: Array<number>
     relyingParty: string
+    userHandle: Array<number>
     signature: Array<number>
     clientDataHash: Array<number>
     authenticatorData: Array<number>
@@ -105,10 +96,11 @@ export namespace autofill {
      * @param name The endpoint name to listen on. This name uniquely identifies the IPC connection and must be the same for both the server and client.
      * @param callback This function will be called whenever a message is received from a client.
      */
-    static listen(name: string, registrationCallback: (error: null | Error, message: PasskeyRegistrationMessage) => void, assertionCallback: (error: null | Error, message: PasskeyAssertionMessage) => void): Promise<IpcServer>
+    static listen(name: string, registrationCallback: (error: null | Error, clientId: number, sequenceNumber: number, message: PasskeyRegistrationRequest) => void, assertionCallback: (error: null | Error, clientId: number, sequenceNumber: number, message: PasskeyAssertionRequest) => void): Promise<IpcServer>
     /** Stop the IPC server. */
     stop(): void
-    completeRegistration(request: PasskeyRegistrationMessage, response: PasskeyRegistrationResponse): number
-    completeAssertion(request: PasskeyAssertionMessage, response: PasskeyAssertionResponse): number
+    completeRegistration(clientId: number, sequenceNumber: number, response: PasskeyRegistrationResponse): number
+    completeAssertion(clientId: number, sequenceNumber: number, response: PasskeyAssertionResponse): number
+    completeError(clientId: number, sequenceNumber: number, error: string): number
   }
 }

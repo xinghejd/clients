@@ -8,12 +8,10 @@ use crate::{BitwardenError, Callback, UserVerification};
 #[serde(rename_all = "camelCase")]
 pub struct PasskeyAssertionRequest {
     relying_party_id: String,
-
-    user_name: String,
     credential_id: Vec<u8>,
+    user_name: String,
     user_handle: Vec<u8>,
     record_identifier: Option<String>,
-
     client_data_hash: Vec<u8>,
     user_verification: UserVerification,
 }
@@ -21,8 +19,8 @@ pub struct PasskeyAssertionRequest {
 #[derive(uniffi::Record, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct PasskeyAssertionResponse {
-    user_handle: Vec<u8>,
     relying_party: String,
+    user_handle: Vec<u8>,
     signature: Vec<u8>,
     client_data_hash: Vec<u8>,
     authenticator_data: Vec<u8>,

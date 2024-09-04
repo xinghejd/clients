@@ -11,15 +11,41 @@ export default {
 
   listenPasskeyRegistration: (
     fn: (
-      request: autofill.PasskeyRegistrationMessage,
-      completeCallback: (response: autofill.PasskeyRegistrationResponse) => void,
+      clientId: number,
+      sequenceNumber: number,
+      request: autofill.PasskeyRegistrationRequest,
+      completeCallback: (
+        error: Error | null,
+        response: autofill.PasskeyRegistrationResponse,
+      ) => void,
     ) => void,
   ) => {
     ipcRenderer.on(
       "autofill.passkeyRegistration",
-      (event, request: autofill.PasskeyRegistrationMessage) => {
-        fn(request, (response) => {
-          ipcRenderer.send("autofill.completePasskeyRegistration", { request, response });
+      (
+        event,
+        data: {
+          clientId: number;
+          sequenceNumber: number;
+          request: autofill.PasskeyRegistrationRequest;
+        },
+      ) => {
+        const { clientId, sequenceNumber, request } = data;
+        fn(clientId, sequenceNumber, request, (error, response) => {
+          if (error) {
+            ipcRenderer.send("autofill.completeError", {
+              clientId,
+              sequenceNumber,
+              error: error.message,
+            });
+            return;
+          }
+
+          ipcRenderer.send("autofill.completePasskeyRegistration", {
+            clientId,
+            sequenceNumber,
+            response,
+          });
         });
       },
     );
@@ -27,15 +53,38 @@ export default {
 
   listenPasskeyAssertion: (
     fn: (
-      request: autofill.PasskeyAssertionMessage,
-      completeCallback: (response: autofill.PasskeyAssertionResponse) => void,
+      clientId: number,
+      sequenceNumber: number,
+      request: autofill.PasskeyAssertionRequest,
+      completeCallback: (error: Error | null, response: autofill.PasskeyAssertionResponse) => void,
     ) => void,
   ) => {
     ipcRenderer.on(
       "autofill.passkeyAssertion",
-      (event, request: autofill.PasskeyAssertionMessage) => {
-        fn(request, (response) => {
-          ipcRenderer.send("autofill.completePasskeyAssertion", { request, response });
+      (
+        event,
+        data: {
+          clientId: number;
+          sequenceNumber: number;
+          request: autofill.PasskeyAssertionRequest;
+        },
+      ) => {
+        const { clientId, sequenceNumber, request } = data;
+        fn(clientId, sequenceNumber, request, (error, response) => {
+          if (error) {
+            ipcRenderer.send("autofill.completeError", {
+              clientId,
+              sequenceNumber,
+              error: error.message,
+            });
+            return;
+          }
+
+          ipcRenderer.send("autofill.completePasskeyAssertion", {
+            clientId,
+            sequenceNumber,
+            response,
+          });
         });
       },
     );

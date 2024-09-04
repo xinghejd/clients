@@ -197,12 +197,15 @@ pub mod autofill {
         Internal(String),
     }
 
-    #[napi]
+    #[napi(string_enum)]
     #[derive(Debug, Serialize, Deserialize)]
     #[serde(rename_all = "camelCase")]
     pub enum UserVerification {
+        #[napi(value = "preferred")]
         Preferred,
+        #[napi(value = "required")]
         Required,
+        #[napi(value = "discouraged")]
         Discouraged,
     }
 
@@ -214,22 +217,15 @@ pub mod autofill {
     }
 
     #[napi(object)]
-    pub struct PasskeyRegistrationMessage {
-        pub client_id: u32,
-        pub sequence_number: u32,
-        pub value: PasskeyRegistrationRequest,
-    }
-
-    #[napi(object)]
     #[derive(Debug, Serialize, Deserialize)]
     #[serde(rename_all = "camelCase")]
     pub struct PasskeyRegistrationRequest {
         pub relying_party_id: String,
         pub user_name: String,
         pub user_handle: Vec<u8>,
-
         pub client_data_hash: Vec<u8>,
         pub user_verification: UserVerification,
+        pub supported_algorithms: Vec<i32>,
     }
 
     #[napi(object)]
@@ -243,23 +239,14 @@ pub mod autofill {
     }
 
     #[napi(object)]
-    pub struct PasskeyAssertionMessage {
-        pub client_id: u32,
-        pub sequence_number: u32,
-        pub value: PasskeyAssertionRequest,
-    }
-
-    #[napi(object)]
     #[derive(Debug, Serialize, Deserialize)]
     #[serde(rename_all = "camelCase")]
     pub struct PasskeyAssertionRequest {
         pub relying_party_id: String,
-
-        pub user_name: String,
         pub credential_id: Vec<u8>,
+        pub user_name: String,
         pub user_handle: Vec<u8>,
         pub record_identifier: Option<String>,
-
         pub client_data_hash: Vec<u8>,
         pub user_verification: UserVerification,
     }
@@ -268,8 +255,8 @@ pub mod autofill {
     #[derive(Serialize, Deserialize)]
     #[serde(rename_all = "camelCase")]
     pub struct PasskeyAssertionResponse {
-        pub user_handle: Vec<u8>,
         pub relying_party: String,
+        pub user_handle: Vec<u8>,
         pub signature: Vec<u8>,
         pub client_data_hash: Vec<u8>,
         pub authenticator_data: Vec<u8>,
@@ -290,18 +277,20 @@ pub mod autofill {
         #[napi(factory)]
         pub async fn listen(
             name: String,
+            // Ideally we'd have a single callback that has an enum containing the request values,
+            // but NAPI doesn't support that just yet
             #[napi(
-                ts_arg_type = "(error: null | Error, message: PasskeyRegistrationMessage) => void"
+                ts_arg_type = "(error: null | Error, clientId: number, sequenceNumber: number, message: PasskeyRegistrationRequest) => void"
             )]
             registration_callback: ThreadsafeFunction<
-                PasskeyRegistrationMessage,
+                (u32, u32, PasskeyRegistrationRequest),
                 ErrorStrategy::CalleeHandled,
             >,
             #[napi(
-                ts_arg_type = "(error: null | Error, message: PasskeyAssertionMessage) => void"
+                ts_arg_type = "(error: null | Error, clientId: number, sequenceNumber: number, message: PasskeyAssertionRequest) => void"
             )]
             assertion_callback: ThreadsafeFunction<
-                PasskeyAssertionMessage,
+                (u32, u32, PasskeyAssertionRequest),
                 ErrorStrategy::CalleeHandled,
             >,
         ) -> napi::Result<Self> {
@@ -318,12 +307,15 @@ pub mod autofill {
                                 Ok(passkey_message) => {
                                     let value = passkey_message
                                         .value
-                                        .map(|value| PasskeyAssertionMessage {
-                                            client_id: message.client_id,
-                                            sequence_number: passkey_message.sequence_number,
-                                            value,
+                                        .map(|value| {
+                                            (
+                                                message.client_id,
+                                                passkey_message.sequence_number,
+                                                value,
+                                            )
                                         })
                                         .map_err(|e| napi::Error::from_reason(format!("{e:?}")));
+
                                     assertion_callback
                                         .call(value, ThreadsafeFunctionCallMode::NonBlocking);
                                     continue;
@@ -339,10 +331,12 @@ pub mod autofill {
                                 Ok(passkey_message) => {
                                     let value = passkey_message
                                         .value
-                                        .map(|value| PasskeyRegistrationMessage {
-                                            client_id: message.client_id,
-                                            sequence_number: passkey_message.sequence_number,
-                                            value,
+                                        .map(|value| {
+                                            (
+                                                message.client_id,
+                                                passkey_message.sequence_number,
+                                                value,
+                                            )
                                         })
                                         .map_err(|e| napi::Error::from_reason(format!("{e:?}")));
                                     registration_callback
@@ -381,35 +375,47 @@ pub mod autofill {
         #[napi]
         pub fn complete_registration(
             &self,
-            request: PasskeyRegistrationMessage,
+            client_id: u32,
+            sequence_number: u32,
             response: PasskeyRegistrationResponse,
         ) -> napi::Result<u32> {
             let message = PasskeyMessage {
-                sequence_number: request.sequence_number,
+                sequence_number,
                 value: Ok(response),
             };
-            self.send(serde_json::to_string(&message).unwrap())
+            self.send(client_id, serde_json::to_string(&message).unwrap())
         }
 
         #[napi]
         pub fn complete_assertion(
             &self,
-            request: PasskeyAssertionMessage,
+            client_id: u32,
+            sequence_number: u32,
             response: PasskeyAssertionResponse,
         ) -> napi::Result<u32> {
             let message = PasskeyMessage {
-                sequence_number: request.sequence_number,
+                sequence_number,
                 value: Ok(response),
             };
-            self.send(serde_json::to_string(&message).unwrap())
+            self.send(client_id, serde_json::to_string(&message).unwrap())
         }
 
-        /// Send a message over the IPC server to all the connected clients
-        ///
-        /// @return The number of clients that the message was sent to. Note that the number of messages
-        /// actually received may be less, as some clients could disconnect before receiving the message.
-        // #[napi]
-        fn send(&self, message: String) -> napi::Result<u32> {
+        #[napi]
+        pub fn complete_error(
+            &self,
+            client_id: u32,
+            sequence_number: u32,
+            error: String,
+        ) -> napi::Result<u32> {
+            let message: PasskeyMessage<()> = PasskeyMessage {
+                sequence_number,
+                value: Err(BitwardenError::Internal(error)),
+            };
+            self.send(client_id, serde_json::to_string(&message).unwrap())
+        }
+
+        // TODO: Add a way to send a message to a specific client?
+        fn send(&self, _client_id: u32, message: String) -> napi::Result<u32> {
             self.server
                 .send(message)
                 .map_err(|e| {

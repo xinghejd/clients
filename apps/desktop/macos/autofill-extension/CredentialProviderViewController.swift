@@ -115,8 +115,8 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
                 
                 let req = PasskeyAssertionRequest(
                     relyingPartyId: passkeyIdentity.relyingPartyIdentifier,
-                    userName: passkeyIdentity.userName,
                     credentialId: passkeyIdentity.credentialID,
+                    userName: passkeyIdentity.userName,
                     userHandle: passkeyIdentity.userHandle,
                     recordIdentifier: passkeyIdentity.recordIdentifier,
                     clientDataHash: request.clientDataHash,
@@ -153,8 +153,8 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
     }
 
     override func prepareInterface(forPasskeyRegistration registrationRequest: ASCredentialRequest) {
-        if let passkeyIdentity = registrationRequest.credentialIdentity as? ASPasskeyCredentialIdentity {
-            if let passkeyRegistration = registrationRequest as? ASPasskeyCredentialRequest {
+        if let request = registrationRequest as? ASPasskeyCredentialRequest {
+            if let passkeyIdentity = registrationRequest.credentialIdentity as? ASPasskeyCredentialIdentity {
                 class CallbackImpl: PreparePasskeyRegistrationCallback {
                     let ctx: ASCredentialProviderExtensionContext
                     required init(_ ctx: ASCredentialProviderExtensionContext) {
@@ -175,7 +175,7 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
                     }
                 }
                 
-                let userVerification = switch passkeyRegistration.userVerificationPreference {
+                let userVerification = switch request.userVerificationPreference {
                     case .preferred:
                         UserVerification.preferred
                     case .required:
@@ -188,8 +188,9 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
                     relyingPartyId: passkeyIdentity.relyingPartyIdentifier,
                     userName: passkeyIdentity.userName,
                     userHandle: passkeyIdentity.userHandle,
-                    clientDataHash: passkeyRegistration.clientDataHash,
-                    userVerification: userVerification
+                    clientDataHash: request.clientDataHash,
+                    userVerification: userVerification,
+                    supportedAlgorithms: request.supportedAlgorithms.map{ Int32($0.rawValue) }
                 )
                 CredentialProviderViewController.client.preparePasskeyRegistration(request: req, callback: CallbackImpl(self.extensionContext))
                 return
