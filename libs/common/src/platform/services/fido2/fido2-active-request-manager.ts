@@ -14,6 +14,7 @@ import {
   ActiveRequest,
   RequestCollection,
   Fido2ActiveRequestManager as Fido2ActiveRequestManagerAbstraction,
+  Fido2ActiveRequestEvents,
 } from "../../abstractions/fido2/fido2-active-request-manager.abstraction";
 
 export class Fido2ActiveRequestManager implements Fido2ActiveRequestManagerAbstraction {
@@ -91,6 +92,7 @@ export class Fido2ActiveRequestManager implements Fido2ActiveRequestManagerAbstr
    * @param tabId - The tab id to abort the active request for.
    */
   private abortActiveRequest(tabId: number): void {
+    this.activeRequests$.value[tabId]?.subject.next(Fido2ActiveRequestEvents.Abort);
     this.activeRequests$.value[tabId]?.subject.error(
       new DOMException("The operation either timed out or was not allowed.", "AbortError"),
     );

@@ -386,6 +386,10 @@ export class Fido2ClientService implements Fido2ClientServiceAbstraction {
         continue;
       }
 
+      if (credentialId === Fido2ActiveRequestEvents.Abort) {
+        break;
+      }
+
       params.allowedCredentialIds = [Fido2Utils.bufferToString(guidToRawFormat(credentialId))];
       assumeUserPresence = true;
 

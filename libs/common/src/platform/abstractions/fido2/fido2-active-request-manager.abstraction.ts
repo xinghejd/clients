@@ -4,6 +4,7 @@ import { Fido2CredentialView } from "../../../vault/models/view/fido2-credential
 
 export const Fido2ActiveRequestEvents = {
   Refresh: "refresh-fido2-active-request",
+  Abort: "abort-fido2-active-request",
 } as const;
 
 export interface ActiveRequest {
