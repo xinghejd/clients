@@ -1,5 +1,5 @@
 import { mock, MockProxy, mockReset } from "jest-mock-extended";
-import { BehaviorSubject, of } from "rxjs";
+import { BehaviorSubject } from "rxjs";
 
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
@@ -18,15 +18,12 @@ import {
   EnvironmentService,
   Region,
 } from "@bitwarden/common/platform/abstractions/environment.service";
-import {
-  ActiveRequest,
-  Fido2ActiveRequestManager,
-} from "@bitwarden/common/platform/abstractions/fido2/fido2-active-request-manager.abstraction";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { ThemeType } from "@bitwarden/common/platform/enums";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { CloudEnvironment } from "@bitwarden/common/platform/services/default-environment.service";
+import { Fido2ActiveRequestManager } from "@bitwarden/common/platform/services/fido2/fido2-active-request-manager";
 import { ThemeStateService } from "@bitwarden/common/platform/theming/theme-state.service";
 import {
   FakeAccountService,
@@ -93,9 +90,9 @@ describe("OverlayBackground", () => {
   let autofillSettingsService: MockProxy<AutofillSettingsService>;
   let i18nService: MockProxy<I18nService>;
   let platformUtilsService: MockProxy<BrowserPlatformUtilsService>;
-  let activeRequestsMock: MockProxy<ActiveRequest>;
+  let enablePasskeysMock$: BehaviorSubject<boolean>;
   let vaultSettingsServiceMock: MockProxy<VaultSettingsService>;
-  let fido2ActiveRequestManager: MockProxy<Fido2ActiveRequestManager>;
+  let fido2ActiveRequestManager: Fido2ActiveRequestManager;
   let selectedThemeMock$: BehaviorSubject<ThemeType>;
   let themeStateService: MockProxy<ThemeStateService>;
   let overlayBackground: OverlayBackground;
@@ -164,11 +161,10 @@ describe("OverlayBackground", () => {
     autofillSettingsService.inlineMenuVisibility$ = inlineMenuVisibilityMock$;
     i18nService = mock<I18nService>();
     platformUtilsService = mock<BrowserPlatformUtilsService>();
+    enablePasskeysMock$ = new BehaviorSubject(true);
     vaultSettingsServiceMock = mock<VaultSettingsService>();
-    activeRequestsMock = mock<ActiveRequest>();
-    fido2ActiveRequestManager = mock<Fido2ActiveRequestManager>({
-      getActiveRequest$: (_tabId) => of(activeRequestsMock),
-    });
+    vaultSettingsServiceMock.enablePasskeys$ = enablePasskeysMock$;
+    fido2ActiveRequestManager = new Fido2ActiveRequestManager();
     selectedThemeMock$ = new BehaviorSubject(ThemeType.Light);
     themeStateService = mock<ThemeStateService>();
     themeStateService.selectedTheme$ = selectedThemeMock$;
@@ -1119,9 +1115,12 @@ describe("OverlayBackground", () => {
       });
     });
 
-    // TODO - Need to fix this test and figure out why credentials aren't being populated
-    it.skip("adds available passkey ciphers to the inline menu", async () => {
-      activeRequestsMock.credentials = passkeyCipher.login.fido2Credentials;
+    it("adds available passkey ciphers to the inline menu", async () => {
+      void fido2ActiveRequestManager.newActiveRequest(
+        tab.id,
+        passkeyCipher.login.fido2Credentials,
+        new AbortController(),
+      );
       overlayBackground["focusedFieldData"] = createFocusedFieldDataMock({
         tabId: tab.id,
         filledByCipherType: CipherType.Login,
@@ -1200,10 +1199,15 @@ describe("OverlayBackground", () => {
     });
 
     it("does not add a passkey to the inline menu when its rpId is part of the neverDomains exclusion list", async () => {
-      activeRequestsMock.credentials = passkeyCipher.login.fido2Credentials;
+      void fido2ActiveRequestManager.newActiveRequest(
+        tab.id,
+        passkeyCipher.login.fido2Credentials,
+        new AbortController(),
+      );
       overlayBackground["focusedFieldData"] = createFocusedFieldDataMock({
         tabId: tab.id,
         filledByCipherType: CipherType.Login,
+        showPasskeys: true,
       });
       cipherService.getAllDecryptedForUrl.mockResolvedValue([loginCipher1, passkeyCipher]);
       cipherService.sortCiphersByLastUsedThenName.mockReturnValue(-1);
@@ -2928,6 +2932,7 @@ describe("OverlayBackground", () => {
           [sender.frameId, pageDetailsForTab],
         ]);
         autofillService.isPasswordRepromptRequired.mockResolvedValue(false);
+        jest.spyOn(fido2ActiveRequestManager, "getActiveRequest");
 
         sendPortMessage(listMessageConnectorSpy, {
           command: "fillAutofillInlineMenuCipher",
