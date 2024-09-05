@@ -2549,6 +2549,25 @@ describe("OverlayBackground", () => {
         });
       });
     });
+
+    describe("fido2AbortRequest", () => {
+      const sender = mock<chrome.runtime.MessageSender>({ tab: { id: 1 } });
+      it("removes an active request associated with the sender tab", () => {
+        const removeActiveRequestSpy = jest.spyOn(fido2ActiveRequestManager, "removeActiveRequest");
+
+        sendMockExtensionMessage({ command: "fido2AbortRequest" }, sender);
+
+        expect(removeActiveRequestSpy).toHaveBeenCalledWith(sender.tab.id);
+      });
+
+      it("updates the overlay ciphers after removing the active request", () => {
+        const updateOverlayCiphersSpy = jest.spyOn(overlayBackground, "updateOverlayCiphers");
+
+        sendMockExtensionMessage({ command: "fido2AbortRequest" }, sender);
+
+        expect(updateOverlayCiphersSpy).toHaveBeenCalledWith(false);
+      });
+    });
   });
 
   describe("handle extension onMessage", () => {

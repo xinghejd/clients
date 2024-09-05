@@ -465,6 +465,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     if (domainExclusions) {
       domainExclusionsSet = new Set(Object.keys(await this.getExcludedDomains()));
     }
+    const passkeysEnabled = await firstValueFrom(this.vaultSettingsService.enablePasskeys$);
 
     for (let cipherIndex = 0; cipherIndex < inlineMenuCiphersArray.length; cipherIndex++) {
       const [inlineMenuCipherId, cipher] = inlineMenuCiphersArray[cipherIndex];
@@ -472,7 +473,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
         continue;
       }
 
-      if (!(await this.showCipherAsPasskey(cipher, domainExclusionsSet))) {
+      if (!passkeysEnabled || !(await this.showCipherAsPasskey(cipher, domainExclusionsSet))) {
         inlineMenuCipherData.push(
           this.buildCipherData({ inlineMenuCipherId, cipher, showFavicons }),
         );
@@ -515,11 +516,6 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     domainExclusions: Set<string> | null,
   ): Promise<boolean> {
     if (cipher.type !== CipherType.Login || !this.focusedFieldData?.showPasskeys) {
-      return false;
-    }
-
-    const passkeysEnabled = await firstValueFrom(this.vaultSettingsService.enablePasskeys$);
-    if (!passkeysEnabled) {
       return false;
     }
 
