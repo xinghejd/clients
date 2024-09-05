@@ -254,8 +254,7 @@ export class Fido2AuthenticatorService implements Fido2AuthenticatorServiceAbstr
         response = await userInterfaceSession.pickCredential({
           cipherIds: cipherOptions.map((cipher) => cipher.id),
           userVerification: params.requireUserVerification,
-          assumeUserPresence: params.assumeUserPresence,
-          masterPasswordRepromptRequired,
+          assumeUserPresence: params.assumeUserPresence && !masterPasswordRepromptRequired,
         });
       }
 
