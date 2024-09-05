@@ -968,8 +968,8 @@ export class OverlayBackground implements OverlayBackgroundInterface {
   /**
    * Triggers a FIDO2 authentication from the inline menu using the passed credential ID.
    *
-   * @param tabId
-   * @param credentialId
+   * @param tabId - The tab ID to trigger the authentication for
+   * @param credentialId - The credential ID to authenticate
    */
   async authenticatePasskeyCredential(tabId: number, credentialId: string) {
     const request = this.fido2ActiveRequestManager.getActiveRequest(tabId);
