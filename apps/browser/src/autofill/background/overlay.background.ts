@@ -189,22 +189,6 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     this.initOverlayEventObservables();
   }
 
-  availablePasskeyAuthCredentials$(tabId: number): Observable<Fido2CredentialView[]> {
-    return this.fido2ActiveRequestManager
-      .getActiveRequest$(tabId)
-      .pipe(map((request) => request?.credentials ?? []));
-  }
-
-  async authenticatePasskeyCredential(tabId: number, credentialId: string) {
-    const request = this.fido2ActiveRequestManager.getActiveRequest(tabId);
-    request.subject.next(credentialId);
-  }
-
-  private async abortFido2ActiveRequest(sender: chrome.runtime.MessageSender) {
-    this.fido2ActiveRequestManager.removeActiveRequest(sender.tab.id);
-    await this.updateOverlayCiphers(false);
-  }
-
   /**
    * Sets up the extension message listeners and gets the settings for the
    * overlay's visibility and the user's authentication status.
@@ -678,6 +662,27 @@ export class OverlayBackground implements OverlayBackgroundInterface {
   }
 
   /**
+   * Gets the passkey credentials available from an active request for a given tab.
+   *
+   * @param tabId - The tab id to get the active request for.
+   */
+  private availablePasskeyAuthCredentials$(tabId: number): Observable<Fido2CredentialView[]> {
+    return this.fido2ActiveRequestManager
+      .getActiveRequest$(tabId)
+      .pipe(map((request) => request?.credentials ?? []));
+  }
+
+  /**
+   * Aborts an active FIDO2 request for a given tab and updates the inline menu ciphers.
+   *
+   * @param sender - The sender of the message
+   */
+  private async abortFido2ActiveRequest(sender: chrome.runtime.MessageSender) {
+    this.fido2ActiveRequestManager.removeActiveRequest(sender.tab.id);
+    await this.updateOverlayCiphers(false);
+  }
+
+  /**
    * Gets the neverDomains setting from the domain settings service.
    */
   async getExcludedDomains(): Promise<NeverDomains> {
@@ -962,6 +967,17 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     }
 
     this.updateLastUsedInlineMenuCipher(inlineMenuCipherId, cipher);
+  }
+
+  /**
+   * Triggers a FIDO2 authentication from the inline menu using the passed credential ID.
+   *
+   * @param tabId
+   * @param credentialId
+   */
+  async authenticatePasskeyCredential(tabId: number, credentialId: string) {
+    const request = this.fido2ActiveRequestManager.getActiveRequest(tabId);
+    request?.subject.next(credentialId);
   }
 
   /**

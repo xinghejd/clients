@@ -6,7 +6,6 @@ import { AuthenticationStatus } from "../../../auth/enums/authentication-status"
 import { DomainSettingsService } from "../../../autofill/services/domain-settings.service";
 import { Utils } from "../../../platform/misc/utils";
 import { VaultSettingsService } from "../../../vault/abstractions/vault-settings/vault-settings.service";
-import { Fido2CredentialView } from "../../../vault/models/view/fido2-credential.view";
 import { ConfigService } from "../../abstractions/config/config.service";
 import {
   ActiveRequest,
@@ -675,28 +674,6 @@ describe("FidoAuthenticatorService", () => {
         signature: randomBytes(64),
       };
     }
-  });
-
-  describe("autofill of credentials through the active request manager", () => {
-    it("returns an observable that updates with an array of the credentials for active Fido2 requests", async () => {
-      const activeRequestCredentials = mock<Fido2CredentialView>();
-      activeRequest.credentials = [activeRequestCredentials];
-
-      const observable = client.availableAutofillCredentials$(tab.id);
-      observable.subscribe((credentials) => {
-        expect(credentials).toEqual([activeRequestCredentials]);
-      });
-    });
-
-    it("triggers the logic of the next behavior subject of an active request", async () => {
-      const activeRequestCredentials = mock<Fido2CredentialView>();
-      activeRequest.credentials = [activeRequestCredentials];
-      jest.spyOn(activeRequest.subject, "next");
-
-      await client.autofillCredential(tab.id, activeRequestCredentials.credentialId);
-
-      expect(activeRequest.subject.next).toHaveBeenCalled();
-    });
   });
 });
 
