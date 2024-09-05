@@ -1,8 +1,8 @@
 import { Directive, ElementRef, NgZone, OnDestroy, OnInit, ViewChild } from "@angular/core";
 import { FormBuilder, Validators } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
-import { Subject, firstValueFrom } from "rxjs";
-import { take, takeUntil } from "rxjs/operators";
+import { Subject, firstValueFrom, of } from "rxjs";
+import { switchMap, take, takeUntil } from "rxjs/operators";
 
 import {
   LoginStrategyServiceAbstraction,
@@ -101,22 +101,31 @@ export class LoginComponent extends CaptchaProtectedComponent implements OnInit,
   }
 
   async ngOnInit() {
-    this.route?.queryParams.pipe(takeUntil(this.destroy$)).subscribe((params) => {
-      if (!params) {
-        return;
-      }
+    this.route?.queryParams
+      .pipe(
+        switchMap((params) => {
+          if (!params) {
+            // If no params,loadEmailSettings from state
+            return this.loadEmailSettings();
+          }
 
-      const queryParamsEmail = params.email;
+          const queryParamsEmail = params.email;
 
-      // If there is an email in the query params, set that email as the form field value
-      if (queryParamsEmail != null && queryParamsEmail.indexOf("@") > -1) {
-        this.formGroup.controls.email.setValue(queryParamsEmail);
-        this.paramEmailSet = true;
-      }
-    });
+          if (queryParamsEmail != null && queryParamsEmail.indexOf("@") > -1) {
+            this.formGroup.controls.email.setValue(queryParamsEmail);
+            this.paramEmailSet = true;
+          }
 
-    // if there is no email in the query params, attempt to load email settings from loginEmailService
-    if (!this.paramEmailSet) {
+          // If paramEmailSet is false, loadEmailSettings from state
+          return this.paramEmailSet ? of(null) : this.loadEmailSettings();
+        }),
+        takeUntil(this.destroy$),
+      )
+      .subscribe();
+
+    // Backup check to handle unknown case where activatedRoute is not available
+    // This shouldn't happen under normal circumstances
+    if (!this.route) {
       await this.loadEmailSettings();
     }
   }
@@ -310,7 +319,7 @@ export class LoginComponent extends CaptchaProtectedComponent implements OnInit,
 
   private async loadEmailSettings() {
     // Try to load from memory first
-    const email = this.loginEmailService.getEmail();
+    const email = await firstValueFrom(this.loginEmailService.loginEmail$);
     const rememberEmail = this.loginEmailService.getRememberEmail();
 
     if (email) {
@@ -328,7 +337,7 @@ export class LoginComponent extends CaptchaProtectedComponent implements OnInit,
   }
 
   protected async saveEmailSettings() {
-    this.loginEmailService.setEmail(this.formGroup.value.email);
+    this.loginEmailService.setLoginEmail(this.formGroup.value.email);
     this.loginEmailService.setRememberEmail(this.formGroup.value.rememberEmail);
     await this.loginEmailService.saveEmailSettings();
   }

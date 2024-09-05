@@ -401,6 +401,8 @@ export default class MainBackground {
     const logoutCallback = async (logoutReason: LogoutReason, userId?: UserId) =>
       await this.logout(logoutReason, userId);
 
+    const runtimeNativeMessagingBackground = () => this.nativeMessagingBackground;
+
     const refreshAccessTokenErrorCallback = () => {
       // Send toast to popup
       this.messagingService.send("showToast", {
@@ -616,7 +618,9 @@ export default class MainBackground {
 
     this.i18nService = new I18nService(BrowserApi.getUILanguage(), this.globalStateProvider);
 
-    this.biometricsService = new BackgroundBrowserBiometricsService(this.nativeMessagingBackground);
+    this.biometricsService = new BackgroundBrowserBiometricsService(
+      runtimeNativeMessagingBackground,
+    );
 
     this.kdfConfigService = new KdfConfigService(this.stateProvider);
 
@@ -648,7 +652,7 @@ export default class MainBackground {
       this.kdfConfigService,
     );
 
-    this.appIdService = new AppIdService(this.globalStateProvider);
+    this.appIdService = new AppIdService(this.storageService, this.logService);
 
     this.userDecryptionOptionsService = new UserDecryptionOptionsService(this.stateProvider);
     this.organizationService = new OrganizationService(this.stateProvider);
@@ -1261,6 +1265,18 @@ export default class MainBackground {
       await this.bulkEncryptService.setFeatureFlagEncryptService(
         new BulkEncryptServiceImplementation(this.cryptoFunctionService, this.logService),
       );
+    }
+
+    // If the user is logged out, switch to the next account
+    const active = await firstValueFrom(this.accountService.activeAccount$);
+    if (active != null) {
+      const authStatus = await firstValueFrom(
+        this.authService.authStatuses$.pipe(map((statuses) => statuses[active.id])),
+      );
+      if (authStatus === AuthenticationStatus.LoggedOut) {
+        const nextUpAccount = await firstValueFrom(this.accountService.nextUpAccount$);
+        await this.switchAccount(nextUpAccount?.id);
+      }
     }
 
     await this.initOverlayAndTabsBackground();
