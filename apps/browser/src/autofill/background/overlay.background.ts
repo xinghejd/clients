@@ -658,7 +658,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
   }
 
   /**
-   * Gets the passkey credentials available from an active request for a given tab.
+   * Gets the passkey credentials available from an active FIDO2 request for a given tab.
    *
    * @param tabId - The tab id to get the active request for.
    */
