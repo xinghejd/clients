@@ -782,6 +782,15 @@ describe("OverlayBackground", () => {
       expect(cipherService.getAllDecryptedForUrl).not.toHaveBeenCalled();
     });
 
+    it("skips updating the inline menu ciphers if the current tab url has non-http protocol", async () => {
+      const nonHttpTab = createChromeTabMock({ url: "chrome-extension://id/route" });
+      getTabFromCurrentWindowIdSpy.mockResolvedValueOnce(nonHttpTab);
+
+      await overlayBackground.updateOverlayCiphers();
+
+      expect(cipherService.getAllDecryptedForUrl).not.toHaveBeenCalled();
+    });
+
     it("closes the inline menu on the focused field's tab if the user's auth status is not unlocked", async () => {
       activeAccountStatusMock$.next(AuthenticationStatus.Locked);
       const previousTab = mock<chrome.tabs.Tab>({ id: 1 });
@@ -1213,6 +1222,69 @@ describe("OverlayBackground", () => {
       cipherService.sortCiphersByLastUsedThenName.mockReturnValue(-1);
       getTabFromCurrentWindowIdSpy.mockResolvedValueOnce(tab);
       neverDomainsMock$.next({ "jest-testing-website.com": null });
+
+      await overlayBackground.updateOverlayCiphers();
+
+      expect(listPortSpy.postMessage).toHaveBeenCalledWith({
+        command: "updateAutofillInlineMenuListCiphers",
+        ciphers: [
+          {
+            id: "inline-menu-cipher-0",
+            name: passkeyCipher.name,
+            type: CipherType.Login,
+            reprompt: passkeyCipher.reprompt,
+            favorite: passkeyCipher.favorite,
+            icon: {
+              fallbackImage: "images/bwi-globe.png",
+              icon: "bwi-globe",
+              image: "https://icons.bitwarden.com//jest-testing-website.com/icon.png",
+              imageEnabled: true,
+            },
+            accountCreationFieldType: undefined,
+            login: {
+              username: passkeyCipher.login.username,
+              passkey: null,
+            },
+          },
+          {
+            id: "inline-menu-cipher-1",
+            name: loginCipher1.name,
+            type: CipherType.Login,
+            reprompt: loginCipher1.reprompt,
+            favorite: loginCipher1.favorite,
+            icon: {
+              fallbackImage: "images/bwi-globe.png",
+              icon: "bwi-globe",
+              image: "https://icons.bitwarden.com//jest-testing-website.com/icon.png",
+              imageEnabled: true,
+            },
+            accountCreationFieldType: undefined,
+            login: {
+              username: loginCipher1.login.username,
+              passkey: null,
+            },
+          },
+        ],
+        showInlineMenuAccountCreation: false,
+        showPasskeysLabels: false,
+      });
+    });
+
+    it("does not add passkeys to the inline menu if the passkey setting is disabled", async () => {
+      enablePasskeysMock$.next(false);
+      void fido2ActiveRequestManager.newActiveRequest(
+        tab.id,
+        passkeyCipher.login.fido2Credentials,
+        new AbortController(),
+      );
+      overlayBackground["focusedFieldData"] = createFocusedFieldDataMock({
+        tabId: tab.id,
+        filledByCipherType: CipherType.Login,
+        showPasskeys: true,
+      });
+      cipherService.getAllDecryptedForUrl.mockResolvedValue([loginCipher1, passkeyCipher]);
+      cipherService.sortCiphersByLastUsedThenName.mockReturnValue(-1);
+      getTabFromCurrentWindowIdSpy.mockResolvedValueOnce(tab);
 
       await overlayBackground.updateOverlayCiphers();
 
