@@ -1,6 +1,6 @@
 <div
   bitTypography="body2"
-  class="tw-inline-flex tw-items-center tw-rounded-full tw-max-w-52 tw-border-solid tw-border tw-gap-1.5 tw-min-h-[2.225rem]"
+  class="tw-inline-flex tw-items-center tw-rounded-full tw-max-w-52 tw-border-solid tw-border tw-gap-1.5"
   [ngClass]="{
     'tw-bg-text-muted hover:tw-bg-secondary-700 tw-text-contrast hover:tw-border-secondary-700':
       selectedOption && !disabled,
@@ -13,7 +13,7 @@
   <!-- Primary button -->
   <button
     type="button"
-    class="fvw-target tw-inline-flex tw-gap-1.5 tw-items-center tw-bg-transparent hover:tw-bg-transparent tw-border-none tw-outline-none tw-max-w-full tw-py-1 tw-pl-3 last:tw-pr-3 [&:not(:last-child)]:tw-pr-0 tw-truncate tw-text-[inherit]"
+    class="fvw-target tw-inline-flex tw-gap-1.5 tw-items-center tw-bg-transparent hover:tw-bg-transparent tw-border-none tw-outline-none tw-max-w-full tw-py-1 tw-pl-3 last:tw-pr-3 [&:not(:last-child)]:tw-pr-0 tw-truncate tw-text-[color:inherit] tw-text-[length:inherit]"
     [ngClass]="{
       'tw-cursor-not-allowed': disabled,
     }"
@@ -26,7 +26,7 @@
     <span class="tw-truncate">{{ label }}</span>
     <i
       *ngIf="!selectedOption"
-      class="bwi tw-p-1 tw-mt-0.5"
+      class="bwi tw-mt-0.5"
       [ngClass]="menuTrigger.isOpen ? 'bwi-angle-up' : 'bwi-angle-down'"
     ></i>
   </button>
@@ -37,7 +37,7 @@
     type="button"
     [attr.aria-label]="'removeItem' | i18n: label"
     [disabled]="disabled"
-    class="tw-bg-transparent hover:tw-bg-transparent tw-outline-none tw-rounded-full tw-p-1 tw-px-1.5 tw-my-[0.175rem] tw-mr-2 tw-text-[inherit] tw-border-solid tw-border tw-border-transparent hover:tw-border-text-contrast hover:disabled:tw-border-transparent tw-flex tw-items-center tw-justify-center focus-visible:tw-ring-2 tw-ring-text-contrast focus-visible:hover:tw-border-transparent"
+    class="tw-bg-transparent hover:tw-bg-transparent tw-outline-none tw-rounded-full tw-py-0.5 tw-px-1 tw-mr-1 tw-text-[color:inherit] tw-text-[length:inherit] tw-border-solid tw-border tw-border-transparent hover:tw-border-text-contrast hover:disabled:tw-border-transparent tw-flex tw-items-center tw-justify-center focus-visible:tw-ring-2 tw-ring-text-contrast focus-visible:hover:tw-border-transparent"
     [ngClass]="{
       'tw-cursor-not-allowed': disabled,
     }"
@@ -55,6 +55,7 @@
         bitMenuItem
         (click)="viewOption(parent, $event)"
         [title]="parent.label ? ('backTo' | i18n: parent.label) : ('back' | i18n)"
+        class="tw-text-[length:inherit]"
       >
         <i slot="start" class="bwi bwi-angle-left" aria-hidden="true"></i>
         {{ parent.label ? ("backTo" | i18n: parent.label) : ("back" | i18n) }}
@@ -65,6 +66,7 @@
         bitMenuItem
         (click)="selectOption(renderedOptions, $event)"
         [title]="'viewItemsIn' | i18n: renderedOptions.label"
+        class="tw-text-[length:inherit]"
       >
         <i slot="start" class="bwi bwi-list" aria-hidden="true"></i>
         {{ "viewItemsIn" | i18n: renderedOptions.label }}
@@ -78,6 +80,7 @@
       (click)="option.children?.length ? viewOption(option, $event) : selectOption(option, $event)"
       [disabled]="option.disabled"
       [title]="option.label"
+      class="tw-text-[length:inherit]"
     >
       <i
         *ngIf="option.icon"

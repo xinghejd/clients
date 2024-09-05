@@ -69,7 +69,9 @@ export class BitFormFieldComponent implements AfterContentChecked {
 
   @HostBinding("class")
   get classList() {
-    return ["tw-block", "tw-pt-2"].concat(this.disableMargin ? [] : ["tw-mb-4"]);
+    return ["tw-block"]
+      .concat(this.disableMargin ? [] : ["tw-mb-4"])
+      .concat(this.readOnly ? [] : "tw-pt-2");
   }
 
   /**

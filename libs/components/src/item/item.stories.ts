@@ -43,7 +43,7 @@ export const Default: Story = {
     template: /*html*/ `
       <bit-item>
         <button bit-item-content>
-          <i slot="start" class="bwi bwi-globe tw-text-3xl tw-text-muted" aria-hidden="true"></i>
+          <i slot="start" class="bwi bwi-globe tw-text-2xl tw-text-muted" aria-hidden="true"></i>
           Foo
           <span slot="secondary">Bar</span>
         </button>
@@ -115,7 +115,7 @@ export const TextOverflow: Story = {
     template: /*html*/ `
       <bit-item>
         <bit-item-content>
-          <i slot="start" class="bwi bwi-globe tw-text-3xl tw-text-muted" aria-hidden="true"></i>
+          <i slot="start" class="bwi bwi-globe tw-text-2xl tw-text-muted" aria-hidden="true"></i>
           Helloooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo!
           <ng-container slot="secondary">Worlddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd!</ng-container>
         </bit-item-content>
@@ -139,7 +139,7 @@ export const MultipleActionList: Story = {
       <bit-item-group aria-label="Multiple Action List">
         <bit-item>
           <button bit-item-content>
-            <i slot="start" class="bwi bwi-globe tw-text-3xl tw-text-muted" aria-hidden="true"></i>
+            <i slot="start" class="bwi bwi-globe tw-text-2xl tw-text-muted" aria-hidden="true"></i>
             Foo
             <span slot="secondary">Bar</span>
           </button>
@@ -158,7 +158,7 @@ export const MultipleActionList: Story = {
         </bit-item>
         <bit-item>
           <button bit-item-content>
-            <i slot="start" class="bwi bwi-globe tw-text-3xl tw-text-muted" aria-hidden="true"></i>
+            <i slot="start" class="bwi bwi-globe tw-text-2xl tw-text-muted" aria-hidden="true"></i>
             Foo
             <span slot="secondary">Bar</span>
           </button>
@@ -177,7 +177,7 @@ export const MultipleActionList: Story = {
         </bit-item>
         <bit-item>
           <button bit-item-content>
-            <i slot="start" class="bwi bwi-globe tw-text-3xl tw-text-muted" aria-hidden="true"></i>
+            <i slot="start" class="bwi bwi-globe tw-text-2xl tw-text-muted" aria-hidden="true"></i>
             Foo
             <span slot="secondary">Bar</span>
           </button>
@@ -196,7 +196,7 @@ export const MultipleActionList: Story = {
         </bit-item>
         <bit-item>
           <button bit-item-content>
-            <i slot="start" class="bwi bwi-globe tw-text-3xl tw-text-muted" aria-hidden="true"></i>
+            <i slot="start" class="bwi bwi-globe tw-text-2xl tw-text-muted" aria-hidden="true"></i>
             Foo
             <span slot="secondary">Bar</span>
           </button>
@@ -215,7 +215,7 @@ export const MultipleActionList: Story = {
         </bit-item>
         <bit-item>
           <button bit-item-content>
-            <i slot="start" class="bwi bwi-globe tw-text-3xl tw-text-muted" aria-hidden="true"></i>
+            <i slot="start" class="bwi bwi-globe tw-text-2xl tw-text-muted" aria-hidden="true"></i>
             Foo
             <span slot="secondary">Bar</span>
           </button>
@@ -234,7 +234,7 @@ export const MultipleActionList: Story = {
         </bit-item>
         <bit-item>
           <button bit-item-content>
-            <i slot="start" class="bwi bwi-globe tw-text-3xl tw-text-muted" aria-hidden="true"></i>
+            <i slot="start" class="bwi bwi-globe tw-text-2xl tw-text-muted" aria-hidden="true"></i>
             Foo
             <span slot="secondary">Bar</span>
           </button>
@@ -312,7 +312,7 @@ export const VirtualScrolling: Story = {
         <bit-item-group aria-label="Single Action List">
           <bit-item *cdkVirtualFor="let item of data">
             <button bit-item-content>
-              <i slot="start" class="bwi bwi-globe tw-text-3xl tw-text-muted" aria-hidden="true"></i>
+              <i slot="start" class="bwi bwi-globe tw-text-2xl tw-text-muted" aria-hidden="true"></i>
               {{ item }}
             </button>
 

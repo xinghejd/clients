@@ -8,10 +8,12 @@ import {
   ViewChild,
 } from "@angular/core";
 
+import { TypographyModule } from "../typography";
+
 @Component({
   selector: "bit-item-content, [bit-item-content]",
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, TypographyModule],
   templateUrl: `item-content.component.html`,
   host: {
     class:

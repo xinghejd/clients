@@ -95,7 +95,7 @@ textarea:not(bit-form-field textarea) {
 input,
 select,
 textarea,
-button {
+button:not(bit-chip-select button) {
   font-size: $font-size-base;
   font-family: $font-family-sans-serif;
 }

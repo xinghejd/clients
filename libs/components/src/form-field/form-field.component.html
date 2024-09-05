@@ -83,7 +83,7 @@
       <ng-container *ngTemplateOutlet="labelContent"></ng-container>
     </label>
     <div
-      class="tw-gap-1 tw-flex tw-min-h-11 tw-border-0 tw-border-solid"
+      class="tw-gap-1 tw-flex tw-min-h-[1.85rem] tw-pb-0.5 tw-border-0 tw-border-solid"
       [ngClass]="{
         'tw-border-secondary-300/50 tw-border-b':
           !disableReadOnlyBorder && !defaultContentIsFocused(),
@@ -94,7 +94,7 @@
       <div
         #prefixContainer
         [hidden]="!prefixHasChildren()"
-        class="tw-flex tw-items-center tw-gap-1 tw-pl-3 tw-py-2"
+        class="tw-flex tw-items-center tw-gap-1 tw-pl-1"
       >
         <ng-container *ngTemplateOutlet="prefixContent"></ng-container>
       </div>
@@ -104,7 +104,7 @@
       <div
         #suffixContainer
         [hidden]="!suffixHasChildren()"
-        class="tw-flex tw-items-center tw-gap-1 tw-pr-3 tw-py-2"
+        class="tw-flex tw-items-center tw-gap-1 tw-pr-1"
       >
         <ng-container *ngTemplateOutlet="suffixContent"></ng-container>
       </div>
