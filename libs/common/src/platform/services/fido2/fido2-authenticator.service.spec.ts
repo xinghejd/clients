@@ -576,7 +576,6 @@ describe("FidoAuthenticatorService", () => {
         expect(userInterfaceSession.pickCredential).toHaveBeenCalledWith({
           cipherIds: ciphers.map((c) => c.id),
           userVerification: false,
-          masterPasswordRepromptRequired: false,
         });
       });
 
@@ -593,7 +592,6 @@ describe("FidoAuthenticatorService", () => {
         expect(userInterfaceSession.pickCredential).toHaveBeenCalledWith({
           cipherIds: [discoverableCiphers[0].id],
           userVerification: false,
-          masterPasswordRepromptRequired: false,
         });
       });
 
@@ -611,7 +609,6 @@ describe("FidoAuthenticatorService", () => {
           expect(userInterfaceSession.pickCredential).toHaveBeenCalledWith({
             cipherIds: ciphers.map((c) => c.id),
             userVerification,
-            masterPasswordRepromptRequired: false,
           });
         });
       }
