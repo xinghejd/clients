@@ -1,5 +1,6 @@
 import {
   AfterContentChecked,
+  booleanAttribute,
   Component,
   ContentChild,
   ElementRef,
@@ -66,6 +67,13 @@ export class BitFormFieldComponent implements AfterContentChecked {
 
     return borderClasses.join(" ");
   }
+
+  /**
+   * NOTE: Placeholder to match the API of the form-field component in the `ps/extension` branch,
+   * no functionality is implemented as of now.
+   */
+  @Input({ transform: booleanAttribute })
+  disableReadOnlyBorder = false;
 
   @HostBinding("class")
   get classList() {
