@@ -1464,7 +1464,7 @@ export default class MainBackground {
       return;
     }
 
-    await this.storageService.reseed();
+    await this.storageService.fillBuffer();
   }
 
   async clearClipboard(clipboardValue: string, clearMs: number) {
