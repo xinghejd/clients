@@ -48,6 +48,30 @@
   "loginCredentials": {
     "message": "Login credentials"
   },
+  "personalDetails": {
+    "message": "Personal details"
+  },
+  "identification": {
+    "message": "Identification"
+  },
+  "contactInfo": {
+    "message": "Contact info"
+  },
+  "cardDetails": {
+    "message": "Card details"
+  },
+  "cardBrandDetails": {
+    "message": "$BRAND$ details",
+    "placeholders": {
+      "brand": {
+        "content": "$1",
+        "example": "Visa"
+      }
+    }
+  },
+  "itemHistory": {
+    "message": "Item history"
+  },  
   "authenticatorKey": {
     "message": "Authenticator key"
   },
@@ -438,6 +462,9 @@
   },
   "fullName": {
     "message": "Full name"
+  },
+  "address": {
+    "message": "Address"
   },
   "address1": {
     "message": "Address 1"
@@ -963,6 +990,12 @@
   },
   "newAccountCreated": {
     "message": "Your new account has been created! You may now log in."
+  },
+  "newAccountCreated2": {
+    "message": "Your new account has been created!"
+  },
+  "youHaveBeenLoggedIn": {
+    "message": "You have been logged in!"
   },
   "trialAccountCreated": {
     "message": "Account created successfully."
@@ -9016,5 +9049,11 @@
   "publicApi": {
     "message": "Public API",
     "description": "The text, 'API', is an acronymn and should not be translated."
+  },
+  "additionalContentAvailable": {
+    "message": "Additional content is available"
+  },
+  "editAccess": {
+    "message": "Edit access"
   }
 }
