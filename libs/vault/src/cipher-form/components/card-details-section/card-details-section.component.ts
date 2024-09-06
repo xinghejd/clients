@@ -7,6 +7,7 @@ import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CardView } from "@bitwarden/common/vault/models/view/card.view";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import { normalizeExpiryYearFormat } from "@bitwarden/common/vault/utils";
 import {
   CardComponent,
   FormFieldModule,
@@ -90,9 +91,6 @@ export class CardDetailsSectionComponent implements OnInit {
     { name: "12 - " + this.i18nService.t("december"), value: "12" },
   ];
 
-  /** Local CardView, either created empty or set to the existing card instance  */
-  private cardView: CardView;
-
   constructor(
     private cipherFormContainer: CipherFormContainer,
     private formBuilder: FormBuilder,
@@ -103,21 +101,19 @@ export class CardDetailsSectionComponent implements OnInit {
     this.cardDetailsForm.valueChanges
       .pipe(takeUntilDestroyed())
       .subscribe(({ cardholderName, number, brand, expMonth, expYear, code }) => {
-        // The input[type="number"] is returning a number, convert it to a string
-        // An empty field returns null, avoid casting `"null"` to a string
-        const expirationYear = expYear !== null ? `${expYear}` : null;
+        this.cipherFormContainer.patchCipher((cipher) => {
+          const expirationYear = normalizeExpiryYearFormat(expYear);
 
-        const patchedCard = Object.assign(this.cardView, {
-          cardholderName,
-          number,
-          brand,
-          expMonth,
-          expYear: expirationYear,
-          code,
-        });
+          Object.assign(cipher.card, {
+            cardholderName,
+            number,
+            brand,
+            expMonth,
+            expYear: expirationYear,
+            code,
+          });
 
-        this.cipherFormContainer.patchCipher({
-          card: patchedCard,
+          return cipher;
         });
       });
 
@@ -133,9 +129,6 @@ export class CardDetailsSectionComponent implements OnInit {
   }
 
   ngOnInit() {
-    // If the original cipher has a card, use it. Otherwise, create a new card instance
-    this.cardView = this.originalCipherView?.card ?? new CardView();
-
     if (this.originalCipherView?.card) {
       this.setInitialValues();
     }
