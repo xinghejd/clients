@@ -226,7 +226,6 @@ export class LockV2Component implements OnInit, OnDestroy {
     this.accountService.activeAccount$
       .pipe(
         switchMap((account) => {
-          this.activeAccount = account;
           return this.handleActiveAccountChange(account);
         }),
         takeUntil(this.destroy$),
@@ -235,11 +234,14 @@ export class LockV2Component implements OnInit, OnDestroy {
   }
 
   private async handleActiveAccountChange(activeAccount: { id: UserId | undefined } & AccountInfo) {
+    this.loading = true;
+    this.activeAccount = activeAccount;
+
+    this.resetDataDueToActiveAccountChange();
+
     this.setEmailAsPageSubtitle(activeAccount.email);
 
-    // reset default unlock option on account change
-    this.defaultUnlockOptionSetForUser = false;
-
+    // This observable is managed via async pipe in the template
     this.unlockOptions$ = this.lockComponentService
       .getAvailableUnlockOptions$(activeAccount.id)
       .pipe(
@@ -258,6 +260,16 @@ export class LockV2Component implements OnInit, OnDestroy {
           }
         }),
       );
+
+    this.loading = false;
+  }
+
+  private resetDataDueToActiveAccountChange() {
+    this.defaultUnlockOptionSetForUser = false;
+    this.unlockOptions = null;
+    this.unlockOptions$ = null;
+    this.activeUnlockOption = null;
+    this.formGroup = null; // new form group will be created based on new active unlock option
   }
 
   private setDefaultActiveUnlockOption(unlockOptions: UnlockOptions) {
