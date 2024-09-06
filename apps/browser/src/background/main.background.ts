@@ -1400,7 +1400,14 @@ export default class MainBackground {
     });
 
     if (needStorageReseed) {
-      await this.reseedStorage();
+      await this.reseedStorage(
+        await firstValueFrom(
+          this.configService.userCachedFeatureFlag$(
+            FeatureFlag.StorageReseedRefactor,
+            userBeingLoggedOut,
+          ),
+        ),
+      );
     }
 
     if (BrowserApi.isManifestVersion(3)) {
@@ -1455,7 +1462,7 @@ export default class MainBackground {
     await SafariApp.sendMessageToApp("showPopover", null, true);
   }
 
-  async reseedStorage() {
+  async reseedStorage(doFillBuffer: boolean) {
     if (
       !this.platformUtilsService.isChrome() &&
       !this.platformUtilsService.isVivaldi() &&
@@ -1464,7 +1471,11 @@ export default class MainBackground {
       return;
     }
 
-    await this.storageService.reseed();
+    if (doFillBuffer) {
+      await this.storageService.fillBuffer();
+    } else {
+      await this.storageService.reseed();
+    }
   }
 
   async clearClipboard(clipboardValue: string, clearMs: number) {
