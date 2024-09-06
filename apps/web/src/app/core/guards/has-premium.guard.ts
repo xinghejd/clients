@@ -29,18 +29,26 @@ export function hasPremiumGuard(): CanActivateFn {
     const accountService = inject(AccountService);
     const syncService = inject(SyncService);
 
-    return accountService.activeAccount$.pipe(
-      filter((a) => a != null),
-      switchMap((a) => syncService.lastSync$(a.id)),
-      filter((lastSyncDate) => lastSyncDate != null),
-      timeout(10_000),
-      switchMap(() => billingAccountProfileStateService.hasPremiumFromAnySource$),
-      map((userHasPremium: boolean) => {
-        if (!userHasPremium) {
-          messagingService.send("premiumRequired");
-          return router.createUrlTree(["/"]);
+    return billingAccountProfileStateService.hasPremiumFromAnySource$.pipe(
+      switchMap((userHasPremium: boolean) => {
+        if (userHasPremium) {
+          // If user has premium, allow navigation
+          return of(true);
         }
-        return true; // Allow navigation if user has premium
+        return accountService.activeAccount$.pipe(
+          filter((a) => a != null),
+          switchMap((a) => syncService.lastSync$(a.id)),
+          filter((lastSyncDate) => lastSyncDate != null),
+          timeout(10_000),
+          switchMap(() => billingAccountProfileStateService.hasPremiumFromAnySource$),
+          map((userHasPremium: boolean) => {
+            if (!userHasPremium) {
+              messagingService.send("premiumRequired");
+              return router.createUrlTree(["/"]);
+            }
+            return true; // Allow navigation if user has premium
+          }),
+        );
       }),
       catchError(() => {
         messagingService.send("premiumRequired");
