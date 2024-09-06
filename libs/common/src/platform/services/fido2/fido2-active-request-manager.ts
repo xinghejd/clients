@@ -17,8 +17,11 @@ import {
   Fido2ActiveRequestEvents,
 } from "../../abstractions/fido2/fido2-active-request-manager.abstraction";
 
-export class Fido2ActiveRequestManager implements Fido2ActiveRequestManagerAbstraction {
-  private activeRequests$: BehaviorSubject<RequestCollection> = new BehaviorSubject({});
+export class Fido2ActiveRequestManager
+  implements Fido2ActiveRequestManagerAbstraction
+{
+  private activeRequests$: BehaviorSubject<RequestCollection> =
+    new BehaviorSubject({});
 
   /**
    * Gets the observable stream of all active requests associated with a given tab id.
@@ -30,7 +33,7 @@ export class Fido2ActiveRequestManager implements Fido2ActiveRequestManagerAbstr
       map((requests) => requests[tabId]),
       distinctUntilChanged(),
       shareReplay({ bufferSize: 1, refCount: true }),
-      startWith(undefined),
+      startWith(undefined)
     );
   }
 
@@ -53,8 +56,8 @@ export class Fido2ActiveRequestManager implements Fido2ActiveRequestManagerAbstr
   async newActiveRequest(
     tabId: number,
     credentials: Fido2CredentialView[],
-    abortController: AbortController,
-  ): Promise<string> {
+    abortController: AbortController
+  ): Promise<RequestResult> {
     const newRequest: ActiveRequest = {
       credentials,
       subject: new Subject(),
@@ -66,7 +69,7 @@ export class Fido2ActiveRequestManager implements Fido2ActiveRequestManagerAbstr
 
     const abortListener = () => this.abortActiveRequest(tabId);
     abortController.signal.addEventListener("abort", abortListener);
-    const credentialId = firstValueFrom(newRequest.subject);
+    const credentialId = firstValueFrom(newRequest.subject); // TODO: This needs to return RequestResult
     abortController.signal.removeEventListener("abort", abortListener);
 
     return credentialId;
@@ -92,9 +95,14 @@ export class Fido2ActiveRequestManager implements Fido2ActiveRequestManagerAbstr
    * @param tabId - The tab id to abort the active request for.
    */
   private abortActiveRequest(tabId: number): void {
-    this.activeRequests$.value[tabId]?.subject.next(Fido2ActiveRequestEvents.Abort);
+    this.activeRequests$.value[tabId]?.subject.next(
+      Fido2ActiveRequestEvents.Abort
+    );
     this.activeRequests$.value[tabId]?.subject.error(
-      new DOMException("The operation either timed out or was not allowed.", "AbortError"),
+      new DOMException(
+        "The operation either timed out or was not allowed.",
+        "AbortError"
+      )
     );
   }
 
@@ -104,7 +112,7 @@ export class Fido2ActiveRequestManager implements Fido2ActiveRequestManagerAbstr
    * @param updateFunction - The function to use to update the active requests.
    */
   private updateRequests(
-    updateFunction: (existingRequests: RequestCollection) => RequestCollection,
+    updateFunction: (existingRequests: RequestCollection) => RequestCollection
   ) {
     this.activeRequests$.next(updateFunction(this.activeRequests$.value));
   }
