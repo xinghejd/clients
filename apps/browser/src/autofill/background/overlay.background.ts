@@ -973,7 +973,14 @@ export class OverlayBackground implements OverlayBackgroundInterface {
    */
   async authenticatePasskeyCredential(tabId: number, credentialId: string) {
     const request = this.fido2ActiveRequestManager.getActiveRequest(tabId);
-    request?.subject.next(credentialId);
+    if (!request) {
+      this.logService.error(
+        "Could not complete passkey autofill due to missing active Fido2 request",
+      );
+      return;
+    }
+
+    request.subject.next(credentialId);
   }
 
   /**
