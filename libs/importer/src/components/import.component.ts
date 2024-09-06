@@ -12,7 +12,7 @@ import {
   ViewChild,
 } from "@angular/core";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
-import * as JSZip from "jszip";
+import { BlobReader, ZipReader, TextWriter } from "@zip.js/zip.js";
 import { concat, Observable, Subject, lastValueFrom, combineLatest, firstValueFrom } from "rxjs";
 import { filter, map, takeUntil } from "rxjs/operators";
 
@@ -451,6 +451,18 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
       return this.extractZipContent(file, "Proton Pass/data.json");
     }
 
+    if (
+      this.format === "bitwardenjson" &&
+      (file.type === "application/zip" ||
+        file.type == "application/x-zip-compressed" ||
+        file.name.endsWith(".zip"))
+    ) {
+      const promptForPassword_callback = async () => {
+        return await this.getFilePassword();
+      };
+      return this.extractZipContent(file, "data.json", promptForPassword_callback);
+    }
+
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
       reader.readAsText(file, "utf-8");
@@ -475,20 +487,24 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
     });
   }
 
-  private extractZipContent(zipFile: File, contentFilePath: string): Promise<string> {
-    return new JSZip()
-      .loadAsync(zipFile)
-      .then((zip) => {
-        return zip.file(contentFilePath).async("string");
-      })
-      .then(
-        function success(content) {
-          return content;
-        },
-        function error(e) {
-          return "";
-        },
-      );
+  private extractZipContent(
+    zipFile: File,
+    contentFilePath: string,
+    promptForPassword_callback?: () => Promise<string>,
+  ): Promise<string> {
+    const blobReader = new BlobReader(zipFile);
+    const zipReader = new ZipReader(blobReader);
+    return zipReader.getEntries().then(async (entries) => {
+      const contentEntry = entries.find((entry) => entry.filename === contentFilePath);
+      if (!contentEntry) {
+        return "";
+      } else {
+        const textWriter = new TextWriter();
+        const dataJson = await contentEntry.getData(textWriter);
+        await zipReader.close();
+        return dataJson;
+      }
+    });
   }
 
   async getFilePassword(): Promise<string> {
