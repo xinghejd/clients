@@ -1,9 +1,10 @@
-import { Component, EventEmitter, Input, Output } from "@angular/core";
+import { Component, EventEmitter, HostListener, Input, Output, ViewChild } from "@angular/core";
 
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { CollectionView } from "@bitwarden/common/vault/models/view/collection.view";
+import { MenuTriggerForDirective } from "@bitwarden/components";
 
 import { VaultItemEvent } from "./vault-item-event";
 import { RowHeightClass } from "./vault-items.component";
@@ -14,6 +15,7 @@ import { RowHeightClass } from "./vault-items.component";
 })
 export class VaultCipherRowComponent {
   protected RowHeightClass = RowHeightClass;
+  @ViewChild(MenuTriggerForDirective, { static: false }) menuTrigger: MenuTriggerForDirective;
 
   @Input() disabled: boolean;
   @Input() cipher: CipherView;
@@ -128,5 +130,14 @@ export class VaultCipherRowComponent {
 
   protected assignToCollections() {
     this.onEvent.emit({ type: "assignToCollections", items: [this.cipher] });
+  }
+
+  @HostListener("contextmenu", ["$event"])
+  protected onRightClick(event: MouseEvent) {
+    event.preventDefault();
+    event.stopPropagation();
+    if (!this.disabled || !this.disableMenu) {
+      this.menuTrigger.toggleMenuOnRightClick({ x: event.clientX, y: event.clientY });
+    }
   }
 }
