@@ -5,30 +5,36 @@ import { sendExtensionMessage } from "../utils";
 import {
   AutofillKeywordsMap,
   InlineMenuFieldQualificationService as InlineMenuFieldQualificationServiceInterface,
+  SubmitButtonKeywordsMap,
 } from "./abstractions/inline-menu-field-qualifications.service";
 import {
   AutoFillConstants,
   CreditCardAutoFillConstants,
   IdentityAutoFillConstants,
+  SubmitChangePasswordButtonNames,
+  SubmitLoginButtonNames,
 } from "./autofill-constants";
 
 export class InlineMenuFieldQualificationService
   implements InlineMenuFieldQualificationServiceInterface
 {
   private searchFieldNamesSet = new Set(AutoFillConstants.SearchFieldNames);
-  private excludedAutofillLoginTypesSet = new Set(AutoFillConstants.ExcludedAutofillLoginTypes);
+  private excludedAutofillFieldTypesSet = new Set(AutoFillConstants.ExcludedAutofillLoginTypes);
   private usernameFieldTypes = new Set(["text", "email", "number", "tel"]);
   private usernameAutocompleteValue = "username";
   private emailAutocompleteValue = "email";
+  private webAuthnAutocompleteValue = "webauthn";
   private loginUsernameAutocompleteValues = new Set([
     this.usernameAutocompleteValue,
     this.emailAutocompleteValue,
+    this.webAuthnAutocompleteValue,
   ]);
   private fieldIgnoreListString = AutoFillConstants.FieldIgnoreList.join(",");
   private passwordFieldExcludeListString = AutoFillConstants.PasswordFieldExcludeList.join(",");
   private currentPasswordAutocompleteValue = "current-password";
   private newPasswordAutoCompleteValue = "new-password";
   private autofillFieldKeywordsMap: AutofillKeywordsMap = new WeakMap();
+  private submitButtonKeywordsMap: SubmitButtonKeywordsMap = new WeakMap();
   private autocompleteDisabledValues = new Set(["off", "false"]);
   private newFieldKeywords = new Set(["new", "change", "neue", "ändern"]);
   private accountCreationFieldKeywords = [
@@ -116,29 +122,9 @@ export class InlineMenuFieldQualificationService
     ...this.identityAddressAutoCompleteValues,
     ...this.identityCountryAutocompleteValues,
     ...this.identityPhoneNumberAutocompleteValues,
+    this.identityCompanyAutocompleteValue,
     this.identityPostalCodeAutocompleteValue,
   ]);
-  private identityFieldKeywords = [
-    ...new Set([
-      ...IdentityAutoFillConstants.TitleFieldNames,
-      ...IdentityAutoFillConstants.FullNameFieldNames,
-      ...IdentityAutoFillConstants.FirstnameFieldNames,
-      ...IdentityAutoFillConstants.MiddlenameFieldNames,
-      ...IdentityAutoFillConstants.LastnameFieldNames,
-      ...IdentityAutoFillConstants.AddressFieldNames,
-      ...IdentityAutoFillConstants.Address1FieldNames,
-      ...IdentityAutoFillConstants.Address2FieldNames,
-      ...IdentityAutoFillConstants.Address3FieldNames,
-      ...IdentityAutoFillConstants.PostalCodeFieldNames,
-      ...IdentityAutoFillConstants.CityFieldNames,
-      ...IdentityAutoFillConstants.StateFieldNames,
-      ...IdentityAutoFillConstants.CountryFieldNames,
-      ...IdentityAutoFillConstants.CompanyFieldNames,
-      ...IdentityAutoFillConstants.PhoneFieldNames,
-      ...IdentityAutoFillConstants.EmailFieldNames,
-      ...IdentityAutoFillConstants.UserNameFieldNames,
-    ]),
-  ];
   private inlineMenuFieldQualificationFlagSet = false;
 
   constructor() {
@@ -209,10 +195,7 @@ export class InlineMenuFieldQualificationService
         return false;
       }
 
-      return (
-        !this.fieldContainsAutocompleteValues(field, this.autocompleteDisabledValues) &&
-        this.keywordsFoundInFieldData(field, this.creditCardFieldKeywords)
-      );
+      return this.keywordsFoundInFieldData(field, this.creditCardFieldKeywords);
     }
 
     // If the field has a parent form, check the fields from that form exclusively
@@ -232,10 +215,7 @@ export class InlineMenuFieldQualificationService
       return false;
     }
 
-    return (
-      !this.fieldContainsAutocompleteValues(field, this.autocompleteDisabledValues) &&
-      this.keywordsFoundInFieldData(field, [...this.creditCardFieldKeywords])
-    );
+    return this.keywordsFoundInFieldData(field, [...this.creditCardFieldKeywords]);
   }
 
   /** Validates the provided field as a field for an account creation form.
@@ -244,6 +224,10 @@ export class InlineMenuFieldQualificationService
    * @param pageDetails - The details of the page that the field is on.
    */
   isFieldForAccountCreationForm(field: AutofillField, pageDetails: AutofillPageDetails): boolean {
+    if (this.isExcludedFieldType(field, this.excludedAutofillFieldTypesSet)) {
+      return false;
+    }
+
     if (!this.isUsernameField(field) && !this.isPasswordField(field)) {
       return false;
     }
@@ -260,10 +244,7 @@ export class InlineMenuFieldQualificationService
 
       // If no password fields are found on the page, check for keywords that indicate the field is
       // part of an account creation form.
-      return (
-        !this.fieldContainsAutocompleteValues(field, this.autocompleteDisabledValues) &&
-        this.keywordsFoundInFieldData(field, this.accountCreationFieldKeywords)
-      );
+      return this.keywordsFoundInFieldData(field, this.accountCreationFieldKeywords);
     }
 
     // If the field has a parent form, check the fields from that form exclusively
@@ -273,10 +254,7 @@ export class InlineMenuFieldQualificationService
       return true;
     }
 
-    return (
-      !this.fieldContainsAutocompleteValues(field, this.autocompleteDisabledValues) &&
-      this.keywordsFoundInFieldData(field, this.accountCreationFieldKeywords)
-    );
+    return this.keywordsFoundInFieldData(field, this.accountCreationFieldKeywords);
   }
 
   /**
@@ -286,14 +264,11 @@ export class InlineMenuFieldQualificationService
    * @param _pageDetails - Currently unused, will likely be required in the future
    */
   isFieldForIdentityForm(field: AutofillField, _pageDetails: AutofillPageDetails): boolean {
-    if (this.fieldContainsAutocompleteValues(field, this.identityAutocompleteValues)) {
-      return true;
+    if (this.isExcludedFieldType(field, this.excludedAutofillFieldTypesSet)) {
+      return false;
     }
 
-    return (
-      !this.fieldContainsAutocompleteValues(field, this.autocompleteDisabledValues) &&
-      this.keywordsFoundInFieldData(field, this.identityFieldKeywords)
-    );
+    return this.fieldContainsAutocompleteValues(field, this.identityAutocompleteValues);
   }
 
   /**
@@ -380,7 +355,9 @@ export class InlineMenuFieldQualificationService
     // If the provided field is set with an autocomplete of "username", we should assume that
     // the page developer intends for this field to be interpreted as a username field.
     if (this.fieldContainsAutocompleteValues(field, this.loginUsernameAutocompleteValues)) {
-      const newPasswordFieldsInPageDetails = pageDetails.fields.filter(this.isNewPasswordField);
+      const newPasswordFieldsInPageDetails = pageDetails.fields.filter(
+        (field) => field.viewable && this.isNewPasswordField(field),
+      );
       return newPasswordFieldsInPageDetails.length === 0;
     }
 
@@ -437,7 +414,7 @@ export class InlineMenuFieldQualificationService
       // If the form that contains the field has more than one visible field, we should assume
       // that the field is part of an account creation form.
       const fieldsWithinForm = pageDetails.fields.filter(
-        (pageDetailsField) => pageDetailsField.form === field.form && pageDetailsField.viewable,
+        (pageDetailsField) => pageDetailsField.form === field.form,
       );
       return fieldsWithinForm.length === 1;
     }
@@ -457,6 +434,12 @@ export class InlineMenuFieldQualificationService
       return false;
     }
 
+    // If no visible fields are found on the page, but we have a single password
+    // field we should assume that the field is part of a login form.
+    if (passwordFieldsInPageDetails.length === 1) {
+      return true;
+    }
+
     // If no visible password fields are found, this field might be part of a multipart form.
     // Check for an invalid autocompleteType to determine if the field is part of a login form.
     return !this.fieldContainsAutocompleteValues(field, this.autocompleteDisabledValues);
@@ -472,9 +455,10 @@ export class InlineMenuFieldQualificationService
       return true;
     }
 
-    return (
-      !this.fieldContainsAutocompleteValues(field, this.autocompleteDisabledValues) &&
-      this.keywordsFoundInFieldData(field, CreditCardAutoFillConstants.CardHolderFieldNames, false)
+    return this.keywordsFoundInFieldData(
+      field,
+      CreditCardAutoFillConstants.CardHolderFieldNames,
+      false,
     );
   };
 
@@ -488,9 +472,10 @@ export class InlineMenuFieldQualificationService
       return true;
     }
 
-    return (
-      !this.fieldContainsAutocompleteValues(field, this.autocompleteDisabledValues) &&
-      this.keywordsFoundInFieldData(field, CreditCardAutoFillConstants.CardNumberFieldNames, false)
+    return this.keywordsFoundInFieldData(
+      field,
+      CreditCardAutoFillConstants.CardNumberFieldNames,
+      false,
     );
   };
 
@@ -506,9 +491,10 @@ export class InlineMenuFieldQualificationService
       return true;
     }
 
-    return (
-      !this.fieldContainsAutocompleteValues(field, this.autocompleteDisabledValues) &&
-      this.keywordsFoundInFieldData(field, CreditCardAutoFillConstants.CardExpiryFieldNames, false)
+    return this.keywordsFoundInFieldData(
+      field,
+      CreditCardAutoFillConstants.CardExpiryFieldNames,
+      false,
     );
   };
 
@@ -524,9 +510,10 @@ export class InlineMenuFieldQualificationService
       return true;
     }
 
-    return (
-      !this.fieldContainsAutocompleteValues(field, this.autocompleteDisabledValues) &&
-      this.keywordsFoundInFieldData(field, CreditCardAutoFillConstants.ExpiryMonthFieldNames, false)
+    return this.keywordsFoundInFieldData(
+      field,
+      CreditCardAutoFillConstants.ExpiryMonthFieldNames,
+      false,
     );
   };
 
@@ -542,9 +529,10 @@ export class InlineMenuFieldQualificationService
       return true;
     }
 
-    return (
-      !this.fieldContainsAutocompleteValues(field, this.autocompleteDisabledValues) &&
-      this.keywordsFoundInFieldData(field, CreditCardAutoFillConstants.ExpiryYearFieldNames, false)
+    return this.keywordsFoundInFieldData(
+      field,
+      CreditCardAutoFillConstants.ExpiryYearFieldNames,
+      false,
     );
   };
 
@@ -558,10 +546,7 @@ export class InlineMenuFieldQualificationService
       return true;
     }
 
-    return (
-      !this.fieldContainsAutocompleteValues(field, this.autocompleteDisabledValues) &&
-      this.keywordsFoundInFieldData(field, CreditCardAutoFillConstants.CVVFieldNames, false)
-    );
+    return this.keywordsFoundInFieldData(field, CreditCardAutoFillConstants.CVVFieldNames, false);
   };
 
   /**
@@ -576,10 +561,7 @@ export class InlineMenuFieldQualificationService
       return true;
     }
 
-    return (
-      !this.fieldContainsAutocompleteValues(field, this.autocompleteDisabledValues) &&
-      this.keywordsFoundInFieldData(field, IdentityAutoFillConstants.TitleFieldNames, false)
-    );
+    return this.keywordsFoundInFieldData(field, IdentityAutoFillConstants.TitleFieldNames, false);
   };
 
   /**
@@ -592,9 +574,10 @@ export class InlineMenuFieldQualificationService
       return true;
     }
 
-    return (
-      !this.fieldContainsAutocompleteValues(field, this.autocompleteDisabledValues) &&
-      this.keywordsFoundInFieldData(field, IdentityAutoFillConstants.FirstnameFieldNames, false)
+    return this.keywordsFoundInFieldData(
+      field,
+      IdentityAutoFillConstants.FirstnameFieldNames,
+      false,
     );
   };
 
@@ -608,9 +591,10 @@ export class InlineMenuFieldQualificationService
       return true;
     }
 
-    return (
-      !this.fieldContainsAutocompleteValues(field, this.autocompleteDisabledValues) &&
-      this.keywordsFoundInFieldData(field, IdentityAutoFillConstants.MiddlenameFieldNames, false)
+    return this.keywordsFoundInFieldData(
+      field,
+      IdentityAutoFillConstants.MiddlenameFieldNames,
+      false,
     );
   };
 
@@ -624,9 +608,10 @@ export class InlineMenuFieldQualificationService
       return true;
     }
 
-    return (
-      !this.fieldContainsAutocompleteValues(field, this.autocompleteDisabledValues) &&
-      this.keywordsFoundInFieldData(field, IdentityAutoFillConstants.LastnameFieldNames, false)
+    return this.keywordsFoundInFieldData(
+      field,
+      IdentityAutoFillConstants.LastnameFieldNames,
+      false,
     );
   };
 
@@ -640,9 +625,10 @@ export class InlineMenuFieldQualificationService
       return true;
     }
 
-    return (
-      !this.fieldContainsAutocompleteValues(field, this.autocompleteDisabledValues) &&
-      this.keywordsFoundInFieldData(field, IdentityAutoFillConstants.FullNameFieldNames, false)
+    return this.keywordsFoundInFieldData(
+      field,
+      IdentityAutoFillConstants.FullNameFieldNames,
+      false,
     );
   };
 
@@ -656,9 +642,13 @@ export class InlineMenuFieldQualificationService
       return true;
     }
 
-    return (
-      !this.fieldContainsAutocompleteValues(field, this.autocompleteDisabledValues) &&
-      this.keywordsFoundInFieldData(field, IdentityAutoFillConstants.Address1FieldNames, false)
+    return this.keywordsFoundInFieldData(
+      field,
+      [
+        ...IdentityAutoFillConstants.AddressFieldNames,
+        ...IdentityAutoFillConstants.Address1FieldNames,
+      ],
+      false,
     );
   };
 
@@ -672,9 +662,10 @@ export class InlineMenuFieldQualificationService
       return true;
     }
 
-    return (
-      !this.fieldContainsAutocompleteValues(field, this.autocompleteDisabledValues) &&
-      this.keywordsFoundInFieldData(field, IdentityAutoFillConstants.Address2FieldNames, false)
+    return this.keywordsFoundInFieldData(
+      field,
+      IdentityAutoFillConstants.Address2FieldNames,
+      false,
     );
   };
 
@@ -688,9 +679,10 @@ export class InlineMenuFieldQualificationService
       return true;
     }
 
-    return (
-      !this.fieldContainsAutocompleteValues(field, this.autocompleteDisabledValues) &&
-      this.keywordsFoundInFieldData(field, IdentityAutoFillConstants.Address3FieldNames, false)
+    return this.keywordsFoundInFieldData(
+      field,
+      IdentityAutoFillConstants.Address3FieldNames,
+      false,
     );
   };
 
@@ -704,10 +696,7 @@ export class InlineMenuFieldQualificationService
       return true;
     }
 
-    return (
-      !this.fieldContainsAutocompleteValues(field, this.autocompleteDisabledValues) &&
-      this.keywordsFoundInFieldData(field, IdentityAutoFillConstants.CityFieldNames, false)
-    );
+    return this.keywordsFoundInFieldData(field, IdentityAutoFillConstants.CityFieldNames, false);
   };
 
   /**
@@ -720,10 +709,7 @@ export class InlineMenuFieldQualificationService
       return true;
     }
 
-    return (
-      !this.fieldContainsAutocompleteValues(field, this.autocompleteDisabledValues) &&
-      this.keywordsFoundInFieldData(field, IdentityAutoFillConstants.AddressFieldNames, false)
-    );
+    return this.keywordsFoundInFieldData(field, IdentityAutoFillConstants.StateFieldNames, false);
   };
 
   /**
@@ -736,9 +722,10 @@ export class InlineMenuFieldQualificationService
       return true;
     }
 
-    return (
-      !this.fieldContainsAutocompleteValues(field, this.autocompleteDisabledValues) &&
-      this.keywordsFoundInFieldData(field, IdentityAutoFillConstants.PostalCodeFieldNames, false)
+    return this.keywordsFoundInFieldData(
+      field,
+      IdentityAutoFillConstants.PostalCodeFieldNames,
+      false,
     );
   };
 
@@ -752,10 +739,7 @@ export class InlineMenuFieldQualificationService
       return true;
     }
 
-    return (
-      !this.fieldContainsAutocompleteValues(field, this.autocompleteDisabledValues) &&
-      this.keywordsFoundInFieldData(field, IdentityAutoFillConstants.CountryFieldNames, false)
-    );
+    return this.keywordsFoundInFieldData(field, IdentityAutoFillConstants.CountryFieldNames, false);
   };
 
   /**
@@ -768,10 +752,7 @@ export class InlineMenuFieldQualificationService
       return true;
     }
 
-    return (
-      !this.fieldContainsAutocompleteValues(field, this.autocompleteDisabledValues) &&
-      this.keywordsFoundInFieldData(field, IdentityAutoFillConstants.CompanyFieldNames, false)
-    );
+    return this.keywordsFoundInFieldData(field, IdentityAutoFillConstants.CompanyFieldNames, false);
   };
 
   /**
@@ -784,10 +765,7 @@ export class InlineMenuFieldQualificationService
       return true;
     }
 
-    return (
-      !this.fieldContainsAutocompleteValues(field, this.autocompleteDisabledValues) &&
-      this.keywordsFoundInFieldData(field, IdentityAutoFillConstants.PhoneFieldNames, false)
-    );
+    return this.keywordsFoundInFieldData(field, IdentityAutoFillConstants.PhoneFieldNames, false);
   };
 
   /**
@@ -803,10 +781,7 @@ export class InlineMenuFieldQualificationService
       return true;
     }
 
-    return (
-      !this.fieldContainsAutocompleteValues(field, this.autocompleteDisabledValues) &&
-      this.keywordsFoundInFieldData(field, IdentityAutoFillConstants.EmailFieldNames, false)
-    );
+    return this.keywordsFoundInFieldData(field, IdentityAutoFillConstants.EmailFieldNames, false);
   };
 
   /**
@@ -819,9 +794,10 @@ export class InlineMenuFieldQualificationService
       return true;
     }
 
-    return (
-      !this.fieldContainsAutocompleteValues(field, this.autocompleteDisabledValues) &&
-      this.keywordsFoundInFieldData(field, IdentityAutoFillConstants.UserNameFieldNames, false)
+    return this.keywordsFoundInFieldData(
+      field,
+      IdentityAutoFillConstants.UserNameFieldNames,
+      false,
     );
   };
 
@@ -833,7 +809,7 @@ export class InlineMenuFieldQualificationService
   isUsernameField = (field: AutofillField): boolean => {
     if (
       !this.usernameFieldTypes.has(field.type) ||
-      this.isExcludedFieldType(field, this.excludedAutofillLoginTypesSet)
+      this.isExcludedFieldType(field, this.excludedAutofillFieldTypesSet)
     ) {
       return false;
     }
@@ -852,7 +828,7 @@ export class InlineMenuFieldQualificationService
     }
 
     return (
-      !this.isExcludedFieldType(field, this.excludedAutofillLoginTypesSet) &&
+      !this.isExcludedFieldType(field, this.excludedAutofillFieldTypesSet) &&
       this.keywordsFoundInFieldData(field, AutoFillConstants.EmailFieldNames)
     );
   };
@@ -898,7 +874,7 @@ export class InlineMenuFieldQualificationService
     const isInputPasswordType = field.type === "password";
     if (
       (!isInputPasswordType &&
-        this.isExcludedFieldType(field, this.excludedAutofillLoginTypesSet)) ||
+        this.isExcludedFieldType(field, this.excludedAutofillFieldTypesSet)) ||
       this.fieldHasDisqualifyingAttributeValue(field)
     ) {
       return false;
@@ -1012,6 +988,67 @@ export class InlineMenuFieldQualificationService
   }
 
   /**
+   * Validates the provided field to indicate if the field is a submit button for a login form.
+   *
+   * @param element - The element to validate
+   */
+  isElementLoginSubmitButton = (element: HTMLElement): boolean => {
+    const keywordValues = this.getSubmitButtonKeywords(element);
+    return SubmitLoginButtonNames.some((keyword) => keywordValues.indexOf(keyword) > -1);
+  };
+
+  /**
+   * Validates the provided field to indicate if the field is a submit button for a change password form.
+   *
+   * @param element - The element to validate
+   */
+  isElementChangePasswordSubmitButton = (element: HTMLElement): boolean => {
+    const keywordValues = this.getSubmitButtonKeywords(element);
+    return SubmitChangePasswordButtonNames.some((keyword) => keywordValues.indexOf(keyword) > -1);
+  };
+
+  /**
+   * Gather the keywords from the provided element to validate the submit button.
+   *
+   * @param element - The element to validate
+   */
+  private getSubmitButtonKeywords(element: HTMLElement): string {
+    if (!this.submitButtonKeywordsMap.has(element)) {
+      const keywords = [
+        element.textContent,
+        element.getAttribute("value"),
+        element.getAttribute("aria-label"),
+        element.getAttribute("aria-labelledby"),
+        element.getAttribute("aria-describedby"),
+        element.getAttribute("title"),
+        element.getAttribute("id"),
+        element.getAttribute("name"),
+        element.getAttribute("class"),
+      ];
+
+      const keywordsSet = new Set<string>();
+      for (let i = 0; i < keywords.length; i++) {
+        if (typeof keywords[i] === "string") {
+          keywords[i]
+            .toLowerCase()
+            .replace(/[-\s]/g, "")
+            .replace(/[^a-zA-Z0-9]+/g, "|")
+            .split("|")
+            .forEach((keyword) => {
+              if (keyword) {
+                keywordsSet.add(keyword);
+              }
+            });
+        }
+      }
+
+      this.submitButtonKeywordsMap.set(element, Array.from(keywordsSet).join(","));
+    }
+
+    return this.submitButtonKeywordsMap.get(element);
+  }
+
+  /**
    * Validates the provided field to indicate if the field has any of the provided keywords.
    *
    * @param autofillFieldData - The field data to search for keywords
@@ -1024,11 +1061,13 @@ export class InlineMenuFieldQualificationService
     fuzzyMatchKeywords = true,
   ) {
     const searchedValues = this.getAutofillFieldDataKeywords(autofillFieldData, fuzzyMatchKeywords);
+    const parsedKeywords = keywords.map((keyword) => keyword.replace(/-/g, ""));
+
     if (typeof searchedValues === "string") {
-      return keywords.some((keyword) => searchedValues.indexOf(keyword) > -1);
+      return parsedKeywords.some((keyword) => searchedValues.indexOf(keyword) > -1);
     }
 
-    return keywords.some((keyword) => searchedValues.has(keyword));
+    return parsedKeywords.some((keyword) => searchedValues.has(keyword));
   }
 
   /**
@@ -1057,8 +1096,19 @@ export class InlineMenuFieldQualificationService
         autofillFieldData["label-tag"],
         autofillFieldData["label-top"],
       ];
-      const keywordsSet = new Set<string>(keywords);
-      const stringValue = keywords.join(",").toLowerCase();
+      const keywordsSet = new Set<string>();
+      for (let i = 0; i < keywords.length; i++) {
+        if (typeof keywords[i] === "string") {
+          keywords[i]
+            .toLowerCase()
+            .replace(/-/g, "")
+            .replace(/[^a-zA-Z0-9]+/g, "|")
+            .split("|")
+            .forEach((keyword) => keywordsSet.add(keyword));
+        }
+      }
+
+      const stringValue = Array.from(keywordsSet).join(",");
       this.autofillFieldKeywordsMap.set(autofillFieldData, { keywordsSet, stringValue });
     }
 

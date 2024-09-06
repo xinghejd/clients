@@ -603,6 +603,12 @@
   "newAccountCreated": {
     "message": "Sinu konto on loodud! Võid nüüd sisse logida."
   },
+  "newAccountCreated2": {
+    "message": "Your new account has been created!"
+  },
+  "youHaveBeenLoggedIn": {
+    "message": "You have been logged in!"
+  },
   "masterPassSent": {
     "message": "Ülemparooli vihje saadeti Sinu e-postile."
   },
@@ -871,11 +877,11 @@
     "message": "You can change your master password on the Bitwarden web app."
   },
   "fingerprintPhrase": {
-    "message": "Sõrmejälje fraas",
+    "message": "Unikaalne sõnajada",
     "description": "A 'fingerprint phrase' is a unique word phrase (similar to a passphrase) that a user can use to authenticate their public key with another user, for the purposes of sharing."
   },
   "yourAccountsFingerprint": {
-    "message": "Konto sõrmejälje fraas",
+    "message": "Sinu konto unikaalne sõnajada",
     "description": "A 'fingerprint phrase' is a unique word phrase (similar to a passphrase) that a user can use to authenticate their public key with another user, for the purposes of sharing."
   },
   "goToWebVault": {
@@ -1173,6 +1179,9 @@
   },
   "premiumPurchaseAlert": {
     "message": "Saad Preemium versiooni osta bitwarden.com veebihoidlas. Soovid seda kohe teha?"
+  },
+  "premiumPurchaseAlertV2": {
+    "message": "You can purchase Premium from your account settings on the Bitwarden web app."
   },
   "premiumCurrentMember": {
     "message": "Oled preemium kasutaja!"
@@ -1510,8 +1519,14 @@
   "additionalWindowsHelloSettings": {
     "message": "Additional Windows Hello settings"
   },
+  "unlockWithPolkit": {
+    "message": "Unlock with system authentication"
+  },
   "windowsHelloConsentMessage": {
     "message": "Kinnita Bitwardenisse sisselogimine."
+  },
+  "polkitConsentMessage": {
+    "message": "Authenticate to unlock Bitwarden."
   },
   "unlockWithTouchId": {
     "message": "Lukusta lahti Touch ID-ga"
@@ -1524,6 +1539,9 @@
   },
   "autoPromptWindowsHello": {
     "message": "Küsi avamisel Windows Hello tuvastust"
+  },
+  "autoPromptPolkit": {
+    "message": "Ask for system authentication on launch"
   },
   "autoPromptTouchId": {
     "message": "Küsi avamisel Touch ID tuvastust"
@@ -1763,10 +1781,10 @@
     "message": "Paraku ei ole brauseri integratsioon hetkel Linuxi versioonis toetatud."
   },
   "enableBrowserIntegrationFingerprint": {
-    "message": "Nõua brauseri integratsiooni ülekinnitamist"
+    "message": "Nõua brauseri ühendamiseks kinnitust"
   },
   "enableBrowserIntegrationFingerprintDesc": {
-    "message": "See seadistus võimaldab täiendavat kaitset, küsides brauseriga liidestamisel sõrmejälje fraasi. Sisselülitamisel nõuab see seadistus igakordset kasutaja sekkumist, kui luuakse ühendus brauseri ja töölaua rakenduse vahel."
+    "message": "See seadistus võimaldab täiendavat kaitset, küsides brauseriga ühendamisel teie unikaalset sõnajada. Sisselülitamisel nõuab see seadistus iga kord kasutaja kinnitust, kui luuakse ühendus brauseri ja töölaua rakenduse vahel."
   },
   "enableHardwareAcceleration": {
     "message": "Use hardware acceleration"
@@ -1781,7 +1799,7 @@
     "message": "Brauseri ühendamise kinnitamine"
   },
   "verifyBrowserDesc": {
-    "message": "Veendu, et kuvatav sõrmejälje fraas on identne sellega, mida kuvatakse brauseri lisas."
+    "message": "Veendu, et kuvatav unikaalne sõnajada on identne sellega, mida kuvatakse brauseris."
   },
   "verifyNativeMessagingConnectionTitle": {
     "message": "$APPID$ soovib Bitwardeniga ühendust luua",
@@ -1803,6 +1821,12 @@
   },
   "biometricsNotEnabledDesc": {
     "message": "Selleks, et kasutada biomeetriat brauseris, peab selle esmalt Bitwardeni töölaua rakenduse seadetes sisse lülitama."
+  },
+  "biometricsManualSetupTitle": {
+    "message": "Automatic setup not available"
+  },
+  "biometricsManualSetupDesc": {
+    "message": "Due to the installation method, biometrics support could not be automatically enabled. Would you like to open the documentation on how to do this manually?"
   },
   "personalOwnershipSubmitError": {
     "message": "Ettevõtte poliitika tõttu ei saa sa andmeid oma personaalsesse Hoidlasse salvestada. Vali Omanikuks organisatsioon ja vali mõni saadavaolevatest Kogumikest."
@@ -2014,6 +2038,9 @@
   },
   "updateWeakMasterPasswordWarning": {
     "message": "Sinu ülemparool ei vasta ühele või rohkemale organisatsiooni poolt seatud poliitikale. Hoidlale ligipääsemiseks pead oma ülemaprooli uuendama. Jätkamisel logitakse sind praegusest sessioonist välja, mistõttu pead uuesti sisse logima. Teistes seadmetes olevad aktiivsed sessioonid aeguvad umbes ühe tunni jooksul."
+  },
+  "tdeDisabledMasterPasswordRequired": {
+    "message": "Your organization has disabled trusted device encryption. Please set a master password to access your vault."
   },
   "tryAgain": {
     "message": "Try again"
@@ -2429,10 +2456,10 @@
     "message": "Sinu seadmesse saadeti teavitus."
   },
   "fingerprintMatchInfo": {
-    "message": "Veendu, et hoidla on lahti lukustatud ja sõrmejälje fraasid seadmete vahel ühtivad."
+    "message": "Veendu, et sinu hoidla on avatud ja unikaalne sõnajada ühtib teise seadmega."
   },
   "fingerprintPhraseHeader": {
-    "message": "Sõrmejälje fraas"
+    "message": "Unikaalne sõnajada"
   },
   "needAnotherOption": {
     "message": "Bitwardeni rakenduse seadistuses peab olema konfigureeritud sisselogimine läbi seadme. Vajad teist valikut?"
@@ -3025,5 +3052,14 @@
   },
   "data": {
     "message": "Data"
+  },
+  "fileSends": {
+    "message": "File Sends"
+  },
+  "textSends": {
+    "message": "Text Sends"
+  },
+  "ssoError": {
+    "message": "No free ports could be found for the sso login."
   }
 }

@@ -38,6 +38,7 @@ export class AutoFillConstants {
     "mfacode",
     "otc",
     "otc-code",
+    "otp",
     "otp-code",
     "otpcode",
     "pin",
@@ -76,6 +77,11 @@ export class AutoFillConstants {
     "textarea",
     ...AutoFillConstants.ExcludedAutofillTypes,
   ];
+
+  static readonly ExcludedIdentityAutocompleteTypes: Set<string> = new Set([
+    "current-password",
+    "new-password",
+  ]);
 }
 
 export class CreditCardAutoFillConstants {
@@ -393,6 +399,7 @@ export class IdentityAutoFillConstants {
     "address-line-2",
     "addr-2",
     "street-2",
+    "address-ext",
   ];
 
   static readonly Address3FieldNames: string[] = [
@@ -409,6 +416,7 @@ export class IdentityAutoFillConstants {
     "zip-code",
     "postal-code",
     "post-code",
+    "postcode",
     "address-zip",
     "address-postal",
     "address-code",
@@ -804,3 +812,21 @@ export class IdentityAutoFillConstants {
     saskatchewan: "SK",
   };
 }
+
+export const SubmitLoginButtonNames: string[] = [
+  "login",
+  "signin",
+  "submit",
+  "continue",
+  "next",
+  "go",
+];
+
+export const SubmitChangePasswordButtonNames: string[] = [
+  "change",
+  "save",
+  "savepassword",
+  "updatepassword",
+  "changepassword",
+  "resetpassword",
+];
