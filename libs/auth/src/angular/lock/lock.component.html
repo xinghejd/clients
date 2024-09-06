@@ -4,15 +4,16 @@
 
 <ng-container *ngIf="!loading">
   <ng-container *ngIf="unlockOptions$ | async as unlockOptions">
+    <!-- TODO: investigate idea of having completely separate pathways with re-usable button section? -->
+    <!-- Biometrics Unlock -->
+    <ng-container *ngIf="unlockOptions.biometrics.enabled && activeUnlockOption === 'biometrics'">
+      <button type="button" bitButton buttonType="primary" block>
+        {{ "unlockWithBiometrics" | i18n }}
+      </button>
+    </ng-container>
+
     <!-- TODO Using ngIf formGroup doesn't work for biometrics. -->
     <form [bitSubmit]="submit" [formGroup]="formGroup" *ngIf="formGroup">
-      <!-- Biometrics Unlock -->
-      <ng-container *ngIf="unlockOptions.biometrics.enabled && activeUnlockOption === 'biometrics'">
-        <button type="button" bitButton bitFormButton buttonType="primary" block>
-          {{ "unlockWithBiometrics" | i18n }}
-        </button>
-      </ng-container>
-
       <!-- PIN Unlock -->
       <ng-container *ngIf="unlockOptions.pin.enabled && activeUnlockOption === 'pin'">
         <bit-form-field>
@@ -55,7 +56,14 @@
       <hr />
 
       <div class="tw-flex tw-flex-col tw-space-y-3">
-        <button type="submit" bitButton bitFormButton buttonType="primary" block>
+        <button
+          type="submit"
+          bitButton
+          bitFormButton
+          buttonType="primary"
+          block
+          *ngIf="activeUnlockOption !== 'biometrics'"
+        >
           {{ "unlock" | i18n }}
         </button>
 
@@ -109,5 +117,7 @@
         </button>
       </div>
     </form>
+
+    <ng-template #unlockBtnAndAlternateUnlockBtnsSection></ng-template>
   </ng-container>
 </ng-container>
