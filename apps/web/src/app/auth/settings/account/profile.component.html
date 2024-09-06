@@ -7,7 +7,7 @@
   <span class="tw-sr-only">{{ "loading" | i18n }}</span>
 </div>
 <form *ngIf="profile && !loading" [formGroup]="formGroup" [bitSubmit]="submit">
-  <div class="tw-grid md:tw-grid-cols-2 tw-gap-6">
+  <div class="tw-grid @md:tw-grid-cols-2 tw-gap-6">
     <div>
       <bit-form-field>
         <bit-label>{{ "name" | i18n }}</bit-label>
