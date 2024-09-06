@@ -9,7 +9,7 @@ import {
   OnDestroy,
   ViewContainerRef,
 } from "@angular/core";
-import { Observable, Subscription } from "rxjs";
+import { fromEvent, Observable, Subscription } from "rxjs";
 import { filter, mergeWith } from "rxjs/operators";
 
 import { MenuComponent } from "./menu.component";
@@ -69,17 +69,42 @@ export class MenuTriggerForDirective implements OnDestroy {
     this.isOpen ? this.destroyMenu() : this.openMenu();
   }
 
+  toggleMenuOnRightClick(position: { x: number; y: number }) {
+    if (this.isOpen) {
+      this.updateMenuPosition(position);
+    } else {
+      this.openMenu(position);
+    }
+  }
+
   ngOnDestroy() {
     this.disposeAll();
   }
 
-  private openMenu() {
+  private openMenu(position?: { x: number; y: number }) {
     if (this.menu == null) {
       throw new Error("Cannot find bit-menu element");
     }
 
     this.isOpen = true;
-    this.overlayRef = this.overlay.create(this.defaultMenuConfig);
+
+    const positionStrategy = position
+      ? this.overlay
+          .position()
+          .flexibleConnectedTo(position)
+          .withPositions([
+            {
+              originX: "start",
+              originY: "top",
+              overlayX: "start",
+              overlayY: "top",
+            },
+          ])
+      : this.defaultMenuConfig.positionStrategy;
+
+    const config = { ...this.defaultMenuConfig, positionStrategy };
+
+    this.overlayRef = this.overlay.create(config);
 
     const templatePortal = new TemplatePortal(this.menu.templateRef, this.viewContainerRef);
     this.overlayRef.attach(templatePortal);
@@ -97,6 +122,26 @@ export class MenuTriggerForDirective implements OnDestroy {
         .keydownEvents()
         .subscribe((event: KeyboardEvent) => this.menu.keyManager.onKeydown(event));
     }
+  }
+
+  private updateMenuPosition(position: { x: number; y: number }) {
+    if (this.overlayRef == null) {
+      return;
+    }
+
+    const positionStrategy = this.overlay
+      .position()
+      .flexibleConnectedTo(position)
+      .withPositions([
+        {
+          originX: "start",
+          originY: "top",
+          overlayX: "start",
+          overlayY: "top",
+        },
+      ]);
+
+    this.overlayRef.updatePositionStrategy(positionStrategy);
   }
 
   private destroyMenu() {
@@ -119,7 +164,13 @@ export class MenuTriggerForDirective implements OnDestroy {
     const backdrop = this.overlayRef.backdropClick();
     const menuClosed = this.menu.closed;
 
-    return detachments.pipe(mergeWith(escKey, backdrop, menuClosed));
+    const rightClickOutside = fromEvent<MouseEvent>(document, "contextmenu").pipe(
+      filter((event: MouseEvent) => {
+        return !this.overlayRef.overlayElement.contains(event.target as HTMLElement);
+      }),
+    );
+
+    return detachments.pipe(mergeWith(escKey, backdrop, menuClosed, rightClickOutside));
   }
 
   private disposeAll() {
