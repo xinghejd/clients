@@ -1254,6 +1254,12 @@
   "passwordProtectedOptionDescription": {
     "message": "Set a file password to encrypt the export and import it to any Bitwarden account using the password for decryption."
   },
+  "zipPasswordProtectedOptionTitle": {
+    "message": "Encrypt exported zip archive"
+  },
+  "zipPasswordProtectedOptionDescription": {
+    "message": "Set a file password for the zip archive to encrypt the exported vault items and attachments, and import it to any Bitwarden account using the password for decryption."
+  },
   "exportTypeHeading": {
     "message": "Export type"
   },
