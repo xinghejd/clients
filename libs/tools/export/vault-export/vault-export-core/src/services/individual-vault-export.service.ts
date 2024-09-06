@@ -1,4 +1,4 @@
-import * as JSZip from "jszip";
+import { BlobWriter, ZipWriter, TextReader, Uint8ArrayReader } from "@zip.js/zip.js";
 import * as papa from "papaparse";
 
 import { PinServiceAbstraction } from "@bitwarden/auth/common";
@@ -45,24 +45,28 @@ export class IndividualVaultExportService
     if (format === "encrypted_json") {
       return this.getEncryptedExport();
     } else if (format === "zip") {
-      return this.getDecryptedExportZip();
+      return this.getExportZip(null);
     }
-    return this.getDecryptedExport(format);
+    return this.getExportZip("abc");
   }
 
-  async getPasswordProtectedExport(password: string): Promise<string> {
-    const clearText = (await this.getExport("json")) as string;
-    return this.buildPasswordExport(clearText, password);
+  async getPasswordProtectedExport(format: ExportFormat, password: string): Promise<string | Blob> {
+    if (format == "encrypted_json") {
+      const clearText = (await this.getExport("json")) as string;
+      return await this.buildPasswordExport(clearText, password);
+    } else if (format === "zip") {
+      return await this.getExportZip(password);
+    } else {
+      throw new Error("CSV does not support password protected export");
+    }
   }
 
-  async getDecryptedExportZip(): Promise<Blob> {
-    const zip = new JSZip();
+  async getExportZip(password?: string): Promise<Blob> {
+    const blobWriter = new BlobWriter("application/zip");
+    const zipWriter = new ZipWriter(blobWriter, { bufferedWrite: true, password });
 
-    // ciphers
     const dataJson = await this.getDecryptedExport("json");
-    zip.file("data.json", dataJson);
-
-    const attachmentsFolder = zip.folder("attachments");
+    await zipWriter.add("data.json", new TextReader(dataJson));
 
     // attachments
     for (const cipher of await this.cipherService.getAllDecrypted()) {
@@ -70,7 +74,6 @@ export class IndividualVaultExportService
         continue;
       }
 
-      const cipherFolder = attachmentsFolder.folder(cipher.id);
       for (const attachment of cipher.attachments) {
         const response = await fetch(new Request(attachment.url, { cache: "no-store" }));
         const encBuf = await EncArrayBuffer.fromResponse(response);
@@ -79,11 +82,14 @@ export class IndividualVaultExportService
             ? attachment.key
             : await this.cryptoService.getOrgKey(cipher.organizationId);
         const decBuf = await this.cryptoService.decryptFromBytes(encBuf, key);
-        cipherFolder.file(attachment.fileName, decBuf);
+        await zipWriter.add(`${cipher.id}/${attachment.fileName}`, new Uint8ArrayReader(decBuf));
       }
     }
 
-    return zip.generateAsync({ type: "blob" });
+    await zipWriter.close();
+    const zipFileBlob = await blobWriter.getData();
+
+    return zipFileBlob;
   }
 
   private async getDecryptedExport(format: "json" | "csv"): Promise<string> {

@@ -405,7 +405,10 @@ export class ExportComponent implements OnInit, OnDestroy, AfterViewInit {
     this.exportForm.get("confirmFilePassword").reset();
     this.exportForm.get("filePassword").reset();
 
-    if (this.encryptedFormat && this.fileEncryptionType == EncryptedExportType.FileEncrypted) {
+    if (
+      (this.encryptedFormat && this.fileEncryptionType == EncryptedExportType.FileEncrypted) ||
+      this.format === "zip"
+    ) {
       this.exportForm.controls.filePassword.enable();
       this.exportForm.controls.confirmFilePassword.enable();
     } else {
