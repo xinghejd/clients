@@ -121,18 +121,14 @@ import {
 } from "@bitwarden/common/autofill/services/domain-settings.service";
 import {
   BillingApiServiceAbstraction,
-  BraintreeServiceAbstraction,
   OrganizationBillingServiceAbstraction,
   PaymentMethodWarningsServiceAbstraction,
-  StripeServiceAbstraction,
 } from "@bitwarden/common/billing/abstractions";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { DefaultBillingAccountProfileStateService } from "@bitwarden/common/billing/services/account/billing-account-profile-state.service";
 import { BillingApiService } from "@bitwarden/common/billing/services/billing-api.service";
 import { OrganizationBillingService } from "@bitwarden/common/billing/services/organization-billing.service";
 import { PaymentMethodWarningsService } from "@bitwarden/common/billing/services/payment-method-warnings.service";
-import { BraintreeService } from "@bitwarden/common/billing/services/payment-processors/braintree.service";
-import { StripeService } from "@bitwarden/common/billing/services/payment-processors/stripe.service";
 import { AppIdService as AppIdServiceAbstraction } from "@bitwarden/common/platform/abstractions/app-id.service";
 import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
 import { BulkEncryptService } from "@bitwarden/common/platform/abstractions/bulk-encrypt.service";
@@ -1257,16 +1253,6 @@ const safeProviders: SafeProvider[] = [
     provide: KdfConfigServiceAbstraction,
     useClass: KdfConfigService,
     deps: [StateProvider],
-  }),
-  safeProvider({
-    provide: BraintreeServiceAbstraction,
-    useClass: BraintreeService,
-    deps: [LogService],
-  }),
-  safeProvider({
-    provide: StripeServiceAbstraction,
-    useClass: StripeService,
-    deps: [LogService],
   }),
   safeProvider({
     provide: SetPasswordJitService,
