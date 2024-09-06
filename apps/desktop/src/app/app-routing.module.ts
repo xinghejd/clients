@@ -37,6 +37,7 @@ import { TwoFactorComponent } from "../auth/two-factor.component";
 import { UpdateTempPasswordComponent } from "../auth/update-temp-password.component";
 import { VaultComponent } from "../vault/app/vault/vault.component";
 
+import { PasskeysComponent } from "./components/passkeys.component";
 import { SendComponent } from "./tools/send/send.component";
 
 const routes: Routes = [
@@ -112,6 +113,10 @@ const routes: Routes = [
     component: RemovePasswordComponent,
     canActivate: [authGuard],
     data: { titleId: "removeMasterPassword" },
+  },
+  {
+    path: "passkeys",
+    component: PasskeysComponent,
   },
   {
     path: "",
