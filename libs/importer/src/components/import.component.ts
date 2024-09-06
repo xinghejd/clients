@@ -12,7 +12,13 @@ import {
   ViewChild,
 } from "@angular/core";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
-import { BlobReader, ZipReader, TextWriter } from "@zip.js/zip.js";
+import {
+  BlobReader,
+  ZipReader,
+  TextWriter,
+  ERR_ENCRYPTED,
+  ERR_INVALID_PASSWORD,
+} from "@zip.js/zip.js";
 import { concat, Observable, Subject, lastValueFrom, combineLatest, firstValueFrom } from "rxjs";
 import { filter, map, takeUntil } from "rxjs/operators";
 
@@ -500,9 +506,19 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
         return "";
       } else {
         const textWriter = new TextWriter();
-        const dataJson = await contentEntry.getData(textWriter);
-        await zipReader.close();
-        return dataJson;
+
+        let password = null;
+        for (let attempt = 0; attempt < 3; attempt++) {
+          try {
+            const dataJson = await contentEntry.getData(textWriter, { password });
+            await zipReader.close();
+            return dataJson;
+          } catch (e) {
+            if (e.message == ERR_ENCRYPTED || e.message == ERR_INVALID_PASSWORD) {
+              password = await promptForPassword_callback();
+            }
+          }
+        }
       }
     });
   }
