@@ -32,7 +32,7 @@
       </button>
     </div>
 
-    <!-- Login with Passkey link -->
+    <!-- Link to Login with Passkey page -->
     <div class="tw-mb-3 tw-flex tw-flex-col tw-items-center tw-justify-center">
       <p class="tw-mb-3">{{ "or" | i18n }}</p>
       <a
@@ -48,6 +48,7 @@
 
     <hr />
 
+    <!-- Link to Create Account page -->
     <p class="tw-m-0 tw-text-sm">
       {{ "newAroundHere" | i18n }}
       <!-- Two notes:  
@@ -71,11 +72,14 @@
   ------------------------------------>
   <ng-container *ngIf="validatedEmail">
     <div class="tw-mb-6 tw-h-28">
+      <!-- Master Password input -->
       <bit-form-field class="!tw-mb-1">
         <bit-label>{{ "masterPass" | i18n }}</bit-label>
         <input type="password" bitInput #masterPasswordInput formControlName="masterPassword" />
         <button type="button" bitSuffix bitIconButton bitPasswordInputToggle></button>
       </bit-form-field>
+
+      <!-- Link to Password Hint page -->
       <a
         class="tw-mt-2"
         routerLink="/hint"
@@ -85,10 +89,12 @@
       >
     </div>
 
+    <!-- Captcha iframe -->
     <div [hidden]="!showCaptcha()">
       <iframe id="hcaptcha_iframe" height="80" sandbox="allow-scripts allow-same-origin"></iframe>
     </div>
 
+    <!-- Button to Login with Master Password -->
     <div class="tw-mb-3 tw-flex tw-space-x-4">
       <button bitButton buttonType="primary" bitFormButton type="submit" [block]="true">
         <span> {{ "loginWithMasterPassword" | i18n }} </span>
