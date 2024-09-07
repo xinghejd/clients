@@ -2,7 +2,7 @@ import { CommonModule } from "@angular/common";
 import { Component, ElementRef, Input, NgZone, OnDestroy, OnInit, ViewChild } from "@angular/core";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
 import { ActivatedRoute, Router, RouterModule } from "@angular/router";
-import { first, firstValueFrom, Subject, take, takeUntil } from "rxjs";
+import { first, firstValueFrom, of, Subject, switchMap, take, takeUntil } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import {
@@ -346,22 +346,32 @@ export class LoginComponentV2 implements OnInit, OnDestroy {
   private async defaultOnInit(): Promise<void> {
     let paramEmailIsSet = false;
 
-    this.activatedRoute.queryParams.pipe(takeUntil(this.destroy$)).subscribe((params) => {
-      if (!params) {
-        return;
-      }
+    this.activatedRoute?.queryParams
+      .pipe(
+        switchMap((params) => {
+          if (!params) {
+            // If no params,loadEmailSettings from state
+            return this.loadEmailSettings();
+          }
 
-      const qParamsEmail = params.email;
+          const qParamsEmail = params.email;
 
-      // If there is an email in the query params, set that email as the form field value
-      if (qParamsEmail?.indexOf("@") > -1) {
-        this.formGroup.controls.email.setValue(qParamsEmail);
-        paramEmailIsSet = true;
-      }
-    });
+          // If there is an email in the query params, set that email as the form field value
+          if (qParamsEmail != null && qParamsEmail.indexOf("@") > -1) {
+            this.formGroup.controls.email.setValue(qParamsEmail);
+            paramEmailIsSet = true;
+          }
 
-    // If there is no email in the query params, attempt to load email settings from loginEmailService
-    if (!paramEmailIsSet) {
+          // If there is no email in the query params, loadEmailSettings from state
+          return paramEmailIsSet ? of(null) : this.loadEmailSettings();
+        }),
+        takeUntil(this.destroy$),
+      )
+      .subscribe();
+
+    // Backup check to handle unknown case where activatedRoute is not available
+    // This shouldn't happen under normal circumstances
+    if (!this.activatedRoute) {
       await this.loadEmailSettings();
     }
   }
