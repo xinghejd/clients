@@ -4,7 +4,7 @@
  */
 
 import { mock } from "jest-mock-extended";
-import { Subject, firstValueFrom, of } from "rxjs";
+import { Subject, bufferCount, firstValueFrom, of } from "rxjs";
 
 import {
   FakeGlobalState,
