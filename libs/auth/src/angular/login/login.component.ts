@@ -326,7 +326,7 @@ export class LoginComponentV2 implements OnInit, OnDestroy {
   }
 
   protected async saveEmailSettings() {
-    this.loginEmailService.setEmail(this.formGroup.value.email);
+    this.loginEmailService.setLoginEmail(this.formGroup.value.email);
     this.loginEmailService.setRememberEmail(this.formGroup.value.rememberEmail);
     await this.loginEmailService.saveEmailSettings();
   }
@@ -345,7 +345,7 @@ export class LoginComponentV2 implements OnInit, OnDestroy {
 
   private async loadEmailSettings(): Promise<void> {
     // Try to load the email from memory first
-    const email = this.loginEmailService.getEmail();
+    const email = await firstValueFrom(this.loginEmailService.loginEmail$);
     const rememberEmail = this.loginEmailService.getRememberEmail();
 
     if (email) {
