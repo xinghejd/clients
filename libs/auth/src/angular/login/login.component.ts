@@ -113,26 +113,7 @@ export class LoginComponentV2 implements OnInit, OnDestroy {
       await this.webOnInit();
     }
 
-    let paramEmailIsSet = false;
-
-    this.activatedRoute.queryParams.pipe(takeUntil(this.destroy$)).subscribe((params) => {
-      if (!params) {
-        return;
-      }
-
-      const qParamsEmail = params.email;
-
-      // If there is an email in the query params, set that email as the form field value
-      if (qParamsEmail?.indexOf("@") > -1) {
-        this.formGroup.controls.email.setValue(qParamsEmail);
-        paramEmailIsSet = true;
-      }
-    });
-
-    // If there is no email in the query params, attempt to load email settings from loginEmailService
-    if (!paramEmailIsSet) {
-      await this.loadEmailSettings();
-    }
+    await this.defaultOnInit();
 
     if (this.clientType === ClientType.Web) {
       // If there's an existing org invite, use it to get the password policies
@@ -359,6 +340,29 @@ export class LoginComponentV2 implements OnInit, OnDestroy {
         this.formGroup.controls.email.setValue(storedEmail);
         this.formGroup.controls.rememberEmail.setValue(true); // If there is a storedEmail, rememberEmail defaults to true
       }
+    }
+  }
+
+  private async defaultOnInit(): Promise<void> {
+    let paramEmailIsSet = false;
+
+    this.activatedRoute.queryParams.pipe(takeUntil(this.destroy$)).subscribe((params) => {
+      if (!params) {
+        return;
+      }
+
+      const qParamsEmail = params.email;
+
+      // If there is an email in the query params, set that email as the form field value
+      if (qParamsEmail?.indexOf("@") > -1) {
+        this.formGroup.controls.email.setValue(qParamsEmail);
+        paramEmailIsSet = true;
+      }
+    });
+
+    // If there is no email in the query params, attempt to load email settings from loginEmailService
+    if (!paramEmailIsSet) {
+      await this.loadEmailSettings();
     }
   }
 
