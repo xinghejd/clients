@@ -401,6 +401,8 @@ export default class MainBackground {
     const logoutCallback = async (logoutReason: LogoutReason, userId?: UserId) =>
       await this.logout(logoutReason, userId);
 
+    const runtimeNativeMessagingBackground = () => this.nativeMessagingBackground;
+
     const refreshAccessTokenErrorCallback = () => {
       // Send toast to popup
       this.messagingService.send("showToast", {
@@ -616,7 +618,9 @@ export default class MainBackground {
 
     this.i18nService = new I18nService(BrowserApi.getUILanguage(), this.globalStateProvider);
 
-    this.biometricsService = new BackgroundBrowserBiometricsService(this.nativeMessagingBackground);
+    this.biometricsService = new BackgroundBrowserBiometricsService(
+      runtimeNativeMessagingBackground,
+    );
 
     this.kdfConfigService = new KdfConfigService(this.stateProvider);
 
@@ -648,7 +652,7 @@ export default class MainBackground {
       this.kdfConfigService,
     );
 
-    this.appIdService = new AppIdService(this.globalStateProvider);
+    this.appIdService = new AppIdService(this.storageService, this.logService);
 
     this.userDecryptionOptionsService = new UserDecryptionOptionsService(this.stateProvider);
     this.organizationService = new OrganizationService(this.stateProvider);
@@ -777,6 +781,8 @@ export default class MainBackground {
       this.stateProvider,
       this.authService,
     );
+
+    this.bulkEncryptService = new FallbackBulkEncryptService(this.encryptService);
 
     this.cipherService = new CipherService(
       this.cryptoService,
@@ -1263,6 +1269,18 @@ export default class MainBackground {
       );
     }
 
+    // If the user is logged out, switch to the next account
+    const active = await firstValueFrom(this.accountService.activeAccount$);
+    if (active != null) {
+      const authStatus = await firstValueFrom(
+        this.authService.authStatuses$.pipe(map((statuses) => statuses[active.id])),
+      );
+      if (authStatus === AuthenticationStatus.LoggedOut) {
+        const nextUpAccount = await firstValueFrom(this.accountService.nextUpAccount$);
+        await this.switchAccount(nextUpAccount?.id);
+      }
+    }
+
     await this.initOverlayAndTabsBackground();
 
     return new Promise<void>((resolve) => {
@@ -1447,7 +1465,14 @@ export default class MainBackground {
     });
 
     if (needStorageReseed) {
-      await this.reseedStorage();
+      await this.reseedStorage(
+        await firstValueFrom(
+          this.configService.userCachedFeatureFlag$(
+            FeatureFlag.StorageReseedRefactor,
+            userBeingLoggedOut,
+          ),
+        ),
+      );
     }
 
     if (BrowserApi.isManifestVersion(3)) {
@@ -1502,7 +1527,7 @@ export default class MainBackground {
     await SafariApp.sendMessageToApp("showPopover", null, true);
   }
 
-  async reseedStorage() {
+  async reseedStorage(doFillBuffer: boolean) {
     if (
       !this.platformUtilsService.isChrome() &&
       !this.platformUtilsService.isVivaldi() &&
@@ -1511,7 +1536,11 @@ export default class MainBackground {
       return;
     }
 
-    await this.storageService.reseed();
+    if (doFillBuffer) {
+      await this.storageService.fillBuffer();
+    } else {
+      await this.storageService.reseed();
+    }
   }
 
   async clearClipboard(clipboardValue: string, clearMs: number) {
