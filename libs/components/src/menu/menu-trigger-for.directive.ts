@@ -9,8 +9,8 @@ import {
   OnDestroy,
   ViewContainerRef,
 } from "@angular/core";
-import { fromEvent, Observable, Subscription } from "rxjs";
-import { filter, mergeWith } from "rxjs/operators";
+import { fromEvent, merge, Subscription } from "rxjs";
+import { filter, takeUntil } from "rxjs/operators";
 
 import { MenuComponent } from "./menu.component";
 
@@ -58,6 +58,7 @@ export class MenuTriggerForDirective implements OnDestroy {
   };
   private closedEventsSub: Subscription;
   private keyDownEventsSub: Subscription;
+  private globalListenersSub: Subscription;
 
   constructor(
     private elementRef: ElementRef<HTMLElement>,
@@ -69,12 +70,13 @@ export class MenuTriggerForDirective implements OnDestroy {
     this.isOpen ? this.destroyMenu() : this.openMenu();
   }
 
+  /**
+   * Toggles the menu on right click event.
+   * If the menu is already open, it updates the menu position.
+   * @param position Position of the right click event
+   */
   toggleMenuOnRightClick(position: { x: number; y: number }) {
-    if (this.isOpen) {
-      this.updateMenuPosition(position);
-    } else {
-      this.openMenu(position);
-    }
+    this.isOpen ? this.updateMenuPosition(position) : this.openMenu(position);
   }
 
   ngOnDestroy() {
@@ -109,13 +111,9 @@ export class MenuTriggerForDirective implements OnDestroy {
     const templatePortal = new TemplatePortal(this.menu.templateRef, this.viewContainerRef);
     this.overlayRef.attach(templatePortal);
 
-    this.closedEventsSub = this.getClosedEvents().subscribe((event: KeyboardEvent | undefined) => {
-      if (["Tab", "Escape"].includes(event?.key)) {
-        // Required to ensure tab order resumes correctly
-        this.elementRef.nativeElement.focus();
-      }
-      this.destroyMenu();
-    });
+    this.setupClosingActions();
+    this.setupGlobalListeners();
+
     if (this.menu.keyManager) {
       this.menu.keyManager.setFirstItemActive();
       this.keyDownEventsSub = this.overlayRef
@@ -153,29 +151,51 @@ export class MenuTriggerForDirective implements OnDestroy {
     this.disposeAll();
   }
 
-  private getClosedEvents(): Observable<any> {
-    const detachments = this.overlayRef.detachments();
+  private setupClosingActions() {
     const escKey = this.overlayRef.keydownEvents().pipe(
       filter((event: KeyboardEvent) => {
         const keys = this.menu.ariaRole === "menu" ? ["Escape", "Tab"] : ["Escape"];
         return keys.includes(event.key);
       }),
     );
+
     const backdrop = this.overlayRef.backdropClick();
     const menuClosed = this.menu.closed;
+    const detachments = this.overlayRef.detachments();
 
-    const rightClickOutside = fromEvent<MouseEvent>(document, "contextmenu").pipe(
-      filter((event: MouseEvent) => {
-        return !this.overlayRef.overlayElement.contains(event.target as HTMLElement);
-      }),
-    );
+    this.closedEventsSub = merge(detachments, escKey, backdrop, menuClosed)
+      .pipe(takeUntil(this.overlayRef.detachments()))
+      .subscribe((event) => {
+        if (event instanceof KeyboardEvent && (event.key === "Tab" || event.key === "Escape")) {
+          this.elementRef.nativeElement.focus();
+        }
+        this.destroyMenu();
+      });
+  }
 
-    return detachments.pipe(mergeWith(escKey, backdrop, menuClosed, rightClickOutside));
+  private setupGlobalListeners() {
+    this.globalListenersSub = fromEvent<MouseEvent>(document, "contextmenu")
+      .pipe(
+        filter((event) => {
+          const clickTarget = event.target as HTMLElement;
+          return (
+            this.isOpen &&
+            clickTarget !== this.elementRef.nativeElement &&
+            !this.overlayRef.overlayElement.contains(clickTarget)
+          );
+        }),
+        takeUntil(this.overlayRef.detachments()),
+      )
+      .subscribe((event) => {
+        event.preventDefault(); // Prevent default context menu
+        this.updateMenuPosition({ x: event.clientX, y: event.clientY });
+      });
   }
 
   private disposeAll() {
     this.closedEventsSub?.unsubscribe();
     this.overlayRef?.dispose();
     this.keyDownEventsSub?.unsubscribe();
+    this.globalListenersSub?.unsubscribe();
   }
 }
