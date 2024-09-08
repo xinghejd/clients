@@ -134,8 +134,6 @@ export class VaultCipherRowComponent {
 
   @HostListener("contextmenu", ["$event"])
   protected onRightClick(event: MouseEvent) {
-    event.preventDefault();
-    event.stopPropagation();
     if (!this.disabled || !this.disableMenu) {
       this.menuTrigger.toggleMenuOnRightClick({ x: event.clientX, y: event.clientY });
     }
