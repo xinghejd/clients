@@ -15,7 +15,7 @@ import { first } from "rxjs/operators";
 
 import {
   OrganizationUserApiService,
-  OrganizationUserUserDetailsResponse,
+  OrganizationUserUserBasicResponse,
 } from "@bitwarden/admin-console/common";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
@@ -156,8 +156,7 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
       organization: organization$,
       collections: this.collectionAdminService.getAll(orgId),
       groups: groups$,
-      // Collection(s) needed to map readonlypermission for (potential) access selector disabled state
-      users: this.organizationUserApiService.getAllUsers(orgId),
+      users: this.organizationUserApiService.getAllUsersBasic(orgId),
     })
       .pipe(takeUntil(this.formGroup.controls.selectedOrg.valueChanges), takeUntil(this.destroy$))
       .subscribe(({ organization, collections: allCollections, groups, users }) => {
@@ -451,7 +450,7 @@ function mapGroupToAccessItemView(
  * @returns AccessItemView customized to set a readonlyPermission to be displayed if the access selector is in a disabled state
  */
 function mapUserToAccessItemView(
-  user: OrganizationUserUserDetailsResponse,
+  user: OrganizationUserUserBasicResponse,
   collection: CollectionAdminView,
 ): AccessItemView {
   return {
