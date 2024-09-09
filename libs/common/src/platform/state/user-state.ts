@@ -27,6 +27,9 @@ export interface ActiveUserState<T> extends UserState<T> {
 
   /**
    * Updates backing stores for the active user.
+   * 
+   * @deprecated ActiveUserState is transitioning to read-only. To update state, use @see{@link SingleUserState.update}
+   * 
    * @param configureState function that takes the current state and returns the new state
    * @param options Defaults to @see {module:state-update-options#DEFAULT_OPTIONS}
    * @param options.shouldUpdate A callback for determining if you want to update state. Defaults to () => true
