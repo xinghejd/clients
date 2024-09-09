@@ -1,13 +1,3 @@
-// node requires setting these globally to make zip.js work
-if (typeof global !== "undefined") {
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
-  globalThis.TransformStream = eval("require")("node:stream/web").TransformStream;
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
-  globalThis.WritableStream = eval("require")("node:stream/web").WritableStream;
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
-  globalThis.ReadableStream = eval("require")("node:stream/web").ReadableStream;
-}
-
 import { Uint8ArrayWriter, ZipWriter, Uint8ArrayReader } from "@zip.js/zip.js";
 import * as papa from "papaparse";
 
