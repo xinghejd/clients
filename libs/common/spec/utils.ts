@@ -46,8 +46,11 @@ export function makeStaticByteArray(length: number, start = 0) {
   return arr;
 }
 
-export function makeSymmetricCryptoKey<T extends SymmetricCryptoKey>(length: 32 | 64 = 64) {
-  return new SymmetricCryptoKey(makeStaticByteArray(length)) as T;
+export function makeSymmetricCryptoKey<T extends SymmetricCryptoKey>(
+  length: 32 | 64 = 64,
+  start = 0,
+) {
+  return new SymmetricCryptoKey(makeStaticByteArray(length, start)) as T;
 }
 
 /**

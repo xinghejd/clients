@@ -121,6 +121,10 @@ export class FakeSingleUserState<T> implements SingleUserState<T> {
     this.state$ = this.combinedState$.pipe(map(([_userId, state]) => state));
   }
 
+  /** Updates the subject behind `state$` without triggering a call to `nextMock`.
+   *
+   * This is useful for test orchestration, where you want to set state without triggering a mock call
+   */
   nextState(state: T, { syncValue }: { syncValue: boolean } = { syncValue: true }) {
     this.stateSubject.next({
       syncValue,

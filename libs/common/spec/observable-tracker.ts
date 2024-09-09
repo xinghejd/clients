@@ -4,14 +4,22 @@ import { firstValueFrom, Observable, Subject, Subscription, throwError, timeout 
 export class ObservableTracker<T> {
   private subscription: Subscription;
   private emissionReceived = new Subject<T>();
+  private errorThrown = new Subject<unknown>();
   emissions: T[] = [];
+  errors: unknown[] = [];
   constructor(observable: Observable<T>) {
     this.emissions = this.trackEmissions(observable);
+  }
+
+  get complete() {
+    return this.subscription.closed;
   }
 
   /** Unsubscribes from the observable */
   unsubscribe() {
     this.subscription.unsubscribe();
+    this.emissionReceived.complete();
+    this.errorThrown.complete();
   }
 
   /**
@@ -31,6 +39,17 @@ export class ObservableTracker<T> {
     );
   }
 
+  async expectError(msTimeout = 50): Promise<unknown> {
+    return await firstValueFrom(
+      this.errorThrown.pipe(
+        timeout({
+          first: msTimeout,
+          with: () => throwError(() => new Error("Timeout exceeded waiting for an error.")),
+        }),
+      ),
+    );
+  }
+
   /** Awaits until the total number of emissions observed by this tracker equals or exceeds {@link count}
    * @param count The number of emissions to wait for
    */
@@ -41,32 +60,45 @@ export class ObservableTracker<T> {
     return this.emissions;
   }
 
+  async pauseUntilErrorsReceived(count: number, msTimeout = 50): Promise<unknown[]> {
+    while (this.errors.length < count) {
+      await this.expectError(msTimeout);
+    }
+    return this.errors;
+  }
+
   private trackEmissions(observable: Observable<T>): T[] {
     const emissions: T[] = [];
     this.emissionReceived.subscribe((value) => {
       emissions.push(value);
     });
-    this.subscription = observable.subscribe((value) => {
-      if (value == null) {
-        this.emissionReceived.next(null);
-        return;
-      }
-
-      switch (typeof value) {
-        case "string":
-        case "number":
-        case "boolean":
-          this.emissionReceived.next(value);
-          break;
-        case "symbol":
-          // Cheating types to make symbols work at all
-          this.emissionReceived.next(value as T);
-          break;
-        default: {
-          this.emissionReceived.next(clone(value));
+    this.subscription = observable.subscribe(
+      (value) => {
+        if (value == null) {
+          this.emissionReceived.next(null);
+          return;
         }
-      }
-    });
+
+        switch (typeof value) {
+          case "string":
+          case "number":
+          case "boolean":
+            this.emissionReceived.next(value);
+            break;
+          case "symbol":
+            // Cheating types to make symbols work at all
+            this.emissionReceived.next(value as T);
+            break;
+          default: {
+            this.emissionReceived.next(clone(value));
+          }
+        }
+      },
+      (e: unknown) => {
+        this.errorThrown.next(e);
+        this.errors.push(e);
+      },
+    );
 
     return emissions;
   }
