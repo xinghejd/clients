@@ -19,7 +19,7 @@ import {
 import { AccountService } from "../../auth/abstractions/account.service";
 import { AuthService } from "../../auth/abstractions/auth.service";
 import { AuthenticationStatus } from "../../auth/enums/authentication-status";
-import { FromDependency, SingleUserDependency, UserChangedError } from "../../tools/dependencies";
+import { SingleUserDependency, UserChangedError } from "../../tools/dependencies";
 import { UserId } from "../../types/guid";
 // eslint-disable-next-line import/no-restricted-paths -- playing around
 import { CLEAR_EVENT_TO_AUTH_STATUS, ClearEvent } from "../state/user-key-definition";
@@ -213,12 +213,4 @@ export function buildSingleValueObservable<T>(
       internalDestroy$.next();
     };
   });
-}
-
-export function buildFromDependency<TPrecursor>(
-  dependency$: Observable<TPrecursor>,
-): FromDependency<TPrecursor> {
-  return {
-    from$: dependency$,
-  };
 }
