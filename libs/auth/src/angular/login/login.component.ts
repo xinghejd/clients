@@ -24,6 +24,7 @@ import { EnvironmentService } from "@bitwarden/common/platform/abstractions/envi
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { SyncService } from "@bitwarden/common/platform/sync";
 import { PasswordStrengthServiceAbstraction } from "@bitwarden/common/tools/password-strength";
 import { UserId } from "@bitwarden/common/types/guid";
 import {
@@ -104,6 +105,7 @@ export class LoginComponentV2 implements OnInit, OnDestroy {
     private policyService: InternalPolicyService,
     private registerRouteService: RegisterRouteService,
     private router: Router,
+    private syncService: SyncService,
     private toastService: ToastService,
   ) {
     this.clientType = this.platformUtilsService.getClientType();
@@ -166,8 +168,11 @@ export class LoginComponentV2 implements OnInit, OnDestroy {
       this.loginEmailService.clearValues();
       await this.router.navigate(["update-temp-password"]);
     } else {
-      // TODO-rr-bw: handle desktop specific
-      // TODO-rr-bw: handle browser specific
+      // Browser/Desktop specific (start)
+      if (this.clientType === ClientType.Browser || this.clientType === ClientType.Desktop) {
+        await this.syncService.fullSync(true); // TODO-rr-bw: check -> browser uses `await` and desktop uses `return`. Why?
+      }
+      // Browser/Desktop specific (end)
 
       // Web specific (start)
       await this.goAfterLogIn(response.userId);
