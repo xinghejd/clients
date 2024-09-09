@@ -1,4 +1,5 @@
 import { BiometricsStatus } from "@bitwarden/common/key-management/biometrics/biometrics-status";
+import { UserId } from "@bitwarden/common/types/guid";
 
 import { BrowserApi } from "../../platform/browser/browser-api";
 
@@ -21,6 +22,14 @@ export class ForegroundBrowserBiometricsService extends BrowserBiometricsService
       result: BiometricsStatus;
       error: string;
     }>("biometricStatus");
+    return response.result;
+  }
+
+  async getBiometricsStatusForUser(id: UserId): Promise<BiometricsStatus> {
+    const response = await BrowserApi.sendMessageWithResponse<{
+      result: BiometricsStatus;
+      error: string;
+    }>("biometricStatusForUser", { userId: id });
     return response.result;
   }
 }
