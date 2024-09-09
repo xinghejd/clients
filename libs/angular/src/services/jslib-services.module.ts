@@ -123,16 +123,16 @@ import {
 } from "@bitwarden/common/autofill/services/domain-settings.service";
 import {
   BillingApiServiceAbstraction,
-  BraintreeServiceAbstraction,
   OrganizationBillingServiceAbstraction,
-  StripeServiceAbstraction,
 } from "@bitwarden/common/billing/abstractions";
+import { AccountBillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions/account/account-billing-api.service.abstraction";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
+import { OrganizationBillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions/organizations/organization-billing-api.service.abstraction";
+import { AccountBillingApiService } from "@bitwarden/common/billing/services/account/account-billing-api.service";
 import { DefaultBillingAccountProfileStateService } from "@bitwarden/common/billing/services/account/billing-account-profile-state.service";
 import { BillingApiService } from "@bitwarden/common/billing/services/billing-api.service";
+import { OrganizationBillingApiService } from "@bitwarden/common/billing/services/organization/organization-billing-api.service";
 import { OrganizationBillingService } from "@bitwarden/common/billing/services/organization-billing.service";
-import { BraintreeService } from "@bitwarden/common/billing/services/payment-processors/braintree.service";
-import { StripeService } from "@bitwarden/common/billing/services/payment-processors/stripe.service";
 import { AppIdService as AppIdServiceAbstraction } from "@bitwarden/common/platform/abstractions/app-id.service";
 import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
 import { BulkEncryptService } from "@bitwarden/common/platform/abstractions/bulk-encrypt.service";
@@ -247,6 +247,10 @@ import { FolderService } from "@bitwarden/common/vault/services/folder/folder.se
 import { TotpService } from "@bitwarden/common/vault/services/totp.service";
 import { VaultSettingsService } from "@bitwarden/common/vault/services/vault-settings/vault-settings.service";
 import { ToastService } from "@bitwarden/components";
+import {
+  GeneratorHistoryService,
+  LocalGeneratorHistoryService,
+} from "@bitwarden/generator-history";
 import {
   legacyPasswordGenerationServiceFactory,
   legacyUsernameGenerationServiceFactory,
@@ -370,7 +374,7 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: AppIdServiceAbstraction,
     useClass: AppIdService,
-    deps: [GlobalStateProvider],
+    deps: [OBSERVABLE_DISK_STORAGE, LogService],
   }),
   safeProvider({
     provide: AuditServiceAbstraction,
@@ -595,6 +599,11 @@ const safeProviders: SafeProvider[] = [
       AccountServiceAbstraction,
       StateProvider,
     ],
+  }),
+  safeProvider({
+    provide: GeneratorHistoryService,
+    useClass: LocalGeneratorHistoryService,
+    deps: [EncryptService, CryptoServiceAbstraction, StateProvider],
   }),
   safeProvider({
     provide: UsernameGenerationServiceAbstraction,
@@ -981,6 +990,16 @@ const safeProviders: SafeProvider[] = [
     deps: [ApiServiceAbstraction, SyncService],
   }),
   safeProvider({
+    provide: OrganizationBillingApiServiceAbstraction,
+    useClass: OrganizationBillingApiService,
+    deps: [ApiServiceAbstraction],
+  }),
+  safeProvider({
+    provide: AccountBillingApiServiceAbstraction,
+    useClass: AccountBillingApiService,
+    deps: [ApiServiceAbstraction],
+  }),
+  safeProvider({
     provide: DefaultConfigService,
     useClass: DefaultConfigService,
     deps: [
@@ -1254,16 +1273,6 @@ const safeProviders: SafeProvider[] = [
     provide: KdfConfigServiceAbstraction,
     useClass: KdfConfigService,
     deps: [StateProvider],
-  }),
-  safeProvider({
-    provide: BraintreeServiceAbstraction,
-    useClass: BraintreeService,
-    deps: [LogService],
-  }),
-  safeProvider({
-    provide: StripeServiceAbstraction,
-    useClass: StripeService,
-    deps: [LogService],
   }),
   safeProvider({
     provide: SetPasswordJitService,
