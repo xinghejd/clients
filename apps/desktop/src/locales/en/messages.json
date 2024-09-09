@@ -508,6 +508,9 @@
   "logIn": {
     "message": "Log in"
   },
+  "logInToBitwarden": {
+    "message": "Log in to Bitwarden"
+  },
   "submit": {
     "message": "Submit"
   },

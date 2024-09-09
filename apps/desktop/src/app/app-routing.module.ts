@@ -1,6 +1,8 @@
 import { NgModule } from "@angular/core";
 import { RouterModule, Routes } from "@angular/router";
 
+import { EnvironmentSelectorComponent } from "@bitwarden/angular/auth/components/environment-selector.component";
+import { unauthUiRefreshSwap } from "@bitwarden/angular/auth/functions/unauth-ui-refresh-route-swap";
 import {
   authGuard,
   lockGuard,
@@ -12,6 +14,7 @@ import { canAccessFeature } from "@bitwarden/angular/platform/guard/feature-flag
 import {
   AnonLayoutWrapperComponent,
   AnonLayoutWrapperData,
+  LoginComponentV2,
   RegistrationFinishComponent,
   RegistrationStartComponent,
   RegistrationStartSecondaryComponent,
@@ -50,11 +53,6 @@ const routes: Routes = [
     path: "lock",
     component: LockComponent,
     canActivate: [lockGuard()],
-  },
-  {
-    path: "login",
-    component: LoginComponent,
-    canActivate: [maxAccountsGuardFn()],
   },
   {
     path: "login-with-device",
@@ -113,6 +111,35 @@ const routes: Routes = [
     canActivate: [authGuard],
     data: { titleId: "removeMasterPassword" },
   },
+  ...unauthUiRefreshSwap(
+    LoginComponent,
+    AnonLayoutWrapperComponent,
+    {
+      path: "login",
+      component: LoginComponent,
+      canActivate: [maxAccountsGuardFn()],
+    },
+    {
+      path: "",
+      children: [
+        {
+          path: "login",
+          canActivate: [maxAccountsGuardFn()],
+          data: {
+            pageTitle: "logInToBitwarden",
+          },
+          children: [
+            { path: "", component: LoginComponentV2 },
+            {
+              path: "",
+              component: EnvironmentSelectorComponent,
+              outlet: "environment-selector",
+            },
+          ],
+        },
+      ],
+    },
+  ),
   {
     path: "",
     component: AnonLayoutWrapperComponent,
