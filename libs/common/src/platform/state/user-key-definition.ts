@@ -1,3 +1,4 @@
+import { AuthenticationStatus } from "../../auth/enums/authentication-status";
 import { UserId } from "../../types/guid";
 import { StorageKey } from "../../types/state";
 import { Utils } from "../misc/utils";
@@ -6,7 +7,11 @@ import { array, record } from "./deserialization-helpers";
 import { DebugOptions, KeyDefinitionOptions } from "./key-definition";
 import { StateDefinition } from "./state-definition";
 
-export type ClearEvent = "lock" | "logout";
+export type ClearEvent = keyof typeof CLEAR_EVENT_TO_AUTH_STATUS;
+export const CLEAR_EVENT_TO_AUTH_STATUS = Object.freeze({
+  lock: AuthenticationStatus.Locked,
+  logout: AuthenticationStatus.LoggedOut,
+} as const);
 
 export type UserKeyDefinitionOptions<T> = KeyDefinitionOptions<T> & {
   clearOn: ClearEvent[];
