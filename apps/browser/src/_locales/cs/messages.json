@@ -25,9 +25,6 @@
   "finishCreatingYourAccountBySettingAPassword": {
     "message": "Dokončete vytváření účtu nastavením hesla"
   },
-  "login": {
-    "message": "Přihlásit se"
-  },
   "enterpriseSingleSignOn": {
     "message": "Jednotné podnikové přihlášení"
   },
@@ -304,6 +301,24 @@
   "editFolder": {
     "message": "Upravit složku"
   },
+  "newFolder": {
+    "message": "Nová složka"
+  },
+  "folderName": {
+    "message": "Název složky"
+  },
+  "folderHintText": {
+    "message": "Vnořit složku přidáním názvu nadřazené složky následovaného znakem \"/\". Příklad: Sociální/Fóra"
+  },
+  "noFoldersAdded": {
+    "message": "Nebyly přidány žádné složky"
+  },
+  "createFoldersToOrganize": {
+    "message": "Vytvořte složky pro organizaci Vašich položek trezoru"
+  },
+  "deleteFolderPermanently": {
+    "message": "Opravdu chcete trvale smazat tuto složku?"
+  },
   "deleteFolder": {
     "message": "Smazat složku"
   },
@@ -369,16 +384,56 @@
     "message": "Minimální délka hesla"
   },
   "uppercase": {
-    "message": "Velká písmena (A-Z)"
+    "message": "Velká písmena (A-Z)",
+    "description": "deprecated. Use uppercaseLabel instead."
   },
   "lowercase": {
-    "message": "Malá písmena (a-z)"
+    "message": "Malá písmena (a-z)",
+    "description": "deprecated. Use lowercaseLabel instead."
   },
   "numbers": {
-    "message": "Číslice (0-9)"
+    "message": "Číslice (0-9)",
+    "description": "deprecated. Use numbersLabel instead."
   },
   "specialCharacters": {
-    "message": "Speciální znaky (!@#$%^&*)"
+    "message": "Speciální znaky (!@#$%^&*)",
+    "description": "deprecated. Use specialCharactersLabel instead."
+  },
+  "include": {
+    "message": "Zahrnout",
+    "description": "Card header for password generator include block"
+  },
+  "uppercaseDescription": {
+    "message": "Zahrnout velká písmena",
+    "description": "Tooltip for the password generator uppercase character checkbox"
+  },
+  "uppercaseLabel": {
+    "message": "A-Z",
+    "description": "Label for the password generator uppercase character checkbox"
+  },
+  "lowercaseDescription": {
+    "message": "Zahrnout malá písmena",
+    "description": "Full description for the password generator lowercase character checkbox"
+  },
+  "lowercaseLabel": {
+    "message": "a-z",
+    "description": "Label for the password generator lowercase character checkbox"
+  },
+  "numbersDescription": {
+    "message": "Zahrnout číslice",
+    "description": "Full description for the password generator numbers checkbox"
+  },
+  "numbersLabel": {
+    "message": "0-9",
+    "description": "Label for the password generator numbers checkbox"
+  },
+  "specialCharactersDescription": {
+    "message": "Zahrnout speciální znaky",
+    "description": "Full description for the password generator special characters checkbox"
+  },
+  "specialCharactersLabel": {
+    "message": "!@#$%^&*",
+    "description": "Label for the password generator special characters checkbox"
   },
   "numWords": {
     "message": "Počet slov"
@@ -400,7 +455,12 @@
     "message": "Minimální počet speciálních znaků"
   },
   "avoidAmbChar": {
-    "message": "Nepoužívat zaměnitelné znaky"
+    "message": "Nepoužívat zaměnitelné znaky",
+    "description": "deprecated. Use avoidAmbiguous instead."
+  },
+  "avoidAmbiguous": {
+    "message": "Nepoužívat zaměnitelné znaky",
+    "description": "Label for the avoid ambiguous characters checkbox."
   },
   "searchVault": {
     "message": "Vyhledat v trezoru"
@@ -623,6 +683,12 @@
   "newAccountCreated": {
     "message": "Váš účet byl vytvořen! Můžete se přihlásit."
   },
+  "newAccountCreated2": {
+    "message": "Váš nový účet byl vytvořen!"
+  },
+  "youHaveBeenLoggedIn": {
+    "message": "Byli jste přihlášeni!"
+  },
   "youSuccessfullyLoggedIn": {
     "message": "Byli jste úspěšně přihlášeni"
   },
@@ -671,6 +737,9 @@
   },
   "totpHelperWithCapture": {
     "message": "Bitwarden umí ukládat a vyplňovat dvoufázové ověřovací kódy. Vyberte ikonu fotoaparátu a pořiďte snímek obrazovky ověřovacího QR kódu této webové stránky nebo klíč zkopírujte a vložte do tohoto pole."
+  },
+  "learnMoreAboutAuthenticators": {
+    "message": "Zjistěte více o autentizátorech"
   },
   "copyTOTP": {
     "message": "Kopírovat autentizační klíč (TOTP)"
@@ -1061,6 +1130,9 @@
   "ppremiumSignUpStorage": {
     "message": "1 GB šifrovaného úložiště pro přílohy."
   },
+  "premiumSignUpEmergency": {
+    "message": "Nouzový přístup"
+  },
   "premiumSignUpTwoStepOptions": {
     "message": "Volby proprietálních dvoufázových přihlášení jako je YubiKey a Duo."
   },
@@ -1082,13 +1154,28 @@
   "premiumPurchaseAlert": {
     "message": "Prémiové členství můžete zakoupit na webové stránce bitwarden.com. Chcete tuto stránku nyní otevřít?"
   },
+  "premiumPurchaseAlertV2": {
+    "message": "Premium si můžete zakoupit v nastavení účtu ve webové aplikaci Bitwarden."
+  },
   "premiumCurrentMember": {
     "message": "Jste prémiovým členem!"
   },
   "premiumCurrentMemberThanks": {
     "message": "Děkujeme za podporu Bitwardenu."
   },
+  "premiumFeatures": {
+    "message": "Přejděte na Premium a získáte:"
+  },
   "premiumPrice": {
+    "message": "Vše jen za $PRICE$ ročně!",
+    "placeholders": {
+      "price": {
+        "content": "$1",
+        "example": "$10"
+      }
+    }
+  },
+  "premiumPriceV2": {
     "message": "Vše jen za $PRICE$ ročně!",
     "placeholders": {
       "price": {
@@ -1656,7 +1743,7 @@
     "description": "Domain name. Ex. website.com"
   },
   "baseDomainOptionRecommended": {
-    "message": "Base domain (recommended)",
+    "message": "Základní doména (doporučeno)",
     "description": "Domain name. Ex. website.com"
   },
   "domainName": {
@@ -1802,6 +1889,29 @@
   },
   "passwordGeneratorPolicyInEffect": {
     "message": "Jedna nebo více zásad organizace ovlivňují nastavení generátoru."
+  },
+  "passwordGenerator": {
+    "message": "Generátor hesla"
+  },
+  "usernameGenerator": {
+    "message": "Generátor uživatelského jména"
+  },
+  "useThisPassword": {
+    "message": "Použít toto heslo"
+  },
+  "useThisUsername": {
+    "message": "Použít toto uživatelské jméno"
+  },
+  "securePasswordGenerated": {
+    "message": "Bezpečné heslo bylo vygenerováno! Nezapomeňte také aktualizovat heslo na webu."
+  },
+  "useGeneratorHelpTextPartOne": {
+    "message": "Použijte generátor",
+    "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
+  },
+  "useGeneratorHelpTextPartTwo": {
+    "message": "pro vytvoření silného jedinečného hesla",
+    "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
   },
   "vaultTimeoutAction": {
     "message": "Akce při vypršení časového limitu"
@@ -2000,6 +2110,12 @@
   "nativeMessagingWrongUserTitle": {
     "message": "Neshoda účtů"
   },
+  "nativeMessagingWrongUserKeyDesc": {
+    "message": "Biometrické odemknutí se nezdařilo. Zkuste znovu nastavit biometrické prvky."
+  },
+  "nativeMessagingWrongUserKeyTitle": {
+    "message": "Neshoda biometrického klíče"
+  },
   "biometricsNotEnabledTitle": {
     "message": "Biometrie není nastavena"
   },
@@ -2017,6 +2133,12 @@
   },
   "biometricsNotUnlockedDesc": {
     "message": "Odemkněte tohoto uživatele v programu pro počítač a zkuste to znovu."
+  },
+  "biometricsNotAvailableTitle": {
+    "message": "Biometrické odemknutí není k dispozici"
+  },
+  "biometricsNotAvailableDesc": {
+    "message": "Biometrické odemknutí je momentálně nedostupné. Opakujte akci později."
   },
   "biometricsFailedTitle": {
     "message": "Biometrika selhala"
@@ -2248,6 +2370,24 @@
     "message": "Send vytvořen",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "createdSendSuccessfully": {
+    "message": "Send byl úspěšně vytvořen!",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendAvailability": {
+    "message": "Send bude k dispozici na příštích $DAYS$ dnů každému, kdo má odkaz.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "days": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "sendLinkCopied": {
+    "message": "Odkaz Send byl zkopírován",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
   "editedSend": {
     "message": "Send upraven",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -2328,7 +2468,7 @@
     "message": "Vaše hlavní heslo nesplňuje jednu nebo více zásad Vaší organizace. Pro přístup k trezoru musíte nyní aktualizovat své hlavní heslo. Pokračování Vás odhlásí z Vaší aktuální relace a bude nutné se přihlásit. Aktivní relace na jiných zařízeních mohou zůstat aktivní až po dobu jedné hodiny."
   },
   "tdeDisabledMasterPasswordRequired": {
-    "message": "Your organization has disabled trusted device encryption. Please set a master password to access your vault."
+    "message": "Vaše organizace zakázala šifrování pomocí důvěryhodného zařízení. Nastavte hlavní heslo pro přístup k trezoru."
   },
   "resetPasswordPolicyAutoEnroll": {
     "message": "Automatická registrace"
@@ -3337,7 +3477,7 @@
   "passkeyFeatureIsNotImplementedForAccountsWithoutMasterPassword": {
     "message": "Ověření vyžadované iniciátorem webu. Tato funkce ještě není implementována pro účty bez hlavního hesla."
   },
-  "logInWithPasskey": {
+  "logInWithPasskeyQuestion": {
     "message": "Přihlásit se pomocí přístupového klíče?"
   },
   "passkeyAlreadyExists": {
@@ -3349,6 +3489,9 @@
   "noMatchingPasskeyLogin": {
     "message": "Pro tuto stránku nemáte žádné přihlašovací údaje."
   },
+  "noMatchingLoginsForSite": {
+    "message": "Žádné odpovídající přihlašovací údaje pro tento web"
+  },
   "confirm": {
     "message": "Potvrdit"
   },
@@ -3358,8 +3501,11 @@
   "savePasskeyNewLogin": {
     "message": "Uložit přístupový klíč jako nové přihlášení"
   },
-  "choosePasskey": {
+  "chooseCipherForPasskeySave": {
     "message": "Vyberte přihlášení pro uložení tohoto přístupového klíče"
+  },
+  "chooseCipherForPasskeyAuth": {
+    "message": "Vyberte přístupový klíč, kterým se chcete přihlásit"
   },
   "passkeyItem": {
     "message": "Položka přístupového klíče"
@@ -3556,8 +3702,16 @@
     "message": "Pověření byla úspěšně uložena!",
     "description": "Notification message for when saving credentials has succeeded."
   },
+  "passwordSaved": {
+    "message": "Heslo uloženo!",
+    "description": "Notification message for when saving credentials has succeeded."
+  },
   "updateCipherAttemptSuccess": {
     "message": "Pověření byla úspěšně aktualizována!",
+    "description": "Notification message for when updating credentials has succeeded."
+  },
+  "passwordUpdated": {
+    "message": "Heslo aktualizováno!",
     "description": "Notification message for when updating credentials has succeeded."
   },
   "saveCipherAttemptFailed": {
@@ -3831,22 +3985,32 @@
     "message": "Ověřovací klíč"
   },
   "autofillOptions": {
-    "message": "Auto-fill options"
+    "message": "Volby automatického vyplňování"
   },
   "websiteUri": {
-    "message": "Website (URI)"
+    "message": "Webová stránka (URI)"
+  },
+  "websiteUriCount": {
+    "message": "Webová stránka (URI) $COUNT$",
+    "description": "Label for an input field that contains a website URI. The input field is part of a list of fields, and the count indicates the position of the field in the list.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
   },
   "websiteAdded": {
-    "message": "Website added"
+    "message": "Webová stránka přidána"
   },
   "addWebsite": {
-    "message": "Add website"
+    "message": "Přidat webovou stránku"
   },
   "deleteWebsite": {
-    "message": "Delete website"
+    "message": "Vymazat webovou stránku"
   },
   "defaultLabel": {
-    "message": "Default ($VALUE$)",
+    "message": "Výchozí ($VALUE$)",
     "description": "A label that indicates the default value for a field with the current default value in parentheses.",
     "placeholders": {
       "value": {
@@ -3856,7 +4020,7 @@
     }
   },
   "showMatchDetection": {
-    "message": "Show match detection $WEBSITE$",
+    "message": "Zobrazit detekci shody $WEBSITE$",
     "placeholders": {
       "website": {
         "content": "$1",
@@ -3865,7 +4029,7 @@
     }
   },
   "hideMatchDetection": {
-    "message": "Hide match detection $WEBSITE$",
+    "message": "Skrýt detekci shody $WEBSITE$",
     "placeholders": {
       "website": {
         "content": "$1",
@@ -3874,7 +4038,13 @@
     }
   },
   "autoFillOnPageLoad": {
-    "message": "Autofill on page load?"
+    "message": "Automaticky vyplnit při načtení stránky?"
+  },
+  "cardExpiredTitle": {
+    "message": "Prošlá karta"
+  },
+  "cardExpiredMessage": {
+    "message": "Pokud jste ji obnovili, aktualizujte informace o kartě"
   },
   "cardDetails": {
     "message": "Podrobnosti karty"
@@ -3888,6 +4058,9 @@
       }
     }
   },
+  "enableAnimations": {
+    "message": "Povolit animace"
+  },
   "addAccount": {
     "message": "Přidat účet"
   },
@@ -3896,6 +4069,18 @@
   },
   "data": {
     "message": "Data"
+  },
+  "passkeys": {
+    "message": "Přístupové klíče",
+    "description": "A section header for a list of passkeys."
+  },
+  "passwords": {
+    "message": "Hesla",
+    "description": "A section header for a list of passwords."
+  },
+  "logInWithPasskeyAriaLabel": {
+    "message": "Přihlásit se pomocí přístupového klíče",
+    "description": "ARIA label for the inline menu button that logs in with a passkey."
   },
   "assign": {
     "message": "Přiřadit"
@@ -4091,6 +4276,12 @@
   "itemLocation": {
     "message": "Umístění položky"
   },
+  "fileSends": {
+    "message": "Sends se soubory"
+  },
+  "textSends": {
+    "message": "Sends s texty"
+  },
   "bitwardenNewLook": {
     "message": "Bitwarden má nový vzhled!"
   },
@@ -4098,6 +4289,39 @@
     "message": "Je snazší a intuitivnější než kdy jindy automaticky vyplňovat a vyhledávat z karty trezor. Mrkněte se!"
   },
   "accountActions": {
-    "message": "Account actions"
+    "message": "Činnosti účtu"
+  },
+  "showNumberOfAutofillSuggestions": {
+    "message": "Zobrazit počet návrhů automatického vyplňování přihlášení na ikoně rozšíření"
+  },
+  "systemDefault": {
+    "message": "Systémový výchozí"
+  },
+  "enterprisePolicyRequirementsApplied": {
+    "message": "Na toto nastavení byly uplatněny požadavky podnikových zásad"
+  },
+  "additionalContentAvailable": {
+    "message": "Je k dispozici další obsah"
+  },
+  "itemsInTrash": {
+    "message": "Položky v koši"
+  },
+  "noItemsInTrash": {
+    "message": "Žádné položky v koši"
+  },
+  "noItemsInTrashDesc": {
+    "message": "Položky, které smažete, se zde zobrazí a budou trvale smazány po 30 dnech."
+  },
+  "trashWarning": {
+    "message": "Položky, které byly v koši déle než 30 dní, budou automaticky smazány."
+  },
+  "restore": {
+    "message": "Obnovit"
+  },
+  "deleteForever": {
+    "message": "Smazat navždy"
+  },
+  "noEditPermissions": {
+    "message": "Nemáte oprávnění upravit tuto položku"
   }
 }
