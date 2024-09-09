@@ -30,7 +30,7 @@ describe("FolderState", () => {
   const userKey = makeSymmetricCryptoKey(64) as UserKey;
   let userKeySubject: BehaviorSubject<UserKey>;
   const folderId = Utils.newGuid() as FolderId;
-  let singleUserState: FakeSingleUserState<FolderData[]>;
+  let singleUserState: FakeSingleUserState<Record<FolderId, FolderData>>;
   let cryptoService: MockProxy<CryptoService>;
   let folderApiService: MockProxy<NewFolderApiService>;
   let folderEncryptor: MockProxy<FolderEncryptor>;
@@ -38,7 +38,7 @@ describe("FolderState", () => {
   let sut: FolderState;
 
   beforeEach(() => {
-    singleUserState = new FakeSingleUserState(userId, []);
+    singleUserState = new FakeSingleUserState(userId, {});
     cryptoService = mock<CryptoService>();
     userKeySubject = new BehaviorSubject(userKey);
     cryptoService.userKey$.mockReturnValue(userKeySubject);
@@ -80,7 +80,7 @@ describe("FolderState", () => {
     });
     const tracker = new ObservableTracker(sut.state$);
 
-    singleUserState.nextState([folderData]);
+    singleUserState.nextState({ [folderData.id]: folderData });
 
     const result = await tracker.pauseUntilReceived(2);
 
@@ -129,7 +129,7 @@ describe("FolderState", () => {
         });
       });
 
-      singleUserState.nextState([folderData]);
+      singleUserState.nextState({ [folderData.id]: folderData });
 
       const tracker = new ObservableTracker(sut.update(map((f) => f)));
 
@@ -153,7 +153,7 @@ describe("FolderState", () => {
         });
       });
 
-      singleUserState.nextState([folderData]);
+      singleUserState.nextState({ [folderData.id]: folderData });
 
       const tracker = new ObservableTracker(
         sut.update(
@@ -172,7 +172,7 @@ describe("FolderState", () => {
 
     it("updates server with the encrypted value when updating a cipher", async () => {
       setUpApi(folderApiService);
-      singleUserState.nextState([folderData]);
+      singleUserState.nextState({ [folderData.id]: folderData });
 
       const tracker = new ObservableTracker(sut.update((f) => f));
 
@@ -188,13 +188,15 @@ describe("FolderState", () => {
         revisionDate: new Date().toJSON(),
       });
       setUpApi(folderApiService, expectedNewFolderData);
-      singleUserState.nextState([folderData]);
+      singleUserState.nextState({ [folderData.id]: folderData });
 
       const tracker = new ObservableTracker(sut.update(map((f) => f)));
 
       await tracker.expectEmission();
 
-      expect(singleUserState.nextMock).toHaveBeenCalledWith([expectedNewFolderData]);
+      expect(singleUserState.nextMock).toHaveBeenCalledWith({
+        [expectedNewFolderData.id]: expectedNewFolderData,
+      });
     });
 
     it("returns the new decrypted value returned by the API", async () => {
@@ -205,7 +207,7 @@ describe("FolderState", () => {
       });
       setUpApi(folderApiService, expectedNewFolderData);
 
-      singleUserState.nextState([folderData]);
+      singleUserState.nextState({ [folderData.id]: folderData });
 
       const tracker = new ObservableTracker(sut.update(map((f) => f)));
 
@@ -222,7 +224,7 @@ describe("FolderState", () => {
 
     it("still succeeds if destroy is triggered in the middle of the update", async () => {
       setUpApi(folderApiService);
-      singleUserState.nextState([folderData]);
+      singleUserState.nextState({ [folderData.id]: folderData });
 
       const tracker = new ObservableTracker(
         sut.update(
@@ -236,7 +238,7 @@ describe("FolderState", () => {
       const result = await tracker.expectEmission();
 
       expect(result).toEqual(folderView);
-      expect(singleUserState.nextMock).toHaveBeenLastCalledWith([folderData]);
+      expect(singleUserState.nextMock).toHaveBeenLastCalledWith({ [folderData.id]: folderData });
     });
   });
 });

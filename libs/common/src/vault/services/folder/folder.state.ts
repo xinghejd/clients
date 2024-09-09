@@ -14,7 +14,7 @@ export class FolderState {
   state$: Observable<FolderView | null>;
   constructor(
     private readonly folderId: FolderId,
-    private readonly singleUserState: SingleUserState<FolderData[]>,
+    private readonly singleUserState: SingleUserState<Record<string, FolderData>>,
     private readonly cryptoService: CryptoService,
     private readonly folderApiService: NewFolderApiService,
     private readonly folderEncryptor: FolderEncryptor,
@@ -25,7 +25,7 @@ export class FolderState {
         if (this.folderId == null) {
           return of(null);
         } else {
-          return of(folders.find((f) => f.id === this.folderId));
+          return of(folders[this.folderId]);
         }
       }),
       this.folderEncryptor.decryptFolder(this.userKey$),
@@ -72,14 +72,12 @@ export class FolderState {
   private updateDiskState = switchMap(async (folder: FolderData) => {
     const newFolders = await this.singleUserState.update((folders) => {
       if (!folders) {
-        return [folder];
-      } else if (folders.some((f) => f.id === folder.id)) {
-        return folders.map((f) => (f.id === folder.id ? folder : f));
+        return { [folder.id]: folder };
       } else {
-        return [...folders, folder];
+        return { ...folders, [folder.id]: folder };
       }
     });
 
-    return newFolders.find((f) => f.id === folder.id);
+    return newFolders[folder.id];
   });
 }
