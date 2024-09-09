@@ -48,6 +48,30 @@
   "loginCredentials": {
     "message": "登录凭据"
   },
+  "personalDetails": {
+    "message": "个人信息"
+  },
+  "identification": {
+    "message": "Identification"
+  },
+  "contactInfo": {
+    "message": "联系信息"
+  },
+  "cardDetails": {
+    "message": "支付卡详情"
+  },
+  "cardBrandDetails": {
+    "message": "$BRAND$ 详情",
+    "placeholders": {
+      "brand": {
+        "content": "$1",
+        "example": "Visa"
+      }
+    }
+  },
+  "itemHistory": {
+    "message": "项目历史记录"
+  },
   "authenticatorKey": {
     "message": "验证器密钥"
   },
@@ -439,6 +463,9 @@
   "fullName": {
     "message": "全名"
   },
+  "address": {
+    "message": "地址"
+  },
   "address1": {
     "message": "地址 1"
   },
@@ -711,7 +738,7 @@
     "message": "访问权限等级"
   },
   "accessing": {
-    "message": "访问中"
+    "message": "正在访问"
   },
   "loggedOut": {
     "message": "已注销"
@@ -750,13 +777,13 @@
     "message": "否"
   },
   "loginOrCreateNewAccount": {
-    "message": "登录或者创建一个账户来访问您的安全密码库。"
+    "message": "登录或创建一个新账户以访问您的安全密码库。"
   },
   "loginWithDevice": {
     "message": "使用设备登录"
   },
   "loginWithDeviceEnabledNote": {
-    "message": "设备登录必须在 Bitwarden 应用程序的设置中启用。需要其他登录选项吗？"
+    "message": "必须在 Bitwarden App 的设置中启用设备登录。需要其他登录选项吗？"
   },
   "loginWithMasterPassword": {
     "message": "使用主密码登录"
@@ -963,6 +990,12 @@
   },
   "newAccountCreated": {
     "message": "您的新账户已创建！您现在可以登录了。"
+  },
+  "newAccountCreated2": {
+    "message": "您的新账户已成功创建！"
+  },
+  "youHaveBeenLoggedIn": {
+    "message": "您已登录！"
   },
   "trialAccountCreated": {
     "message": "账户创建成功。"
@@ -4878,11 +4911,11 @@
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read '**Learn more**, see how it works, or try it now. '"
   },
   "sendVaultCardSee": {
-    "message": "参见",
+    "message": "查看",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Learn more, **see** how it works, or try it now.'"
   },
   "sendVaultCardHowItWorks": {
-    "message": "工作原理",
+    "message": "它的工作原理",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Learn more, see **how it works**, or try it now.'"
   },
   "sendVaultCardOr": {
@@ -4971,7 +5004,7 @@
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Learn more about Bitwarden Send or **sign up** to try it today.'"
   },
   "sendAccessTaglineTryToday": {
-    "message": "来马上尝试。",
+    "message": "以立即体验。",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Learn more about Bitwarden Send or sign up to **try it today.**'"
   },
   "sendAccessCreatorIdentifier": {
@@ -4982,6 +5015,10 @@
         "example": "An email address"
       }
     }
+  },
+  "viewSend": {
+    "message": "查看 Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "viewSendHiddenEmailWarning": {
     "message": "创建此 Send 的 Bitwarden 用户已选择隐藏他们的电子邮件地址。在使用或下载此链接的内容之前，应确保您信任此链接的来源。",
@@ -5129,10 +5166,10 @@
     "message": "重置密码详细信息响应为空"
   },
   "trashCleanupWarning": {
-    "message": "回收站中超过 30 天的条目将会被自动删除。"
+    "message": "回收站中超过 30 天的项目将被自动删除。"
   },
   "trashCleanupWarningSelfHosted": {
-    "message": "回收站中超过一定时间的条目将会被自动删除。"
+    "message": "回收站中超过一定时间的项目将被自动删除。"
   },
   "passwordPrompt": {
     "message": "主密码重新提示"
@@ -6526,7 +6563,7 @@
     "message": "正在获取选项..."
   },
   "multiSelectNotFound": {
-    "message": "未找到任何条目"
+    "message": "未找到任何项目"
   },
   "multiSelectClearAll": {
     "message": "清除全部"
@@ -8460,7 +8497,7 @@
     "message": "SDK"
   },
   "sdksDesc": {
-    "message": "使用以下编程语言的 Bitwarden 机密管理器 SDK 来构建您自己的应用程序。"
+    "message": "使用以下编程语言中的 Bitwarden 机密管理器 SDK 来构建您自己的应用程序。"
   },
   "setUpGithubActions": {
     "message": "设置 Github Actions"
@@ -9008,5 +9045,18 @@
   },
   "secretsManagerWithFreePasswordManagerInfo": {
     "message": "您的免费一年密码管理器订阅将升级到所选计划。免费期结束之前不会收费。"
+  },
+  "publicApi": {
+    "message": "公共 API",
+    "description": "The text, 'API', is an acronymn and should not be translated."
+  },
+  "showCharacterCount": {
+    "message": "显示字符计数"
+  },
+  "hideCharacterCount": {
+    "message": "隐藏字符计数"
+  },
+  "editAccess": {
+    "message": "编辑权限"
   }
 }

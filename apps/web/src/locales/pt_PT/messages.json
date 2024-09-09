@@ -48,6 +48,30 @@
   "loginCredentials": {
     "message": "Credenciais de início de sessão"
   },
+  "personalDetails": {
+    "message": "Detalhes pessoais"
+  },
+  "identification": {
+    "message": "Identificação"
+  },
+  "contactInfo": {
+    "message": "Informações de contacto"
+  },
+  "cardDetails": {
+    "message": "Detalhes do cartão"
+  },
+  "cardBrandDetails": {
+    "message": "Detalhes do $BRAND$",
+    "placeholders": {
+      "brand": {
+        "content": "$1",
+        "example": "Visa"
+      }
+    }
+  },
+  "itemHistory": {
+    "message": "Histórico do item"
+  },
   "authenticatorKey": {
     "message": "Chave de autenticação"
   },
@@ -438,6 +462,9 @@
   },
   "fullName": {
     "message": "Nome completo"
+  },
+  "address": {
+    "message": "Endereço"
   },
   "address1": {
     "message": "Endereço 1"
@@ -963,6 +990,12 @@
   },
   "newAccountCreated": {
     "message": "A sua nova conta foi criada! Pode agora iniciar sessão."
+  },
+  "newAccountCreated2": {
+    "message": "A sua nova conta foi criada!"
+  },
+  "youHaveBeenLoggedIn": {
+    "message": "Iniciou sessão!"
   },
   "trialAccountCreated": {
     "message": "Conta criada com sucesso."
@@ -4982,6 +5015,10 @@
         "example": "An email address"
       }
     }
+  },
+  "viewSend": {
+    "message": "Ver Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "viewSendHiddenEmailWarning": {
     "message": "O utilizador Bitwarden que criou este Send optou por ocultar o seu endereço de e-mail. Deve certificar-se de que confia na fonte deste link antes de utilizar ou descarregar o seu conteúdo.",
@@ -9008,5 +9045,18 @@
   },
   "secretsManagerWithFreePasswordManagerInfo": {
     "message": "A sua subscrição complementar de um ano do Gestor de Palavras-passe será atualizada para o plano selecionado. Não será cobrado até que o período de cortesia termine."
+  },
+  "publicApi": {
+    "message": "API pública",
+    "description": "The text, 'API', is an acronymn and should not be translated."
+  },
+  "showCharacterCount": {
+    "message": "Mostrar contagem de caracteres"
+  },
+  "hideCharacterCount": {
+    "message": "Ocultar contagem de caracteres"
+  },
+  "editAccess": {
+    "message": "Editar acesso"
   }
 }

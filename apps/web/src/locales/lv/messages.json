@@ -48,6 +48,30 @@
   "loginCredentials": {
     "message": "Login credentials"
   },
+  "personalDetails": {
+    "message": "Personiskā informācija"
+  },
+  "identification": {
+    "message": "Identifikācija"
+  },
+  "contactInfo": {
+    "message": "Saziņas informācija"
+  },
+  "cardDetails": {
+    "message": "Kartes dati"
+  },
+  "cardBrandDetails": {
+    "message": "$BRAND$ dati",
+    "placeholders": {
+      "brand": {
+        "content": "$1",
+        "example": "Visa"
+      }
+    }
+  },
+  "itemHistory": {
+    "message": "Vienuma vēsture"
+  },
   "authenticatorKey": {
     "message": "Authenticator key"
   },
@@ -439,6 +463,9 @@
   "fullName": {
     "message": "Pilnais vārds"
   },
+  "address": {
+    "message": "Adrese"
+  },
   "address1": {
     "message": "Adrese 1"
   },
@@ -723,16 +750,16 @@
     "message": "Pieteikšanās sesija ir beigusies."
   },
   "restartRegistration": {
-    "message": "Restart registration"
+    "message": "Sākt reģistrēšanos no jauna"
   },
   "expiredLink": {
-    "message": "Expired link"
+    "message": "Saitei beidzies derīgums"
   },
   "pleaseRestartRegistrationOrTryLoggingIn": {
-    "message": "Please restart registration or try logging in."
+    "message": "Lūgums sākt reģistrēšanos no jauna vai mēģināt pieteikties."
   },
   "youMayAlreadyHaveAnAccount": {
-    "message": "You may already have an account"
+    "message": "Tev jau varētu būt konts"
   },
   "logOutConfirmation": {
     "message": "Vai tiešām atteikties?"
@@ -963,6 +990,12 @@
   },
   "newAccountCreated": {
     "message": "Jaunais konts ir izveidots. Tagad vari pieteikties."
+  },
+  "newAccountCreated2": {
+    "message": "Jaunais konts tika izveidots."
+  },
+  "youHaveBeenLoggedIn": {
+    "message": "Tu esi pieteicies."
   },
   "trialAccountCreated": {
     "message": "Konts tika veiksmīgi izveidots."
@@ -3904,7 +3937,7 @@
     "message": "Nekas nav atlasīts."
   },
   "receiveMarketingEmailsV2": {
-    "message": "Get advice, announcements, and research opportunities from Bitwarden in your inbox."
+    "message": "Iegūt savā iesūtnē padomus, paziņojumus un izpētes iespējas no Bitwarden."
   },
   "unsubscribe": {
     "message": "Atteikt abonēšanu"
@@ -4982,6 +5015,10 @@
         "example": "An email address"
       }
     }
+  },
+  "viewSend": {
+    "message": "Apskatīt Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "viewSendHiddenEmailWarning": {
     "message": "Bitwarden lietotājs, kurš izveidoja šo Send, ir izvēlējies slēpt savu e-pasta adresi. Ir jāpārliecinās par šīs saites avota uzticamību, pirms saturs tiek izmantots vai lejupielādēts.",
@@ -8890,10 +8927,10 @@
     }
   },
   "optionalOnPremHosting": {
-    "message": "Optional on-premises hosting"
+    "message": "Iespēja mitināt savā serverī"
   },
   "upgradeFreeOrganization": {
-    "message": "Upgrade your $NAME$ organization ",
+    "message": "Uzlabo savu $NAME$ apvienību ",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -8902,10 +8939,10 @@
     }
   },
   "includeSsoAuthenticationMessage": {
-    "message": "SSO Authentication"
+    "message": "SSO autentifikācija"
   },
   "familiesPlanInvLimitReachedManageBilling": {
-    "message": "Families organizations may have up to $SEATCOUNT$ members. Upgrade to a paid plan to invite more members.",
+    "message": "Ģimeņu apvienībās var būt līdz $SEATCOUNT$ dalībniekiem. Jāpāriet uz maksas plānu, lai uzaicinātu vairāk dalībnieku.",
     "placeholders": {
       "seatcount": {
         "content": "$1",
@@ -8914,7 +8951,7 @@
     }
   },
   "familiesPlanInvLimitReachedNoManageBilling": {
-    "message": "Families organizations may have up to $SEATCOUNT$ members. Contact your organization owner to upgrade.",
+    "message": "Ģiemņu apvienībās var būt līdz $SEATCOUNT$ dalībniekiem. Jāsazinās ar apvienības īpašnieku, lai pārietu uz maksas plānu.",
     "placeholders": {
       "seatcount": {
         "content": "$1",
@@ -8923,7 +8960,7 @@
     }
   },
   "upgradePlan": {
-    "message": "Upgrade your plan to invite more members and gain access to additional Bitwarden features"
+    "message": "Uzlabo savu plānu, lai uzaicinātu vairāk dalībnieku un iegūtu piekļuvi papildu Bitwarden iespējām"
   },
   "upgradeDiscount": {
     "message": "Ietaupi $AMOUNT$%",
@@ -9008,5 +9045,18 @@
   },
   "secretsManagerWithFreePasswordManagerInfo": {
     "message": "Bezmaksas viena gada Paroļu pārvaldnieka abonements tiks uzlabots uz izvēlēto plānu. Maksa netiks ieturēta līdz bezmaksas izmantošanas laika beigām."
+  },
+  "publicApi": {
+    "message": "Publiskais API",
+    "description": "The text, 'API', is an acronymn and should not be translated."
+  },
+  "showCharacterCount": {
+    "message": "Rādīt rakstzīmju skaitu"
+  },
+  "hideCharacterCount": {
+    "message": "Paslēpt rakstzīmju skaitu"
+  },
+  "editAccess": {
+    "message": "Labot piekļuvi"
   }
 }

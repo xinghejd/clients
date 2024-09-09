@@ -48,6 +48,30 @@
   "loginCredentials": {
     "message": "Identifiants de connexion"
   },
+  "personalDetails": {
+    "message": "Détails personnels"
+  },
+  "identification": {
+    "message": "Identification"
+  },
+  "contactInfo": {
+    "message": "Coordonnées"
+  },
+  "cardDetails": {
+    "message": "Détails de la carte de paiement"
+  },
+  "cardBrandDetails": {
+    "message": "Détails de la carte $BRAND$",
+    "placeholders": {
+      "brand": {
+        "content": "$1",
+        "example": "Visa"
+      }
+    }
+  },
+  "itemHistory": {
+    "message": "Historique des éléments"
+  },
   "authenticatorKey": {
     "message": "Clé d'authentification"
   },
@@ -438,6 +462,9 @@
   },
   "fullName": {
     "message": "Nom et prénom"
+  },
+  "address": {
+    "message": "Adresse"
   },
   "address1": {
     "message": "Adresse 1"
@@ -963,6 +990,12 @@
   },
   "newAccountCreated": {
     "message": "Votre nouveau compte a été créé ! Vous pouvez maintenant vous authentifier."
+  },
+  "newAccountCreated2": {
+    "message": "Votre nouveau compte a été créé !"
+  },
+  "youHaveBeenLoggedIn": {
+    "message": "Vous avez été connecté!"
   },
   "trialAccountCreated": {
     "message": "Compte créé avec succès."
@@ -4982,6 +5015,10 @@
         "example": "An email address"
       }
     }
+  },
+  "viewSend": {
+    "message": "Voir le Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "viewSendHiddenEmailWarning": {
     "message": "L'utilisateur de Bitwarden qui a créé ce Send a choisi de masquer son adresse électronique. Vous devriez vous assurer que vous faites confiance à la source de ce lien avant d'utiliser ou de télécharger son contenu.",
@@ -9008,5 +9045,18 @@
   },
   "secretsManagerWithFreePasswordManagerInfo": {
     "message": "Votre abonnement complémentaire d'un an au Gestionnaire de Mots de Passe sera mis à niveau au plan sélectionné. Vous ne serez pas chargé avant la fin de votre période gratuite."
+  },
+  "publicApi": {
+    "message": "API publique",
+    "description": "The text, 'API', is an acronymn and should not be translated."
+  },
+  "showCharacterCount": {
+    "message": "Afficher le nombre de caractères"
+  },
+  "hideCharacterCount": {
+    "message": "Cacher le nombre de caractères"
+  },
+  "editAccess": {
+    "message": "Modifier l'accès"
   }
 }

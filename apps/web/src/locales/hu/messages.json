@@ -48,6 +48,30 @@
   "loginCredentials": {
     "message": "Bejelentkezési hitelesítések"
   },
+  "personalDetails": {
+    "message": "Személyes adatok"
+  },
+  "identification": {
+    "message": "Azonosítás"
+  },
+  "contactInfo": {
+    "message": "Kapcsolat infó"
+  },
+  "cardDetails": {
+    "message": "Kártyaadatok"
+  },
+  "cardBrandDetails": {
+    "message": "$BRAND$ adatok",
+    "placeholders": {
+      "brand": {
+        "content": "$1",
+        "example": "Visa"
+      }
+    }
+  },
+  "itemHistory": {
+    "message": "Elem előzmény"
+  },
   "authenticatorKey": {
     "message": "Hitelesítő kulcs"
   },
@@ -438,6 +462,9 @@
   },
   "fullName": {
     "message": "Teljes név"
+  },
+  "address": {
+    "message": "Postai cím"
   },
   "address1": {
     "message": "Cím 1"
@@ -963,6 +990,12 @@
   },
   "newAccountCreated": {
     "message": "A fiók létrehozásra került. Most már be lehet jelentkezni."
+  },
+  "newAccountCreated2": {
+    "message": "Your new account has been created!"
+  },
+  "youHaveBeenLoggedIn": {
+    "message": "You have been logged in!"
   },
   "trialAccountCreated": {
     "message": "A fiók sikeresen létrejött."
@@ -4982,6 +5015,10 @@
         "example": "An email address"
       }
     }
+  },
+  "viewSend": {
+    "message": "Send megtekintése",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "viewSendHiddenEmailWarning": {
     "message": "Az ezt a Send elemet létrehozó Bitwarden felhasználó úgy döntött, hogy elrejti email címét. Mielőtt felhasználnánk vagy letöltenénk a tartalmát, ellenőrizzük a hivatkozás megbízhatóságát.",
@@ -9008,5 +9045,18 @@
   },
   "secretsManagerWithFreePasswordManagerInfo": {
     "message": "A kiegészítő egyéves Jelszókezelő előfizetés a kiválasztott csomagra frissül. A díjmentes időszak lejártáig nem számítunk fel díjat."
+  },
+  "publicApi": {
+    "message": "Nyilvános API",
+    "description": "The text, 'API', is an acronymn and should not be translated."
+  },
+  "showCharacterCount": {
+    "message": "Karakterszámláló megjelenítése"
+  },
+  "hideCharacterCount": {
+    "message": "Karakterszámláló elrejtése"
+  },
+  "editAccess": {
+    "message": "Hozzáférés szerkesztése"
   }
 }

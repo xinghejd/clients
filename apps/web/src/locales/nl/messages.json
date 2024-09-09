@@ -48,6 +48,30 @@
   "loginCredentials": {
     "message": "Inloggegevens"
   },
+  "personalDetails": {
+    "message": "Persoonlijke gegevens"
+  },
+  "identification": {
+    "message": "Identificatie"
+  },
+  "contactInfo": {
+    "message": "Contactgegevens"
+  },
+  "cardDetails": {
+    "message": "Kaartgegevens"
+  },
+  "cardBrandDetails": {
+    "message": "$BRAND$-gegevens",
+    "placeholders": {
+      "brand": {
+        "content": "$1",
+        "example": "Visa"
+      }
+    }
+  },
+  "itemHistory": {
+    "message": "Itemgeschiedenis"
+  },
   "authenticatorKey": {
     "message": "Authenticatiesleutel"
   },
@@ -438,6 +462,9 @@
   },
   "fullName": {
     "message": "Volledige naam"
+  },
+  "address": {
+    "message": "Adres"
   },
   "address1": {
     "message": "Adres 1"
@@ -963,6 +990,12 @@
   },
   "newAccountCreated": {
     "message": "Je nieuwe account is aangemaakt! Je kunt nu inloggen."
+  },
+  "newAccountCreated2": {
+    "message": "Je nieuwe account is aangemaakt!"
+  },
+  "youHaveBeenLoggedIn": {
+    "message": "Je bent ingelogd!"
   },
   "trialAccountCreated": {
     "message": "Account succesvol aangemaakt."
@@ -4982,6 +5015,10 @@
         "example": "An email address"
       }
     }
+  },
+  "viewSend": {
+    "message": "Send weergeven",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "viewSendHiddenEmailWarning": {
     "message": "De Bitwarden-gebruiker die deze Send heeft gemaakt heeft ervoor gekozen het e-mailadres te verbergen. Je moet je ervan verzekeren dat je de bron van deze link vertrouwt voordat je de inhoud gebruikt of downloadt.",
@@ -9008,5 +9045,18 @@
   },
   "secretsManagerWithFreePasswordManagerInfo": {
     "message": "Your complementary one year Password Manager subscription will upgrade to the selected plan. You will not be charged until the complimentary period is over."
+  },
+  "publicApi": {
+    "message": "Openbare API",
+    "description": "The text, 'API', is an acronymn and should not be translated."
+  },
+  "showCharacterCount": {
+    "message": "Aantal tekens weergeven"
+  },
+  "hideCharacterCount": {
+    "message": "Aantal tekens verbergen"
+  },
+  "editAccess": {
+    "message": "Toegang bewerken"
   }
 }

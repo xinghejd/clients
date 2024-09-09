@@ -79,6 +79,7 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
 import { CryptoFunctionService as CryptoFunctionServiceAbstraction } from "@bitwarden/common/platform/abstractions/crypto-function.service";
 import { CryptoService as CryptoServiceAbstraction } from "@bitwarden/common/platform/abstractions/crypto.service";
 import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
+import { Fido2ActiveRequestManager as Fido2ActiveRequestManagerAbstraction } from "@bitwarden/common/platform/abstractions/fido2/fido2-active-request-manager.abstraction";
 import { Fido2AuthenticatorService as Fido2AuthenticatorServiceAbstraction } from "@bitwarden/common/platform/abstractions/fido2/fido2-authenticator.service.abstraction";
 import { Fido2ClientService as Fido2ClientServiceAbstraction } from "@bitwarden/common/platform/abstractions/fido2/fido2-client.service.abstraction";
 import { Fido2UserInterfaceService as Fido2UserInterfaceServiceAbstraction } from "@bitwarden/common/platform/abstractions/fido2/fido2-user-interface.service.abstraction";
@@ -324,6 +325,7 @@ export default class MainBackground {
   userVerificationApiService: UserVerificationApiServiceAbstraction;
   fido2UserInterfaceService: Fido2UserInterfaceServiceAbstraction;
   fido2AuthenticatorService: Fido2AuthenticatorServiceAbstraction;
+  fido2ActiveRequestManager: Fido2ActiveRequestManagerAbstraction;
   fido2ClientService: Fido2ClientServiceAbstraction;
   avatarService: AvatarServiceAbstraction;
   mainContextMenuHandler: MainContextMenuHandler;
@@ -400,6 +402,8 @@ export default class MainBackground {
 
     const logoutCallback = async (logoutReason: LogoutReason, userId?: UserId) =>
       await this.logout(logoutReason, userId);
+
+    const runtimeNativeMessagingBackground = () => this.nativeMessagingBackground;
 
     const refreshAccessTokenErrorCallback = () => {
       // Send toast to popup
@@ -616,7 +620,9 @@ export default class MainBackground {
 
     this.i18nService = new I18nService(BrowserApi.getUILanguage(), this.globalStateProvider);
 
-    this.biometricsService = new BackgroundBrowserBiometricsService(this.nativeMessagingBackground);
+    this.biometricsService = new BackgroundBrowserBiometricsService(
+      runtimeNativeMessagingBackground,
+    );
 
     this.kdfConfigService = new KdfConfigService(this.stateProvider);
 
@@ -648,7 +654,7 @@ export default class MainBackground {
       this.kdfConfigService,
     );
 
-    this.appIdService = new AppIdService(this.globalStateProvider);
+    this.appIdService = new AppIdService(this.storageService, this.logService);
 
     this.userDecryptionOptionsService = new UserDecryptionOptionsService(this.stateProvider);
     this.organizationService = new OrganizationService(this.stateProvider);
@@ -777,6 +783,8 @@ export default class MainBackground {
       this.stateProvider,
       this.authService,
     );
+
+    this.bulkEncryptService = new FallbackBulkEncryptService(this.encryptService);
 
     this.cipherService = new CipherService(
       this.cryptoService,
@@ -1015,7 +1023,7 @@ export default class MainBackground {
       this.accountService,
       this.logService,
     );
-    const fido2ActiveRequestManager = new Fido2ActiveRequestManager();
+    this.fido2ActiveRequestManager = new Fido2ActiveRequestManager();
     this.fido2ClientService = new Fido2ClientService(
       this.fido2AuthenticatorService,
       this.configService,
@@ -1023,7 +1031,7 @@ export default class MainBackground {
       this.vaultSettingsService,
       this.domainSettingsService,
       this.taskSchedulerService,
-      fido2ActiveRequestManager,
+      this.fido2ActiveRequestManager,
       this.logService,
     );
 
@@ -1051,6 +1059,7 @@ export default class MainBackground {
     if (!this.popupOnlyContext) {
       this.fido2Background = new Fido2Background(
         this.logService,
+        this.fido2ActiveRequestManager,
         this.fido2ClientService,
         this.vaultSettingsService,
         this.scriptInjectorService,
@@ -1263,6 +1272,18 @@ export default class MainBackground {
       );
     }
 
+    // If the user is logged out, switch to the next account
+    const active = await firstValueFrom(this.accountService.activeAccount$);
+    if (active != null) {
+      const authStatus = await firstValueFrom(
+        this.authService.authStatuses$.pipe(map((statuses) => statuses[active.id])),
+      );
+      if (authStatus === AuthenticationStatus.LoggedOut) {
+        const nextUpAccount = await firstValueFrom(this.accountService.nextUpAccount$);
+        await this.switchAccount(nextUpAccount?.id);
+      }
+    }
+
     await this.initOverlayAndTabsBackground();
 
     return new Promise<void>((resolve) => {
@@ -1447,7 +1468,14 @@ export default class MainBackground {
     });
 
     if (needStorageReseed) {
-      await this.reseedStorage();
+      await this.reseedStorage(
+        await firstValueFrom(
+          this.configService.userCachedFeatureFlag$(
+            FeatureFlag.StorageReseedRefactor,
+            userBeingLoggedOut,
+          ),
+        ),
+      );
     }
 
     if (BrowserApi.isManifestVersion(3)) {
@@ -1502,7 +1530,7 @@ export default class MainBackground {
     await SafariApp.sendMessageToApp("showPopover", null, true);
   }
 
-  async reseedStorage() {
+  async reseedStorage(doFillBuffer: boolean) {
     if (
       !this.platformUtilsService.isChrome() &&
       !this.platformUtilsService.isVivaldi() &&
@@ -1511,7 +1539,11 @@ export default class MainBackground {
       return;
     }
 
-    await this.storageService.reseed();
+    if (doFillBuffer) {
+      await this.storageService.fillBuffer();
+    } else {
+      await this.storageService.reseed();
+    }
   }
 
   async clearClipboard(clipboardValue: string, clearMs: number) {
@@ -1576,7 +1608,8 @@ export default class MainBackground {
         this.autofillSettingsService,
         this.i18nService,
         this.platformUtilsService,
-        this.fido2ClientService,
+        this.vaultSettingsService,
+        this.fido2ActiveRequestManager,
         this.themeStateService,
       );
     }
