@@ -127,6 +127,12 @@ export class LoginComponentV2 implements OnInit, OnDestroy {
       this.showResetPasswordAutoEnrollWarning = orgPolicies?.isPolicyAndAutoEnrollEnabled;
       this.enforcedPasswordPolicyOptions = orgPolicies?.enforcedPasswordPolicyOptions;
     }
+
+    if (this.clientType === ClientType.Browser) {
+      if (this.showPasswordless) {
+        await this.validateEmail();
+      }
+    }
   }
 
   ngOnDestroy(): void {
