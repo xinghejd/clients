@@ -46,7 +46,4 @@ module.exports = {
   // https://github.com/facebook/jest/issues/9430#issuecomment-1149882002
   // Also anecdotally improves performance when run locally
   maxWorkers: 3,
-
-  // zip.js requires setting streams on the global object
-  setupFilesAfterEnv: ["<rootDir>/scripts/setup-tests.ts"],
 };

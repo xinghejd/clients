@@ -27,4 +27,3 @@ libs/components/tailwind.config.base.js
 libs/components/tailwind.config.js
 
 scripts/*.js
-scripts/setup-tests.ts
