@@ -48,5 +48,5 @@ module.exports = {
   maxWorkers: 3,
 
   // zip.js requires setting streams on the global object
-  setupFilesAfterEnv: ["<rootDir>/scripts/setupTests.ts"],
+  setupFilesAfterEnv: ["<rootDir>/scripts/setup-tests.ts"],
 };
