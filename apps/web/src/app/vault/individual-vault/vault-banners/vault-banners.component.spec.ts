@@ -1,7 +1,3 @@
-// zip.js needs these globals in node
-import { TransformStream } from "node:stream/web";
-globalThis.TransformStream = TransformStream;
-
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { RouterTestingModule } from "@angular/router/testing";

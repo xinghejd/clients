@@ -1,9 +1,3 @@
-// zip.js needs these globals in node
-import { TransformStream, WritableStream, ReadableStream } from "node:stream/web";
-globalThis.TransformStream = TransformStream;
-globalThis.WritableStream = WritableStream;
-globalThis.ReadableStream = ReadableStream;
-
 import { mock, MockProxy } from "jest-mock-extended";
 import * as JSZip from "jszip";
 

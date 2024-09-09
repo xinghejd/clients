@@ -1,8 +1,3 @@
-import { TransformStream, WritableStream, ReadableStream } from "node:stream/web";
-globalThis.TransformStream = TransformStream;
-globalThis.WritableStream = WritableStream;
-globalThis.ReadableStream = ReadableStream;
-
 import { StepperSelectionEvent } from "@angular/cdk/stepper";
 import { TitleCasePipe } from "@angular/common";
 import { NO_ERRORS_SCHEMA } from "@angular/core";
