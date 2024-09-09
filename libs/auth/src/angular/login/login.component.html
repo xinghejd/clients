@@ -70,7 +70,13 @@
   <!-----------------------------------
     UI STATE 2: Master Password Entry
   ------------------------------------>
-  <ng-container *ngIf="validatedEmail">
+  <!--
+    Why not use <ng-container *ngIf="validatedEmail"> to display this section?
+    Because we want access to the masterPasswordInput reference in the class file.
+    - Using a hidden div allows us to access the reference without rendering the div initially.
+    - Using *ngIf would not allow us to access the reference without rendering the ng-container initially.
+  -->
+  <div [ngClass]="{ 'tw-hidden': !validatedEmail }">
     <div class="tw-mb-6 tw-h-28">
       <!-- Master Password input -->
       <bit-form-field class="!tw-mb-1">
@@ -133,5 +139,5 @@
       <p class="tw-mb-1">{{ "loggingInAs" | i18n }} {{ loggedEmail }}</p>
       <a [routerLink]="[]" (click)="toggleValidateEmail(false)">{{ "notYou" | i18n }}</a>
     </div>
-  </ng-container>
+  </div>
 </form>

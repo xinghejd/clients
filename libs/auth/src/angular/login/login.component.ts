@@ -31,6 +31,7 @@ import {
   ButtonModule,
   CheckboxModule,
   FormFieldModule,
+  IconButtonModule,
   ToastService,
 } from "@bitwarden/components";
 
@@ -45,6 +46,7 @@ import { LoginService } from "./login.service";
     CheckboxModule,
     CommonModule,
     FormFieldModule,
+    IconButtonModule,
     JslibModule,
     ReactiveFormsModule,
     RouterModule,
@@ -117,12 +119,11 @@ export class LoginComponentV2 implements OnInit, OnDestroy {
 
     if (this.clientType === ClientType.Web) {
       // If there's an existing org invite, use it to get the password policies
-      const { policies, isPolicyAndAutoEnrollEnabled, enforcedPasswordPolicyOptions } =
-        await this.loginService.getOrgPolicies();
+      const orgPolicies = await this.loginService.getOrgPolicies();
 
-      this.policies = policies;
-      this.showResetPasswordAutoEnrollWarning = isPolicyAndAutoEnrollEnabled;
-      this.enforcedPasswordPolicyOptions = enforcedPasswordPolicyOptions;
+      this.policies = orgPolicies?.policies;
+      this.showResetPasswordAutoEnrollWarning = orgPolicies?.isPolicyAndAutoEnrollEnabled;
+      this.enforcedPasswordPolicyOptions = orgPolicies?.enforcedPasswordPolicyOptions;
     }
   }
 
