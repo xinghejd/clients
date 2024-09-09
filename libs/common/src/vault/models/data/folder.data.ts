@@ -1,9 +1,10 @@
 import { Jsonify } from "type-fest";
 
+import { FolderId } from "../../../types/guid";
 import { FolderResponse } from "../response/folder.response";
 
 export class FolderData {
-  id: string;
+  id: FolderId;
   name: string;
   revisionDate: string;
 

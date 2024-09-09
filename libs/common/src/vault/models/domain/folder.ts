@@ -2,11 +2,12 @@ import { Jsonify } from "type-fest";
 
 import Domain from "../../../platform/models/domain/domain-base";
 import { EncString } from "../../../platform/models/domain/enc-string";
+import { FolderId } from "../../../types/guid";
 import { FolderData } from "../data/folder.data";
 import { FolderView } from "../view/folder.view";
 
 export class Folder extends Domain {
-  id: string;
+  id: FolderId;
   name: EncString;
   revisionDate: Date;
 
