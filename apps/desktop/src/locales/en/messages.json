@@ -3061,5 +3061,14 @@
   },
   "ssoError": {
     "message": "No free ports could be found for the sso login."
+  },
+  "biometricsMPUnlockNeeded": {
+    "message": "Unlock your vault with your master password or PIN to enable biometric unlock."
+  },
+  "biometricsHardwareUnavailable": {
+    "message": "Biometric unlock hardware is currently unavailable."
+  },
+  "biometricsUnavailableReasonUnknown": {
+    "message": "Biometric unlock is currently unavailable for an unknown reason."
   }
 }

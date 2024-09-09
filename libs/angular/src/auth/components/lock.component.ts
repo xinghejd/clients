@@ -24,6 +24,7 @@ import {
 } from "@bitwarden/common/auth/types/verification";
 import { BiometricStateService } from "@bitwarden/common/key-management/biometrics/biometric-state.service";
 import { BiometricsService } from "@bitwarden/common/key-management/biometrics/biometric.service";
+import { BiometricsStatus } from "@bitwarden/common/key-management/biometrics/biometrics-status";
 import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -49,9 +50,11 @@ export class LockComponent implements OnInit, OnDestroy {
   webVaultHostname = "";
   formPromise: Promise<MasterPasswordVerificationResponse>;
   supportsBiometric: boolean;
-  biometricLock: boolean;
+  biometricLockEnabled: boolean;
+  biometricStatus: BiometricsStatus = BiometricsStatus.NotEnabled;
+  private timerId: any;
 
-  private activeUserId: UserId;
+  protected activeUserId: UserId;
   protected successRoute = "vault";
   protected forcePasswordResetRoute = "update-temp-password";
   protected onSuccessfulSubmit: () => Promise<void>;
@@ -103,9 +106,17 @@ export class LockComponent implements OnInit, OnDestroy {
         takeUntil(this.destroy$),
       )
       .subscribe();
+
+    // start background listener until destroyed on interval
+    this.timerId = setInterval(async () => {
+      this.biometricStatus = await this.biometricsService.getBiometricsStatusForUser(
+        this.activeUserId,
+      );
+    }, 500);
   }
 
   ngOnDestroy() {
+    clearInterval(this.timerId);
     this.destroy$.next();
     this.destroy$.complete();
   }
@@ -132,7 +143,7 @@ export class LockComponent implements OnInit, OnDestroy {
   }
 
   async unlockBiometric(): Promise<boolean> {
-    if (!this.biometricLock) {
+    if (!this.biometricLockEnabled) {
       return;
     }
 
@@ -150,10 +161,23 @@ export class LockComponent implements OnInit, OnDestroy {
   }
 
   async isBiometricUnlockAvailable(): Promise<boolean> {
-    if (!(await this.biometricsService.supportsBiometric())) {
-      return false;
+    return (
+      (await this.biometricsService.getBiometricsStatusForUser(this.activeUserId)) ==
+      BiometricsStatus.Available
+    );
+  }
+
+  get biometricUnavailabilityReason(): string {
+    switch (this.biometricStatus) {
+      case BiometricsStatus.Available:
+        return "";
+      case BiometricsStatus.UnlockNeeded:
+        return this.i18nService.t("biometricsMPUnlockNeeded");
+      case BiometricsStatus.HardwareUnavailable:
+        return this.i18nService.t("biometricsHardwareUnavailable");
+      default:
+        return this.i18nService.t("biometricsUnavailableReasonUnknown");
     }
-    return this.biometricsService.isBiometricUnlockAvailable();
   }
 
   togglePassword() {
@@ -337,8 +361,7 @@ export class LockComponent implements OnInit, OnDestroy {
 
     this.masterPasswordEnabled = await this.userVerificationService.hasMasterPassword();
 
-    this.supportsBiometric = await this.biometricsService.supportsBiometric();
-    this.biometricLock =
+    this.biometricLockEnabled =
       (await this.vaultTimeoutSettingsService.isBiometricLockSet()) &&
       ((await this.cryptoService.hasUserKeyStored(KeySuffixOptions.Biometric)) ||
         !this.platformUtilsService.supportsSecureStorage());

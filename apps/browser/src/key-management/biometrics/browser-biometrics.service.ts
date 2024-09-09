@@ -14,6 +14,5 @@ export abstract class BrowserBiometricsService extends BiometricsService {
     return false;
   }
 
-  abstract authenticateBiometric(): Promise<boolean>;
-  abstract isBiometricUnlockAvailable(): Promise<boolean>;
+  async biometricsSetup(): Promise<void> {}
 }

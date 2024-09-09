@@ -1,10 +1,9 @@
 export enum BiometricAction {
   EnabledForUser = "enabled",
-  OsSupported = "osSupported",
   Authenticate = "authenticate",
-  NeedsSetup = "needsSetup",
   Setup = "setup",
-  CanAutoSetup = "canAutoSetup",
+  GetStatus = "status",
+  GetStatusForUser = "statusForUser",
 }
 
 export type BiometricMessage = {

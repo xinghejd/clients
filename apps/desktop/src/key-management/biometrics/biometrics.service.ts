@@ -1,4 +1,5 @@
 import { BiometricStateService } from "@bitwarden/common/key-management/biometrics/biometric-state.service";
+import { BiometricsStatus } from "@bitwarden/common/key-management/biometrics/biometrics-status";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
@@ -64,8 +65,39 @@ export class BiometricsService extends DesktopBiometricsService {
     this.platformSpecificService = new NoopBiometricsService();
   }
 
-  async supportsBiometric() {
-    return await this.platformSpecificService.osSupportsBiometric();
+  async getBiometricsStatus(): Promise<BiometricsStatus> {
+    if (!(await this.platformSpecificService.osSupportsBiometric())) {
+      if (await this.platformSpecificService.osBiometricsNeedsSetup()) {
+        if (await this.platformSpecificService.osBiometricsCanAutoSetup()) {
+          return BiometricsStatus.AutoSetupNeeded;
+        } else {
+          return BiometricsStatus.ManualSetupNeeded;
+        }
+      }
+
+      return BiometricsStatus.HardwareUnavailable;
+    }
+    return BiometricsStatus.Available;
+  }
+
+  async getBiometricsStatusForUser(userId: UserId): Promise<BiometricsStatus> {
+    if (!(await this.biometricStateService.getBiometricUnlockEnabled(userId))) {
+      return BiometricsStatus.NotEnabled;
+    }
+
+    const platformStatus = await this.getBiometricsStatus();
+    if (!(platformStatus == BiometricsStatus.Available)) {
+      return platformStatus;
+    }
+
+    const requireClientKeyHalf = await this.biometricStateService.getRequirePasswordOnStart(userId);
+    const clientKeyHalfB64 = this.getClientKeyHalf("Bitwarden", `${userId}_user_biometric`);
+    const clientKeyHalfSatisfied = !requireClientKeyHalf || !!clientKeyHalfB64;
+    if (!clientKeyHalfSatisfied) {
+      return BiometricsStatus.UnlockNeeded;
+    }
+
+    return BiometricsStatus.Available;
   }
 
   async biometricsNeedsSetup() {
@@ -92,7 +124,8 @@ export class BiometricsService extends DesktopBiometricsService {
     const requireClientKeyHalf = await this.biometricStateService.getRequirePasswordOnStart(userId);
     const clientKeyHalfB64 = this.getClientKeyHalf(service, key);
     const clientKeyHalfSatisfied = !requireClientKeyHalf || !!clientKeyHalfB64;
-    return clientKeyHalfSatisfied && (await this.supportsBiometric());
+    return clientKeyHalfSatisfied;
+    // return clientKeyHalfSatisfied && (await this.supportsBiometric());
   }
 
   async authenticateBiometric(): Promise<boolean> {

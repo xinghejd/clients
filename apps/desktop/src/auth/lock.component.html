@@ -57,7 +57,7 @@
       </div>
     </div>
     <div class="buttons with-rows">
-      <div class="buttons-row" *ngIf="supportsBiometric && biometricLock && biometricReady">
+      <div class="buttons-row" *ngIf="biometricLockEnabled && canUseBiometric">
         <button
           type="button"
           class="btn block"
@@ -67,6 +67,13 @@
           {{ biometricText | i18n }}
         </button>
       </div>
+
+      <div class="buttons-row">
+        <label *ngIf="biometricLockEnabled && !canUseBiometric">{{
+          biometricUnavailabilityReason
+        }}</label>
+      </div>
+
       <div class="buttons-row">
         <button type="submit" class="btn primary block" *ngIf="pinEnabled || masterPasswordEnabled">
           <i class="bwi bwi-unlock" aria-hidden="true"></i> <b>{{ "unlock" | i18n }}</b>

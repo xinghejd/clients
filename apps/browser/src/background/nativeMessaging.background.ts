@@ -354,7 +354,7 @@ export class NativeMessagingBackground {
         }
         break;
       }
-      case "biometricUnlockAvailable": {
+      case "biometricStatus": {
         this.resolver(message);
         break;
       }

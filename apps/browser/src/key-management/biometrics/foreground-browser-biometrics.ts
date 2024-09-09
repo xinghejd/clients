@@ -1,3 +1,5 @@
+import { BiometricsStatus } from "@bitwarden/common/key-management/biometrics/biometrics-status";
+
 import { BrowserApi } from "../../platform/browser/browser-api";
 
 import { BrowserBiometricsService } from "./browser-biometrics.service";
@@ -14,21 +16,11 @@ export class ForegroundBrowserBiometricsService extends BrowserBiometricsService
     return response.result;
   }
 
-  async isBiometricUnlockAvailable(): Promise<boolean> {
+  async getBiometricsStatus(): Promise<BiometricsStatus> {
     const response = await BrowserApi.sendMessageWithResponse<{
-      result: boolean;
+      result: BiometricsStatus;
       error: string;
-    }>("biometricUnlockAvailable");
-    return response.result && response.result === true;
+    }>("biometricStatus");
+    return response.result;
   }
-
-  async biometricsNeedsSetup(): Promise<boolean> {
-    return false;
-  }
-
-  async biometricsSupportsAutoSetup(): Promise<boolean> {
-    return false;
-  }
-
-  async biometricsSetup(): Promise<void> {}
 }

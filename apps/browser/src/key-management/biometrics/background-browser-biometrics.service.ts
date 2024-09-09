@@ -1,5 +1,7 @@
 import { Injectable } from "@angular/core";
 
+import { BiometricsStatus } from "@bitwarden/common/key-management/biometrics/biometrics-status";
+
 import { NativeMessagingBackground } from "../../background/nativeMessaging.background";
 
 import { BrowserBiometricsService } from "./browser-biometrics.service";
@@ -17,20 +19,10 @@ export class BackgroundBrowserBiometricsService extends BrowserBiometricsService
     return response.response === "unlocked";
   }
 
-  async isBiometricUnlockAvailable(): Promise<boolean> {
+  async getBiometricsStatus(): Promise<BiometricsStatus> {
     const responsePromise = this.nativeMessagingBackground().getResponse();
-    await this.nativeMessagingBackground().send({ command: "biometricUnlockAvailable" });
+    await this.nativeMessagingBackground().send({ command: "biometricStatus" });
     const response = await responsePromise;
-    return response.response === "available";
+    return response.response;
   }
-
-  async biometricsNeedsSetup(): Promise<boolean> {
-    return false;
-  }
-
-  async biometricsSupportsAutoSetup(): Promise<boolean> {
-    return false;
-  }
-
-  async biometricsSetup(): Promise<void> {}
 }

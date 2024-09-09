@@ -18,6 +18,7 @@ import { UserVerificationService } from "@bitwarden/common/auth/abstractions/use
 import { DeviceType } from "@bitwarden/common/enums";
 import { BiometricStateService } from "@bitwarden/common/key-management/biometrics/biometric-state.service";
 import { BiometricsService } from "@bitwarden/common/key-management/biometrics/biometric.service";
+import { BiometricsStatus } from "@bitwarden/common/key-management/biometrics/biometrics-status";
 import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
 import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
@@ -38,10 +39,8 @@ const BroadcasterSubscriptionId = "LockComponent";
 })
 export class LockComponent extends BaseLockComponent implements OnInit, OnDestroy {
   private deferFocus: boolean = null;
-  protected biometricReady = false;
   private biometricAsked = false;
   private autoPromptBiometric = false;
-  private timerId: any;
 
   constructor(
     masterPasswordService: InternalMasterPasswordServiceAbstraction,
@@ -110,7 +109,6 @@ export class LockComponent extends BaseLockComponent implements OnInit, OnDestro
     this.autoPromptBiometric = await firstValueFrom(
       this.biometricStateService.promptAutomatically$,
     );
-    this.biometricReady = await this.canUseBiometric();
 
     await this.displayBiometricUpdateWarning();
 
@@ -141,18 +139,11 @@ export class LockComponent extends BaseLockComponent implements OnInit, OnDestro
       });
     });
     this.messagingService.send("getWindowIsFocused");
-
-    // start background listener until destroyed on interval
-    this.timerId = setInterval(async () => {
-      this.supportsBiometric = await this.biometricsService.supportsBiometric();
-      this.biometricReady = await this.canUseBiometric();
-    }, 1000);
   }
 
   ngOnDestroy() {
     super.ngOnDestroy();
     this.broadcasterService.unsubscribe(BroadcasterSubscriptionId);
-    clearInterval(this.timerId);
   }
 
   onWindowHidden() {
@@ -182,9 +173,8 @@ export class LockComponent extends BaseLockComponent implements OnInit, OnDestro
     }
   }
 
-  private async canUseBiometric() {
-    const userId = await this.stateService.getUserId();
-    return await ipc.keyManagement.biometric.enabled(userId);
+  get canUseBiometric() {
+    return this.biometricStatus == BiometricsStatus.Available;
   }
 
   private focusInput() {
@@ -211,7 +201,6 @@ export class LockComponent extends BaseLockComponent implements OnInit, OnDestro
       if (response) {
         await this.biometricStateService.setPromptAutomatically(false);
       }
-      this.supportsBiometric = await this.canUseBiometric();
       await this.biometricStateService.setDismissedRequirePasswordOnStartCallout();
     }
   }

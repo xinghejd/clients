@@ -289,7 +289,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
     // Non-form values
     this.showMinToTray = this.platformUtilsService.getDevice() !== DeviceType.LinuxDesktop;
     this.showAlwaysShowDock = this.platformUtilsService.getDevice() === DeviceType.MacOsDesktop;
-    this.supportsBiometric = await this.biometricsService.supportsBiometric();
+    this.supportsBiometric = true;
     this.previousVaultTimeout = this.form.value.vaultTimeout;
 
     this.refreshTimeoutSettings$
@@ -468,8 +468,8 @@ export class SettingsComponent implements OnInit, OnDestroy {
         return;
       }
 
-      const needsSetup = await this.biometricsService.biometricsNeedsSetup();
-      const supportsBiometricAutoSetup = await this.biometricsService.biometricsSupportsAutoSetup();
+      const needsSetup = false;
+      const supportsBiometricAutoSetup = false;
 
       if (needsSetup) {
         if (supportsBiometricAutoSetup) {

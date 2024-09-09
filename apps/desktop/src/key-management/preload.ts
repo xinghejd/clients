@@ -1,5 +1,6 @@
 import { ipcRenderer } from "electron";
 
+import { BiometricsStatus } from "@bitwarden/common/key-management/biometrics/biometrics-status";
 import { KeySuffixOptions } from "@bitwarden/common/platform/enums";
 
 import { BiometricMessage, BiometricAction } from "../types/biometric-message";
@@ -12,21 +13,18 @@ const biometric = {
       keySuffix: KeySuffixOptions.Biometric,
       userId: userId,
     } satisfies BiometricMessage),
-  osSupported: (): Promise<boolean> =>
+  status: (): Promise<BiometricsStatus> =>
     ipcRenderer.invoke("biometric", {
-      action: BiometricAction.OsSupported,
+      action: BiometricAction.GetStatus,
     } satisfies BiometricMessage),
-  biometricsNeedsSetup: (): Promise<boolean> =>
+  statusForUser: (userId: string): Promise<BiometricsStatus> =>
     ipcRenderer.invoke("biometric", {
-      action: BiometricAction.NeedsSetup,
+      action: BiometricAction.GetStatusForUser,
+      userId: userId,
     } satisfies BiometricMessage),
   biometricsSetup: (): Promise<void> =>
     ipcRenderer.invoke("biometric", {
       action: BiometricAction.Setup,
-    } satisfies BiometricMessage),
-  biometricsCanAutoSetup: (): Promise<boolean> =>
-    ipcRenderer.invoke("biometric", {
-      action: BiometricAction.CanAutoSetup,
     } satisfies BiometricMessage),
   authenticate: (): Promise<boolean> =>
     ipcRenderer.invoke("biometric", {

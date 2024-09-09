@@ -118,16 +118,16 @@ export class BiometricMessageHandlerService {
 
     switch (message.command) {
       case "biometricUnlock": {
-        const isTemporarilyDisabled =
-          (await this.biometricStateService.getBiometricUnlockEnabled(message.userId as UserId)) &&
-          !(await this.biometricsService.supportsBiometric());
-        if (isTemporarilyDisabled) {
-          return this.send({ command: "biometricUnlock", response: "not available" }, appId);
-        }
+        // const isTemporarilyDisabled =
+        //   (await this.biometricStateService.getBiometricUnlockEnabled(message.userId as UserId)) &&
+        //   !(await this.biometricsServicei.supportsBiometric());
+        // if (isTemporarilyDisabled) {
+        //   return this.send({ command: "biometricUnlock", response: "not available" }, appId);
+        // }
 
-        if (!(await this.biometricsService.supportsBiometric())) {
-          return this.send({ command: "biometricUnlock", response: "not supported" }, appId);
-        }
+        // if (!(await this.biometricsService.supportsBiometric())) {
+        //   return this.send({ command: "biometricUnlock", response: "not supported" }, appId);
+        // }
 
         const userId =
           (message.userId as UserId) ??
@@ -190,12 +190,14 @@ export class BiometricMessageHandlerService {
 
         break;
       }
-      case "biometricUnlockAvailable": {
-        const isAvailable = await this.biometricsService.supportsBiometric();
+      case "biometricStatus": {
+        const status = await this.biometricsService.getBiometricsStatusForUser(
+          message.userId as UserId,
+        );
         return this.send(
           {
             command: "biometricUnlockAvailable",
-            response: isAvailable ? "available" : "not available",
+            response: status,
           },
           appId,
         );

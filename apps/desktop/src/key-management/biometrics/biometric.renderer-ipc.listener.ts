@@ -1,6 +1,8 @@
 import { ipcMain } from "electron";
 
+import { BiometricsStatus } from "@bitwarden/common/key-management/biometrics/biometrics-status";
 import { ConsoleLogService } from "@bitwarden/common/platform/services/console-log.service";
+import { UserId } from "@bitwarden/common/types/guid";
 
 import { BiometricMessage, BiometricAction } from "../../types/biometric-message";
 
@@ -22,7 +24,7 @@ export class BiometricsRendererIPCListener {
           serviceName += message.keySuffix;
         }
 
-        let val: string | boolean = null;
+        let val: string | boolean | BiometricsStatus = null;
 
         if (!message.action) {
           return val;
@@ -39,17 +41,14 @@ export class BiometricsRendererIPCListener {
               userId: message.userId,
             });
             break;
-          case BiometricAction.OsSupported:
-            val = await this.biometricService.supportsBiometric();
+          case BiometricAction.GetStatus:
+            val = await this.biometricService.getBiometricsStatus();
             break;
-          case BiometricAction.NeedsSetup:
-            val = await this.biometricService.biometricsNeedsSetup();
+          case BiometricAction.GetStatusForUser:
+            val = await this.biometricService.getBiometricsStatusForUser(message.userId as UserId);
             break;
           case BiometricAction.Setup:
             await this.biometricService.biometricsSetup();
-            break;
-          case BiometricAction.CanAutoSetup:
-            val = await this.biometricService.biometricsSupportsAutoSetup();
             break;
           default:
         }
