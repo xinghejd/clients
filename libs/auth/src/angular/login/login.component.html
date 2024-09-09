@@ -1,4 +1,20 @@
-<form [bitSubmit]="submit.bind(null, false)" [formGroup]="formGroup">
+<!-- Web Template -->
+
+<!--
+    TODO-rr-bw: Clarify this comment if necessary.
+
+    Why not use <form *ngIf="clientType === ClientType.Web"> to display this section?
+    Because this file contains 3 separate templates for Web, Browser, and Desktop. For Web,
+    we want access to the masterPasswordInput reference in the class file.
+    - If we used *ngIf, we would not be able to access the reference initially.
+    - Using a hidden form allows us to access the reference, because it ensures that the element
+      reference does exist (it's just potentially hidden instead of non-existent).
+  -->
+<form
+  [ngClass]="{ 'tw-hidden': clientType !== ClientType.Web }"
+  [bitSubmit]="submit.bind(null, false)"
+  [formGroup]="formGroup"
+>
   <!-------------------------
     UI STATE 1: Email Entry
   -------------------------->
@@ -140,4 +156,9 @@
       <a [routerLink]="[]" (click)="toggleValidateEmail(false)">{{ "notYou" | i18n }}</a>
     </div>
   </div>
+</form>
+
+<!-- Browser Template -->
+<form *ngIf="clientType === ClientType.Browser" [bitSubmit]="submit" [formGroup]="formGroup">
+  <main tabindex="-1"></main>
 </form>

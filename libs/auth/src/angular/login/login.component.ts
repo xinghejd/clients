@@ -62,6 +62,7 @@ export class LoginComponentV2 implements OnInit, OnDestroy {
   captcha: CaptchaIFrame;
   captchaToken: string = null;
   clientType: ClientType;
+  ClientType = ClientType;
   registerRoute$ = this.registerRouteService.registerRoute$(); // TODO: remove when email verification flag is removed
   showLoginWithDevice = false;
   validatedEmail = false;
@@ -140,7 +141,7 @@ export class LoginComponentV2 implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  submit = async (showToast: boolean): Promise<void> => {
+  submit = async (showToast = true): Promise<void> => {
     const data = this.formGroup.value;
 
     await this.setupCaptcha();
@@ -152,6 +153,8 @@ export class LoginComponentV2 implements OnInit, OnDestroy {
       return;
     }
     // Web specific (end)
+
+    // TODO-rr-bw: handle toast here for Browser/Desktop? See base LoginComponent -> submit()
 
     const credentials = new PasswordLoginCredentials(
       data.email,
