@@ -16,7 +16,7 @@ import {
   OrganizationUserDetailsResponse,
   OrganizationUserResetPasswordDetailsResponse,
   OrganizationUserUserDetailsResponse,
-  OrganizationUserUserBasicResponse,
+  OrganizationUserUserMiniResponse,
 } from "../models/responses";
 
 /**
@@ -47,7 +47,7 @@ export abstract class OrganizationUserApiService {
   /**
    * Retrieve full details of all users that belong to the specified organization.
    * This is only accessible to privileged users, if you need a simple listing of basic details, use
-   * {@link getAllUsersBasic}.
+   * {@link getAllMiniUserDetails}.
    * @param organizationId - Identifier for the organization
    * @param options - Options for the request
    */
@@ -65,9 +65,9 @@ export abstract class OrganizationUserApiService {
    * @param organizationId - Identifier for the organization
    * @param options - Options for the request
    */
-  abstract getAllUsersBasic(
+  abstract getAllMiniUserDetails(
     organizationId: string,
-  ): Promise<ListResponse<OrganizationUserUserBasicResponse>>;
+  ): Promise<ListResponse<OrganizationUserUserMiniResponse>>;
 
   /**
    * Retrieve reset password details for the specified organization user

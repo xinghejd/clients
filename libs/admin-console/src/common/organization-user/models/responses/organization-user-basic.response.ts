@@ -4,7 +4,7 @@ import {
 } from "@bitwarden/common/admin-console/enums";
 import { BaseResponse } from "@bitwarden/common/models/response/base.response";
 
-export class OrganizationUserUserBasicResponse extends BaseResponse {
+export class OrganizationUserUserMiniResponse extends BaseResponse {
   id: string;
   userId: string;
   email: string;
