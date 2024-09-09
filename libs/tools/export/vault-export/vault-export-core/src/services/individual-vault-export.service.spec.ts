@@ -215,9 +215,8 @@ describe("VaultExportService", () => {
     it("contains data.json", async () => {
       cipherService.getAllDecrypted.mockResolvedValue([]);
       folderService.getAllDecryptedFromState.mockResolvedValue([]);
-      const exportZip = (await exportService.getExport("zip")) as Uint8Array;
-      const zipBlob = new Blob([exportZip], { type: "application/zip" });
-      const zip = await JSZip.loadAsync(zipBlob);
+      const exportZip = (await exportService.getExport("zip")) as Blob;
+      const zip = await JSZip.loadAsync(exportZip);
       const data = await zip.file("data.json")?.async("string");
       expect(data).toBeDefined();
     });
@@ -241,9 +240,8 @@ describe("VaultExportService", () => {
       ) as any;
       global.Request = jest.fn(() => {}) as any;
 
-      const exportZip = (await exportService.getExport("zip")) as Uint8Array;
-      const zipBlob = new Blob([exportZip], { type: "application/zip" });
-      const zip = await JSZip.loadAsync(zipBlob);
+      const exportZip = (await exportService.getExport("zip")) as Blob;
+      const zip = await JSZip.loadAsync(exportZip);
       const attachment = await zip.file("attachments/mock-id/mock-file-name")?.async("blob");
       expect(attachment).toBeDefined();
     });

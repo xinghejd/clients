@@ -51,7 +51,7 @@ export class IndividualVaultExportService
     super(pinService, cryptoService, cryptoFunctionService, kdfConfigService);
   }
 
-  async getExport(format: ExportFormat = "csv"): Promise<string | Uint8Array> {
+  async getExport(format: ExportFormat = "csv"): Promise<string | Blob> {
     if (format === "encrypted_json") {
       return this.getEncryptedExport();
     } else if (format === "zip") {
@@ -60,10 +60,7 @@ export class IndividualVaultExportService
     return this.getDecryptedExport(format);
   }
 
-  async getPasswordProtectedExport(
-    format: ExportFormat,
-    password: string,
-  ): Promise<string | Uint8Array> {
+  async getPasswordProtectedExport(format: ExportFormat, password: string): Promise<string | Blob> {
     if (format == "encrypted_json") {
       const clearText = (await this.getExport("json")) as string;
       return await this.buildPasswordExport(clearText, password);
@@ -74,7 +71,7 @@ export class IndividualVaultExportService
     }
   }
 
-  async getExportZip(password?: string): Promise<Uint8Array> {
+  async getExportZip(password?: string): Promise<Blob> {
     const blobWriter = new Uint8ArrayWriter();
     const zipWriter = new ZipWriter(blobWriter, { bufferedWrite: false, password });
 
@@ -106,7 +103,7 @@ export class IndividualVaultExportService
     await zipWriter.close();
     const zipFileArray = await blobWriter.getData();
 
-    return zipFileArray;
+    return new Blob([zipFileArray], { type: "application/zip" });
   }
 
   private async getDecryptedExport(format: "json" | "csv"): Promise<string> {
