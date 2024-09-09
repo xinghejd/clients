@@ -11,7 +11,7 @@ export class VaultExportService implements VaultExportServiceAbstraction {
     private organizationVaultExportService: OrganizationVaultExportServiceAbstraction,
   ) {}
 
-  async getExport(format: ExportFormat = "csv", password: string): Promise<string | Blob> {
+  async getExport(format: ExportFormat = "csv", password: string): Promise<string | Uint8Array> {
     if (!Utils.isNullOrWhitespace(password)) {
       if (format == "csv") {
         throw new Error("CSV does not support password protected export");

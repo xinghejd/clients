@@ -1,3 +1,9 @@
+// zip.js needs these globals in node
+import { TransformStream, WritableStream, ReadableStream } from "node:stream/web";
+globalThis.TransformStream = TransformStream;
+globalThis.WritableStream = WritableStream;
+globalThis.ReadableStream = ReadableStream;
+
 import { mock, MockProxy } from "jest-mock-extended";
 import * as JSZip from "jszip";
 
@@ -215,8 +221,9 @@ describe("VaultExportService", () => {
     it("contains data.json", async () => {
       cipherService.getAllDecrypted.mockResolvedValue([]);
       folderService.getAllDecryptedFromState.mockResolvedValue([]);
-      const exportZip = (await exportService.getExport("zip")) as Blob;
-      const zip = await JSZip.loadAsync(exportZip);
+      const exportZip = (await exportService.getExport("zip")) as Uint8Array;
+      const zipBlob = new Blob([exportZip], { type: "application/zip" });
+      const zip = await JSZip.loadAsync(zipBlob);
       const data = await zip.file("data.json")?.async("string");
       expect(data).toBeDefined();
     });
@@ -240,8 +247,9 @@ describe("VaultExportService", () => {
       ) as any;
       global.Request = jest.fn(() => {}) as any;
 
-      const exportZip = (await exportService.getExport("zip")) as Blob;
-      const zip = await JSZip.loadAsync(exportZip);
+      const exportZip = (await exportService.getExport("zip")) as Uint8Array;
+      const zipBlob = new Blob([exportZip], { type: "application/zip" });
+      const zip = await JSZip.loadAsync(zipBlob);
       const attachment = await zip.file("attachments/mock-id/mock-file-name")?.async("blob");
       expect(attachment).toBeDefined();
     });
@@ -266,7 +274,10 @@ describe("VaultExportService", () => {
         jest.spyOn(Utils, "fromBufferToB64").mockReturnValue(salt);
         cipherService.getAllDecrypted.mockResolvedValue(UserCipherViews.slice(0, 1));
 
-        exportString = await exportService.getPasswordProtectedExport(password);
+        exportString = (await exportService.getPasswordProtectedExport(
+          "encrypted_json",
+          password,
+        )) as string;
         exportObject = JSON.parse(exportString);
       });
 
@@ -292,7 +303,10 @@ describe("VaultExportService", () => {
 
       it("has a mac property", async () => {
         cryptoService.encrypt.mockResolvedValue(mac);
-        exportString = await exportService.getPasswordProtectedExport(password);
+        exportString = (await exportService.getPasswordProtectedExport(
+          "encrypted_json",
+          password,
+        )) as string;
         exportObject = JSON.parse(exportString);
 
         expect(exportObject.encKeyValidation_DO_NOT_EDIT).toEqual(mac.encryptedString);
@@ -300,7 +314,10 @@ describe("VaultExportService", () => {
 
       it("has data property", async () => {
         cryptoService.encrypt.mockResolvedValue(data);
-        exportString = await exportService.getPasswordProtectedExport(password);
+        exportString = (await exportService.getPasswordProtectedExport(
+          "encrypted_json",
+          password,
+        )) as string;
         exportObject = JSON.parse(exportString);
 
         expect(exportObject.data).toEqual(data.encryptedString);
