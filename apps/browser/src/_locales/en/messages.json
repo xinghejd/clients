@@ -1799,6 +1799,15 @@
   "noPasswordsInList": {
     "message": "There are no passwords to list."
   },
+  "clearHistory": {
+    "message": "Clear history"
+  },
+  "noPasswordsToShow": {
+    "message": "No passwords to show"
+  },
+  "noRecentlyGeneratedPassword": {
+    "message": "You haven't generated a password recently"
+  },
   "remove": {
     "message": "Remove"
   },
