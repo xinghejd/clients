@@ -797,7 +797,7 @@
   "useADifferentLogInMethod": {
     "message": "Use a different log in method"
   },
-  "loginWithPasskey": {
+  "logInWithPasskey": {
     "message": "Log in with passkey"
   },
   "invalidPasskeyPleaseTryAgain": {
