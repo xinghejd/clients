@@ -166,9 +166,22 @@ export class LoginComponentV2 implements OnInit, OnDestroy {
       this.loginEmailService.clearValues();
       await this.router.navigate(["update-temp-password"]);
     } else {
+      // TODO-rr-bw: handle desktop specific
+      // TODO-rr-bw: handle browser specific
+
       // Web specific (start)
       await this.goAfterLogIn(response.userId);
       // Web specific (end)
+
+      // Browser/Desktop (start)
+      this.loginEmailService.clearValues();
+
+      if (this.clientType === ClientType.Browser) {
+        await this.router.navigate(["/tabs/vault"]);
+      } else {
+        await this.router.navigate(["vault"]);
+      }
+      // Browser/Desktop (end)
     }
   };
 
