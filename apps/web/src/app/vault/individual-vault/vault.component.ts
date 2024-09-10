@@ -167,9 +167,6 @@ export class VaultComponent implements OnInit, OnDestroy {
   protected vaultBulkManagementActionEnabled$ = this.configService.getFeatureFlag$(
     FeatureFlag.VaultBulkManagementAction,
   );
-  protected extensionRefreshEnabled$ = this.configService.getFeatureFlag$(
-    FeatureFlag.ExtensionRefresh,
-  );
   private searchText$ = new Subject<string>();
   private refresh$ = new BehaviorSubject<void>(null);
   private destroy$ = new Subject<void>();
@@ -229,16 +226,9 @@ export class VaultComponent implements OnInit, OnDestroy {
           await this.viewCipher(cipherView);
         } else if (params.action === "edit") {
           /**
-           * We need to trigger the password reprompt here in case a user navigates directly to the cipher edit dialog via the URL.
+           * We need to trigger the password re-prompt here in case a user navigates directly to the cipher edit dialog via the URL.
            */
-          const extensionRefreshEnabled = await firstValueFrom(this.extensionRefreshEnabled$);
-          if (extensionRefreshEnabled) {
-            if (!(await this.triggerPasswordReprompt(cipherId as CipherId))) {
-              return;
-            }
-          }
-
-          await this.editCipher(cipherView);
+          await this.editCipher(cipherView, false);
         }
       }),
       shareReplay({ refCount: true, bufferSize: 1 }),
@@ -364,7 +354,7 @@ export class VaultComponent implements OnInit, OnDestroy {
               if (params.action === "view") {
                 await this.viewCipherById(cipherId);
               } else {
-                await this.editCipherId(cipherId);
+                await this.editCipherId(cipherId, true);
               }
             } else {
               this.toastService.showToast({
@@ -639,18 +629,15 @@ export class VaultComponent implements OnInit, OnDestroy {
     this.go({ itemId: cipher?.id });
   }
 
-  async editCipher(cipher: CipherView) {
-    return this.editCipherId(cipher?.id);
+  async editCipher(cipher: CipherView, skipMPReprompt: boolean = false) {
+    return this.editCipherId(cipher?.id, skipMPReprompt);
   }
 
-  async editCipherId(id: string) {
-    const extensionRefreshEnabled = await firstValueFrom(this.extensionRefreshEnabled$);
+  async editCipherId(id: string, skipMPReprompt: boolean = false) {
     // if cipher exists (cipher is null when new) and MP re-prompt
     // is on for this cipher, then show password re=prompt
-    if (!extensionRefreshEnabled) {
-      if (!(await this.triggerPasswordReprompt(id as CipherId))) {
-        return;
-      }
+    if (!skipMPReprompt && !(await this.triggerPasswordReprompt(id as CipherId))) {
+      return;
     }
 
     const [modal, childComponent] = await this.modalService.openViewRef(
@@ -697,12 +684,6 @@ export class VaultComponent implements OnInit, OnDestroy {
    * @returns Promise<void>
    */
   async viewCipherById(id: string) {
-    // If cipher exists (cipher is null when new) and MP re-prompt
-    // is on for this cipher, then show password reprompt.
-    if (!(await this.triggerPasswordReprompt(id as CipherId))) {
-      return;
-    }
-
     const cipher = await this.cipherService.get(id);
 
     const activeUserId = await firstValueFrom(
@@ -727,7 +708,8 @@ export class VaultComponent implements OnInit, OnDestroy {
     }
 
     if (result?.action === ViewCipherDialogResult.edited) {
-      await this.editCipher(cipherView);
+      // Edit cipher and trigger MP reprompt
+      await this.editCipher(cipherView, false);
       this.go({ cipherId: null, itemId: cipherView.id, action: "edit" });
     }
 
