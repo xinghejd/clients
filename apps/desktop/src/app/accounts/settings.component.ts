@@ -36,6 +36,7 @@ import { SetPinComponent } from "../../auth/components/set-pin.component";
 import { DesktopAutofillSettingsService } from "../../autofill/services/desktop-autofill-settings.service";
 import { DesktopSettingsService } from "../../platform/services/desktop-settings.service";
 import { NativeMessagingManifestService } from "../services/native-messaging-manifest.service";
+import { BiometricsStatus } from "@bitwarden/common/key-management/biometrics/biometrics-status";
 
 @Component({
   selector: "app-settings",
@@ -52,6 +53,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
   themeOptions: any[];
   clearClipboardOptions: any[];
   supportsBiometric: boolean;
+  private timerId: any;
   showAlwaysShowDock = false;
   requireEnableTray = false;
   showDuckDuckGoIntegrationOption = false;
@@ -352,6 +354,13 @@ export class SettingsComponent implements OnInit, OnDestroy {
           this.form.controls.enableBrowserIntegrationFingerprint.disable();
         }
       });
+
+    this.supportsBiometric =
+      (await this.biometricsService.getBiometricsStatus()) == BiometricsStatus.Available;
+    this.timerId = setInterval(async () => {
+      this.supportsBiometric =
+        (await this.biometricsService.getBiometricsStatus()) == BiometricsStatus.Available;
+    }, 1000);
   }
 
   async saveVaultTimeout(newValue: VaultTimeout) {
@@ -757,6 +766,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
   ngOnDestroy() {
     this.destroy$.next();
     this.destroy$.complete();
+    clearInterval(this.timerId);
   }
 
   get biometricText() {

@@ -57,7 +57,7 @@
       </div>
     </div>
     <div class="buttons with-rows">
-      <div class="buttons-row" *ngIf="biometricLockEnabled && canUseBiometric">
+      <div class="buttons-row" *ngIf="showBiometricsButton">
         <button
           type="button"
           class="btn block"
@@ -66,12 +66,9 @@
         >
           {{ biometricText | i18n }}
         </button>
-      </div>
-
-      <div class="buttons-row">
-        <label *ngIf="biometricLockEnabled && !canUseBiometric">{{
-          biometricUnavailabilityReason
-        }}</label>
+        <div id="biometricsHelp" class="box-footer" *ngIf="biometricUnavailabilityReason">
+          {{ biometricUnavailabilityReason }}
+        </div>
       </div>
 
       <div class="buttons-row">

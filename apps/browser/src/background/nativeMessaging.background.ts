@@ -2,7 +2,6 @@ import { firstValueFrom, map } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
-import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { BiometricStateService } from "@bitwarden/common/key-management/biometrics/biometric-state.service";
 import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
 import { CryptoFunctionService } from "@bitwarden/common/platform/abstractions/crypto-function.service";
@@ -228,9 +227,11 @@ export class NativeMessagingBackground {
     message.messageId = messageId;
     try {
       await this.send(message);
+      this.logService.info("connected");
     } catch (e) {
+      this.logService.info("error", e);
       this.callbacks.delete(messageId);
-      throw e;
+      this.callbacks.get(messageId).rejecter("errorConnecting");
     }
 
     setTimeout(() => {
@@ -397,7 +398,6 @@ export class NativeMessagingBackground {
         break;
       }
       case "biometricStatus": {
-        console.log("messageid", messageId);
         if (!this.callbacks.has(messageId)) {
           this.logService.error("Biometric status promise not set");
           return;

@@ -111,11 +111,13 @@ export class LockComponent implements OnInit, OnDestroy {
       this.activeUserId,
     );
     this.timerId = setInterval(async () => {
-      console.log("getstatus");
-      this.biometricStatus = await this.biometricsService.getBiometricsStatusForUser(
-        this.activeUserId,
-      );
-      console.log("status", this.biometricStatus);
+      if (!(await this.vaultTimeoutSettingsService.isBiometricLockSet(this.activeUserId))) {
+        this.biometricStatus = BiometricsStatus.NotEnabled;
+      } else {
+        this.biometricStatus = await this.biometricsService.getBiometricsStatusForUser(
+          this.activeUserId,
+        );
+      }
     }, 1000);
   }
 
@@ -160,24 +162,22 @@ export class LockComponent implements OnInit, OnDestroy {
     return !!userKey;
   }
 
-  async isBiometricUnlockAvailable(): Promise<boolean> {
-    return (
-      (await this.biometricsService.getBiometricsStatusForUser(this.activeUserId)) ==
-      BiometricsStatus.Available
-    );
+  get showBiometricsButton(): boolean {
+    return this.biometricStatus != BiometricsStatus.NotEnabled;
   }
 
   get biometricUnavailabilityReason(): string {
-    console.log(this.biometricStatus);
     switch (this.biometricStatus) {
       case BiometricsStatus.Available:
         return "";
       case BiometricsStatus.NotEnabled:
-        return "";
+        return "Not enabled";
       case BiometricsStatus.UnlockNeeded:
         return this.i18nService.t("biometricsMPUnlockNeeded");
       case BiometricsStatus.HardwareUnavailable:
         return this.i18nService.t("biometricsHardwareUnavailable");
+      case BiometricsStatus.DesktopDisconnected:
+        return this.i18nService.t("biometricsUnavailableDesktopNotConnected");
       default:
         return this.i18nService.t("biometricsUnavailableReasonUnknown") + this.biometricStatus;
     }

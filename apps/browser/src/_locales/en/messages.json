@@ -4322,9 +4322,12 @@
     "message": "Unlock your vault with your master password or PIN to enable biometric unlock."
   },
   "biometricsHardwareUnavailable": {
-    "message": "Biometric unlock hardware is currently unavailable."
+    "message": "Biometric hardware is currently unavailable."
   },
   "biometricsUnavailableReasonUnknown": {
     "message": "Biometric unlock is currently unavailable for an unknown reason."
+  },
+  "biometricsUnavailableDesktopNotConnected": {
+    "message": "Biometric unlock is unavailable since the desktop app is not connected."
   }
 }

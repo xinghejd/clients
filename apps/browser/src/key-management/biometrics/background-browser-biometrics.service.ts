@@ -14,26 +14,36 @@ export class BackgroundBrowserBiometricsService extends BrowserBiometricsService
   }
 
   async authenticateBiometric(): Promise<boolean> {
-    // const responsePromise = await this.nativeMessagingBackground().getResponse();
-    const response = await this.nativeMessagingBackground().callCommand({
-      command: "biometricUnlock",
-    });
-    console.log("responsepromise", response);
-    return true;
+    try {
+      const response = await this.nativeMessagingBackground().callCommand({
+        command: "biometricUnlock",
+      });
+      return response == "unlocked";
+    } catch (e) {
+      return false;
+    }
   }
 
   async getBiometricsStatus(): Promise<BiometricsStatus> {
-    const response = await this.nativeMessagingBackground().callCommand({
-      command: "biometricStatus",
-    });
-    return response.response;
+    try {
+      const response = await this.nativeMessagingBackground().callCommand({
+        command: "biometricStatus",
+      });
+      return response.response;
+    } catch (e) {
+      return BiometricsStatus.DesktopDisconnected;
+    }
   }
 
   async getBiometricsStatusForUser(id: UserId): Promise<BiometricsStatus> {
-    const resp = await this.nativeMessagingBackground().callCommand({
-      command: "biometricStatusForUser",
-      userId: id,
-    });
-    return resp.response;
+    try {
+      const resp = await this.nativeMessagingBackground().callCommand({
+        command: "biometricStatusForUser",
+        userId: id,
+      });
+      return resp.response;
+    } catch (e) {
+      return BiometricsStatus.DesktopDisconnected;
+    }
   }
 }

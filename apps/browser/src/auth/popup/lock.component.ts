@@ -18,6 +18,7 @@ import { UserVerificationService } from "@bitwarden/common/auth/abstractions/use
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { BiometricStateService } from "@bitwarden/common/key-management/biometrics/biometric-state.service";
 import { BiometricsService } from "@bitwarden/common/key-management/biometrics/biometric.service";
+import { BiometricsStatus } from "@bitwarden/common/key-management/biometrics/biometrics-status";
 import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -32,7 +33,6 @@ import { DialogService, ToastService } from "@bitwarden/components";
 import { BiometricErrors, BiometricErrorTypes } from "../../models/biometricErrors";
 import { BrowserRouterService } from "../../platform/popup/services/browser-router.service";
 import { fido2PopoutSessionData$ } from "../../vault/popup/utils/fido2-popout-session-data";
-import { BiometricsStatus } from "@bitwarden/common/key-management/biometrics/biometrics-status";
 
 @Component({
   selector: "app-lock",
@@ -141,7 +141,6 @@ export class LockComponent extends BaseLockComponent implements OnInit {
   }
 
   override async unlockBiometric(automaticPrompt: boolean = false): Promise<boolean> {
-    console.log("unlock biometric", this.biometricStatus);
     if (this.biometricStatus != BiometricsStatus.Available) {
       if (!automaticPrompt) {
         await this.dialogService.openSimpleDialog({
