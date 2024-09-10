@@ -8,7 +8,7 @@
     <ng-container
       *ngIf="unlockOptions.biometrics.enabled && activeUnlockOption === UnlockOption.Biometrics"
     >
-      <button type="button" bitButton buttonType="primary" block>
+      <button type="button" bitButton buttonType="primary" block (click)="unlockViaBiometrics()">
         {{ "unlockWithBiometrics" | i18n }}
       </button>
 

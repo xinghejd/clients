@@ -294,6 +294,8 @@ export class LockV2Component implements OnInit, OnDestroy {
     });
   }
 
+  // Note: this submit method is only used for unlock methods that require a form and user input.
+  // For biometrics unlock, the method is called directly.
   submit = async (): Promise<void> => {
     if (this.unlockOptions.pin.enabled) {
       return await this.unlockViaPin();
@@ -315,7 +317,7 @@ export class LockV2Component implements OnInit, OnDestroy {
     }
   }
 
-  async unlockBiometric(): Promise<boolean> {
+  async unlockViaBiometrics(): Promise<boolean> {
     if (!this.unlockOptions.biometrics.enabled) {
       return;
     }
@@ -629,9 +631,7 @@ export class LockV2Component implements OnInit, OnDestroy {
 
     this.biometricAsked = true;
     if (await this.lockComponentService.isWindowVisible()) {
-      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
-      this.unlockBiometric();
+      await this.unlockViaBiometrics();
     }
   }
 
@@ -677,7 +677,7 @@ export class LockV2Component implements OnInit, OnDestroy {
 
     let success;
     try {
-      success = await this.unlockBiometric();
+      success = await this.unlockViaBiometrics();
     } catch (e) {
       const biometricError = this.lockComponentService.getBiometricsError(e);
 
