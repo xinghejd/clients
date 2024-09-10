@@ -387,7 +387,8 @@ export class LoginComponentV2 implements OnInit, OnDestroy {
 
       if (storedEmail) {
         this.formGroup.controls.email.setValue(storedEmail);
-        this.formGroup.controls.rememberEmail.setValue(true); // If there is a storedEmail, rememberEmail defaults to true
+        // If there is a storedEmail, rememberEmail defaults to true
+        this.formGroup.controls.rememberEmail.setValue(true);
       }
     }
   }
@@ -447,6 +448,13 @@ export class LoginComponentV2 implements OnInit, OnDestroy {
       }
     });
 
+    /**
+     * TODO-rr-bw: Verify the following
+     *
+     * In the original web login component, this following code is called AFTER the base ngOnInit()
+     * runs. Verify that that previous order was not necessary, and that I can place all webOnInit()
+     * logic here BEFORE the defaultOnInit() call.
+     */
     // If there's an existing org invite, use it to get the password policies
     const orgPolicies = await this.loginService.getOrgPolicies();
 
