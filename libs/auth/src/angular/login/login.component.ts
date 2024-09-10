@@ -173,6 +173,8 @@ export class LoginComponentV2 implements OnInit, OnDestroy {
 
   private async handleAuthResult(authResult: AuthResult): Promise<void> {
     if (this.handleCaptchaRequired(authResult)) {
+      this.captchaSiteKey = authResult.captchaSiteKey;
+      this.captcha.init(authResult.captchaSiteKey);
       return;
     }
 
@@ -364,13 +366,7 @@ export class LoginComponentV2 implements OnInit, OnDestroy {
   }
 
   private handleCaptchaRequired(authResult: AuthResult): boolean {
-    if (Utils.isNullOrWhitespace(authResult.captchaSiteKey)) {
-      return false;
-    }
-
-    this.captchaSiteKey = authResult.captchaSiteKey;
-    this.captcha.init(authResult.captchaSiteKey);
-    return true;
+    return !Utils.isNullOrWhitespace(authResult.captchaSiteKey);
   }
 
   private async loadEmailSettings(): Promise<void> {
