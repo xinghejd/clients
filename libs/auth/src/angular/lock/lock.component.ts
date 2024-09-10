@@ -418,9 +418,6 @@ export class LockV2Component implements OnInit, OnDestroy {
   }
 
   private async unlockViaMasterPassword() {
-    // await a delay
-    await new Promise((resolve) => setTimeout(resolve, 5000));
-
     if (!this.validateMasterPassword()) {
       return;
     }
