@@ -184,24 +184,34 @@ export class LoginComponentV2 implements OnInit, OnDestroy {
           message: this.i18nService.t("encryptionKeyMigrationRequired"),
         });
       }
-    } else if (authResult.requiresTwoFactor) {
+      return;
+    }
+
+    if (authResult.requiresTwoFactor) {
       await this.router.navigate(["2fa"]);
-    } else if (authResult.forcePasswordReset != ForceSetPasswordReason.None) {
+      return;
+    }
+
+    if (authResult.forcePasswordReset != ForceSetPasswordReason.None) {
       this.loginEmailService.clearValues();
       await this.router.navigate(["update-temp-password"]);
+      return;
+    }
+
+    // If none of the above cases are true, proceed with login...
+    // ...on Web
+    if (this.clientType === ClientType.Web) {
+      await this.goAfterLogIn(authResult.userId);
+
+      // ...on Browser/Desktop
     } else {
-      if (this.clientType === ClientType.Web) {
-        await this.goAfterLogIn(authResult.userId);
+      await this.syncService.fullSync(true); // TODO-rr-bw: browser used `await`, desktop used `return`. Why?
+      this.loginEmailService.clearValues();
+
+      if (this.clientType === ClientType.Browser) {
+        await this.router.navigate(["/tabs/vault"]);
       } else {
-        await this.syncService.fullSync(true); // TODO-rr-bw: browser used `await`, desktop used `return`. Why?
-
-        this.loginEmailService.clearValues();
-
-        if (this.clientType === ClientType.Browser) {
-          await this.router.navigate(["/tabs/vault"]);
-        } else {
-          await this.router.navigate(["vault"]); // Desktop
-        }
+        await this.router.navigate(["vault"]); // Desktop
       }
     }
   };
