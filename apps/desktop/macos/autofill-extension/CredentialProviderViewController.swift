@@ -8,6 +8,7 @@
 import AuthenticationServices
 import os
 
+
 class CredentialProviderViewController: ASCredentialProviderViewController {
     let logger = Logger(subsystem: "com.bitwarden.desktop.autofill-extension", category: "credential-provider")
 
