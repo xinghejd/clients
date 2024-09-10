@@ -157,6 +157,8 @@
     "@angular/platform-browser": "16.2.12",
     "@angular/platform-browser-dynamic": "16.2.12",
     "@angular/router": "16.2.12",
+    "@bitwarden/sdk-client": "0.0.1-0",
+    "@bitwarden/sdk-wasm": "0.1.1-183",
     "@koa/multer": "3.0.2",
     "@koa/router": "12.0.1",
     "@microsoft/signalr": "8.0.7",
