@@ -54,7 +54,7 @@ import {
 import { PinServiceAbstraction } from "../../common/abstractions";
 import { AnonLayoutWrapperDataService } from "../anon-layout/anon-layout-wrapper-data.service";
 
-import { LockComponentService, UnlockOptionKey, UnlockOptions } from "./lock-component.service";
+import { UnlockOption, LockComponentService, UnlockOptions } from "./lock-component.service";
 
 const BroadcasterSubscriptionId = "LockComponent";
 
@@ -85,26 +85,28 @@ export class LockV2Component implements OnInit, OnDestroy {
   private unlockOptions: UnlockOptions = null;
   unlockOptions$: Observable<UnlockOptions> = null;
 
-  private _activeUnlockOptionBSubject: BehaviorSubject<UnlockOptionKey> =
-    new BehaviorSubject<UnlockOptionKey>(null);
+  UnlockOption = UnlockOption;
+
+  private _activeUnlockOptionBSubject: BehaviorSubject<UnlockOption> =
+    new BehaviorSubject<UnlockOption>(null);
 
   activeUnlockOption$ = this._activeUnlockOptionBSubject.asObservable();
 
-  set activeUnlockOption(value: UnlockOptionKey) {
+  set activeUnlockOption(value: UnlockOption) {
     this._activeUnlockOptionBSubject.next(value);
   }
 
-  get activeUnlockOption(): UnlockOptionKey {
+  get activeUnlockOption(): UnlockOption {
     return this._activeUnlockOptionBSubject.value;
   }
 
   // pinEnabled = false;
-  pin = ""; // TODO: remove this and move to formGroup
+  // pin = ""; // TODO: remove this and move to formGroup
   private invalidPinAttempts = 0;
 
   biometricUnlockBtnText: string;
 
-  masterPassword = "";
+  // masterPassword = "";
   showPassword = false;
   private enforcedMasterPasswordOptions: MasterPasswordPolicyOptions = undefined;
 
@@ -195,7 +197,7 @@ export class LockV2Component implements OnInit, OnDestroy {
   private listenForActiveUnlockOptionChanges() {
     this.activeUnlockOption$
       .pipe(takeUntil(this.destroy$))
-      .subscribe((activeUnlockOption: UnlockOptionKey) => {
+      .subscribe((activeUnlockOption: UnlockOption) => {
         if (activeUnlockOption === "pin") {
           this.buildPinForm();
         } else if (activeUnlockOption === "masterPassword") {
@@ -275,11 +277,11 @@ export class LockV2Component implements OnInit, OnDestroy {
   private setDefaultActiveUnlockOption(unlockOptions: UnlockOptions) {
     // Priorities should be Biometrics > Pin > Master Password for speed
     if (unlockOptions.biometrics.enabled) {
-      this.activeUnlockOption = "biometrics";
+      this.activeUnlockOption = UnlockOption.Biometrics;
     } else if (unlockOptions.pin.enabled) {
-      this.activeUnlockOption = "pin";
+      this.activeUnlockOption = UnlockOption.Pin;
     } else if (unlockOptions.masterPassword.enabled) {
-      this.activeUnlockOption = "masterPassword";
+      this.activeUnlockOption = UnlockOption.MasterPassword;
     }
   }
 
@@ -292,13 +294,13 @@ export class LockV2Component implements OnInit, OnDestroy {
     });
   }
 
-  async submit() {
+  submit = async (): Promise<void> => {
     if (this.unlockOptions.pin.enabled) {
-      return await this.handlePinRequiredUnlock();
+      return await this.unlockViaPin();
     }
 
-    await this.handleMasterPasswordRequiredUnlock();
-  }
+    await this.unlockViaMasterPassword();
+  };
 
   async logOut() {
     const confirmed = await this.dialogService.openSimpleDialog({
@@ -344,24 +346,30 @@ export class LockV2Component implements OnInit, OnDestroy {
     }
   }
 
-  private async handlePinRequiredUnlock() {
-    if (this.pin == null || this.pin === "") {
+  private validatePin(): boolean {
+    if (this.formGroup.invalid) {
       this.toastService.showToast({
         variant: "error",
         title: this.i18nService.t("errorOccurred"),
         message: this.i18nService.t("pinRequired"),
       });
+      return false;
+    }
+
+    return true;
+  }
+
+  private async unlockViaPin() {
+    if (!this.validatePin()) {
       return;
     }
 
-    return await this.doUnlockWithPin();
-  }
+    const pin = this.formGroup.controls.pin.value;
 
-  private async doUnlockWithPin() {
     const MAX_INVALID_PIN_ENTRY_ATTEMPTS = 5;
 
     try {
-      const userKey = await this.pinService.decryptUserKeyWithPin(this.pin, this.activeAccount.id);
+      const userKey = await this.pinService.decryptUserKeyWithPin(pin, this.activeAccount.id);
 
       if (userKey) {
         await this.setUserKeyAndContinue(userKey);
@@ -396,22 +404,32 @@ export class LockV2Component implements OnInit, OnDestroy {
     }
   }
 
-  private async handleMasterPasswordRequiredUnlock() {
-    if (this.masterPassword == null || this.masterPassword === "") {
+  private validateMasterPassword(): boolean {
+    if (this.formGroup.invalid) {
       this.toastService.showToast({
         variant: "error",
         title: this.i18nService.t("errorOccurred"),
         message: this.i18nService.t("masterPasswordRequired"),
       });
-      return;
+      return false;
     }
-    await this.doUnlockWithMasterPassword();
+
+    return true;
   }
 
-  private async doUnlockWithMasterPassword() {
+  private async unlockViaMasterPassword() {
+    // await a delay
+    await new Promise((resolve) => setTimeout(resolve, 5000));
+
+    if (!this.validateMasterPassword()) {
+      return;
+    }
+
+    const masterPassword = this.formGroup.controls.masterPassword.value;
+
     const verification = {
       type: VerificationType.MasterPassword,
-      secret: this.masterPassword,
+      secret: masterPassword,
     } as MasterPasswordVerification;
 
     let passwordValid = false;
@@ -477,9 +495,7 @@ export class LockV2Component implements OnInit, OnDestroy {
             ForceSetPasswordReason.WeakMasterPassword,
             userId,
           );
-          // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-          // eslint-disable-next-line @typescript-eslint/no-floating-promises
-          this.router.navigate([this.forcePasswordResetRoute]);
+          await this.router.navigate([this.forcePasswordResetRoute]);
           return;
         }
       } catch (e) {
@@ -512,14 +528,17 @@ export class LockV2Component implements OnInit, OnDestroy {
       return false;
     }
 
+    // TODO: test that this MP still exists here.
+    const masterPassword = this.formGroup.controls.masterPassword.value;
+
     const passwordStrength = this.passwordStrengthService.getPasswordStrength(
-      this.masterPassword,
+      masterPassword,
       this.activeAccount.email,
     )?.score;
 
     return !this.policyService.evaluateMasterPassword(
       passwordStrength,
-      this.masterPassword,
+      masterPassword,
       this.enforcedMasterPasswordOptions,
     );
   }

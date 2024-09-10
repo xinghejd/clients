@@ -8,7 +8,12 @@ export enum BiometricsDisableReason {
   SystemBiometricsUnavailable = "SystemBiometricsUnavailable",
 }
 
-export type UnlockOptionKey = keyof UnlockOptions;
+// The options here should match the top level properties of the UnlockOptions type.
+export enum UnlockOption {
+  MasterPassword = "masterPassword",
+  Pin = "pin",
+  Biometrics = "biometrics",
+}
 
 export type UnlockOptions = {
   masterPassword: {
