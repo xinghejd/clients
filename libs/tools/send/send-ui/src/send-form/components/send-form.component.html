@@ -1,4 +1,14 @@
 <form [id]="formId" [formGroup]="sendForm" [bitSubmit]="submit">
   <!-- TODO: Should we show a loading spinner here? Or emit a ready event for the container to handle loading state -->
-  <ng-container *ngIf="!loading"> </ng-container>
+  <ng-container *ngIf="!loading">
+    <tools-send-text-details
+      *ngIf="config.sendType === SendType.Text"
+      [config]="config"
+      [originalSendView]="originalSendView"
+    ></tools-send-text-details>
+    <tools-send-options-section
+      [config]="config"
+      [originalSendView]="originalSendView"
+    ></tools-send-options-section>
+  </ng-container>
 </form>

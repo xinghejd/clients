@@ -1,3 +1,5 @@
+import { SendId } from "@bitwarden/common/types/guid";
+
 import { ApiService } from "../../../abstractions/api.service";
 import { ErrorResponse } from "../../../models/response/error.response";
 import { ListResponse } from "../../../models/response/list.response";
@@ -135,11 +137,13 @@ export class SendApiService implements SendApiServiceAbstraction {
     return this.apiService.send("DELETE", "/sends/" + id, null, true, false);
   }
 
-  async save(sendData: [Send, EncArrayBuffer]): Promise<any> {
+  async save(sendData: [Send, EncArrayBuffer]): Promise<Send> {
     const response = await this.upload(sendData);
 
     const data = new SendData(response);
-    await this.sendService.upsert(data);
+    const updated = await this.sendService.upsert(data);
+    // No local data for new Sends
+    return new Send(updated[response.id as SendId]);
   }
 
   async delete(id: string): Promise<any> {

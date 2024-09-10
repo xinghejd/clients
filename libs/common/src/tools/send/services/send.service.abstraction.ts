@@ -4,7 +4,7 @@ import { UserKeyRotationDataProvider } from "@bitwarden/auth/common";
 
 import { EncArrayBuffer } from "../../../platform/models/domain/enc-array-buffer";
 import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
-import { UserId } from "../../../types/guid";
+import { SendId, UserId } from "../../../types/guid";
 import { UserKey } from "../../../types/key";
 import { SendData } from "../models/data/send.data";
 import { Send } from "../models/domain/send";
@@ -54,7 +54,7 @@ export abstract class SendService implements UserKeyRotationDataProvider<SendWit
 }
 
 export abstract class InternalSendService extends SendService {
-  upsert: (send: SendData | SendData[]) => Promise<any>;
+  upsert: (send: SendData | SendData[]) => Promise<Record<SendId, SendData>>;
   replace: (sends: { [id: string]: SendData }, userId: UserId) => Promise<void>;
-  delete: (id: string | string[]) => Promise<any>;
+  delete: (id: string | string[]) => Promise<void>;
 }

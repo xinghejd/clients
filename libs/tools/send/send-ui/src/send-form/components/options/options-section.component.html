@@ -1,0 +1,39 @@
+<bit-section [formGroup]="additionalOptionsForm">
+  <bit-section-header>
+    <h2 bitTypography="h5">{{ "additionalOptions" | i18n }}</h2>
+  </bit-section-header>
+
+  <bit-card>
+    <bit-form-field>
+      <bit-label>{{ "limitSendViews" | i18n }}</bit-label>
+      <input bitInput type="number" formControlName="maxAccessCount" min="1" />
+      <bit-hint>{{ "limitSendViewsHint" | i18n }}</bit-hint>
+      <bit-hint>{{ "limitSendViewsHintWithCount" | i18n }}</bit-hint>
+    </bit-form-field>
+    <!-- TODO: Add information of current access count as bitHint -->
+    <bit-form-field>
+      <bit-label>{{ "currentAccessCount" | i18n }}</bit-label>
+      <input bitInput type="text" formControlName="accessCount" readonly />
+    </bit-form-field>
+
+    <bit-form-field>
+      <bit-label *ngIf="!hasPassword">{{ "password" | i18n }}</bit-label>
+      <bit-label *ngIf="hasPassword">{{ "newPassword" | i18n }}</bit-label>
+
+      <input bitInput type="password" formControlName="password" />
+      <button type="button" bitIconButton bitSuffix bitPasswordInputToggle></button>
+      <button type="button" bitIconButton="bwi-refresh" bitSuffix></button>
+      <bit-hint>{{ "sendPasswordDesc" | i18n }}</bit-hint>
+    </bit-form-field>
+
+    <bit-form-control>
+      <input bitCheckbox type="checkbox" formControlName="hideEmail" />
+      <bit-label>{{ "hideEmail" | i18n }}</bit-label>
+    </bit-form-control>
+
+    <bit-form-field>
+      <bit-label>{{ "notes" | i18n }}</bit-label>
+      <textarea bitInput formControlName="notes"></textarea>
+    </bit-form-field>
+  </bit-card>
+</bit-section>

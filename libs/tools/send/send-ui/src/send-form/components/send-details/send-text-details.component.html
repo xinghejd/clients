@@ -1,0 +1,55 @@
+<bit-section [formGroup]="sendTextDetailsForm">
+  <bit-section-header>
+    <!-- TODO: Add i18n for this header -->
+    <h2 bitTypography="h5">Send details</h2>
+  </bit-section-header>
+
+  <bit-card>
+    <bit-form-field>
+      <bit-label>{{ "name" | i18n }}</bit-label>
+      <input bitInput type="text" formControlName="name" />
+    </bit-form-field>
+
+    <bit-form-field>
+      <bit-label>{{ "sendTypeText" | i18n }}</bit-label>
+      <textarea bitInput id="text" rows="6" formControlName="textToShare"></textarea>
+      <bit-hint>{{ "sendTextDesc" | i18n }}</bit-hint>
+    </bit-form-field>
+    <bit-form-control>
+      <input bitCheckbox type="checkbox" formControlName="hideTextByDefault" />
+      <bit-label>{{ "textHiddenByDefault" | i18n }}</bit-label>
+    </bit-form-control>
+
+    <bit-form-field *ngIf="config.mode === 'edit'">
+      <bit-label>{{ "sendLinkLabel" | i18n }}</bit-label>
+      <input bitInput type="text" readonly formControlName="sendLink" />
+      <button type="button" bitSuffix bitIconButton="bwi-clone"></button>
+    </bit-form-field>
+
+    <bit-form-field>
+      <bit-label>{{ "deletionDate" | i18n }}</bit-label>
+      <bit-select
+        id="deletionDate"
+        name="SelectedDeletionDatePreset"
+        formControlName="selectedDeletionDatePreset"
+      >
+        <bit-option
+          *ngFor="let o of deletionDatePresets"
+          [value]="o.value"
+          [label]="o.name"
+        ></bit-option>
+      </bit-select>
+      <ng-container *ngIf="sendTextDetailsForm.controls['selectedDeletionDatePreset'].value === 0">
+        <input
+          bitInput
+          id="deletionDateCustom"
+          type="datetime-local"
+          name="DeletionDate"
+          formControlName="defaultDeletionDateTime"
+          placeholder="MM/DD/YYYY HH:MM AM/PM"
+        />
+      </ng-container>
+      <bit-hint>{{ "deletionDateDesc" | i18n }}</bit-hint>
+    </bit-form-field>
+  </bit-card>
+</bit-section>
