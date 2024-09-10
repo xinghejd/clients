@@ -6,6 +6,7 @@ import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { BiometricStateService } from "@bitwarden/common/key-management/biometrics/biometric-state.service";
 import { BiometricsService } from "@bitwarden/common/key-management/biometrics/biometric.service";
+import { BiometricsStatus } from "@bitwarden/common/key-management/biometrics/biometrics-status";
 import { CryptoFunctionService } from "@bitwarden/common/platform/abstractions/crypto-function.service";
 import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -213,10 +214,12 @@ export class BiometricMessageHandlerService {
         );
       }
       case "biometricStatusForUser": {
-        const status = await this.biometricsService.getBiometricsStatusForUser(
+        let status = await this.biometricsService.getBiometricsStatusForUser(
           message.userId as UserId,
         );
-        console.log("biometricStatusForUser", status);
+        if (status == BiometricsStatus.NotEnabledLocally) {
+          status = BiometricsStatus.NotEnabledInConnectedDesktopApp;
+        }
         return this.send(
           {
             command: "biometricStatusForUser",

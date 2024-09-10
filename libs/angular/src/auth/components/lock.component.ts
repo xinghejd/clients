@@ -50,7 +50,7 @@ export class LockComponent implements OnInit, OnDestroy {
   webVaultHostname = "";
   formPromise: Promise<MasterPasswordVerificationResponse>;
   supportsBiometric: boolean;
-  biometricStatus: BiometricsStatus = BiometricsStatus.NotEnabled;
+  biometricStatus: BiometricsStatus = BiometricsStatus.NotEnabledLocally;
   private timerId: any;
 
   protected activeUserId: UserId;
@@ -112,7 +112,7 @@ export class LockComponent implements OnInit, OnDestroy {
     );
     this.timerId = setInterval(async () => {
       if (!(await this.vaultTimeoutSettingsService.isBiometricLockSet(this.activeUserId))) {
-        this.biometricStatus = BiometricsStatus.NotEnabled;
+        this.biometricStatus = BiometricsStatus.NotEnabledLocally;
       } else {
         this.biometricStatus = await this.biometricsService.getBiometricsStatusForUser(
           this.activeUserId,
@@ -163,15 +163,15 @@ export class LockComponent implements OnInit, OnDestroy {
   }
 
   get showBiometricsButton(): boolean {
-    return this.biometricStatus != BiometricsStatus.NotEnabled;
+    return this.biometricStatus != BiometricsStatus.NotEnabledLocally;
   }
 
   get biometricUnavailabilityReason(): string {
     switch (this.biometricStatus) {
       case BiometricsStatus.Available:
         return "";
-      case BiometricsStatus.NotEnabled:
-        return "Not enabled";
+      case BiometricsStatus.NotEnabledInConnectedDesktopApp:
+        return this.i18nService.t("biometricsNotEnabledInConnectedDesktopApp");
       case BiometricsStatus.UnlockNeeded:
         return this.i18nService.t("biometricsMPUnlockNeeded");
       case BiometricsStatus.HardwareUnavailable:

@@ -82,7 +82,7 @@ export class BiometricsService extends DesktopBiometricsService {
 
   async getBiometricsStatusForUser(userId: UserId): Promise<BiometricsStatus> {
     if (!(await this.biometricStateService.getBiometricUnlockEnabled(userId))) {
-      return BiometricsStatus.NotEnabled;
+      return BiometricsStatus.NotEnabledLocally;
     }
 
     const platformStatus = await this.getBiometricsStatus();

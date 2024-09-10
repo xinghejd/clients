@@ -4329,5 +4329,8 @@
   },
   "biometricsUnavailableDesktopNotConnected": {
     "message": "Biometric unlock is unavailable since the desktop app is not connected."
+  },
+  "biometricsNotEnabledInConnectedDesktopApp": {
+    "message": "Biometric unlock is unavailable since the account is not configured for biometric unlock in the desktop app."
   }
 }

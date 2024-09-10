@@ -6,5 +6,6 @@ export enum BiometricsStatus {
   ManualSetupNeeded, // linux only; polkit setup needed
   PlatformUnsupported,
   DesktopDisconnected,
-  NotEnabled,
+  NotEnabledLocally,
+  NotEnabledInConnectedDesktopApp,
 }
