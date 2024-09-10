@@ -177,7 +177,10 @@ export class LoginComponentV2 implements OnInit, OnDestroy {
     const authResult = await this.loginStrategyService.logIn(credentials);
 
     await this.saveEmailSettings();
+    await this.handleAuthResult(authResult);
+  };
 
+  private async handleAuthResult(authResult: AuthResult): Promise<void> {
     if (this.handleCaptchaRequired(authResult)) {
       return;
     }
@@ -224,7 +227,7 @@ export class LoginComponentV2 implements OnInit, OnDestroy {
         await this.router.navigate(["vault"]); // Desktop
       }
     }
-  };
+  }
 
   protected async goAfterLogIn(userId: UserId): Promise<void> {
     const masterPassword = this.formGroup.value.masterPassword;
