@@ -190,25 +190,19 @@ export class LoginComponentV2 implements OnInit, OnDestroy {
       this.loginEmailService.clearValues();
       await this.router.navigate(["update-temp-password"]);
     } else {
-      // Browser/Desktop specific (start)
-      if (this.clientType === ClientType.Browser || this.clientType === ClientType.Desktop) {
-        await this.syncService.fullSync(true); // TODO-rr-bw: check -> browser uses `await` and desktop uses `return`. Why?
-      }
-      // Browser/Desktop specific (end)
-
-      // Web specific (start)
-      await this.goAfterLogIn(authResult.userId);
-      // Web specific (end)
-
-      // Browser/Desktop (start)
-      this.loginEmailService.clearValues();
-
-      if (this.clientType === ClientType.Browser) {
-        await this.router.navigate(["/tabs/vault"]);
+      if (this.clientType === ClientType.Web) {
+        await this.goAfterLogIn(authResult.userId);
       } else {
-        await this.router.navigate(["vault"]);
+        await this.syncService.fullSync(true); // TODO-rr-bw: browser used `await`, desktop used `return`. Why?
+
+        this.loginEmailService.clearValues();
+
+        if (this.clientType === ClientType.Browser) {
+          await this.router.navigate(["/tabs/vault"]);
+        } else {
+          await this.router.navigate(["vault"]); // Desktop
+        }
       }
-      // Browser/Desktop (end)
     }
   };
 
