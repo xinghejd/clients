@@ -121,15 +121,6 @@ export class LoginComponentV2 implements OnInit, OnDestroy {
 
     await this.defaultOnInit();
 
-    if (this.clientType === ClientType.Web) {
-      // If there's an existing org invite, use it to get the password policies
-      const orgPolicies = await this.loginService.getOrgPolicies();
-
-      this.policies = orgPolicies?.policies;
-      this.showResetPasswordAutoEnrollWarning = orgPolicies?.isPolicyAndAutoEnrollEnabled;
-      this.enforcedPasswordPolicyOptions = orgPolicies?.enforcedPasswordPolicyOptions;
-    }
-
     if (this.clientType === ClientType.Browser) {
       if (this.showPasswordless) {
         await this.validateEmail();
@@ -455,5 +446,12 @@ export class LoginComponentV2 implements OnInit, OnDestroy {
         this.loginService.setPreviousUrl(route);
       }
     });
+
+    // If there's an existing org invite, use it to get the password policies
+    const orgPolicies = await this.loginService.getOrgPolicies();
+
+    this.policies = orgPolicies?.policies;
+    this.showResetPasswordAutoEnrollWarning = orgPolicies?.isPolicyAndAutoEnrollEnabled;
+    this.enforcedPasswordPolicyOptions = orgPolicies?.enforcedPasswordPolicyOptions;
   }
 }
