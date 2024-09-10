@@ -123,7 +123,11 @@ export class OrganizationOptionsComponent implements OnInit, OnDestroy {
         return this.syncService.fullSync(true);
       });
       await this.actionPromise;
-      this.toastService.showToast({ variant: "success", title: null, message: "Unlinked SSO" });
+      this.toastService.showToast({
+        variant: "success",
+        title: null,
+        message: this.i18nService.t("unlinkedSso"),
+      });
     } catch (e) {
       this.logService.error(e);
     }
