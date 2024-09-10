@@ -1,6 +1,6 @@
 import AutofillField from "../models/autofill-field";
 import AutofillPageDetails from "../models/autofill-page-details";
-import { sendExtensionMessage } from "../utils";
+import { getSubmitButtonKeywordsSet, sendExtensionMessage } from "../utils";
 
 import {
   AutofillKeywordsMap,
@@ -125,6 +125,7 @@ export class InlineMenuFieldQualificationService
     this.identityCompanyAutocompleteValue,
     this.identityPostalCodeAutocompleteValue,
   ]);
+  private totpFieldAutocompleteValue = "one-time-code";
   private inlineMenuFieldQualificationFlagSet = false;
 
   constructor() {
@@ -143,6 +144,11 @@ export class InlineMenuFieldQualificationService
   isFieldForLoginForm(field: AutofillField, pageDetails: AutofillPageDetails): boolean {
     if (!this.inlineMenuFieldQualificationFlagSet) {
       return this.isFieldForLoginFormFallback(field);
+    }
+
+    const isTotpField = this.isTotpField(field);
+    if (isTotpField) {
+      return false;
     }
 
     const isCurrentPasswordField = this.isCurrentPasswordField(field);
@@ -838,7 +844,7 @@ export class InlineMenuFieldQualificationService
    *
    * @param field - The field to validate
    */
-  private isCurrentPasswordField = (field: AutofillField): boolean => {
+  isCurrentPasswordField = (field: AutofillField): boolean => {
     if (
       this.fieldContainsAutocompleteValues(field, this.newPasswordAutoCompleteValue) ||
       this.keywordsFoundInFieldData(field, this.accountCreationFieldKeywords)
@@ -875,7 +881,8 @@ export class InlineMenuFieldQualificationService
     if (
       (!isInputPasswordType &&
         this.isExcludedFieldType(field, this.excludedAutofillFieldTypesSet)) ||
-      this.fieldHasDisqualifyingAttributeValue(field)
+      this.fieldHasDisqualifyingAttributeValue(field) ||
+      this.isTotpField(field)
     ) {
       return false;
     }
@@ -922,6 +929,22 @@ export class InlineMenuFieldQualificationService
 
     return !(this.passwordFieldExcludeListString.indexOf(cleanedValue) > -1);
   }
+
+  /**
+   * Validates whether the provided field is a TOTP field.
+   *
+   * @param field - The field to validate
+   */
+  private isTotpField = (field: AutofillField): boolean => {
+    if (this.fieldContainsAutocompleteValues(field, this.totpFieldAutocompleteValue)) {
+      return true;
+    }
+
+    return (
+      !this.isExcludedFieldType(field, this.excludedAutofillFieldTypesSet) &&
+      this.keywordsFoundInFieldData(field, AutoFillConstants.TotpFieldNames)
+    );
+  };
 
   /**
    * Validates the provided field to indicate if the field has a
@@ -1014,34 +1037,7 @@ export class InlineMenuFieldQualificationService
    */
   private getSubmitButtonKeywords(element: HTMLElement): string {
     if (!this.submitButtonKeywordsMap.has(element)) {
-      const keywords = [
-        element.textContent,
-        element.getAttribute("value"),
-        element.getAttribute("aria-label"),
-        element.getAttribute("aria-labelledby"),
-        element.getAttribute("aria-describedby"),
-        element.getAttribute("title"),
-        element.getAttribute("id"),
-        element.getAttribute("name"),
-        element.getAttribute("class"),
-      ];
-
-      const keywordsSet = new Set<string>();
-      for (let i = 0; i < keywords.length; i++) {
-        if (typeof keywords[i] === "string") {
-          keywords[i]
-            .toLowerCase()
-            .replace(/[-\s]/g, "")
-            .replace(/[^a-zA-Z0-9]+/g, "|")
-            .split("|")
-            .forEach((keyword) => {
-              if (keyword) {
-                keywordsSet.add(keyword);
-              }
-            });
-        }
-      }
-
+      const keywordsSet = getSubmitButtonKeywordsSet(element);
       this.submitButtonKeywordsMap.set(element, Array.from(keywordsSet).join(","));
     }
 
