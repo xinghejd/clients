@@ -249,6 +249,8 @@ export class LoginComponentV2 implements OnInit, OnDestroy {
       }
     }
 
+    /* TODO-rr-bw: these two lines are also used at the end of the submit method for
+       Browser/Desktop. See if you can consolidate for all 3 clients. */
     this.loginEmailService.clearValues();
     await this.router.navigate(["vault"]);
   }

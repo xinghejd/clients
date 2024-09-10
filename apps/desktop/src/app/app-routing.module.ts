@@ -15,6 +15,7 @@ import {
   AnonLayoutWrapperComponent,
   AnonLayoutWrapperData,
   LoginComponentV2,
+  LoginSecondaryContentComponent,
   RegistrationFinishComponent,
   RegistrationStartComponent,
   RegistrationStartSecondaryComponent,
@@ -130,6 +131,7 @@ const routes: Routes = [
           },
           children: [
             { path: "", component: LoginComponentV2 },
+            { path: "", component: LoginSecondaryContentComponent, outlet: "secondary" },
             {
               path: "",
               component: EnvironmentSelectorComponent,

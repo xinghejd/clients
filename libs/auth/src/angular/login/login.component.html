@@ -1,4 +1,6 @@
-<!-- Web Template -->
+<!--------------------------------->
+<!--        Web Template         -->
+<!--------------------------------->
 
 <!--
     TODO-rr-bw: Clarify this comment if necessary.
@@ -15,9 +17,9 @@
   [bitSubmit]="submit"
   [formGroup]="formGroup"
 >
-  <!-------------------------
-    UI STATE 1: Email Entry
-  -------------------------->
+  <!-----------------------------
+    Web UI State 1: Email Entry
+  ------------------------------>
   <ng-container *ngIf="!validatedEmail">
     <!-- Email Address input -->
     <div class="tw-mb-3">
@@ -83,9 +85,9 @@
     </p>
   </ng-container>
 
-  <!-----------------------------------
-    UI STATE 2: Master Password Entry
-  ------------------------------------>
+  <!---------------------------------------
+    Web UI State 2: Master Password Entry
+  ---------------------------------------->
   <!--
     Why not use <ng-container *ngIf="validatedEmail"> to display this section?
     Because we want access to the masterPasswordInput reference in the class file.
@@ -153,18 +155,26 @@
 
     <div class="tw-m-0 tw-text-sm">
       <p class="tw-mb-1">{{ "loggingInAs" | i18n }} {{ loggedEmail }}</p>
+      <!-- TODO-rr-bw: check link -->
       <a [routerLink]="[]" (click)="toggleValidateEmail(false)">{{ "notYou" | i18n }}</a>
     </div>
   </div>
 </form>
 
-<!-- Browser Template -->
+<!--------------------------------->
+<!--      Browser Template       -->
+<!--------------------------------->
 <form *ngIf="clientType === ClientType.Browser" [bitSubmit]="submit" [formGroup]="formGroup">
   <main tabindex="-1"></main>
 </form>
 
-<!-- Desktop Template -->
+<!--------------------------------->
+<!--      Desktop Template       -->
+<!--------------------------------->
 <form *ngIf="clientType === ClientType.Desktop" [bitSubmit]="submit" [formGroup]="formGroup">
+  <!---------------------------------
+    Desktop UI State 1: Email Entry
+  ---------------------------------->
   <ng-container *ngIf="!validatedEmail">
     <!-- Email Address input -->
     <bit-form-field>
@@ -199,4 +209,8 @@
 
     <!-- TODO-rr-bw: add "New to Bitwarden? Create Account (might need to be AnonLayout secondary content)" -->
   </ng-container>
+
+  <!-------------------------------------------
+    Desktop UI State 2: Master Password Entry
+  -------------------------------------------->
 </form>
