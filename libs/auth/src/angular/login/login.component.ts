@@ -163,17 +163,17 @@ export class LoginComponentV2 implements OnInit, OnDestroy {
       null,
     );
 
-    const response = await this.loginStrategyService.logIn(credentials);
+    const authResult = await this.loginStrategyService.logIn(credentials);
 
     await this.saveEmailSettings();
 
-    if (this.handleCaptchaRequired(response)) {
+    if (this.handleCaptchaRequired(authResult)) {
       return;
-    } else if (await this.loginService.handleMigrateEncryptionKey(response)) {
+    } else if (await this.loginService.handleMigrateEncryptionKey(authResult)) {
       return;
-    } else if (response.requiresTwoFactor) {
+    } else if (authResult.requiresTwoFactor) {
       await this.router.navigate(["2fa"]);
-    } else if (response.forcePasswordReset != ForceSetPasswordReason.None) {
+    } else if (authResult.forcePasswordReset != ForceSetPasswordReason.None) {
       this.loginEmailService.clearValues();
       await this.router.navigate(["update-temp-password"]);
     } else {
@@ -184,7 +184,7 @@ export class LoginComponentV2 implements OnInit, OnDestroy {
       // Browser/Desktop specific (end)
 
       // Web specific (start)
-      await this.goAfterLogIn(response.userId);
+      await this.goAfterLogIn(authResult.userId);
       // Web specific (end)
 
       // Browser/Desktop (start)
