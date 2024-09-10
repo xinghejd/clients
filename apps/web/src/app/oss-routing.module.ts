@@ -288,38 +288,6 @@ const routes: Routes = [
           pageTitle: "logIn",
         },
       },
-      // {
-      //   path: "lock",
-      //   canActivate: [deepLinkGuard(), lockGuard()],
-      //   children: [
-      //     {
-      //       path: "",
-      //       component: LockComponent,
-      //     },
-      //   ],
-      //   data: {
-      //     pageTitle: "yourVaultIsLockedV2",
-      //     pageIcon: LockIcon,
-      //     showReadonlyHostname: true,
-      //   } satisfies AnonLayoutWrapperData,
-      // },
-      // // TODO: remove this temp route.
-      // {
-      //   path: "lockv2",
-      //   canActivate: [],
-      //   data: {
-      //     pageTitle: "yourAccountIsLocked",
-      //     pageIcon: LockIcon,
-      //     showReadonlyHostname: true,
-      //   } satisfies AnonLayoutWrapperData,
-      //   children: [
-      //     {
-      //       path: "",
-      //       component: LockV2Component,
-      //     },
-      //   ],
-      // },
-
       ...extensionRefreshSwap(
         LockComponent,
         LockV2Component,
