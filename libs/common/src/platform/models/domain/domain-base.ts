@@ -1,4 +1,7 @@
+import { ConditionalKeys } from "type-fest";
+
 import { View } from "../../../models/view/view";
+import { EncryptService } from "../../abstractions/encrypt.service";
 
 import { EncString } from "./enc-string";
 import { SymmetricCryptoKey } from "./symmetric-crypto-key";
@@ -79,5 +82,55 @@ export default class Domain {
 
     await Promise.all(promises);
     return viewModel;
+  }
+
+  /**
+   * Decrypts the requested properties of the domain object with the provided key and encrypt service.
+   *
+   * If a property is null, the result will be null.
+   * @see {@link EncString.decryptWithKey} for more details on decryption behavior.
+   *
+   * @param encryptedProperties The properties to decrypt. Type restricted to EncString properties of the domain object.
+   * @param key The key to use for decryption.
+   * @param encryptService The encryption service to use for decryption.
+   * @returns An object with the requested properties decrypted and the rest of the domain object untouched.
+   */
+  protected async decryptWithKey<const TEncryptedKeys extends ConditionalKeys<this, EncString>>(
+    encryptedProperties: TEncryptedKeys[],
+    key: SymmetricCryptoKey,
+    encryptService: EncryptService,
+  ): Promise<Record<TEncryptedKeys, string> & Omit<this, TEncryptedKeys>> {
+    const promises = [];
+
+    for (const prop of encryptedProperties) {
+      const value = (this as any)[prop] as EncString;
+      promises.push(this.decryptProperty(prop, value, key, encryptService));
+    }
+
+    const decryptedObjects = await Promise.all(promises);
+    const decryptedObject = decryptedObjects.reduce(
+      (acc, obj) => {
+        return { ...acc, ...obj };
+      },
+      { ...this },
+    );
+    return decryptedObject as Record<TEncryptedKeys, string> & Omit<this, TEncryptedKeys>;
+  }
+
+  private async decryptProperty<const TEncryptedKeys extends ConditionalKeys<this, EncString>>(
+    propertyKey: TEncryptedKeys,
+    value: EncString,
+    key: SymmetricCryptoKey,
+    encryptService: EncryptService,
+  ) {
+    let decrypted: string = null;
+    if (value) {
+      decrypted = await value.decryptWithKey(key, encryptService);
+    } else {
+      decrypted = null;
+    }
+    return {
+      [propertyKey]: decrypted,
+    };
   }
 }
