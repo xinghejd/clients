@@ -17,6 +17,7 @@ import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/mod
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 import { DevicesApiServiceAbstraction } from "@bitwarden/common/auth/abstractions/devices-api.service.abstraction";
 import { CaptchaIFrame } from "@bitwarden/common/auth/captcha-iframe";
+import { AuthResult } from "@bitwarden/common/auth/models/domain/auth-result";
 import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/force-set-password-reason";
 import { ClientType } from "@bitwarden/common/enums";
 import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
@@ -169,7 +170,9 @@ export class LoginComponentV2 implements OnInit, OnDestroy {
 
     if (this.handleCaptchaRequired(authResult)) {
       return;
-    } else if (authResult.requiresEncryptionKeyMigration) {
+    }
+
+    if (authResult.requiresEncryptionKeyMigration) {
       /* Legacy accounts used the master key to encrypt data.
          Migration is required but only performed on Web. */
       if (this.clientType === ClientType.Web) {
@@ -209,7 +212,7 @@ export class LoginComponentV2 implements OnInit, OnDestroy {
     }
   };
 
-  protected async goAfterLogIn(userId: UserId) {
+  protected async goAfterLogIn(userId: UserId): Promise<void> {
     const masterPassword = this.formGroup.value.masterPassword;
 
     // Check master password against policy
@@ -240,49 +243,11 @@ export class LoginComponentV2 implements OnInit, OnDestroy {
     await this.router.navigate(["vault"]);
   }
 
-  protected async setupCaptcha() {
-    const env = await firstValueFrom(this.environmentService.environment$);
-    const webVaultUrl = env.getWebVaultUrl();
-
-    this.captcha = new CaptchaIFrame(
-      window,
-      webVaultUrl,
-      this.i18nService,
-      (token: string) => {
-        this.captchaToken = token;
-      },
-      (error: string) => {
-        this.toastService.showToast({
-          variant: "error",
-          title: this.i18nService.t("errorOccurred"),
-          message: error,
-        });
-      },
-      (info: string) => {
-        this.toastService.showToast({
-          variant: "info",
-          title: this.i18nService.t("info"),
-          message: info,
-        });
-      },
-    );
-  }
-
-  protected showCaptcha() {
+  protected showCaptcha(): boolean {
     return !Utils.isNullOrWhitespace(this.captchaSiteKey);
   }
 
-  protected handleCaptchaRequired(response: { captchaSiteKey: string }): boolean {
-    if (Utils.isNullOrWhitespace(response.captchaSiteKey)) {
-      return false;
-    }
-
-    this.captchaSiteKey = response.captchaSiteKey;
-    this.captcha.init(response.captchaSiteKey);
-    return true;
-  }
-
-  protected async startAuthRequestLogin() {
+  protected async startAuthRequestLogin(): Promise<void> {
     this.formGroup.get("masterPassword")?.clearValidators();
     this.formGroup.get("masterPassword")?.updateValueAndValidity();
 
@@ -325,12 +290,12 @@ export class LoginComponentV2 implements OnInit, OnDestroy {
     }
   }
 
-  protected async goToHint() {
+  protected async goToHint(): Promise<void> {
     await this.saveEmailSettings();
     await this.router.navigateByUrl("/hint");
   }
 
-  protected async goToRegister() {
+  protected async goToRegister(): Promise<void> {
     // TODO: remove when email verification flag is removed
     const registerRoute = await firstValueFrom(this.registerRoute$);
 
@@ -344,7 +309,7 @@ export class LoginComponentV2 implements OnInit, OnDestroy {
     await this.router.navigate([registerRoute]);
   }
 
-  protected async saveEmailSettings() {
+  protected async saveEmailSettings(): Promise<void> {
     this.loginEmailService.setLoginEmail(this.formGroup.value.email);
     this.loginEmailService.setRememberEmail(this.formGroup.value.rememberEmail);
     await this.loginEmailService.saveEmailSettings();
@@ -360,6 +325,44 @@ export class LoginComponentV2 implements OnInit, OnDestroy {
     } catch (e) {
       this.showLoginWithDevice = false;
     }
+  }
+
+  private async setupCaptcha(): Promise<void> {
+    const env = await firstValueFrom(this.environmentService.environment$);
+    const webVaultUrl = env.getWebVaultUrl();
+
+    this.captcha = new CaptchaIFrame(
+      window,
+      webVaultUrl,
+      this.i18nService,
+      (token: string) => {
+        this.captchaToken = token;
+      },
+      (error: string) => {
+        this.toastService.showToast({
+          variant: "error",
+          title: this.i18nService.t("errorOccurred"),
+          message: error,
+        });
+      },
+      (info: string) => {
+        this.toastService.showToast({
+          variant: "info",
+          title: this.i18nService.t("info"),
+          message: info,
+        });
+      },
+    );
+  }
+
+  private handleCaptchaRequired(authResult: AuthResult): boolean {
+    if (Utils.isNullOrWhitespace(authResult.captchaSiteKey)) {
+      return false;
+    }
+
+    this.captchaSiteKey = authResult.captchaSiteKey;
+    this.captcha.init(authResult.captchaSiteKey);
+    return true;
   }
 
   private async loadEmailSettings(): Promise<void> {
