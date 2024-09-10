@@ -3075,6 +3075,10 @@
   "incorrectPin": {
     "message": "Incorrect PIN"
   },
+  "pin": {
+    "message": "PIN",
+    "description": "PIN code. Ex. The short code (often numeric) that you use to unlock a device."
+  },
   "exportedVault": {
     "message": "Vault exported"
   },
