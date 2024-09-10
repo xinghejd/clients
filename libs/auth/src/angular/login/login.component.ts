@@ -142,20 +142,30 @@ export class LoginComponentV2 implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  submit = async (showToast = true): Promise<void> => {
+  submit = async (): Promise<void> => {
     const data = this.formGroup.value;
 
     await this.setupCaptcha();
 
+    /**
+     * TODO-rr-bw: Verify the following
+     *
+     * In the original base login component there is a comment in the submit() method that says:
+     * "desktop, browser; This should be removed once all clients use reactive forms"
+     *
+     * Since we are now using reactive forms for all clients. I removed the Browser/Desktop specific
+     * toast error message.
+     *
+     * I also removed the `showToast` parameter from the submit() method entirely because my
+     * understanding is that now all errors will be visually handled by the reactive form via
+     * this.formGroup.markAllAsTouched()
+     *
+     * Therefore below I am simply checking if the form is invalid and returning if so.
+     */
     this.formGroup.markAllAsTouched();
-
-    // Web specific (start)
-    if (this.formGroup.invalid && !showToast) {
+    if (this.formGroup.invalid) {
       return;
     }
-    // Web specific (end)
-
-    // TODO-rr-bw: handle toast here for Browser/Desktop? See base LoginComponent -> submit()
 
     const credentials = new PasswordLoginCredentials(
       data.email,

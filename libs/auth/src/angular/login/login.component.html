@@ -12,7 +12,7 @@
   -->
 <form
   [ngClass]="{ 'tw-hidden': clientType !== ClientType.Web }"
-  [bitSubmit]="submit.bind(null, false)"
+  [bitSubmit]="submit"
   [formGroup]="formGroup"
 >
   <!-------------------------
