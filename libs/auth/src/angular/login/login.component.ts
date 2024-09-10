@@ -169,8 +169,18 @@ export class LoginComponentV2 implements OnInit, OnDestroy {
 
     if (this.handleCaptchaRequired(authResult)) {
       return;
-    } else if (await this.loginService.handleMigrateEncryptionKey(authResult)) {
-      return;
+    } else if (authResult.requiresEncryptionKeyMigration) {
+      /* Legacy accounts used the master key to encrypt data.
+         Migration is required but only performed on Web. */
+      if (this.clientType === ClientType.Web) {
+        await this.router.navigate(["migrate-legacy-encryption"]);
+      } else {
+        this.toastService.showToast({
+          variant: "error",
+          title: this.i18nService.t("errorOccured"),
+          message: this.i18nService.t("encryptionKeyMigrationRequired"),
+        });
+      }
     } else if (authResult.requiresTwoFactor) {
       await this.router.navigate(["2fa"]);
     } else if (authResult.forcePasswordReset != ForceSetPasswordReason.None) {
