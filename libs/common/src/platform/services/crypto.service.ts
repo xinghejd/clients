@@ -233,7 +233,7 @@ export class CryptoService implements CryptoServiceAbstraction {
 
   async clearStoredUserKey(keySuffix: KeySuffixOptions, userId?: UserId): Promise<void> {
     if (keySuffix === KeySuffixOptions.Auto) {
-      await this.stateService.setUserKeyAutoUnlock(null, { userId: userId });
+      await this.stateService.setUserKeyAutoUnlock(null, { userId });
       await this.clearDeprecatedKeys(KeySuffixOptions.Auto, userId);
     }
     if (keySuffix === KeySuffixOptions.Pin) {

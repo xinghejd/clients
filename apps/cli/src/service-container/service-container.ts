@@ -785,7 +785,7 @@ export class ServiceContainer {
 
     await this.stateEventRunnerService.handleEvent("logout", userId);
 
-    await this.stateService.clean({ userId: userId });
+    await this.stateService.clean({ userId });
     await this.accountService.clean(userId);
     await this.accountService.switchAccount(null);
     process.env.BW_SESSION = undefined;
