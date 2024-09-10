@@ -317,6 +317,7 @@ const webpackConfig = {
   mode: NODE_ENV,
   devtool: "source-map",
   devServer: devServer,
+  target: "web",
   entry: {
     "app/polyfills": "./src/polyfills.ts",
     "app/main": "./src/main.ts",
@@ -380,6 +381,7 @@ const webpackConfig = {
   },
   experiments: {
     asyncWebAssembly: true,
+    topLevelAwait: true,
   },
   plugins: plugins,
 };
