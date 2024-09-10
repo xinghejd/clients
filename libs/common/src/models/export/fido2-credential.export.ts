@@ -2,6 +2,8 @@ import { EncString } from "../../platform/models/domain/enc-string";
 import { Fido2Credential } from "../../vault/models/domain/fido2-credential";
 import { Fido2CredentialView } from "../../vault/models/view/fido2-credential.view";
 
+import { safeGetString } from "./utils";
+
 /**
  * Represents format of Fido2 Credentials in JSON exports.
  */
@@ -19,6 +21,7 @@ export class Fido2CredentialExport {
     req.keyValue = "keyValue";
     req.rpId = "rpId";
     req.userHandle = "userHandle";
+    req.userName = "userName";
     req.counter = "counter";
     req.rpName = "rpName";
     req.userDisplayName = "userDisplayName";
@@ -41,6 +44,7 @@ export class Fido2CredentialExport {
     view.keyValue = req.keyValue;
     view.rpId = req.rpId;
     view.userHandle = req.userHandle;
+    view.userName = req.userName;
     view.counter = parseInt(req.counter);
     view.rpName = req.rpName;
     view.userDisplayName = req.userDisplayName;
@@ -63,6 +67,7 @@ export class Fido2CredentialExport {
     domain.keyValue = req.keyValue != null ? new EncString(req.keyValue) : null;
     domain.rpId = req.rpId != null ? new EncString(req.rpId) : null;
     domain.userHandle = req.userHandle != null ? new EncString(req.userHandle) : null;
+    domain.userName = req.userName != null ? new EncString(req.userName) : null;
     domain.counter = req.counter != null ? new EncString(req.counter) : null;
     domain.rpName = req.rpName != null ? new EncString(req.rpName) : null;
     domain.userDisplayName =
@@ -79,6 +84,7 @@ export class Fido2CredentialExport {
   keyValue: string;
   rpId: string;
   userHandle: string;
+  userName: string;
   counter: string;
   rpName: string;
   userDisplayName: string;
@@ -95,31 +101,18 @@ export class Fido2CredentialExport {
       return;
     }
 
-    if (o instanceof Fido2CredentialView) {
-      this.credentialId = o.credentialId;
-      this.keyType = o.keyType;
-      this.keyAlgorithm = o.keyAlgorithm;
-      this.keyCurve = o.keyCurve;
-      this.keyValue = o.keyValue;
-      this.rpId = o.rpId;
-      this.userHandle = o.userHandle;
-      this.counter = String(o.counter);
-      this.rpName = o.rpName;
-      this.userDisplayName = o.userDisplayName;
-      this.discoverable = String(o.discoverable);
-    } else {
-      this.credentialId = o.credentialId?.encryptedString;
-      this.keyType = o.keyType?.encryptedString;
-      this.keyAlgorithm = o.keyAlgorithm?.encryptedString;
-      this.keyCurve = o.keyCurve?.encryptedString;
-      this.keyValue = o.keyValue?.encryptedString;
-      this.rpId = o.rpId?.encryptedString;
-      this.userHandle = o.userHandle?.encryptedString;
-      this.counter = o.counter?.encryptedString;
-      this.rpName = o.rpName?.encryptedString;
-      this.userDisplayName = o.userDisplayName?.encryptedString;
-      this.discoverable = o.discoverable?.encryptedString;
-    }
+    this.credentialId = safeGetString(o.credentialId);
+    this.keyType = safeGetString(o.keyType);
+    this.keyAlgorithm = safeGetString(o.keyAlgorithm);
+    this.keyCurve = safeGetString(o.keyCurve);
+    this.keyValue = safeGetString(o.keyValue);
+    this.rpId = safeGetString(o.rpId);
+    this.userHandle = safeGetString(o.userHandle);
+    this.userName = safeGetString(o.userName);
+    this.counter = safeGetString(String(o.counter));
+    this.rpName = safeGetString(o.rpName);
+    this.userDisplayName = safeGetString(o.userDisplayName);
+    this.discoverable = safeGetString(String(o.discoverable));
     this.creationDate = o.creationDate;
   }
 }

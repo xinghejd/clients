@@ -1,6 +1,6 @@
 import * as papa from "papaparse";
 
-import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
+import { decodeJwtTokenToJson } from "@bitwarden/auth/common";
 import { HttpStatusCode } from "@bitwarden/common/enums";
 import { CryptoFunctionService } from "@bitwarden/common/platform/abstractions/crypto-function.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
@@ -24,10 +24,7 @@ export class Vault {
   private client: Client;
   private cryptoUtils: CryptoUtils;
 
-  constructor(
-    private cryptoFunctionService: CryptoFunctionService,
-    private tokenService: TokenService
-  ) {
+  constructor(private cryptoFunctionService: CryptoFunctionService) {
     this.cryptoUtils = new CryptoUtils(cryptoFunctionService);
     const parser = new Parser(cryptoFunctionService, this.cryptoUtils);
     this.client = new Client(parser, this.cryptoUtils);
@@ -38,28 +35,42 @@ export class Vault {
     password: string,
     clientInfo: ClientInfo,
     ui: Ui,
-    parserOptions: ParserOptions = ParserOptions.default
+    parserOptions: ParserOptions = ParserOptions.default,
   ): Promise<void> {
-    this.accounts = await this.client.openVault(username, password, clientInfo, ui, parserOptions);
+    this.accounts = await this.client.openVault(
+      username,
+      password,
+      null,
+      clientInfo,
+      ui,
+      parserOptions,
+    );
   }
 
   async openFederated(
     federatedUser: FederatedUserContext,
     clientInfo: ClientInfo,
     ui: Ui,
-    parserOptions: ParserOptions = ParserOptions.default
+    parserOptions: ParserOptions = ParserOptions.default,
   ): Promise<void> {
     if (federatedUser == null) {
       throw new Error("Federated user context is not set.");
     }
     const k1 = await this.getK1(federatedUser);
-    const k2 = await this.getK2(federatedUser);
+    const [k2, fragmentId] = await this.getK2FragmentId(federatedUser);
     const hiddenPasswordArr = await this.cryptoFunctionService.hash(
       this.cryptoUtils.ExclusiveOr(k1, k2),
-      "sha256"
+      "sha256",
     );
     const hiddenPassword = Utils.fromBufferToB64(hiddenPasswordArr);
-    await this.open(federatedUser.username, hiddenPassword, clientInfo, ui, parserOptions);
+    this.accounts = await this.client.openVault(
+      federatedUser.username,
+      hiddenPassword,
+      fragmentId,
+      clientInfo,
+      ui,
+      parserOptions,
+    );
   }
 
   async setUserTypeContext(username: string) {
@@ -80,6 +91,18 @@ export class Vault {
       this.userType.pkceEnabled = json.PkceEnabled;
       this.userType.provider = json.Provider;
       this.userType.type = json.type;
+
+      if (this.userType.provider === IdpProvider.Azure) {
+        // Sometimes customers have malformed OIDC authority URLs. Try to fix them.
+        const appQueryIndex = this.userType.openIDConnectAuthority.indexOf("?app");
+        if (appQueryIndex > -1) {
+          this.userType.openIDConnectAuthority = this.userType.openIDConnectAuthority.substring(
+            0,
+            appQueryIndex,
+          );
+        }
+      }
+
       return;
     }
     throw new Error("Cannot determine LastPass user type.");
@@ -138,13 +161,15 @@ export class Vault {
     rest.baseUrl = "https://graph.microsoft.com";
     const response = await rest.get(
       "v1.0/me?$select=id,displayName,mail&$expand=extensions",
-      new Map([["Authorization", "Bearer " + federatedUser.accessToken]])
+      new Map([["Authorization", "Bearer " + federatedUser.accessToken]]),
     );
     if (response.status === HttpStatusCode.Ok) {
       const json = await response.json();
-      const k1 = json?.extensions?.LastPassK1 as string;
-      if (k1 != null) {
-        return Utils.fromB64ToArray(k1);
+      if (json?.extensions != null && json.extensions.length > 0) {
+        const k1 = json.extensions[0].LastPassK1 as string;
+        if (k1 != null) {
+          return Utils.fromB64ToArray(k1);
+        }
       }
     }
     return null;
@@ -162,7 +187,7 @@ export class Vault {
         "&q=name%20%3D%20%27k1.lp%27" +
         "&spaces=appDataFolder" +
         "&fields=nextPageToken%2C%20files(id%2C%20name)",
-      accessTokenAuthHeader
+      accessTokenAuthHeader,
     );
     if (response.status === HttpStatusCode.Ok) {
       const json = await response.json();
@@ -172,7 +197,7 @@ export class Vault {
         rest.baseUrl = "https://www.googleapis.com";
         const response = await rest.get(
           "drive/v3/files/" + files[0].id + "?alt=media",
-          accessTokenAuthHeader
+          accessTokenAuthHeader,
         );
         if (response.status === HttpStatusCode.Ok) {
           const k1 = await response.text();
@@ -184,7 +209,7 @@ export class Vault {
   }
 
   private async getK1FromAccessToken(federatedUser: FederatedUserContext, b64: boolean) {
-    const decodedAccessToken = await this.tokenService.decodeToken(federatedUser.accessToken);
+    const decodedAccessToken = decodeJwtTokenToJson(federatedUser.accessToken);
     const k1 = decodedAccessToken?.LastPassK1 as string;
     if (k1 != null) {
       return b64 ? Utils.fromB64ToArray(k1) : Utils.fromByteStringToArray(k1);
@@ -192,7 +217,9 @@ export class Vault {
     return null;
   }
 
-  private async getK2(federatedUser: FederatedUserContext): Promise<Uint8Array> {
+  private async getK2FragmentId(
+    federatedUser: FederatedUserContext,
+  ): Promise<[Uint8Array, string]> {
     if (this.userType == null) {
       throw new Error("User type is not set.");
     }
@@ -210,10 +237,11 @@ export class Vault {
     if (response.status === HttpStatusCode.Ok) {
       const json = await response.json();
       const k2 = json?.k2 as string;
-      if (k2 != null) {
-        return Utils.fromB64ToArray(k2);
+      const fragmentId = json?.fragment_id as string;
+      if (k2 != null && fragmentId != null) {
+        return [Utils.fromB64ToArray(k2), fragmentId];
       }
     }
-    throw new Error("Cannot get k2.");
+    throw new Error("Cannot get k2 and/or fragment ID.");
   }
 }

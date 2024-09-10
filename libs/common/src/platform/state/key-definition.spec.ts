@@ -1,6 +1,6 @@
 import { Opaque } from "type-fest";
 
-import { KeyDefinition } from "./key-definition";
+import { DebugOptions, KeyDefinition } from "./key-definition";
 import { StateDefinition } from "./state-definition";
 
 const fakeStateDefinition = new StateDefinition("fake", "disk");
@@ -15,6 +15,128 @@ describe("KeyDefinition", () => {
           deserializer: undefined,
         });
       });
+    });
+
+    it("normalizes debug options set to undefined", () => {
+      const keyDefinition = new KeyDefinition(fakeStateDefinition, "fake", {
+        deserializer: (v) => v,
+        debug: undefined,
+      });
+
+      expect(keyDefinition.debug.enableUpdateLogging).toBe(false);
+    });
+
+    it("normalizes no debug options", () => {
+      const keyDefinition = new KeyDefinition(fakeStateDefinition, "fake", {
+        deserializer: (v) => v,
+      });
+
+      expect(keyDefinition.debug.enableUpdateLogging).toBe(false);
+    });
+
+    const cases: {
+      debug: DebugOptions | undefined;
+      expectedEnableUpdateLogging: boolean;
+      expectedEnableRetrievalLogging: boolean;
+    }[] = [
+      {
+        debug: undefined,
+        expectedEnableUpdateLogging: false,
+        expectedEnableRetrievalLogging: false,
+      },
+      {
+        debug: {},
+        expectedEnableUpdateLogging: false,
+        expectedEnableRetrievalLogging: false,
+      },
+      {
+        debug: {
+          enableUpdateLogging: false,
+        },
+        expectedEnableUpdateLogging: false,
+        expectedEnableRetrievalLogging: false,
+      },
+      {
+        debug: {
+          enableRetrievalLogging: false,
+        },
+        expectedEnableUpdateLogging: false,
+        expectedEnableRetrievalLogging: false,
+      },
+      {
+        debug: {
+          enableUpdateLogging: true,
+        },
+        expectedEnableUpdateLogging: true,
+        expectedEnableRetrievalLogging: false,
+      },
+      {
+        debug: {
+          enableRetrievalLogging: true,
+        },
+        expectedEnableUpdateLogging: false,
+        expectedEnableRetrievalLogging: true,
+      },
+      {
+        debug: {
+          enableRetrievalLogging: false,
+          enableUpdateLogging: false,
+        },
+        expectedEnableUpdateLogging: false,
+        expectedEnableRetrievalLogging: false,
+      },
+      {
+        debug: {
+          enableRetrievalLogging: true,
+          enableUpdateLogging: true,
+        },
+        expectedEnableUpdateLogging: true,
+        expectedEnableRetrievalLogging: true,
+      },
+    ];
+
+    it.each(cases)(
+      "normalizes debug options to correct values when given $debug",
+      ({ debug, expectedEnableUpdateLogging, expectedEnableRetrievalLogging }) => {
+        const keyDefinition = new KeyDefinition(fakeStateDefinition, "fake", {
+          deserializer: (v) => v,
+          debug: debug,
+        });
+
+        expect(keyDefinition.debug.enableUpdateLogging).toBe(expectedEnableUpdateLogging);
+        expect(keyDefinition.debug.enableRetrievalLogging).toBe(expectedEnableRetrievalLogging);
+      },
+    );
+  });
+
+  describe("cleanupDelayMs", () => {
+    it("defaults to 1000ms", () => {
+      const keyDefinition = new KeyDefinition<boolean>(fakeStateDefinition, "fake", {
+        deserializer: (value) => value,
+      });
+
+      expect(keyDefinition).toBeTruthy();
+      expect(keyDefinition.cleanupDelayMs).toBe(1000);
+    });
+
+    it("can be overridden", () => {
+      const keyDefinition = new KeyDefinition<boolean>(fakeStateDefinition, "fake", {
+        deserializer: (value) => value,
+        cleanupDelayMs: 500,
+      });
+
+      expect(keyDefinition).toBeTruthy();
+      expect(keyDefinition.cleanupDelayMs).toBe(500);
+    });
+
+    it("throws on negative", () => {
+      expect(
+        () =>
+          new KeyDefinition<boolean>(fakeStateDefinition, "fake", {
+            deserializer: (value) => value,
+            cleanupDelayMs: -1,
+          }),
+      ).toThrow();
     });
   });
 
@@ -47,11 +169,11 @@ describe("KeyDefinition", () => {
         "fake",
         {
           deserializer: (value) => !value,
-        }
+        },
       );
 
       const fancyRecord = recordDefinition.deserializer(
-        JSON.parse(`{ "myKey": false, "mySecondKey": true }`)
+        JSON.parse(`{ "myKey": false, "mySecondKey": true }`),
       );
 
       expect(fancyRecord).toBeTruthy();

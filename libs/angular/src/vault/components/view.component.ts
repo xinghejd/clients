@@ -1,3 +1,4 @@
+import { DatePipe } from "@angular/common";
 import {
   ChangeDetectorRef,
   Directive,
@@ -8,14 +9,15 @@ import {
   OnInit,
   Output,
 } from "@angular/core";
-import { firstValueFrom } from "rxjs";
+import { firstValueFrom, map } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AuditService } from "@bitwarden/common/abstractions/audit.service";
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
-import { TotpService } from "@bitwarden/common/abstractions/totp.service";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
-import { EventType, FieldType } from "@bitwarden/common/enums";
+import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
+import { EventType } from "@bitwarden/common/enums";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
 import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
@@ -27,8 +29,9 @@ import { StateService } from "@bitwarden/common/platform/abstractions/state.serv
 import { EncArrayBuffer } from "@bitwarden/common/platform/models/domain/enc-array-buffer";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
+import { TotpService } from "@bitwarden/common/vault/abstractions/totp.service";
+import { FieldType, CipherType } from "@bitwarden/common/vault/enums";
 import { CipherRepromptType } from "@bitwarden/common/vault/enums/cipher-reprompt-type";
-import { CipherType } from "@bitwarden/common/vault/enums/cipher-type";
 import { Launchable } from "@bitwarden/common/vault/interfaces/launchable";
 import { AttachmentView } from "@bitwarden/common/vault/models/view/attachment.view";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
@@ -68,6 +71,15 @@ export class ViewComponent implements OnDestroy, OnInit {
   private previousCipherId: string;
   private passwordReprompted = false;
 
+  get fido2CredentialCreationDateValue(): string {
+    const dateCreated = this.i18nService.t("dateCreated");
+    const creationDate = this.datePipe.transform(
+      this.cipher?.login?.fido2Credentials?.[0]?.creationDate,
+      "short",
+    );
+    return `${dateCreated} ${creationDate}`;
+  }
+
   constructor(
     protected cipherService: CipherService,
     protected folderService: FolderService,
@@ -87,11 +99,16 @@ export class ViewComponent implements OnDestroy, OnInit {
     private logService: LogService,
     protected stateService: StateService,
     protected fileDownloadService: FileDownloadService,
-    protected dialogService: DialogService
+    protected dialogService: DialogService,
+    protected datePipe: DatePipe,
+    protected accountService: AccountService,
+    private billingAccountProfileStateService: BillingAccountProfileStateService,
   ) {}
 
   ngOnInit() {
     this.broadcasterService.subscribe(BroadcasterSubscriptionId, (message: any) => {
+      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.ngZone.run(async () => {
         switch (message.command) {
           case "syncCompleted":
@@ -114,10 +131,15 @@ export class ViewComponent implements OnDestroy, OnInit {
     this.cleanUp();
 
     const cipher = await this.cipherService.get(this.cipherId);
-    this.cipher = await cipher.decrypt(
-      await this.cipherService.getKeyForCipherKeyDecryption(cipher)
+    const activeUserId = await firstValueFrom(
+      this.accountService.activeAccount$.pipe(map((a) => a?.id)),
     );
-    this.canAccessPremium = await this.stateService.getCanAccessPremium();
+    this.cipher = await cipher.decrypt(
+      await this.cipherService.getKeyForCipherKeyDecryption(cipher, activeUserId),
+    );
+    this.canAccessPremium = await firstValueFrom(
+      this.billingAccountProfileStateService.hasPremiumFromAnySource$,
+    );
     this.showPremiumRequiredTotp =
       this.cipher.login.totp && !this.canAccessPremium && !this.cipher.organizationUseTotp;
 
@@ -142,6 +164,8 @@ export class ViewComponent implements OnDestroy, OnInit {
     }
 
     if (this.previousCipherId !== this.cipherId) {
+      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.eventCollectionService.collect(EventType.Cipher_ClientViewed, this.cipherId);
     }
     this.previousCipherId = this.cipherId;
@@ -208,7 +232,7 @@ export class ViewComponent implements OnDestroy, OnInit {
       this.platformUtilsService.showToast(
         "success",
         null,
-        this.i18nService.t(this.cipher.isDeleted ? "permanentlyDeletedItem" : "deletedItem")
+        this.i18nService.t(this.cipher.isDeleted ? "permanentlyDeletedItem" : "deletedItem"),
       );
       this.onDeletedCipher.emit(this.cipher);
     } catch (e) {
@@ -242,9 +266,11 @@ export class ViewComponent implements OnDestroy, OnInit {
     this.showPassword = !this.showPassword;
     this.showPasswordCount = false;
     if (this.showPassword) {
+      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.eventCollectionService.collect(
         EventType.Cipher_ClientToggledPasswordVisible,
-        this.cipherId
+        this.cipherId,
       );
     }
   }
@@ -264,9 +290,11 @@ export class ViewComponent implements OnDestroy, OnInit {
 
     this.showCardNumber = !this.showCardNumber;
     if (this.showCardNumber) {
+      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.eventCollectionService.collect(
         EventType.Cipher_ClientToggledCardNumberVisible,
-        this.cipherId
+        this.cipherId,
       );
     }
   }
@@ -278,9 +306,11 @@ export class ViewComponent implements OnDestroy, OnInit {
 
     this.showCardCode = !this.showCardCode;
     if (this.showCardCode) {
+      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.eventCollectionService.collect(
         EventType.Cipher_ClientToggledCardCodeVisible,
-        this.cipherId
+        this.cipherId,
       );
     }
   }
@@ -301,7 +331,7 @@ export class ViewComponent implements OnDestroy, OnInit {
       this.platformUtilsService.showToast(
         "warning",
         null,
-        this.i18nService.t("passwordExposed", matches.toString())
+        this.i18nService.t("passwordExposed", matches.toString()),
       );
     } else {
       this.platformUtilsService.showToast("success", null, this.i18nService.t("passwordSafe"));
@@ -314,6 +344,8 @@ export class ViewComponent implements OnDestroy, OnInit {
     }
 
     if (cipherId) {
+      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.cipherService.updateLastLaunchedDate(cipherId);
     }
 
@@ -337,14 +369,20 @@ export class ViewComponent implements OnDestroy, OnInit {
     this.platformUtilsService.showToast(
       "info",
       null,
-      this.i18nService.t("valueCopied", this.i18nService.t(typeI18nKey))
+      this.i18nService.t("valueCopied", this.i18nService.t(typeI18nKey)),
     );
 
     if (typeI18nKey === "password") {
+      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.eventCollectionService.collect(EventType.Cipher_ClientCopiedPassword, this.cipherId);
     } else if (typeI18nKey === "securityCode") {
+      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.eventCollectionService.collect(EventType.Cipher_ClientCopiedCardCode, this.cipherId);
     } else if (aType === "H_Field") {
+      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.eventCollectionService.collect(EventType.Cipher_ClientCopiedHiddenField, this.cipherId);
     }
 
@@ -368,7 +406,7 @@ export class ViewComponent implements OnDestroy, OnInit {
       this.platformUtilsService.showToast(
         "error",
         this.i18nService.t("premiumRequired"),
-        this.i18nService.t("premiumRequiredDesc")
+        this.i18nService.t("premiumRequiredDesc"),
       );
       return;
     }
@@ -377,7 +415,7 @@ export class ViewComponent implements OnDestroy, OnInit {
     try {
       const attachmentDownloadResponse = await this.apiService.getAttachmentData(
         this.cipher.id,
-        attachment.id
+        attachment.id,
       );
       url = attachmentDownloadResponse.url;
     } catch (e) {

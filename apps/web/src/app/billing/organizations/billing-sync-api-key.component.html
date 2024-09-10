@@ -30,18 +30,20 @@
             bitIconButton="bwi-clone"
             bitSuffix
             type="button"
+            showToast
+            [valueLabel]="'billingSyncKey' | i18n"
             [appCopyClick]="clientSecret"
             [appA11yTitle]="'copyValue' | i18n"
           ></button>
         </bit-form-field>
         <div class="tw-mt-2 tw-text-sm tw-text-muted" *ngIf="showLastSyncText">
           <b class="tw-font-semibold">{{ "lastSync" | i18n }}:</b>
-          {{ lastSyncDate | date : "medium" }}
+          {{ lastSyncDate | date: "medium" }}
         </div>
         <div class="tw-mt-2 tw-text-sm tw-text-danger" *ngIf="showAwaitingSyncText">
           <i class="bwi bwi-error"></i>
           {{
-            (daysBetween === 1 ? "awaitingSyncSingular" : "awaitingSyncPlural") | i18n : daysBetween
+            (daysBetween === 1 ? "awaitingSyncSingular" : "awaitingSyncPlural") | i18n: daysBetween
           }}
         </div>
       </div>

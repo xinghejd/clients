@@ -1,69 +1,188 @@
 import {
-  BehaviorSubject,
-  Subject,
   combineLatestWith,
   map,
   distinctUntilChanged,
   shareReplay,
+  combineLatest,
+  Observable,
 } from "rxjs";
 
-import { AccountInfo, InternalAccountService } from "../../auth/abstractions/account.service";
+import {
+  AccountInfo,
+  InternalAccountService,
+  accountInfoEqual,
+} from "../../auth/abstractions/account.service";
 import { LogService } from "../../platform/abstractions/log.service";
 import { MessagingService } from "../../platform/abstractions/messaging.service";
+import { Utils } from "../../platform/misc/utils";
+import {
+  ACCOUNT_DISK,
+  GlobalState,
+  GlobalStateProvider,
+  KeyDefinition,
+} from "../../platform/state";
 import { UserId } from "../../types/guid";
-import { AuthenticationStatus } from "../enums/authentication-status";
+
+export const ACCOUNT_ACCOUNTS = KeyDefinition.record<AccountInfo, UserId>(
+  ACCOUNT_DISK,
+  "accounts",
+  {
+    deserializer: (accountInfo) => accountInfo,
+  },
+);
+
+export const ACCOUNT_ACTIVE_ACCOUNT_ID = new KeyDefinition(ACCOUNT_DISK, "activeAccountId", {
+  deserializer: (id: UserId) => id,
+});
+
+export const ACCOUNT_ACTIVITY = KeyDefinition.record<Date, UserId>(ACCOUNT_DISK, "activity", {
+  deserializer: (activity) => new Date(activity),
+});
+
+const LOGGED_OUT_INFO: AccountInfo = {
+  email: "",
+  emailVerified: false,
+  name: undefined,
+};
 
 export class AccountServiceImplementation implements InternalAccountService {
-  private accounts = new BehaviorSubject<Record<UserId, AccountInfo>>({});
-  private activeAccountId = new BehaviorSubject<UserId | undefined>(undefined);
-  private lock = new Subject<UserId>();
-  private logout = new Subject<UserId>();
+  private accountsState: GlobalState<Record<UserId, AccountInfo>>;
+  private activeAccountIdState: GlobalState<UserId | undefined>;
 
-  accounts$ = this.accounts.asObservable();
-  activeAccount$ = this.activeAccountId.pipe(
-    combineLatestWith(this.accounts$),
-    map(([id, accounts]) => (id ? { id, ...accounts[id] } : undefined)),
-    distinctUntilChanged(),
-    shareReplay({ bufferSize: 1, refCount: false })
-  );
-  accountLock$ = this.lock.asObservable();
-  accountLogout$ = this.logout.asObservable();
-  constructor(private messagingService: MessagingService, private logService: LogService) {}
+  accounts$: Observable<Record<UserId, AccountInfo>>;
+  activeAccount$: Observable<{ id: UserId | undefined } & AccountInfo>;
+  accountActivity$: Observable<Record<UserId, Date>>;
+  sortedUserIds$: Observable<UserId[]>;
+  nextUpAccount$: Observable<{ id: UserId } & AccountInfo>;
 
-  addAccount(userId: UserId, accountData: AccountInfo): void {
-    this.accounts.value[userId] = accountData;
-    this.accounts.next(this.accounts.value);
+  constructor(
+    private messagingService: MessagingService,
+    private logService: LogService,
+    private globalStateProvider: GlobalStateProvider,
+  ) {
+    this.accountsState = this.globalStateProvider.get(ACCOUNT_ACCOUNTS);
+    this.activeAccountIdState = this.globalStateProvider.get(ACCOUNT_ACTIVE_ACCOUNT_ID);
+
+    this.accounts$ = this.accountsState.state$.pipe(
+      map((accounts) => (accounts == null ? {} : accounts)),
+    );
+    this.activeAccount$ = this.activeAccountIdState.state$.pipe(
+      combineLatestWith(this.accounts$),
+      map(([id, accounts]) => (id ? { id, ...(accounts[id] as AccountInfo) } : undefined)),
+      distinctUntilChanged((a, b) => a?.id === b?.id && accountInfoEqual(a, b)),
+      shareReplay({ bufferSize: 1, refCount: false }),
+    );
+    this.accountActivity$ = this.globalStateProvider
+      .get(ACCOUNT_ACTIVITY)
+      .state$.pipe(map((activity) => activity ?? {}));
+    this.sortedUserIds$ = this.accountActivity$.pipe(
+      map((activity) => {
+        return Object.entries(activity)
+          .map(([userId, lastActive]: [UserId, Date]) => ({ userId, lastActive }))
+          .sort((a, b) => b.lastActive.getTime() - a.lastActive.getTime()) // later dates first
+          .map((a) => a.userId);
+      }),
+    );
+    this.nextUpAccount$ = combineLatest([
+      this.accounts$,
+      this.activeAccount$,
+      this.sortedUserIds$,
+    ]).pipe(
+      map(([accounts, activeAccount, sortedUserIds]) => {
+        const nextId = sortedUserIds.find((id) => id !== activeAccount?.id && accounts[id] != null);
+        return nextId ? { id: nextId, ...accounts[nextId] } : null;
+      }),
+    );
   }
 
-  setAccountName(userId: UserId, name: string): void {
-    this.setAccountInfo(userId, { ...this.accounts.value[userId], name });
+  async addAccount(userId: UserId, accountData: AccountInfo): Promise<void> {
+    if (!Utils.isGuid(userId)) {
+      throw new Error("userId is required");
+    }
+
+    await this.accountsState.update((accounts) => {
+      accounts ||= {};
+      accounts[userId] = accountData;
+      return accounts;
+    });
+    await this.setAccountActivity(userId, new Date());
   }
 
-  setAccountEmail(userId: UserId, email: string): void {
-    this.setAccountInfo(userId, { ...this.accounts.value[userId], email });
+  async setAccountName(userId: UserId, name: string): Promise<void> {
+    await this.setAccountInfo(userId, { name });
   }
 
-  setAccountStatus(userId: UserId, status: AuthenticationStatus): void {
-    this.setAccountInfo(userId, { ...this.accounts.value[userId], status });
+  async setAccountEmail(userId: UserId, email: string): Promise<void> {
+    await this.setAccountInfo(userId, { email });
+  }
 
-    if (status === AuthenticationStatus.LoggedOut) {
-      this.logout.next(userId);
-    } else if (status === AuthenticationStatus.Locked) {
-      this.lock.next(userId);
+  async setAccountEmailVerified(userId: UserId, emailVerified: boolean): Promise<void> {
+    await this.setAccountInfo(userId, { emailVerified });
+  }
+
+  async clean(userId: UserId) {
+    await this.setAccountInfo(userId, LOGGED_OUT_INFO);
+    await this.removeAccountActivity(userId);
+  }
+
+  async switchAccount(userId: UserId | null): Promise<void> {
+    let updateActivity = false;
+    await this.activeAccountIdState.update(
+      (_, accounts) => {
+        if (userId == null) {
+          // indicates no account is active
+          return null;
+        }
+
+        if (accounts?.[userId] == null) {
+          throw new Error("Account does not exist");
+        }
+        updateActivity = true;
+        return userId;
+      },
+      {
+        combineLatestWith: this.accounts$,
+        shouldUpdate: (id) => {
+          // update only if userId changes
+          return id !== userId;
+        },
+      },
+    );
+
+    if (updateActivity) {
+      await this.setAccountActivity(userId, new Date());
     }
   }
 
-  switchAccount(userId: UserId) {
-    if (userId == null) {
-      // indicates no account is active
-      this.activeAccountId.next(undefined);
+  async setAccountActivity(userId: UserId, lastActivity: Date): Promise<void> {
+    if (!Utils.isGuid(userId)) {
+      // only store for valid userIds
       return;
     }
 
-    if (this.accounts.value[userId] == null) {
-      throw new Error("Account does not exist");
-    }
-    this.activeAccountId.next(userId);
+    await this.globalStateProvider.get(ACCOUNT_ACTIVITY).update(
+      (activity) => {
+        activity ||= {};
+        activity[userId] = lastActivity;
+        return activity;
+      },
+      {
+        shouldUpdate: (oldActivity) => oldActivity?.[userId]?.getTime() !== lastActivity?.getTime(),
+      },
+    );
+  }
+
+  async removeAccountActivity(userId: UserId): Promise<void> {
+    await this.globalStateProvider.get(ACCOUNT_ACTIVITY).update(
+      (activity) => {
+        if (activity == null) {
+          return activity;
+        }
+        delete activity[userId];
+        return activity;
+      },
+      { shouldUpdate: (oldActivity) => oldActivity?.[userId] != null },
+    );
   }
 
   // TODO: update to use our own account status settings. Requires inverting direction of state service accounts flow
@@ -76,18 +195,26 @@ export class AccountServiceImplementation implements InternalAccountService {
     }
   }
 
-  private setAccountInfo(userId: UserId, accountInfo: AccountInfo) {
-    if (this.accounts.value[userId] == null) {
-      throw new Error("Account does not exist");
+  private async setAccountInfo(userId: UserId, update: Partial<AccountInfo>): Promise<void> {
+    function newAccountInfo(oldAccountInfo: AccountInfo): AccountInfo {
+      return { ...oldAccountInfo, ...update };
     }
+    await this.accountsState.update(
+      (accounts) => {
+        accounts[userId] = newAccountInfo(accounts[userId]);
+        return accounts;
+      },
+      {
+        // Avoid unnecessary updates
+        // TODO: Faster comparison, maybe include a hash on the objects?
+        shouldUpdate: (accounts) => {
+          if (accounts?.[userId] == null) {
+            throw new Error("Account does not exist");
+          }
 
-    // Avoid unnecessary updates
-    // TODO: Faster comparison, maybe include a hash on the objects?
-    if (JSON.stringify(this.accounts.value[userId]) === JSON.stringify(accountInfo)) {
-      return;
-    }
-
-    this.accounts.value[userId] = accountInfo;
-    this.accounts.next(this.accounts.value);
+          return !accountInfoEqual(accounts[userId], newAccountInfo(accounts[userId]));
+        },
+      },
+    );
   }
 }

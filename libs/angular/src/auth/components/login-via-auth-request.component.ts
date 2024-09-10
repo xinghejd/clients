@@ -1,19 +1,23 @@
 import { Directive, OnDestroy, OnInit } from "@angular/core";
 import { IsActiveMatchOptions, Router } from "@angular/router";
-import { Subject, takeUntil } from "rxjs";
+import { Subject, firstValueFrom, map, takeUntil } from "rxjs";
 
-import { AnonymousHubService } from "@bitwarden/common/abstractions/anonymousHub.service";
+import {
+  AuthRequestLoginCredentials,
+  AuthRequestServiceAbstraction,
+  LoginStrategyServiceAbstraction,
+  LoginEmailServiceAbstraction,
+} from "@bitwarden/auth/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { AuthRequestCryptoServiceAbstraction } from "@bitwarden/common/auth/abstractions/auth-request-crypto.service.abstraction";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { AnonymousHubService } from "@bitwarden/common/auth/abstractions/anonymous-hub.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
-import { DeviceTrustCryptoServiceAbstraction } from "@bitwarden/common/auth/abstractions/device-trust-crypto.service.abstraction";
-import { LoginService } from "@bitwarden/common/auth/abstractions/login.service";
+import { DeviceTrustServiceAbstraction } from "@bitwarden/common/auth/abstractions/device-trust.service.abstraction";
 import { AuthRequestType } from "@bitwarden/common/auth/enums/auth-request-type";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { AdminAuthRequestStorable } from "@bitwarden/common/auth/models/domain/admin-auth-req-storable";
 import { AuthResult } from "@bitwarden/common/auth/models/domain/auth-result";
 import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/force-set-password-reason";
-import { AuthRequestLoginCredentials } from "@bitwarden/common/auth/models/domain/login-credentials";
 import { CreateAuthRequest } from "@bitwarden/common/auth/models/request/create-auth.request";
 import { AuthRequestResponse } from "@bitwarden/common/auth/models/response/auth-request.response";
 import { HttpStatusCode } from "@bitwarden/common/enums/http-status-code.enum";
@@ -25,10 +29,11 @@ import { EnvironmentService } from "@bitwarden/common/platform/abstractions/envi
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { PasswordGenerationServiceAbstraction } from "@bitwarden/common/tools/generator/password";
+import { UserId } from "@bitwarden/common/types/guid";
+import { ToastService } from "@bitwarden/components";
+import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legacy";
 
 import { CaptchaProtectedComponent } from "./captcha-protected.component";
 
@@ -65,7 +70,6 @@ export class LoginViaAuthRequestComponent
 
   private authRequestKeyPair: { publicKey: Uint8Array; privateKey: Uint8Array };
 
-  // TODO: in future, go to child components and remove child constructors and let deps fall through to the super class
   constructor(
     protected router: Router,
     private cryptoService: CryptoService,
@@ -80,31 +84,34 @@ export class LoginViaAuthRequestComponent
     platformUtilsService: PlatformUtilsService,
     private anonymousHubService: AnonymousHubService,
     private validationService: ValidationService,
-    private stateService: StateService,
-    private loginService: LoginService,
-    private deviceTrustCryptoService: DeviceTrustCryptoServiceAbstraction,
-    private authReqCryptoService: AuthRequestCryptoServiceAbstraction
+    private accountService: AccountService,
+    private loginEmailService: LoginEmailServiceAbstraction,
+    private deviceTrustService: DeviceTrustServiceAbstraction,
+    private authRequestService: AuthRequestServiceAbstraction,
+    private loginStrategyService: LoginStrategyServiceAbstraction,
+    protected toastService: ToastService,
   ) {
-    super(environmentService, i18nService, platformUtilsService);
+    super(environmentService, i18nService, platformUtilsService, toastService);
 
-    // TODO: I don't know why this is necessary.
-    // Why would the existence of the email depend on the navigation?
-    const navigation = this.router.getCurrentNavigation();
-    if (navigation) {
-      this.email = this.loginService.getEmail();
-    }
-
-    //gets signalR push notification
-    this.authService
-      .getPushNotificationObs$()
+    // Gets signalR push notification
+    // Only fires on approval to prevent enumeration
+    this.authRequestService.authRequestPushNotification$
       .pipe(takeUntil(this.destroy$))
       .subscribe((id) => {
-        // Only fires on approval currently
-        this.verifyAndHandleApprovedAuthReq(id);
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises
+        this.verifyAndHandleApprovedAuthReq(id).catch((e: Error) => {
+          this.toastService.showToast({
+            variant: "error",
+            title: this.i18nService.t("error"),
+            message: e.message,
+          });
+          this.logService.error("Failed to use approved auth request: " + e.message);
+        });
       });
   }
 
   async ngOnInit() {
+    this.email = await firstValueFrom(this.loginEmailService.loginEmail$);
     this.userAuthNStatus = await this.authService.getAuthStatus();
 
     const matchOptions: IsActiveMatchOptions = {
@@ -122,20 +129,29 @@ export class LoginViaAuthRequestComponent
       // Pull email from state for admin auth reqs b/c it is available
       // This also prevents it from being lost on refresh as the
       // login service email does not persist.
-      this.email = await this.stateService.getEmail();
+      this.email = await firstValueFrom(
+        this.accountService.activeAccount$.pipe(map((a) => a?.email)),
+      );
+      const userId = (await firstValueFrom(this.accountService.activeAccount$)).id;
 
       if (!this.email) {
-        this.platformUtilsService.showToast("error", null, this.i18nService.t("userEmailMissing"));
+        this.toastService.showToast({
+          variant: "error",
+          title: null,
+          message: this.i18nService.t("userEmailMissing"),
+        });
+        // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises
         this.router.navigate(["/login-initiated"]);
         return;
       }
 
       // We only allow a single admin approval request to be active at a time
       // so must check state to see if we have an existing one or not
-      const adminAuthReqStorable = await this.stateService.getAdminAuthRequest();
+      const adminAuthReqStorable = await this.authRequestService.getAdminAuthRequest(userId);
 
       if (adminAuthReqStorable) {
-        await this.handleExistingAdminAuthRequest(adminAuthReqStorable);
+        await this.handleExistingAdminAuthRequest(adminAuthReqStorable, userId);
       } else {
         // No existing admin auth request; so we need to create one
         await this.startAuthRequestLogin();
@@ -143,10 +159,16 @@ export class LoginViaAuthRequestComponent
     } else {
       // Standard auth request
       // TODO: evaluate if we can remove the setting of this.email in the constructor
-      this.email = this.loginService.getEmail();
+      this.email = await firstValueFrom(this.loginEmailService.loginEmail$);
 
       if (!this.email) {
-        this.platformUtilsService.showToast("error", null, this.i18nService.t("userEmailMissing"));
+        this.toastService.showToast({
+          variant: "error",
+          title: null,
+          message: this.i18nService.t("userEmailMissing"),
+        });
+        // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises
         this.router.navigate(["/login"]);
         return;
       }
@@ -155,13 +177,16 @@ export class LoginViaAuthRequestComponent
     }
   }
 
-  ngOnDestroy(): void {
+  async ngOnDestroy() {
+    await this.anonymousHubService.stopHubConnection();
     this.destroy$.next();
     this.destroy$.complete();
-    this.anonymousHubService.stopHubConnection();
   }
 
-  private async handleExistingAdminAuthRequest(adminAuthReqStorable: AdminAuthRequestStorable) {
+  private async handleExistingAdminAuthRequest(
+    adminAuthReqStorable: AdminAuthRequestStorable,
+    userId: UserId,
+  ) {
     // Note: on login, the SSOLoginStrategy will also call to see an existing admin auth req
     // has been approved and handle it if so.
 
@@ -171,47 +196,52 @@ export class LoginViaAuthRequestComponent
       adminAuthReqResponse = await this.apiService.getAuthRequest(adminAuthReqStorable.id);
     } catch (error) {
       if (error instanceof ErrorResponse && error.statusCode === HttpStatusCode.NotFound) {
-        return await this.handleExistingAdminAuthReqDeletedOrDenied();
+        return await this.handleExistingAdminAuthReqDeletedOrDenied(userId);
       }
     }
 
     // Request doesn't exist anymore
     if (!adminAuthReqResponse) {
-      return await this.handleExistingAdminAuthReqDeletedOrDenied();
+      return await this.handleExistingAdminAuthReqDeletedOrDenied(userId);
     }
 
     // Re-derive the user's fingerprint phrase
     // It is important to not use the server's public key here as it could have been compromised via MITM
     const derivedPublicKeyArrayBuffer = await this.cryptoFunctionService.rsaExtractPublicKey(
-      adminAuthReqStorable.privateKey
+      adminAuthReqStorable.privateKey,
     );
-    this.fingerprintPhrase = (
-      await this.cryptoService.getFingerprint(this.email, derivedPublicKeyArrayBuffer)
-    ).join("-");
+    this.fingerprintPhrase = await this.authRequestService.getFingerprintPhrase(
+      this.email,
+      derivedPublicKeyArrayBuffer,
+    );
 
     // Request denied
     if (adminAuthReqResponse.isAnswered && !adminAuthReqResponse.requestApproved) {
-      return await this.handleExistingAdminAuthReqDeletedOrDenied();
+      return await this.handleExistingAdminAuthReqDeletedOrDenied(userId);
     }
 
     // Request approved
     if (adminAuthReqResponse.requestApproved) {
       return await this.handleApprovedAdminAuthRequest(
         adminAuthReqResponse,
-        adminAuthReqStorable.privateKey
+        adminAuthReqStorable.privateKey,
+        userId,
       );
     }
 
     // Request still pending response from admin
-    // So, create hub connection so that any approvals will be received via push notification
-    this.anonymousHubService.createHubConnection(adminAuthReqStorable.id);
+    // set keypair and create hub connection so that any approvals will be received via push notification
+    this.authRequestKeyPair = { privateKey: adminAuthReqStorable.privateKey, publicKey: null };
+    await this.anonymousHubService.createHubConnection(adminAuthReqStorable.id);
   }
 
-  private async handleExistingAdminAuthReqDeletedOrDenied() {
+  private async handleExistingAdminAuthReqDeletedOrDenied(userId: UserId) {
     // clear the admin auth request from state
-    await this.stateService.setAdminAuthRequest(null);
+    await this.authRequestService.clearAdminAuthRequest(userId);
 
     // start new auth request
+    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     this.startAuthRequestLogin();
   }
 
@@ -225,18 +255,22 @@ export class LoginViaAuthRequestComponent
 
     const deviceIdentifier = await this.appIdService.getAppId();
     const publicKey = Utils.fromBufferToB64(this.authRequestKeyPair.publicKey);
-    const accessCode = await this.passwordGenerationService.generatePassword({ length: 25 });
+    const accessCode = await this.passwordGenerationService.generatePassword({
+      type: "password",
+      length: 25,
+    });
 
-    this.fingerprintPhrase = (
-      await this.cryptoService.getFingerprint(this.email, this.authRequestKeyPair.publicKey)
-    ).join("-");
+    this.fingerprintPhrase = await this.authRequestService.getFingerprintPhrase(
+      this.email,
+      this.authRequestKeyPair.publicKey,
+    );
 
     this.authRequest = new CreateAuthRequest(
       this.email,
       deviceIdentifier,
       publicKey,
       authRequestType,
-      accessCode
+      accessCode,
     );
   }
 
@@ -255,14 +289,15 @@ export class LoginViaAuthRequestComponent
           privateKey: this.authRequestKeyPair.privateKey,
         });
 
-        await this.stateService.setAdminAuthRequest(adminAuthReqStorable);
+        const userId = (await firstValueFrom(this.accountService.activeAccount$)).id;
+        await this.authRequestService.setAdminAuthRequest(adminAuthReqStorable, userId);
       } else {
         await this.buildAuthRequest(AuthRequestType.AuthenticateAndUnlock);
         reqResponse = await this.apiService.postAuthRequest(this.authRequest);
       }
 
       if (reqResponse.id) {
-        this.anonymousHubService.createHubConnection(reqResponse.id);
+        await this.anonymousHubService.createHubConnection(reqResponse.id);
       }
     } catch (e) {
       this.logService.error(e);
@@ -283,7 +318,7 @@ export class LoginViaAuthRequestComponent
           // Unauthed - access code required for user verification
           authReqResponse = await this.apiService.getAuthResponse(
             requestId,
-            this.authRequest.accessCode
+            this.authRequest.accessCode,
           );
           break;
 
@@ -319,9 +354,11 @@ export class LoginViaAuthRequestComponent
 
       // if user has authenticated via SSO
       if (this.userAuthNStatus === AuthenticationStatus.Locked) {
+        const userId = (await firstValueFrom(this.accountService.activeAccount$)).id;
         return await this.handleApprovedAdminAuthRequest(
           authReqResponse,
-          this.authRequestKeyPair.privateKey
+          this.authRequestKeyPair.privateKey,
+          userId,
         );
       }
 
@@ -335,6 +372,8 @@ export class LoginViaAuthRequestComponent
           errorRoute = "/login-initiated";
         }
 
+        // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises
         this.router.navigate([errorRoute]);
         this.validationService.showError(error);
         return;
@@ -346,35 +385,43 @@ export class LoginViaAuthRequestComponent
 
   async handleApprovedAdminAuthRequest(
     adminAuthReqResponse: AuthRequestResponse,
-    privateKey: ArrayBuffer
+    privateKey: ArrayBuffer,
+    userId: UserId,
   ) {
     // See verifyAndHandleApprovedAuthReq(...) for flow details
     // it's flow 2 or 3 based on presence of masterPasswordHash
     if (adminAuthReqResponse.masterPasswordHash) {
       // Flow 2: masterPasswordHash is not null
       // key is authRequestPublicKey(masterKey) + we have authRequestPublicKey(masterPasswordHash)
-      await this.authReqCryptoService.setKeysAfterDecryptingSharedMasterKeyAndHash(
+      await this.authRequestService.setKeysAfterDecryptingSharedMasterKeyAndHash(
         adminAuthReqResponse,
-        privateKey
+        privateKey,
+        userId,
       );
     } else {
       // Flow 3: masterPasswordHash is null
       // we can assume key is authRequestPublicKey(userKey) and we can just decrypt with userKey and proceed to vault
-      await this.authReqCryptoService.setUserKeyAfterDecryptingSharedUserKey(
+      await this.authRequestService.setUserKeyAfterDecryptingSharedUserKey(
         adminAuthReqResponse,
-        privateKey
+        privateKey,
+        userId,
       );
     }
 
     // clear the admin auth request from state so it cannot be used again (it's a one time use)
     // TODO: this should eventually be enforced via deleting this on the server once it is used
-    await this.stateService.setAdminAuthRequest(null);
+    await this.authRequestService.clearAdminAuthRequest(userId);
 
-    this.platformUtilsService.showToast("success", null, this.i18nService.t("loginApproved"));
+    this.toastService.showToast({
+      variant: "success",
+      title: null,
+      message: this.i18nService.t("loginApproved"),
+    });
 
     // Now that we have a decrypted user key in memory, we can check if we
     // need to establish trust on the current device
-    await this.deviceTrustCryptoService.trustDeviceIfRequired();
+    const activeAccount = await firstValueFrom(this.accountService.activeAccount$);
+    await this.deviceTrustService.trustDeviceIfRequired(activeAccount.id);
 
     // TODO: don't forget to use auto enrollment service everywhere we trust device
 
@@ -384,16 +431,16 @@ export class LoginViaAuthRequestComponent
   // Authentication helper
   private async buildAuthRequestLoginCredentials(
     requestId: string,
-    response: AuthRequestResponse
+    response: AuthRequestResponse,
   ): Promise<AuthRequestLoginCredentials> {
     // if masterPasswordHash has a value, we will always receive key as authRequestPublicKey(masterKey) + authRequestPublicKey(masterPasswordHash)
     // if masterPasswordHash is null, we will always receive key as authRequestPublicKey(userKey)
     if (response.masterPasswordHash) {
       const { masterKey, masterKeyHash } =
-        await this.authReqCryptoService.decryptPubKeyEncryptedMasterKeyAndHash(
+        await this.authRequestService.decryptPubKeyEncryptedMasterKeyAndHash(
           response.key,
           response.masterPasswordHash,
-          this.authRequestKeyPair.privateKey
+          this.authRequestKeyPair.privateKey,
         );
 
       return new AuthRequestLoginCredentials(
@@ -402,12 +449,12 @@ export class LoginViaAuthRequestComponent
         requestId,
         null, // no userKey
         masterKey,
-        masterKeyHash
+        masterKeyHash,
       );
     } else {
-      const userKey = await this.authReqCryptoService.decryptPubKeyEncryptedUserKey(
+      const userKey = await this.authRequestService.decryptPubKeyEncryptedUserKey(
         response.key,
-        this.authRequestKeyPair.privateKey
+        this.authRequestKeyPair.privateKey,
       );
       return new AuthRequestLoginCredentials(
         this.email,
@@ -415,34 +462,42 @@ export class LoginViaAuthRequestComponent
         requestId,
         userKey,
         null, // no masterKey
-        null // no masterKeyHash
+        null, // no masterKeyHash
       );
     }
   }
 
   private async loginViaAuthRequestStrategy(
     requestId: string,
-    authReqResponse: AuthRequestResponse
+    authReqResponse: AuthRequestResponse,
   ): Promise<AuthResult> {
     // Note: credentials change based on if the authReqResponse.key is a encryptedMasterKey or UserKey
     const credentials = await this.buildAuthRequestLoginCredentials(requestId, authReqResponse);
 
     // Note: keys are set by AuthRequestLoginStrategy success handling
-    return await this.authService.logIn(credentials);
+    return await this.loginStrategyService.logIn(credentials);
   }
 
   // Routing logic
   private async handlePostLoginNavigation(loginResponse: AuthResult) {
     if (loginResponse.requiresTwoFactor) {
       if (this.onSuccessfulLoginTwoFactorNavigate != null) {
+        // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises
         this.onSuccessfulLoginTwoFactorNavigate();
       } else {
+        // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises
         this.router.navigate([this.twoFactorRoute]);
       }
     } else if (loginResponse.forcePasswordReset != ForceSetPasswordReason.None) {
       if (this.onSuccessfulLoginForceResetNavigate != null) {
+        // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises
         this.onSuccessfulLoginForceResetNavigate();
       } else {
+        // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises
         this.router.navigate([this.forcePasswordResetRoute]);
       }
     } else {
@@ -450,26 +505,25 @@ export class LoginViaAuthRequestComponent
     }
   }
 
-  async setRememberEmailValues() {
-    const rememberEmail = this.loginService.getRememberEmail();
-    const rememberedEmail = this.loginService.getEmail();
-    await this.stateService.setRememberedEmail(rememberEmail ? rememberedEmail : null);
-    this.loginService.clearValues();
-  }
-
   private async handleSuccessfulLoginNavigation() {
     if (this.state === State.StandardAuthRequest) {
       // Only need to set remembered email on standard login with auth req flow
-      await this.setRememberEmailValues();
+      await this.loginEmailService.saveEmailSettings();
     }
 
     if (this.onSuccessfulLogin != null) {
+      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.onSuccessfulLogin();
     }
 
     if (this.onSuccessfulLoginNavigate != null) {
+      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.onSuccessfulLoginNavigate();
     } else {
+      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.router.navigate([this.successRoute]);
     }
   }

@@ -2,21 +2,20 @@ import { Injectable, NgZone } from "@angular/core";
 import { OidcClient } from "oidc-client-ts";
 import { Subject, firstValueFrom } from "rxjs";
 
-import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
 import { ClientType } from "@bitwarden/common/enums";
 import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
 import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
 import { CryptoFunctionService } from "@bitwarden/common/platform/abstractions/crypto-function.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { PasswordGenerationServiceAbstraction } from "@bitwarden/common/tools/generator/password";
+import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legacy";
 
 import { DialogService } from "../../../../components/src/dialog";
 import { ClientInfo, Vault } from "../../importers/lastpass/access";
 import { FederatedUserContext } from "../../importers/lastpass/access/models";
 
-import { LastPassAwaitSSODialogComponent } from "./dialog/lastpass-await-sso-dialog.component";
 import { LastPassPasswordPromptComponent } from "./dialog/lastpass-password-prompt.component";
 import { LastPassDirectImportUIService } from "./lastpass-direct-import-ui.service";
 
@@ -32,7 +31,6 @@ export class LastPassDirectImportService {
   ssoImportCallback$ = this._ssoImportCallback$.asObservable();
 
   constructor(
-    private tokenService: TokenService,
     private cryptoFunctionService: CryptoFunctionService,
     private environmentService: EnvironmentService,
     private appIdService: AppIdService,
@@ -41,12 +39,15 @@ export class LastPassDirectImportService {
     private passwordGenerationService: PasswordGenerationServiceAbstraction,
     private broadcasterService: BroadcasterService,
     private ngZone: NgZone,
-    private dialogService: DialogService
+    private dialogService: DialogService,
+    private i18nService: I18nService,
   ) {
-    this.vault = new Vault(this.cryptoFunctionService, this.tokenService);
+    this.vault = new Vault(this.cryptoFunctionService);
 
     /** TODO: remove this in favor of dedicated service */
     this.broadcasterService.subscribe("LastPassDirectImportService", (message: any) => {
+      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.ngZone.run(async () => {
         switch (message.command) {
           case "importCallbackLastPass":
@@ -73,7 +74,7 @@ export class LastPassDirectImportService {
       const csvData = await this.handleFederatedImport(
         oidc.oidcCode,
         oidc.oidcState,
-        includeSharedFolders
+        includeSharedFolders,
       );
       return csvData;
     }
@@ -96,7 +97,14 @@ export class LastPassDirectImportService {
     const request = await this.createOidcSigninRequest(email);
     this.platformUtilsService.launchUri(request.url);
 
-    const cancelDialogRef = LastPassAwaitSSODialogComponent.open(this.dialogService);
+    const cancelDialogRef = this.dialogService.openSimpleDialogRef({
+      title: this.i18nService.t("awaitingSSO"),
+      content: this.i18nService.t("awaitingSSODesc"),
+      type: "warning",
+      icon: "bwi-key",
+      acceptButtonText: this.i18nService.t("cancel"),
+      cancelButtonText: null,
+    });
     const cancelled = firstValueFrom(cancelDialogRef.closed).then((_didCancel) => {
       throw Error("SSO auth cancelled");
     });
@@ -113,7 +121,7 @@ export class LastPassDirectImportService {
     this.oidcClient = new OidcClient({
       authority: this.vault.userType.openIDConnectAuthorityBase,
       client_id: this.vault.userType.openIDConnectClientId,
-      redirect_uri: this.getOidcRedirectUrl(),
+      redirect_uri: await this.getOidcRedirectUrl(),
       response_type: "code",
       scope: this.vault.userType.oidcScope,
       response_mode: "query",
@@ -143,19 +151,20 @@ export class LastPassDirectImportService {
     return redirectUri + "&" + params;
   }
 
-  private getOidcRedirectUrl() {
+  private async getOidcRedirectUrl() {
     const clientType = this.platformUtilsService.getClientType();
     if (clientType === ClientType.Desktop) {
       return "bitwarden://import-callback-lp";
     }
-    const webUrl = this.environmentService.getWebVaultUrl();
+    const env = await firstValueFrom(this.environmentService.environment$);
+    const webUrl = env.getWebVaultUrl();
     return webUrl + "/sso-connector.html?lp=1";
   }
 
   private async handleStandardImport(
     email: string,
     password: string,
-    includeSharedFolders: boolean
+    includeSharedFolders: boolean,
   ): Promise<string> {
     const clientInfo = await this.createClientInfo(email);
     await this.vault.open(email, password, clientInfo, this.lastPassDirectImportUIService, {
@@ -168,10 +177,10 @@ export class LastPassDirectImportService {
   private async handleFederatedImport(
     oidcCode: string,
     oidcState: string,
-    includeSharedFolders: boolean
+    includeSharedFolders: boolean,
   ): Promise<string> {
     const response = await this.oidcClient.processSigninResponse(
-      this.getOidcRedirectUrlWithParams(oidcCode, oidcState)
+      this.getOidcRedirectUrlWithParams(oidcCode, oidcState),
     );
     const userState = response.userState as any;
 

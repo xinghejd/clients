@@ -7,13 +7,13 @@ import { VaultItemsComponent as BaseVaultItemsComponent } from "@bitwarden/angul
 import { VaultFilter } from "@bitwarden/angular/vault/vault-filter/models/vault-filter.model";
 import { SearchService } from "@bitwarden/common/abstractions/search.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
-import { TreeNode } from "@bitwarden/common/models/domain/tree-node";
 import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CollectionService } from "@bitwarden/common/vault/abstractions/collection.service";
-import { CipherType } from "@bitwarden/common/vault/enums/cipher-type";
+import { CipherType } from "@bitwarden/common/vault/enums";
+import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { CollectionView } from "@bitwarden/common/vault/models/view/collection.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
@@ -21,7 +21,7 @@ import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import { BrowserComponentState } from "../../../../models/browserComponentState";
 import { BrowserApi } from "../../../../platform/browser/browser-api";
 import BrowserPopupUtils from "../../../../platform/popup/browser-popup-utils";
-import { BrowserStateService } from "../../../../platform/services/abstractions/browser-state.service";
+import { VaultBrowserStateService } from "../../../services/vault-browser-state.service";
 import { VaultFilterService } from "../../../services/vault-filter.service";
 
 const ComponentId = "VaultItemsComponent";
@@ -59,12 +59,12 @@ export class VaultItemsComponent extends BaseVaultItemsComponent implements OnIn
     private ngZone: NgZone,
     private broadcasterService: BroadcasterService,
     private changeDetectorRef: ChangeDetectorRef,
-    private stateService: BrowserStateService,
+    private stateService: VaultBrowserStateService,
     private i18nService: I18nService,
     private collectionService: CollectionService,
     private platformUtilsService: PlatformUtilsService,
     cipherService: CipherService,
-    private vaultFilterService: VaultFilterService
+    private vaultFilterService: VaultFilterService,
   ) {
     super(searchService, cipherService);
     this.applySavedState =
@@ -74,7 +74,7 @@ export class VaultItemsComponent extends BaseVaultItemsComponent implements OnIn
 
   async ngOnInit() {
     this.searchTypeSearch = !this.platformUtilsService.isSafari();
-    this.showOrganizations = this.organizationService.hasOrganizations();
+    this.showOrganizations = await this.organizationService.hasOrganizations();
     this.vaultFilter = this.vaultFilterService.getVaultFilter();
     // eslint-disable-next-line rxjs-angular/prefer-takeuntil, rxjs/no-async-subscribe
     this.route.queryParams.pipe(first()).subscribe(async (params) => {
@@ -143,7 +143,7 @@ export class VaultItemsComponent extends BaseVaultItemsComponent implements OnIn
               : null;
         }
         await this.load(
-          (c) => c.collectionIds != null && c.collectionIds.indexOf(this.collectionId) > -1
+          (c) => c.collectionIds != null && c.collectionIds.indexOf(this.collectionId) > -1,
         );
       } else {
         this.showVaultFilter = true;
@@ -152,6 +152,8 @@ export class VaultItemsComponent extends BaseVaultItemsComponent implements OnIn
       }
 
       if (this.applySavedState && this.state != null) {
+        // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises
         BrowserPopupUtils.setContentScrollY(window, this.state.scrollY, {
           delay: 0,
           containerSelector: this.scrollingContainer,
@@ -161,11 +163,15 @@ export class VaultItemsComponent extends BaseVaultItemsComponent implements OnIn
     });
 
     this.broadcasterService.subscribe(ComponentId, (message: any) => {
+      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.ngZone.run(async () => {
         switch (message.command) {
           case "syncCompleted":
             if (message.successfully) {
               window.setTimeout(() => {
+                // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+                // eslint-disable-next-line @typescript-eslint/no-floating-promises
                 this.refresh();
               }, 500);
             }
@@ -180,6 +186,8 @@ export class VaultItemsComponent extends BaseVaultItemsComponent implements OnIn
   }
 
   ngOnDestroy() {
+    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     this.saveState();
     this.broadcasterService.unsubscribe(ComponentId);
   }
@@ -188,7 +196,11 @@ export class VaultItemsComponent extends BaseVaultItemsComponent implements OnIn
     this.selectedTimeout = window.setTimeout(() => {
       if (!this.preventSelected) {
         super.selectCipher(cipher);
-        this.router.navigate(["/view-cipher"], { queryParams: { cipherId: cipher.id } });
+        // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises
+        this.router.navigate(["/view-cipher"], {
+          queryParams: { cipherId: cipher.id },
+        });
       }
       this.preventSelected = false;
     }, 200);
@@ -196,11 +208,15 @@ export class VaultItemsComponent extends BaseVaultItemsComponent implements OnIn
 
   selectFolder(folder: FolderView) {
     if (folder.id != null) {
+      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.router.navigate(["/ciphers"], { queryParams: { folderId: folder.id } });
     }
   }
 
   selectCollection(collection: CollectionView) {
+    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     this.router.navigate(["/ciphers"], { queryParams: { collectionId: collection.id } });
   }
 
@@ -214,6 +230,8 @@ export class VaultItemsComponent extends BaseVaultItemsComponent implements OnIn
     }
     this.preventSelected = true;
     await this.cipherService.updateLastLaunchedDate(cipher.id);
+    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     BrowserApi.createNewTab(cipher.login.launchUri);
     if (BrowserPopupUtils.inPopup(window)) {
       BrowserApi.closePopup(window);
@@ -225,6 +243,8 @@ export class VaultItemsComponent extends BaseVaultItemsComponent implements OnIn
       return false;
     }
     super.addCipher();
+    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     this.router.navigate(["/add-cipher"], {
       queryParams: {
         folderId: this.folderId,

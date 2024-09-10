@@ -1,5 +1,7 @@
 import { Directive, OnInit } from "@angular/core";
+import { firstValueFrom, map } from "rxjs";
 
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
@@ -14,7 +16,8 @@ export class PasswordHistoryComponent implements OnInit {
     protected cipherService: CipherService,
     protected platformUtilsService: PlatformUtilsService,
     protected i18nService: I18nService,
-    private win: Window
+    protected accountService: AccountService,
+    private win: Window,
   ) {}
 
   async ngOnInit() {
@@ -27,14 +30,17 @@ export class PasswordHistoryComponent implements OnInit {
     this.platformUtilsService.showToast(
       "info",
       null,
-      this.i18nService.t("valueCopied", this.i18nService.t("password"))
+      this.i18nService.t("valueCopied", this.i18nService.t("password")),
     );
   }
 
   protected async init() {
     const cipher = await this.cipherService.get(this.cipherId);
+    const activeUserId = await firstValueFrom(
+      this.accountService.activeAccount$.pipe(map((a) => a?.id)),
+    );
     const decCipher = await cipher.decrypt(
-      await this.cipherService.getKeyForCipherKeyDecryption(cipher)
+      await this.cipherService.getKeyForCipherKeyDecryption(cipher, activeUserId),
     );
     this.history = decCipher.passwordHistory == null ? [] : decCipher.passwordHistory;
   }

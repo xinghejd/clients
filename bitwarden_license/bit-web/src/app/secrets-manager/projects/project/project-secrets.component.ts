@@ -1,9 +1,10 @@
-import { Component } from "@angular/core";
+import { Component, OnInit } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { combineLatest, combineLatestWith, filter, Observable, startWith, switchMap } from "rxjs";
 
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { DialogService } from "@bitwarden/components";
 
@@ -18,6 +19,10 @@ import {
   SecretDialogComponent,
   SecretOperation,
 } from "../../secrets/dialog/secret-dialog.component";
+import {
+  SecretViewDialogComponent,
+  SecretViewDialogParams,
+} from "../../secrets/dialog/secret-view-dialog.component";
 import { SecretService } from "../../secrets/secret.service";
 import { SecretsListComponent } from "../../shared/secrets-list.component";
 import { ProjectService } from "../project.service";
@@ -26,7 +31,7 @@ import { ProjectService } from "../project.service";
   selector: "sm-project-secrets",
   templateUrl: "./project-secrets.component.html",
 })
-export class ProjectSecretsComponent {
+export class ProjectSecretsComponent implements OnInit {
   secrets$: Observable<SecretListView[]>;
 
   private organizationId: string;
@@ -41,20 +46,21 @@ export class ProjectSecretsComponent {
     private dialogService: DialogService,
     private platformUtilsService: PlatformUtilsService,
     private i18nService: I18nService,
-    private organizationService: OrganizationService
+    private organizationService: OrganizationService,
+    private logService: LogService,
   ) {}
 
   ngOnInit() {
     // Refresh list if project is edited
     const currentProjectEdited = this.projectService.project$.pipe(
       filter((p) => p?.id === this.projectId),
-      startWith(null)
+      startWith(null),
     );
 
     this.project$ = combineLatest([this.route.params, currentProjectEdited]).pipe(
       switchMap(([params, _]) => {
         return this.projectService.getByProjectId(params.projectId);
-      })
+      }),
     );
 
     this.secrets$ = this.secretService.secret$.pipe(
@@ -63,9 +69,11 @@ export class ProjectSecretsComponent {
       switchMap(async ([_, params]) => {
         this.organizationId = params.organizationId;
         this.projectId = params.projectId;
-        this.organizationEnabled = this.organizationService.get(params.organizationId)?.enabled;
+        this.organizationEnabled = (
+          await this.organizationService.get(params.organizationId)
+        )?.enabled;
         return await this.getSecretsByProject();
-      })
+      }),
     );
   }
 
@@ -80,6 +88,15 @@ export class ProjectSecretsComponent {
         operation: OperationType.Edit,
         secretId: secretId,
         organizationEnabled: this.organizationEnabled,
+      },
+    });
+  }
+
+  openViewSecret(secretId: string) {
+    this.dialogService.open<unknown, SecretViewDialogParams>(SecretViewDialogComponent, {
+      data: {
+        organizationId: this.organizationId,
+        secretId: secretId,
       },
     });
   }
@@ -107,12 +124,13 @@ export class ProjectSecretsComponent {
     SecretsListComponent.copySecretName(name, this.platformUtilsService, this.i18nService);
   }
 
-  copySecretValue(id: string) {
-    SecretsListComponent.copySecretValue(
+  async copySecretValue(id: string) {
+    await SecretsListComponent.copySecretValue(
       id,
       this.platformUtilsService,
       this.i18nService,
-      this.secretService
+      this.secretService,
+      this.logService,
     );
   }
 

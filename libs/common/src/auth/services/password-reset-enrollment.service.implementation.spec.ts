@@ -1,34 +1,40 @@
 import { mock, MockProxy } from "jest-mock-extended";
+import { BehaviorSubject } from "rxjs";
 
+import { OrganizationUserApiService } from "@bitwarden/admin-console/common";
+
+import { UserId } from "../../../../common/src/types/guid";
 import { OrganizationApiServiceAbstraction } from "../../admin-console/abstractions/organization/organization-api.service.abstraction";
-import { OrganizationUserService } from "../../admin-console/abstractions/organization-user/organization-user.service";
 import { OrganizationAutoEnrollStatusResponse } from "../../admin-console/models/response/organization-auto-enroll-status.response";
 import { CryptoService } from "../../platform/abstractions/crypto.service";
 import { I18nService } from "../../platform/abstractions/i18n.service";
-import { StateService } from "../../platform/abstractions/state.service";
+import { AccountInfo, AccountService } from "../abstractions/account.service";
 
 import { PasswordResetEnrollmentServiceImplementation } from "./password-reset-enrollment.service.implementation";
 
 describe("PasswordResetEnrollmentServiceImplementation", () => {
+  const activeAccountSubject = new BehaviorSubject<{ id: UserId } & AccountInfo>(null);
+
   let organizationApiService: MockProxy<OrganizationApiServiceAbstraction>;
-  let stateService: MockProxy<StateService>;
+  let accountService: MockProxy<AccountService>;
   let cryptoService: MockProxy<CryptoService>;
-  let organizationUserService: MockProxy<OrganizationUserService>;
+  let organizationUserApiService: MockProxy<OrganizationUserApiService>;
   let i18nService: MockProxy<I18nService>;
   let service: PasswordResetEnrollmentServiceImplementation;
 
   beforeEach(() => {
     organizationApiService = mock<OrganizationApiServiceAbstraction>();
-    stateService = mock<StateService>();
+    accountService = mock<AccountService>();
+    accountService.activeAccount$ = activeAccountSubject;
     cryptoService = mock<CryptoService>();
-    organizationUserService = mock<OrganizationUserService>();
+    organizationUserApiService = mock<OrganizationUserApiService>();
     i18nService = mock<I18nService>();
     service = new PasswordResetEnrollmentServiceImplementation(
       organizationApiService,
-      stateService,
+      accountService,
       cryptoService,
-      organizationUserService,
-      i18nService
+      organizationUserApiService,
+      i18nService,
     );
   });
 
@@ -81,20 +87,27 @@ describe("PasswordResetEnrollmentServiceImplementation", () => {
       };
       const encryptedKey = { encryptedString: "encryptedString" };
       organizationApiService.getKeys.mockResolvedValue(orgKeyResponse as any);
-      stateService.getUserId.mockResolvedValue("userId");
+
+      const user1AccountInfo: AccountInfo = {
+        name: "Test User 1",
+        email: "test1@email.com",
+        emailVerified: true,
+      };
+      activeAccountSubject.next(Object.assign(user1AccountInfo, { id: "userId" as UserId }));
+
       cryptoService.getUserKey.mockResolvedValue({ key: "key" } as any);
       cryptoService.rsaEncrypt.mockResolvedValue(encryptedKey as any);
 
       await service.enroll("orgId");
 
       expect(
-        organizationUserService.putOrganizationUserResetPasswordEnrollment
+        organizationUserApiService.putOrganizationUserResetPasswordEnrollment,
       ).toHaveBeenCalledWith(
         "orgId",
         "userId",
         expect.objectContaining({
           resetPasswordKey: encryptedKey.encryptedString,
-        })
+        }),
       );
     });
 
@@ -110,13 +123,13 @@ describe("PasswordResetEnrollmentServiceImplementation", () => {
       await service.enroll("orgId", "userId", { key: "key" } as any);
 
       expect(
-        organizationUserService.putOrganizationUserResetPasswordEnrollment
+        organizationUserApiService.putOrganizationUserResetPasswordEnrollment,
       ).toHaveBeenCalledWith(
         "orgId",
         "userId",
         expect.objectContaining({
           resetPasswordKey: encryptedKey.encryptedString,
-        })
+        }),
       );
     });
   });

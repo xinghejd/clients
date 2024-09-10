@@ -6,12 +6,6 @@
   margin: 0;
 }
 
-html {
-  &.cdk-global-scrollblock {
-    position: unset;
-  }
-}
-
 html,
 body {
   font-family: $font-family-sans-serif;
@@ -23,6 +17,8 @@ body {
 body {
   width: 375px !important;
   height: 600px !important;
+  position: relative;
+  min-height: 100vh;
   overflow: hidden;
   color: $text-color;
   background-color: $background-color;
@@ -72,7 +68,7 @@ img {
   border: none;
 }
 
-a {
+a:not(popup-page a, popup-tab-navigation a) {
   text-decoration: none;
 
   @include themify($themes) {
@@ -175,12 +171,11 @@ cdk-virtual-scroll-viewport::-webkit-scrollbar-thumb,
   }
 }
 
-header:not(bit-callout header) {
-  max-height: 44px;
+header:not(bit-callout header, bit-dialog header, popup-page header) {
+  height: 44px;
   display: flex;
 
   &:not(.no-theme) {
-    min-height: 44px;
     border-bottom: 1px solid #000000;
 
     @include themify($themes) {
@@ -231,7 +226,7 @@ header:not(bit-callout header) {
   }
 
   app-pop-out > button,
-  div > button,
+  div > button:not(app-current-account button):not(.home-acc-switcher-btn),
   div > a {
     border: none;
     padding: 0 10px;
@@ -243,8 +238,8 @@ header:not(bit-callout header) {
     height: 100%;
     white-space: pre;
 
-    &:hover,
-    &:focus {
+    &:not(.home-acc-switcher-btn):hover,
+    &:not(.home-acc-switcher-btn):focus {
       @include themify($themes) {
         background-color: themed("headerBackgroundHoverColor");
         color: themed("headerColor");
@@ -453,7 +448,7 @@ app-root {
   }
 }
 
-main {
+main:not(popup-page main) {
   position: absolute;
   top: 44px;
   bottom: 0;

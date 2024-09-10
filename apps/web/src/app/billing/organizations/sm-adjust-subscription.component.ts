@@ -6,6 +6,7 @@ import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-conso
 import { OrganizationSmSubscriptionUpdateRequest } from "@bitwarden/common/billing/models/request/organization-sm-subscription-update.request";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { ToastService } from "@bitwarden/components";
 
 export interface SecretsManagerSubscriptionOptions {
   interval: "year" | "month";
@@ -74,7 +75,7 @@ export class SecretsManagerAdjustSubscriptionComponent implements OnInit, OnDest
 
   get serviceAccountTotalCost(): number {
     return Math.abs(
-      this.formGroup.value.additionalServiceAccounts * this.options.additionalServiceAccountPrice
+      this.formGroup.value.additionalServiceAccounts * this.options.additionalServiceAccountPrice,
     );
   }
 
@@ -99,7 +100,8 @@ export class SecretsManagerAdjustSubscriptionComponent implements OnInit, OnDest
     private formBuilder: FormBuilder,
     private organizationApiService: OrganizationApiServiceAbstraction,
     private i18nService: I18nService,
-    private platformUtilsService: PlatformUtilsService
+    private platformUtilsService: PlatformUtilsService,
+    private toastService: ToastService,
   ) {}
 
   ngOnInit() {
@@ -155,14 +157,14 @@ export class SecretsManagerAdjustSubscriptionComponent implements OnInit, OnDest
 
     await this.organizationApiService.updateSecretsManagerSubscription(
       this.organizationId,
-      request
+      request,
     );
 
-    await this.platformUtilsService.showToast(
-      "success",
-      null,
-      this.i18nService.t("subscriptionUpdated")
-    );
+    this.toastService.showToast({
+      variant: "success",
+      title: null,
+      message: this.i18nService.t("subscriptionUpdated"),
+    });
 
     this.onAdjusted.emit();
   };

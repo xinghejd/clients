@@ -1,7 +1,4 @@
 {
-  "dev_flags": {},
-  "flags": {
-    "multithreadDecryption": false,
-    "enableCipherKeyEncryption": false
-  }
+  "devFlags": {},
+  "flags": {}
 }

@@ -1,86 +1,28 @@
-import { Component } from "@angular/core";
-import { UntypedFormBuilder } from "@angular/forms";
+import { Component, OnInit } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 
-import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
-import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
-import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
-import { EventType } from "@bitwarden/common/enums";
-import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
-import { FileDownloadService } from "@bitwarden/common/platform/abstractions/file-download/file-download.service";
-import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { DialogService } from "@bitwarden/components";
-import { VaultExportServiceAbstraction } from "@bitwarden/exporter/vault-export";
+import { ExportComponent } from "@bitwarden/vault-export-ui";
 
-import { ExportComponent } from "../../../../tools/vault-export/export.component";
+import { LooseComponentsModule, SharedModule } from "../../../../shared";
 
 @Component({
-  selector: "app-org-export",
-  templateUrl: "../../../../tools/vault-export/export.component.html",
+  templateUrl: "org-vault-export.component.html",
+  standalone: true,
+  imports: [SharedModule, ExportComponent, LooseComponentsModule],
 })
-// eslint-disable-next-line rxjs-angular/prefer-takeuntil
-export class OrganizationVaultExportComponent extends ExportComponent {
-  constructor(
-    cryptoService: CryptoService,
-    i18nService: I18nService,
-    platformUtilsService: PlatformUtilsService,
-    exportService: VaultExportServiceAbstraction,
-    eventCollectionService: EventCollectionService,
-    private route: ActivatedRoute,
-    policyService: PolicyService,
-    logService: LogService,
-    userVerificationService: UserVerificationService,
-    formBuilder: UntypedFormBuilder,
-    fileDownloadService: FileDownloadService,
-    dialogService: DialogService
-  ) {
-    super(
-      cryptoService,
-      i18nService,
-      platformUtilsService,
-      exportService,
-      eventCollectionService,
-      policyService,
-      logService,
-      userVerificationService,
-      formBuilder,
-      fileDownloadService,
-      dialogService
-    );
-  }
+export class OrganizationVaultExportComponent implements OnInit {
+  protected routeOrgId: string = null;
+  protected loading = false;
+  protected disabled = false;
 
-  protected get disabledByPolicy(): boolean {
-    return false;
-  }
+  constructor(private route: ActivatedRoute) {}
 
   async ngOnInit() {
-    // eslint-disable-next-line rxjs-angular/prefer-takeuntil, rxjs/no-async-subscribe
-    this.route.parent.parent.params.subscribe(async (params) => {
-      this.organizationId = params.organizationId;
-    });
-    await super.ngOnInit();
+    this.routeOrgId = this.route.snapshot.paramMap.get("organizationId");
   }
 
-  getExportData() {
-    if (this.isFileEncryptedExport) {
-      return this.exportService.getPasswordProtectedExport(this.filePassword, this.organizationId);
-    } else {
-      return this.exportService.getOrganizationExport(this.organizationId, this.format);
-    }
-  }
-
-  getFileName() {
-    return super.getFileName("org");
-  }
-
-  async collectEvent(): Promise<void> {
-    await this.eventCollectionService.collect(
-      EventType.Organization_ClientExportedVault,
-      null,
-      null,
-      this.organizationId
-    );
-  }
+  /**
+   * Callback that is called after a successful export.
+   */
+  protected async onSuccessfulExport(organizationId: string): Promise<void> {}
 }

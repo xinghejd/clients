@@ -1,30 +1,24 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": [
-    "config:base",
-    ":combinePatchMinorReleases",
-    ":dependencyDashboard",
-    ":maintainLockFilesWeekly",
-    ":pinAllExceptPeerDependencies",
-    ":rebaseStalePrs",
-    ":separateMajorReleases",
-    "group:monorepos",
-    "schedule:weekends"
-  ],
-  "prConcurrentLimit": 3,
+  "extends": ["github>bitwarden/renovate-config"],
   "enabledManagers": ["cargo", "github-actions", "npm"],
-  "commitMessagePrefix": "[deps]:",
-  "commitMessageTopic": "{{depName}}",
   "packageRules": [
-    {
-      "groupName": "cargo minor",
-      "matchManagers": ["cargo"],
-      "matchUpdateTypes": ["minor", "patch"]
-    },
     {
       "groupName": "gh minor",
       "matchManagers": ["github-actions"],
       "matchUpdateTypes": ["minor", "patch"]
+    },
+    {
+      "matchManagers": ["github-actions"],
+      "commitMessagePrefix": "[deps] DevOps:"
+    },
+    {
+      "matchManagers": ["cargo"],
+      "commitMessagePrefix": "[deps] Platform:"
+    },
+    {
+      "groupName": "napi",
+      "matchPackageNames": ["napi", "napi-build", "napi-derive"]
     },
     {
       "matchPackageNames": ["typescript", "zone.js"],
@@ -47,7 +41,6 @@
         "base64-loader",
         "buffer",
         "bufferutil",
-        "clean-webpack-plugin",
         "copy-webpack-plugin",
         "core-js",
         "css-loader",
@@ -76,21 +69,14 @@
       "reviewers": ["team:team-admin-console-dev"]
     },
     {
-      "matchPackageNames": [
-        "@types/duo_web_sdk",
-        "@types/node-ipc",
-        "@types/zxcvbn",
-        "duo_web_sdk",
-        "node-ipc",
-        "qrious",
-        "regedit"
-      ],
+      "matchPackageNames": ["@types/node-ipc", "node-ipc", "qrious", "regedit"],
       "description": "Auth owned dependencies",
       "commitMessagePrefix": "[deps] Auth:",
       "reviewers": ["team:team-auth-dev"]
     },
     {
       "matchPackageNames": [
+        "@webcomponents/custom-elements",
         "concurrently",
         "cross-env",
         "del",
@@ -105,6 +91,8 @@
         "prettier",
         "prettier-plugin-tailwindcss",
         "rimraf",
+        "tabbable",
+        "tldts",
         "wait-on"
       ],
       "description": "Autofill owned dependencies",
@@ -116,6 +104,26 @@
       "description": "Billing owned dependencies",
       "commitMessagePrefix": "[deps] Billing:",
       "reviewers": ["team:team-billing-dev"]
+    },
+    {
+      "matchPackageNames": [
+        "@types/argon2-browser",
+        "@types/chrome",
+        "@types/firefox-webext-browser",
+        "@types/jquery",
+        "@types/node",
+        "@types/node-forge",
+        "argon2",
+        "argon2-browser",
+        "big-integer",
+        "node-forge",
+        "rxjs",
+        "type-fest",
+        "typescript"
+      ],
+      "description": "Platform owned dependencies",
+      "commitMessagePrefix": "[deps] Platform:",
+      "reviewers": ["team:team-platform-dev"]
     },
     {
       "matchPackageNames": [
@@ -131,30 +139,6 @@
         "@angular/platform",
         "@angular/compiler",
         "@angular/router",
-        "@types/argon2-browser",
-        "@types/chrome",
-        "@types/firefox-webext-browser",
-        "@types/jquery",
-        "@types/node",
-        "@types/node-forge",
-        "argon2",
-        "argon2-browser",
-        "big-integer",
-        "bootstrap",
-        "jquery",
-        "node-forge",
-        "popper.js",
-        "rxjs",
-        "type-fest",
-        "typescript",
-        "zone.js"
-      ],
-      "description": "Platform owned dependencies",
-      "commitMessagePrefix": "[deps] Platform:",
-      "reviewers": ["team:team-platform-dev"]
-    },
-    {
-      "matchPackageNames": [
         "@compodoc/compodoc",
         "@ng-select/ng-select",
         "@storybook/addon-a11y",
@@ -165,17 +149,21 @@
         "@storybook/angular",
         "@types/react",
         "autoprefixer",
+        "bootstrap",
         "chromatic",
+        "jquery",
         "ngx-toastr",
+        "popper.js",
         "react",
         "react-dom",
         "remark-gfm",
         "storybook",
-        "tailwindcss"
+        "tailwindcss",
+        "zone.js"
       ],
       "description": "Component library owned dependencies",
-      "commitMessagePrefix": "[deps] Platform (CL):",
-      "reviewers": ["team:team-platform-dev"]
+      "commitMessagePrefix": "[deps] Design System:",
+      "reviewers": ["team:team-design-system"]
     },
     {
       "matchPackageNames": [
@@ -208,19 +196,23 @@
       "matchPackageNames": [
         "@electron/notarize",
         "@electron/rebuild",
-        "@microsoft/signalr",
         "@microsoft/signalr-protocol-msgpack",
+        "@microsoft/signalr",
+        "@types/jsdom",
         "@types/papaparse",
-        "electron",
+        "@types/zxcvbn",
         "electron-builder",
         "electron-log",
         "electron-reload",
         "electron-store",
         "electron-updater",
+        "electron",
+        "jsdom",
         "jszip",
+        "oidc-client-ts",
         "papaparse",
-        "tldts",
-        "utf-8-validate"
+        "utf-8-validate",
+        "zxcvbn"
       ],
       "description": "Tools owned dependencies",
       "commitMessagePrefix": "[deps] Tools:",
@@ -231,7 +223,6 @@
         "@koa/multer",
         "@koa/router",
         "@types/inquirer",
-        "@types/jsdom",
         "@types/koa",
         "@types/koa__multer",
         "@types/koa__router",
@@ -247,7 +238,6 @@
         "form-data",
         "https-proxy-agent",
         "inquirer",
-        "jsdom",
         "koa",
         "koa-bodyparser",
         "koa-json",
@@ -257,7 +247,8 @@
         "node-fetch",
         "open",
         "pkg",
-        "proper-lockfile"
+        "proper-lockfile",
+        "qrcode-parser"
       ],
       "description": "Vault owned dependencies",
       "commitMessagePrefix": "[deps] Vault:",

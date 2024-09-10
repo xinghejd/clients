@@ -3,11 +3,11 @@ import { Component, Inject, OnInit } from "@angular/core";
 
 import { ProviderService } from "@bitwarden/common/admin-console/abstractions/provider.service";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
-import { Provider } from "@bitwarden/common/models/domain/provider";
+import { Provider } from "@bitwarden/common/admin-console/models/domain/provider";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
-import { DialogService } from "@bitwarden/components";
+import { DialogService, ToastService } from "@bitwarden/components";
 
 import { WebProviderService } from "../services/web-provider.service";
 
@@ -31,7 +31,8 @@ export class AddOrganizationComponent implements OnInit {
     private i18nService: I18nService,
     private platformUtilsService: PlatformUtilsService,
     private validationService: ValidationService,
-    private dialogService: DialogService
+    private dialogService: DialogService,
+    private toastService: ToastService,
   ) {}
 
   async ngOnInit() {
@@ -66,18 +67,18 @@ export class AddOrganizationComponent implements OnInit {
       try {
         await this.webProviderService.addOrganizationToProvider(
           this.data.providerId,
-          organization.id
+          organization.id,
         );
       } catch (e) {
         this.validationService.showError(e);
         return;
       }
 
-      this.platformUtilsService.showToast(
-        "success",
-        null,
-        this.i18nService.t("organizationJoinedProvider")
-      );
+      this.toastService.showToast({
+        variant: "success",
+        title: null,
+        message: this.i18nService.t("organizationJoinedProvider"),
+      });
 
       this.dialogRef.close(true);
     };

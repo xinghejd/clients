@@ -3,6 +3,7 @@ import { Component } from "@angular/core";
 import { ModalRef } from "@bitwarden/angular/components/modal/modal.ref";
 import { ShareComponent as BaseShareComponent } from "@bitwarden/angular/components/share.component";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -21,7 +22,8 @@ export class ShareComponent extends BaseShareComponent {
     platformUtilsService: PlatformUtilsService,
     logService: LogService,
     organizationService: OrganizationService,
-    private modalRef: ModalRef
+    accountService: AccountService,
+    private modalRef: ModalRef,
   ) {
     super(
       collectionService,
@@ -29,7 +31,8 @@ export class ShareComponent extends BaseShareComponent {
       i18nService,
       cipherService,
       logService,
-      organizationService
+      organizationService,
+      accountService,
     );
   }
 

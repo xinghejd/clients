@@ -1,4 +1,4 @@
-import { OrganizationUserUserDetailsResponse } from "@bitwarden/common/admin-console/abstractions/organization-user/responses";
+import { OrganizationUserUserDetailsResponse } from "@bitwarden/admin-console/common";
 import {
   OrganizationUserStatusType,
   OrganizationUserType,
@@ -33,41 +33,34 @@ export enum AccessItemType {
  * and then joined back with the base type.
  *
  */
-export type AccessItemView =
-  | SelectItemView & {
-      /**
-       * Flag that this group/member can access all items.
-       * This will disable the permission editor for this item.
-       */
-      accessAllItems?: boolean;
+export type AccessItemView = SelectItemView & {
+  /**
+   * Flag that this item cannot be modified.
+   * This will disable the permission editor and will keep
+   * the item always selected.
+   */
+  readonly?: boolean;
 
-      /**
-       * Flag that this item cannot be modified.
-       * This will disable the permission editor and will keep
-       * the item always selected.
-       */
-      readonly?: boolean;
-
-      /**
-       * Optional permission that will be rendered for this
-       * item if it set to readonly.
-       */
-      readonlyPermission?: CollectionPermission;
-    } & (
-        | {
-            type: AccessItemType.Collection;
-            viaGroupName?: string;
-          }
-        | {
-            type: AccessItemType.Group;
-          }
-        | {
-            type: AccessItemType.Member; // Members have a few extra details required to display, so they're added here
-            email: string;
-            role: OrganizationUserType;
-            status: OrganizationUserStatusType;
-          }
-      );
+  /**
+   * Optional permission that will be rendered for this
+   * item if it set to readonly.
+   */
+  readonlyPermission?: CollectionPermission;
+} & (
+    | {
+        type: AccessItemType.Collection;
+        viaGroupName?: string;
+      }
+    | {
+        type: AccessItemType.Group;
+      }
+    | {
+        type: AccessItemType.Member; // Members have a few extra details required to display, so they're added here
+        email: string;
+        role: OrganizationUserType;
+        status: OrganizationUserStatusType;
+      }
+  );
 
 /**
  * A type that is emitted as a value for the ngControl
@@ -78,12 +71,34 @@ export type AccessItemValue = {
   type: AccessItemType;
 };
 
+export type Permission = {
+  perm: CollectionPermission;
+  labelId: string;
+};
+
+export const getPermissionList = (): Permission[] => {
+  const permissions = [
+    { perm: CollectionPermission.View, labelId: "canView" },
+    { perm: CollectionPermission.ViewExceptPass, labelId: "canViewExceptPass" },
+    { perm: CollectionPermission.Edit, labelId: "canEdit" },
+    { perm: CollectionPermission.EditExceptPass, labelId: "canEditExceptPass" },
+    { perm: CollectionPermission.Manage, labelId: "canManage" },
+  ];
+
+  return permissions;
+};
+
 /**
  * Converts the CollectionAccessSelectionView interface to one of the new CollectionPermission values
  * for the dropdown in the AccessSelectorComponent
  * @param value
  */
-export const convertToPermission = (value: CollectionAccessSelectionView) => {
+export const convertToPermission = (
+  value: CollectionAccessSelectionView | undefined,
+): CollectionPermission | undefined => {
+  if (value == null) {
+    return undefined;
+  }
   if (value.manage) {
     return CollectionPermission.Manage;
   } else if (value.readOnly) {
@@ -119,8 +134,6 @@ export function mapGroupToAccessItemView(group: GroupView): AccessItemView {
     type: AccessItemType.Group,
     listName: group.name,
     labelName: group.name,
-    accessAllItems: group.accessAll,
-    readonly: group.accessAll,
   };
 }
 
@@ -134,7 +147,5 @@ export function mapUserToAccessItemView(user: OrganizationUserUserDetailsRespons
     listName: user.name?.length > 0 ? `${user.name} (${user.email})` : user.email,
     labelName: user.name ?? user.email,
     status: user.status,
-    accessAllItems: user.accessAll,
-    readonly: user.accessAll,
   };
 }

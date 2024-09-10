@@ -35,7 +35,7 @@ export class Login extends Domain {
         password: null,
         totp: null,
       },
-      []
+      [],
     );
 
     if (obj.uris) {
@@ -50,7 +50,11 @@ export class Login extends Domain {
     }
   }
 
-  async decrypt(orgId: string, encKey?: SymmetricCryptoKey): Promise<LoginView> {
+  async decrypt(
+    orgId: string,
+    bypassValidation: boolean,
+    encKey?: SymmetricCryptoKey,
+  ): Promise<LoginView> {
     const view = await this.decryptObj(
       new LoginView(this),
       {
@@ -59,20 +63,32 @@ export class Login extends Domain {
         totp: null,
       },
       orgId,
-      encKey
+      encKey,
     );
 
     if (this.uris != null) {
       view.uris = [];
       for (let i = 0; i < this.uris.length; i++) {
+        // If the uri is null, there is nothing to decrypt or validate
+        if (this.uris[i].uri == null) {
+          continue;
+        }
+
         const uri = await this.uris[i].decrypt(orgId, encKey);
-        view.uris.push(uri);
+        // URIs are shared remotely after decryption
+        // we need to validate that the string hasn't been changed by a compromised server
+        // This validation is tied to the existence of cypher.key for backwards compatibility
+        // So we bypass the validation if there's no cipher.key or procceed with the validation and
+        // Skip the value if it's been tampered with.
+        if (bypassValidation || (await this.uris[i].validateChecksum(uri.uri, orgId, encKey))) {
+          view.uris.push(uri);
+        }
       }
     }
 
     if (this.fido2Credentials != null) {
       view.fido2Credentials = await Promise.all(
-        this.fido2Credentials.map((key) => key.decrypt(orgId, encKey))
+        this.fido2Credentials.map((key) => key.decrypt(orgId, encKey)),
       );
     }
 

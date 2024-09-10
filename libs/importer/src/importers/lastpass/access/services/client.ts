@@ -31,23 +31,33 @@ const KnownOtpMethods = new Map<string, OtpMethod>([
 ]);
 
 export class Client {
-  constructor(private parser: Parser, private cryptoUtils: CryptoUtils) {}
+  constructor(
+    private parser: Parser,
+    private cryptoUtils: CryptoUtils,
+  ) {}
 
   async openVault(
     username: string,
     password: string,
+    fragmentId: string,
     clientInfo: ClientInfo,
     ui: Ui,
-    options: ParserOptions
+    options: ParserOptions,
   ): Promise<Account[]> {
     const lowercaseUsername = username.toLowerCase();
-    const [session, rest] = await this.login(lowercaseUsername, password, clientInfo, ui);
+    const [session, rest] = await this.login(
+      lowercaseUsername,
+      password,
+      fragmentId,
+      clientInfo,
+      ui,
+    );
     try {
       const blob = await this.downloadVault(session, rest);
       const key = await this.cryptoUtils.deriveKey(
         lowercaseUsername,
         password,
-        session.keyIterationCount
+        session.keyIterationCount,
       );
 
       let privateKey: Uint8Array = null;
@@ -65,7 +75,7 @@ export class Client {
     blob: Uint8Array,
     encryptionKey: Uint8Array,
     privateKey: Uint8Array,
-    options: ParserOptions
+    options: ParserOptions,
   ): Promise<Account[]> {
     const reader = new BinaryReader(blob);
     const chunks = this.parser.extractChunks(reader);
@@ -79,7 +89,7 @@ export class Client {
     chunks: Chunk[],
     encryptionKey: Uint8Array,
     privateKey: Uint8Array,
-    options: ParserOptions
+    options: ParserOptions,
   ): Promise<Account[]> {
     const accounts = new Array<Account>();
     let folder: SharedFolder = null;
@@ -108,8 +118,9 @@ export class Client {
   private async login(
     username: string,
     password: string,
+    fragmentId: string,
     clientInfo: ClientInfo,
-    ui: Ui
+    ui: Ui,
   ): Promise<[Session, RestClient]> {
     const rest = new RestClient();
     rest.baseUrl = "https://lastpass.com";
@@ -139,10 +150,11 @@ export class Client {
       response = await this.performSingleLoginRequest(
         username,
         password,
+        fragmentId,
         keyIterationCount,
         new Map<string, any>(),
         clientInfo,
-        rest
+        rest,
       );
 
       session = this.extractSessionFromLoginResponse(response, keyIterationCount, clientInfo);
@@ -188,11 +200,12 @@ export class Client {
       session = await this.loginWithOtp(
         username,
         password,
+        fragmentId,
         keyIterationCount,
         optMethod,
         clientInfo,
         ui,
-        rest
+        rest,
       );
     } else if (cause === "outofbandrequired") {
       // 3.2. Some out-of-bound authentication is enabled. This does not require any
@@ -200,11 +213,12 @@ export class Client {
       session = await this.loginWithOob(
         username,
         password,
+        fragmentId,
         keyIterationCount,
         this.getAllErrorAttributes(response),
         clientInfo,
         ui,
-        rest
+        rest,
       );
     }
 
@@ -220,11 +234,12 @@ export class Client {
   private async loginWithOtp(
     username: string,
     password: string,
+    fragmentId: string,
     keyIterationCount: number,
     method: OtpMethod,
     clientInfo: ClientInfo,
     ui: Ui,
-    rest: RestClient
+    rest: RestClient,
   ): Promise<Session> {
     let passcode: OtpResult = null;
     switch (method) {
@@ -248,10 +263,11 @@ export class Client {
     const response = await this.performSingleLoginRequest(
       username,
       password,
+      fragmentId,
       keyIterationCount,
       new Map<string, string>([["otp", passcode.passcode]]),
       clientInfo,
-      rest
+      rest,
     );
 
     const session = this.extractSessionFromLoginResponse(response, keyIterationCount, clientInfo);
@@ -267,11 +283,12 @@ export class Client {
   private async loginWithOob(
     username: string,
     password: string,
+    fragmentId: string,
     keyIterationCount: number,
     parameters: Map<string, string>,
     clientInfo: ClientInfo,
     ui: Ui,
-    rest: RestClient
+    rest: RestClient,
   ): Promise<Session> {
     // In case of the OOB auth the server doesn't respond instantly. This works more like a long poll.
     // The server times out in about 10 seconds so there's no need to back off.
@@ -279,10 +296,11 @@ export class Client {
       const response = await this.performSingleLoginRequest(
         username,
         password,
+        fragmentId,
         keyIterationCount,
         extraParameters,
         clientInfo,
-        rest
+        rest,
       );
 
       const session = this.extractSessionFromLoginResponse(response, keyIterationCount, clientInfo);
@@ -335,7 +353,7 @@ export class Client {
     username: string,
     parameters: Map<string, string>,
     ui: Ui,
-    rest: RestClient
+    rest: RestClient,
   ): Promise<OobResult> {
     const method = parameters.get("outofbandtype");
     if (method == null) {
@@ -357,7 +375,7 @@ export class Client {
     username: string,
     parameters: Map<string, string>,
     ui: Ui,
-    rest: RestClient
+    rest: RestClient,
   ): Promise<OobResult> {
     return parameters.get("preferduowebsdk") == "1"
       ? this.approveDuoWebSdk(username, parameters, ui, rest)
@@ -368,7 +386,7 @@ export class Client {
     username: string,
     parameters: Map<string, string>,
     ui: Ui,
-    rest: RestClient
+    rest: RestClient,
   ): Promise<OobResult> {
     // TODO: implement this instead of calling `approveDuo`
     return ui.approveDuo();
@@ -384,7 +402,7 @@ export class Client {
       "trust.php",
       parameters,
       null,
-      this.getSessionCookies(session)
+      this.getSessionCookies(session),
     );
     if (response.status == HttpStatusCode.Ok) {
       return;
@@ -401,7 +419,7 @@ export class Client {
       "logout.php",
       parameters,
       null,
-      this.getSessionCookies(session)
+      this.getSessionCookies(session),
     );
     if (response.status == HttpStatusCode.Ok) {
       return;
@@ -460,7 +478,7 @@ export class Client {
   private extractSessionFromLoginResponse(
     response: Document,
     keyIterationCount: number,
-    clientInfo: ClientInfo
+    clientInfo: ClientInfo,
   ): Session {
     const ok = response.querySelector("response > ok");
     if (ok == null) {
@@ -491,10 +509,11 @@ export class Client {
   private async performSingleLoginRequest(
     username: string,
     password: string,
+    fragmentId: string,
     keyIterationCount: number,
     extraParameters: Map<string, any>,
     clientInfo: ClientInfo,
-    rest: RestClient
+    rest: RestClient,
   ) {
     const hash = await this.cryptoUtils.deriveKeyHash(username, password, keyIterationCount);
 
@@ -510,6 +529,10 @@ export class Client {
       // TODO: Test against the real server if it's ok to send this every time!
       ["trustlabel", clientInfo.description],
     ]);
+    if (fragmentId != null) {
+      parameters.set("alpfragmentid", fragmentId);
+      parameters.set("calculatedfragmentid", fragmentId);
+    }
     for (const [key, value] of extraParameters) {
       parameters.set(key, value);
     }
@@ -526,7 +549,7 @@ export class Client {
   private makeError(response: Response) {
     // TODO: error parsing
     throw new Error(
-      "HTTP request to " + response.url + " failed with status " + response.status + "."
+      "HTTP request to " + response.url + " failed with status " + response.status + ".",
     );
   }
 

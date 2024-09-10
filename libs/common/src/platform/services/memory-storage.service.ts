@@ -1,9 +1,9 @@
 import { Subject } from "rxjs";
 
-import { AbstractMemoryStorageService, StorageUpdate } from "../abstractions/storage.service";
+import { AbstractStorageService, StorageUpdate } from "../abstractions/storage.service";
 
-export class MemoryStorageService extends AbstractMemoryStorageService {
-  private store = new Map<string, unknown>();
+export class MemoryStorageService extends AbstractStorageService {
+  protected store = new Map<string, unknown>();
   private updatesSubject = new Subject<StorageUpdate>();
 
   get valuesRequireDeserialization(): boolean {
@@ -29,7 +29,10 @@ export class MemoryStorageService extends AbstractMemoryStorageService {
     if (obj == null) {
       return this.remove(key);
     }
-    this.store.set(key, obj);
+    // TODO: Remove once foreground/background contexts are separated in browser
+    // Needed to ensure ownership of all memory by the context running the storage service
+    const toStore = structuredClone(obj);
+    this.store.set(key, toStore);
     this.updatesSubject.next({ key, updateType: "save" });
     return Promise.resolve();
   }
@@ -38,9 +41,5 @@ export class MemoryStorageService extends AbstractMemoryStorageService {
     this.store.delete(key);
     this.updatesSubject.next({ key, updateType: "remove" });
     return Promise.resolve();
-  }
-
-  getBypassCache<T>(key: string): Promise<T> {
-    return this.get<T>(key);
   }
 }

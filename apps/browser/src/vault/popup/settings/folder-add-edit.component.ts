@@ -1,4 +1,4 @@
-import { Component } from "@angular/core";
+import { Component, OnInit } from "@angular/core";
 import { FormBuilder } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
 import { first } from "rxjs/operators";
@@ -16,7 +16,7 @@ import { DialogService } from "@bitwarden/components";
   templateUrl: "folder-add-edit.component.html",
 })
 // eslint-disable-next-line rxjs-angular/prefer-takeuntil
-export class FolderAddEditComponent extends BaseFolderAddEditComponent {
+export class FolderAddEditComponent extends BaseFolderAddEditComponent implements OnInit {
   constructor(
     folderService: FolderService,
     folderApiService: FolderApiServiceAbstraction,
@@ -26,7 +26,7 @@ export class FolderAddEditComponent extends BaseFolderAddEditComponent {
     private route: ActivatedRoute,
     logService: LogService,
     dialogService: DialogService,
-    formBuilder: FormBuilder
+    formBuilder: FormBuilder,
   ) {
     super(
       folderService,
@@ -35,7 +35,7 @@ export class FolderAddEditComponent extends BaseFolderAddEditComponent {
       platformUtilsService,
       logService,
       dialogService,
-      formBuilder
+      formBuilder,
     );
   }
 
@@ -51,6 +51,8 @@ export class FolderAddEditComponent extends BaseFolderAddEditComponent {
 
   async submit(): Promise<boolean> {
     if (await super.submit()) {
+      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.router.navigate(["/folders"]);
       return true;
     }
@@ -61,6 +63,8 @@ export class FolderAddEditComponent extends BaseFolderAddEditComponent {
   async delete(): Promise<boolean> {
     const confirmed = await super.delete();
     if (confirmed) {
+      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.router.navigate(["/folders"]);
     }
     return confirmed;

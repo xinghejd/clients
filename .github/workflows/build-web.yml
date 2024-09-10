@@ -15,7 +15,7 @@ on:
       - '.github/workflows/build-web.yml'
   push:
     branches:
-      - 'master'
+      - 'main'
       - 'rc'
       - 'hotfix-rc-web'
     paths:
@@ -25,6 +25,8 @@ on:
       - '!*.md'
       - '!*.txt'
       - '.github/workflows/build-web.yml'
+  release:
+    types: [published]
   workflow_dispatch:
     inputs:
       custom_tag_extension:
@@ -35,23 +37,6 @@ env:
   _AZ_REGISTRY: bitwardenprod.azurecr.io
 
 jobs:
-  cloc:
-    name: CLOC
-    runs-on: ubuntu-22.04
-    steps:
-      - name: Checkout repo
-        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
-
-      - name: Set up cloc
-        run: |
-          sudo apt update
-          sudo apt -y install cloc
-
-      - name: Print lines of code
-        working-directory: apps/web
-        run: cloc --include-lang TypeScript,JavaScript,HTML,Sass,CSS --vcs git
-
-
   setup:
     name: Setup
     runs-on: ubuntu-22.04
@@ -60,7 +45,7 @@ jobs:
       node_version: ${{ steps.retrieve-node-version.outputs.node_version }}
     steps:
       - name: Checkout repo
-        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
 
       - name: Get GitHub sha as version
         id: version
@@ -83,34 +68,33 @@ jobs:
     strategy:
       matrix:
         include:
-          - name: selfhosted-open-source
-            npm_command: dist:oss:selfhost
-            image_name: web-oss-selfhost
-          - name: cloud-COMMERCIAL
-            npm_command: dist:bit:cloud
-            image_name: web-cloud-commercial
-          - name: selfhosted-COMMERCIAL
-            npm_command: dist:bit:selfhost
-            image_name: web
-          - name: cloud-QA
-            npm_command: build:bit:qa
-            image_name: web-qa-cloud
-          - name: ee
-            npm_command: build:bit:ee
-            image_name: web-ee
-          - name: cloud-euprd
-            npm_command: build:bit:euprd
-            image_name: web-cloud-euprd
-          - name: cloud-euqa
-            npm_command: build:bit:euqa
-            image_name: web-cloud-euqa
+          - name: "selfhosted-open-source"
+            npm_command: "dist:oss:selfhost"
+          - name: "cloud-COMMERCIAL"
+            npm_command: "dist:bit:cloud"
+          - name: "selfhosted-COMMERCIAL"
+            npm_command: "dist:bit:selfhost"
+          - name: "cloud-QA"
+            npm_command: "build:bit:qa"
+            git_metadata: true
+          - name: "ee"
+            npm_command: "build:bit:ee"
+            git_metadata: true
+          - name: "cloud-euprd"
+            npm_command: "build:bit:euprd"
+          - name: "cloud-euqa"
+            npm_command: "build:bit:euqa"
+            git_metadata: true
+          - name: "cloud-usdev"
+            npm_command: "build:bit:usdev"
+            git_metadata: true
+
     steps:
       - name: Checkout repo
-        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
 
-      # Checkout server repository
-      - name: Checkout repo
-        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+      - name: Set up Node
+        uses: actions/setup-node@1e60f620b9541d16bece96c5465dc8ee9832be0b # v4.0.3
         with:
           path: server
           repository: bitwarden/server
@@ -124,10 +108,59 @@ jobs:
           docker --version
           echo "GitHub ref: $GITHUB_REF"
           echo "GitHub event: $GITHUB_EVENT"
-      
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Add Git metadata to build version
+        working-directory: apps/web
+        if: matrix.git_metadata
+        run: |
+          VERSION=$( jq -r ".version" package.json)
+          jq --arg version "$VERSION+${GITHUB_SHA:0:7}" '.version = $version' package.json > package.json.tmp
+          mv package.json.tmp package.json
+
+      - name: Build ${{ matrix.name }}
+        working-directory: apps/web
+        run: npm run ${{ matrix.npm_command }}
+
+      - name: Package artifact
+        working-directory: apps/web
+        run: zip -r web-${{ env._VERSION }}-${{ matrix.name }}.zip build
+
+      - name: Upload ${{ matrix.name }} artifact
+        uses: actions/upload-artifact@50769540e7f4bd5e21e526ee35c689e35e0d6874 # v4.4.0
+        with:
+          name: web-${{ env._VERSION }}-${{ matrix.name }}.zip
+          path: apps/web/web-${{ env._VERSION }}-${{ matrix.name }}.zip
+          if-no-files-found: error
+
+
+  build-containers:
+    name: Build Docker images
+    runs-on: ubuntu-22.04
+    needs:
+      - setup
+      - build-artifacts
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - artifact_name: cloud-QA
+            image_name: web-qa-cloud
+          - artifact_name: ee
+            image_name: web-ee
+          - artifact_name: selfhosted-COMMERCIAL
+            image_name: web
+    env:
+      _VERSION: ${{ needs.setup.outputs.version }}
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+
       - name: Check Branch to Publish
         env:
-          PUBLISH_BRANCHES: "master,rc,hotfix-rc-web"
+          PUBLISH_BRANCHES: "main,rc,hotfix-rc-web"
         id: publish-branch-check
         run: |
           IFS="," read -a publish_branches <<< $PUBLISH_BRANCHES
@@ -155,12 +188,30 @@ jobs:
 
       ########## ACRs ##########
       - name: Login to Prod Azure
-        uses: Azure/login@92a5484dfaf04ca78a94597f4f19fea633851fa2 # v1.4.7
+        uses: Azure/login@e15b166166a8746d1a47596803bd8c1b595455cf # v1.6.0
         with:
           creds: ${{ secrets.AZURE_PROD_KV_CREDENTIALS }}
 
       - name: Log into Prod container registry
-        run: az acr login -n ${_AZ_REGISTRY%.azurecr.io}
+        run: az acr login -n bitwardenprod
+
+      - name: Login to Azure - CI Subscription
+        uses: Azure/login@e15b166166a8746d1a47596803bd8c1b595455cf # v1.6.0
+        with:
+          creds: ${{ secrets.AZURE_KV_CI_SERVICE_PRINCIPAL }}
+
+      - name: Retrieve github PAT secrets
+        id: retrieve-secret-pat
+        uses: bitwarden/gh-actions/get-keyvault-secrets@main
+        with:
+          keyvault: "bitwarden-ci"
+          secrets: "github-pat-bitwarden-devops-bot-repo-scope"
+
+      - name: Download ${{ matrix.artifact_name }} artifact
+        uses: actions/download-artifact@fa0a91b85d4f404e444e00e005971372dc801d16 # v4.1.8
+        with:
+          name: web-${{ env._VERSION }}-${{ matrix.artifact_name }}.zip
+          path: apps/web
 
       ########## Generate image tag and build Docker image ##########
       - name: Generate Docker image tag
@@ -169,10 +220,10 @@ jobs:
           if [[ $(grep "pull" <<< "${GITHUB_REF}") ]]; then
             IMAGE_TAG=$(echo "${GITHUB_HEAD_REF}" | sed "s#/#-#g")
           else
-            IMAGE_TAG=$(echo "${GITHUB_REF:11}" | sed "s#/#-#g")
+            IMAGE_TAG=$(echo "${GITHUB_REF_NAME}" | sed "s#/#-#g")
           fi
 
-          if [[ "$IMAGE_TAG" == "master" ]]; then
+          if [[ "$IMAGE_TAG" == "main" ]]; then
             IMAGE_TAG=dev
           fi
 
@@ -192,8 +243,8 @@ jobs:
           PROJECT_NAME: ${{ matrix.image_name }}
         run: echo "name=$_AZ_REGISTRY/${PROJECT_NAME}:${IMAGE_TAG}" >> $GITHUB_OUTPUT
 
-      - name: Build ${{ matrix.name }} Docker image
-        uses: docker/build-push-action@2eb1c1961a95fc15694676618e422e8ba1d63825 # v4.1.1
+      - name: Build Docker image
+        uses: docker/build-push-action@5cd11c3a4ced054e52742c5fd54dca954e0edd85 # v6.7.0
         with:
           build-args: |
             NODE_VERSION=${{ env._NODE_VERSION }}
@@ -231,15 +282,15 @@ jobs:
 
   crowdin-push:
     name: Crowdin Push
-    if: github.ref == 'refs/heads/master'
-    needs: build
+    if: github.ref == 'refs/heads/main'
+    needs: build-artifacts
     runs-on: ubuntu-22.04
     steps:
       - name: Checkout repo
-        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
 
       - name: Login to Azure
-        uses: Azure/login@92a5484dfaf04ca78a94597f4f19fea633851fa2 # v1.4.7
+        uses: Azure/login@e15b166166a8746d1a47596803bd8c1b595455cf # v1.6.0
         with:
           creds: ${{ secrets.AZURE_KV_CI_SERVICE_PRINCIPAL }}
 
@@ -251,48 +302,67 @@ jobs:
           secrets: "crowdin-api-token"
 
       - name: Upload Sources
-        uses: crowdin/github-action@ee4ab4ea2feadc0fdc3b200729c7b1c4cf4b38f3 # v1.11.0
+        uses: crowdin/github-action@30849777a3cba6ee9a09e24e195272b8287a0a5b # v1.20.4
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           CROWDIN_API_TOKEN: ${{ steps.retrieve-secrets.outputs.crowdin-api-token }}
           CROWDIN_PROJECT_ID: "308189"
         with:
           config: apps/web/crowdin.yml
-          crowdin_branch_name: master
+          crowdin_branch_name: main
           upload_sources: true
           upload_translations: false
 
+  trigger-web-vault-deploy:
+    name: Trigger web vault deploy
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-22.04
+    needs: build-artifacts
+    steps:
+      - name: Login to Azure - CI Subscription
+        uses: Azure/login@e15b166166a8746d1a47596803bd8c1b595455cf # v1.6.0
+        with:
+          creds: ${{ secrets.AZURE_KV_CI_SERVICE_PRINCIPAL }}
+
+      - name: Retrieve github PAT secrets
+        id: retrieve-secret-pat
+        uses: bitwarden/gh-actions/get-keyvault-secrets@main
+        with:
+          keyvault: "bitwarden-ci"
+          secrets: "github-pat-bitwarden-devops-bot-repo-scope"
+
+      - name: Trigger web vault deploy using GitHub Run ID
+        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
+        with:
+          github-token: ${{ steps.retrieve-secret-pat.outputs.github-pat-bitwarden-devops-bot-repo-scope }}
+          script: |
+            await github.rest.actions.createWorkflowDispatch({
+              owner: 'bitwarden',
+              repo: 'clients',
+              workflow_id: 'deploy-web.yml',
+              ref: 'main',
+              inputs: {
+                'environment': 'USDEV',
+                'build-web-run-id': '${{ github.run_id }}'
+              }
+            })
 
   check-failures:
     name: Check for failures
     if: always()
     runs-on: ubuntu-22.04
     needs:
-      - cloc
       - setup
       - build
       - crowdin-push
+      - trigger-web-vault-deploy
     steps:
       - name: Check if any job failed
-        if: ${{ (github.ref == 'refs/heads/master') || (github.ref == 'refs/heads/rc') }}
-        env:
-          CLOC_STATUS: ${{ needs.cloc.result }}
-          SETUP_STATUS: ${{ needs.setup.result }}
-          BUILD_STATUS: ${{ needs.build.result }}
-          CROWDIN_PUSH_STATUS: ${{ needs.crowdin-push.result }}
-        run: |
-          if [ "$CLOC_STATUS" = "failure" ]; then
-              exit 1
-          elif [ "$SETUP_STATUS" = "failure" ]; then
-              exit 1
-          elif [ "$BUILD_STATUS" = "failure" ]; then
-              exit 1
-          elif [ "$CROWDIN_PUSH_STATUS" = "failure" ]; then
-              exit 1
-          fi
+        if: (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/rc' || github.ref == 'refs/heads/hotfix-rc') && contains(needs.*.result, 'failure')
+        run: exit 1
 
       - name: Login to Azure - Prod Subscription
-        uses: Azure/login@92a5484dfaf04ca78a94597f4f19fea633851fa2 # v1.4.7
+        uses: Azure/login@e15b166166a8746d1a47596803bd8c1b595455cf # v1.6.0
         if: failure()
         with:
           creds: ${{ secrets.AZURE_KV_CI_SERVICE_PRINCIPAL }}
@@ -306,7 +376,7 @@ jobs:
           secrets: "devops-alerts-slack-webhook-url"
 
       - name: Notify Slack on failure
-        uses: act10ns/slack@ed1309ab9862e57e9e583e51c7889486b9a00b0f # v2.0.0
+        uses: act10ns/slack@44541246747a30eb3102d87f7a4cc5471b0ffb7d # v2.1.0
         if: failure()
         env:
           SLACK_WEBHOOK_URL: ${{ steps.retrieve-secrets.outputs.devops-alerts-slack-webhook-url }}

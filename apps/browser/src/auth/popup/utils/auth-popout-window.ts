@@ -15,11 +15,14 @@ const extensionUnlockUrls = new Set([
  * Opens a window that facilitates unlocking / logging into the extension.
  *
  * @param senderTab - Used to determine the windowId of the sender.
+ * @param skipNotification - Used to determine whether to show the unlock notification.
  */
-async function openUnlockPopout(senderTab: chrome.tabs.Tab) {
+async function openUnlockPopout(senderTab: chrome.tabs.Tab, skipNotification = false) {
   const existingPopoutWindowTabs = await BrowserApi.tabsQuery({ windowType: "popup" });
   existingPopoutWindowTabs.forEach((tab) => {
     if (extensionUnlockUrls.has(tab.url)) {
+      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       BrowserApi.removeWindow(tab.windowId);
     }
   });
@@ -28,7 +31,7 @@ async function openUnlockPopout(senderTab: chrome.tabs.Tab) {
     singleActionKey: AuthPopoutType.unlockExtension,
     senderWindowId: senderTab.windowId,
   });
-  await BrowserApi.tabSendMessageData(senderTab, "bgUnlockPopoutOpened");
+  await BrowserApi.tabSendMessageData(senderTab, "bgUnlockPopoutOpened", { skipNotification });
 }
 
 /**
@@ -46,7 +49,7 @@ async function closeUnlockPopout() {
 async function openSsoAuthResultPopout(resultData: { code: string; state: string }) {
   const { code, state } = resultData;
   const authResultUrl = `popup/index.html#/sso?code=${encodeURIComponent(
-    code
+    code,
   )}&state=${encodeURIComponent(state)}`;
 
   await BrowserPopupUtils.openPopout(authResultUrl, {

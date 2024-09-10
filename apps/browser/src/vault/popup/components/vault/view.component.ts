@@ -1,15 +1,16 @@
-import { Location } from "@angular/common";
-import { ChangeDetectorRef, Component, NgZone } from "@angular/core";
+import { DatePipe, Location } from "@angular/common";
+import { ChangeDetectorRef, Component, NgZone, OnInit, OnDestroy } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
-import { Subject, firstValueFrom, takeUntil } from "rxjs";
-import { first } from "rxjs/operators";
+import { Subject, firstValueFrom, takeUntil, Subscription } from "rxjs";
+import { first, map } from "rxjs/operators";
 
 import { ViewComponent as BaseViewComponent } from "@bitwarden/angular/vault/components/view.component";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AuditService } from "@bitwarden/common/abstractions/audit.service";
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
-import { TotpService } from "@bitwarden/common/abstractions/totp.service";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
+import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
 import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
 import { FileDownloadService } from "@bitwarden/common/platform/abstractions/file-download/file-download.service";
@@ -20,55 +21,62 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
-import { CipherType } from "@bitwarden/common/vault/enums/cipher-type";
+import { TotpService as TotpServiceAbstraction } from "@bitwarden/common/vault/abstractions/totp.service";
+import { CipherType } from "@bitwarden/common/vault/enums";
 import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
 import { LoginUriView } from "@bitwarden/common/vault/models/view/login-uri.view";
 import { DialogService } from "@bitwarden/components";
 import { PasswordRepromptService } from "@bitwarden/vault";
 
+import { BrowserFido2UserInterfaceSession } from "../../../../autofill/fido2/services/browser-fido2-user-interface.service";
 import { AutofillService } from "../../../../autofill/services/abstractions/autofill.service";
 import { BrowserApi } from "../../../../platform/browser/browser-api";
 import BrowserPopupUtils from "../../../../platform/popup/browser-popup-utils";
-import {
-  BrowserFido2UserInterfaceSession,
-  fido2PopoutSessionData$,
-} from "../../../fido2/browser-fido2-user-interface.service";
+import { fido2PopoutSessionData$ } from "../../utils/fido2-popout-session-data";
+import { closeViewVaultItemPopout, VaultPopoutType } from "../../utils/vault-popout-window";
 
 const BroadcasterSubscriptionId = "ChildViewComponent";
 
 export const AUTOFILL_ID = "autofill";
+export const SHOW_AUTOFILL_BUTTON = "show-autofill-button";
 export const COPY_USERNAME_ID = "copy-username";
 export const COPY_PASSWORD_ID = "copy-password";
-export const COPY_VERIFICATIONCODE_ID = "copy-totp";
+export const COPY_VERIFICATION_CODE_ID = "copy-totp";
 
-type LoadAction =
-  | typeof AUTOFILL_ID
+type CopyAction =
   | typeof COPY_USERNAME_ID
   | typeof COPY_PASSWORD_ID
-  | typeof COPY_VERIFICATIONCODE_ID;
+  | typeof COPY_VERIFICATION_CODE_ID;
+type LoadAction = typeof AUTOFILL_ID | typeof SHOW_AUTOFILL_BUTTON | CopyAction;
 
 @Component({
   selector: "app-vault-view",
   templateUrl: "view.component.html",
 })
-export class ViewComponent extends BaseViewComponent {
+export class ViewComponent extends BaseViewComponent implements OnInit, OnDestroy {
   showAttachments = true;
   pageDetails: any[] = [];
   tab: any;
   senderTabId?: number;
   loadAction?: LoadAction;
+  private static readonly copyActions = new Set([
+    COPY_USERNAME_ID,
+    COPY_PASSWORD_ID,
+    COPY_VERIFICATION_CODE_ID,
+  ]);
   uilocation?: "popout" | "popup" | "sidebar" | "tab";
   loadPageDetailsTimeout: number;
   inPopout = false;
   cipherType = CipherType;
   private fido2PopoutSessionData$ = fido2PopoutSessionData$();
+  private collectPageDetailsSubscription: Subscription;
 
   private destroy$ = new Subject<void>();
 
   constructor(
     cipherService: CipherService,
     folderService: FolderService,
-    totpService: TotpService,
+    totpService: TotpServiceAbstraction,
     tokenService: TokenService,
     i18nService: I18nService,
     cryptoService: CryptoService,
@@ -88,7 +96,10 @@ export class ViewComponent extends BaseViewComponent {
     passwordRepromptService: PasswordRepromptService,
     logService: LogService,
     fileDownloadService: FileDownloadService,
-    dialogService: DialogService
+    dialogService: DialogService,
+    datePipe: DatePipe,
+    accountService: AccountService,
+    billingAccountProfileStateService: BillingAccountProfileStateService,
   ) {
     super(
       cipherService,
@@ -109,7 +120,10 @@ export class ViewComponent extends BaseViewComponent {
       logService,
       stateService,
       fileDownloadService,
-      dialogService
+      dialogService,
+      datePipe,
+      accountService,
+      billingAccountProfileStateService,
     );
   }
 
@@ -127,6 +141,8 @@ export class ViewComponent extends BaseViewComponent {
       if (params.cipherId) {
         this.cipherId = params.cipherId;
       } else {
+        // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises
         this.close();
       }
 
@@ -136,17 +152,10 @@ export class ViewComponent extends BaseViewComponent {
     super.ngOnInit();
 
     this.broadcasterService.subscribe(BroadcasterSubscriptionId, (message: any) => {
+      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.ngZone.run(async () => {
         switch (message.command) {
-          case "collectPageDetailsResponse":
-            if (message.sender === BroadcasterSubscriptionId) {
-              this.pageDetails.push({
-                frameId: message.webExtSender.frameId,
-                tab: message.tab,
-                details: message.details,
-              });
-            }
-            break;
           case "tabChanged":
           case "windowChanged":
             if (this.loadPageDetailsTimeout != null) {
@@ -171,27 +180,7 @@ export class ViewComponent extends BaseViewComponent {
   async load() {
     await super.load();
     await this.loadPageDetails();
-
-    switch (this.loadAction) {
-      case AUTOFILL_ID:
-        await this.fillCipher();
-        break;
-      case COPY_USERNAME_ID:
-        await this.copy(this.cipher.login.username, "username", "Username");
-        break;
-      case COPY_PASSWORD_ID:
-        await this.copy(this.cipher.login.password, "password", "Password");
-        break;
-      case COPY_VERIFICATIONCODE_ID:
-        await this.copy(this.totpCode, "verificationCodeTotp", "TOTP");
-        break;
-      default:
-        break;
-    }
-
-    if (this.inPopout && this.loadAction) {
-      setTimeout(() => this.close(), 1000);
-    }
+    await this.handleLoadAction();
   }
 
   async edit() {
@@ -202,7 +191,11 @@ export class ViewComponent extends BaseViewComponent {
       return false;
     }
 
-    this.router.navigate(["/edit-cipher"], { queryParams: { cipherId: this.cipher.id } });
+    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
+    this.router.navigate(["/edit-cipher"], {
+      queryParams: { cipherId: this.cipher.id, type: this.cipher.type, isNew: false },
+    });
     return true;
   }
 
@@ -215,6 +208,8 @@ export class ViewComponent extends BaseViewComponent {
       return false;
     }
 
+    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     this.router.navigate(["/clone-cipher"], {
       queryParams: {
         cloneMode: true,
@@ -230,6 +225,8 @@ export class ViewComponent extends BaseViewComponent {
     }
 
     if (this.cipher.organizationId == null) {
+      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.router.navigate(["/share-cipher"], {
         replaceUrl: true,
         queryParams: { cipherId: this.cipher.id },
@@ -243,6 +240,8 @@ export class ViewComponent extends BaseViewComponent {
     if (didAutofill) {
       this.platformUtilsService.showToast("success", null, this.i18nService.t("autoFillSuccess"));
     }
+
+    return didAutofill;
   }
 
   async fillCipherAndSave() {
@@ -260,7 +259,7 @@ export class ViewComponent extends BaseViewComponent {
           this.platformUtilsService.showToast(
             "success",
             null,
-            this.i18nService.t("autoFillSuccessAndSavedUri")
+            this.i18nService.t("autoFillSuccessAndSavedUri"),
           );
           return;
         }
@@ -271,12 +270,15 @@ export class ViewComponent extends BaseViewComponent {
       this.cipher.login.uris.push(loginUri);
 
       try {
-        const cipher: Cipher = await this.cipherService.encrypt(this.cipher);
+        const activeUserId = await firstValueFrom(
+          this.accountService.activeAccount$.pipe(map((a) => a?.id)),
+        );
+        const cipher: Cipher = await this.cipherService.encrypt(this.cipher, activeUserId);
         await this.cipherService.updateWithServer(cipher);
         this.platformUtilsService.showToast(
           "success",
           null,
-          this.i18nService.t("autoFillSuccessAndSavedUri")
+          this.i18nService.t("autoFillSuccessAndSavedUri"),
         );
         this.messagingService.send("editedCipher");
       } catch {
@@ -290,6 +292,8 @@ export class ViewComponent extends BaseViewComponent {
       return false;
     }
     if (await super.restore()) {
+      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.close();
       return true;
     }
@@ -299,6 +303,8 @@ export class ViewComponent extends BaseViewComponent {
   async delete() {
     if (await super.delete()) {
       this.messagingService.send("deletedCipher");
+      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.close();
       return true;
     }
@@ -306,16 +312,22 @@ export class ViewComponent extends BaseViewComponent {
   }
 
   async close() {
-    // Would be refactored after rework is done on the windows popout service
     const sessionData = await firstValueFrom(this.fido2PopoutSessionData$);
     if (this.inPopout && sessionData.isFido2Session) {
       BrowserFido2UserInterfaceSession.abortPopout(sessionData.sessionId);
       return;
     }
 
-    if (this.inPopout && this.senderTabId) {
+    if (
+      BrowserPopupUtils.inSingleActionPopout(window, VaultPopoutType.viewVaultItem) &&
+      this.senderTabId
+    ) {
+      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       BrowserApi.focusTab(this.senderTabId);
-      window.close();
+      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
+      closeViewVaultItemPopout(`${VaultPopoutType.viewVaultItem}_${this.cipher.id}`);
       return;
     }
 
@@ -323,22 +335,20 @@ export class ViewComponent extends BaseViewComponent {
   }
 
   private async loadPageDetails() {
+    this.collectPageDetailsSubscription?.unsubscribe();
     this.pageDetails = [];
-    this.tab = await BrowserApi.getTabFromCurrentWindow();
-
-    if (this.senderTabId) {
-      this.tab = await BrowserApi.getTab(this.senderTabId);
-    }
+    this.tab = this.senderTabId
+      ? await BrowserApi.getTab(this.senderTabId)
+      : await BrowserApi.getTabFromCurrentWindow();
 
     if (!this.tab) {
       return;
     }
 
-    BrowserApi.tabSendMessage(this.tab, {
-      command: "collectPageDetails",
-      tab: this.tab,
-      sender: BroadcasterSubscriptionId,
-    });
+    this.collectPageDetailsSubscription = this.autofillService
+      .collectPageDetailsFromTab$(this.tab)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((pageDetails) => (this.pageDetails = pageDetails));
   }
 
   private async doAutofill() {
@@ -380,5 +390,35 @@ export class ViewComponent extends BaseViewComponent {
     }
 
     return true;
+  }
+
+  private async handleLoadAction() {
+    if (!this.loadAction || this.loadAction === SHOW_AUTOFILL_BUTTON) {
+      return;
+    }
+
+    let loadActionSuccess = false;
+    if (this.loadAction === AUTOFILL_ID) {
+      loadActionSuccess = await this.fillCipher();
+    }
+
+    if (ViewComponent.copyActions.has(this.loadAction)) {
+      const { username, password } = this.cipher.login;
+      const copyParams: Record<CopyAction, Record<string, string>> = {
+        [COPY_USERNAME_ID]: { value: username, type: "username", name: "Username" },
+        [COPY_PASSWORD_ID]: { value: password, type: "password", name: "Password" },
+        [COPY_VERIFICATION_CODE_ID]: {
+          value: this.totpCode,
+          type: "verificationCodeTotp",
+          name: "TOTP",
+        },
+      };
+      const { value, type, name } = copyParams[this.loadAction as CopyAction];
+      loadActionSuccess = await this.copy(value, type, name);
+    }
+
+    if (this.inPopout) {
+      setTimeout(() => this.close(), loadActionSuccess ? 1000 : 0);
+    }
   }
 }

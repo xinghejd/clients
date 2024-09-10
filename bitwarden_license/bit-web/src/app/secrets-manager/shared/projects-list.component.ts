@@ -4,7 +4,7 @@ import { map } from "rxjs";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { TableDataSource } from "@bitwarden/components";
+import { TableDataSource, ToastService } from "@bitwarden/components";
 
 import { ProjectListView } from "../models/view/project-list.view";
 
@@ -37,12 +37,13 @@ export class ProjectsListComponent {
   selection = new SelectionModel<string>(true, []);
   protected dataSource = new TableDataSource<ProjectListView>();
   protected hasWriteAccessOnSelected$ = this.selection.changed.pipe(
-    map((_) => this.selectedHasWriteAccess())
+    map((_) => this.selectedHasWriteAccess()),
   );
 
   constructor(
     private i18nService: I18nService,
-    private platformUtilsService: PlatformUtilsService
+    private platformUtilsService: PlatformUtilsService,
+    private toastService: ToastService,
   ) {}
 
   isAllSelected() {
@@ -69,20 +70,20 @@ export class ProjectsListComponent {
   bulkDeleteProjects() {
     if (this.selection.selected.length >= 1) {
       this.deleteProjectEvent.emit(
-        this.projects.filter((project) => this.selection.isSelected(project.id))
+        this.projects.filter((project) => this.selection.isSelected(project.id)),
       );
     } else {
-      this.platformUtilsService.showToast(
-        "error",
-        this.i18nService.t("errorOccurred"),
-        this.i18nService.t("nothingSelected")
-      );
+      this.toastService.showToast({
+        variant: "error",
+        title: this.i18nService.t("errorOccurred"),
+        message: this.i18nService.t("nothingSelected"),
+      });
     }
   }
 
   private selectedHasWriteAccess() {
     const selectedProjects = this.projects.filter((project) =>
-      this.selection.isSelected(project.id)
+      this.selection.isSelected(project.id),
     );
     if (selectedProjects.some((project) => project.write)) {
       return true;

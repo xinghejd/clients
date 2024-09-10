@@ -1,18 +1,26 @@
-import { promises as fs } from "fs";
+import * as fs from "fs";
 import * as path from "path";
 
-import { ipcMain } from "electron";
+import { app, ipcMain } from "electron";
 
 import { I18nService as BaseI18nService } from "@bitwarden/common/platform/services/i18n.service";
+import { GlobalStateProvider } from "@bitwarden/common/platform/state";
 
 export class I18nMainService extends BaseI18nService {
-  constructor(systemLanguage: string, localesDirectory: string) {
-    super(systemLanguage, localesDirectory, (formattedLocale: string) =>
-      this.readLanguageFile(formattedLocale)
+  constructor(
+    systemLanguage: string,
+    localesDirectory: string,
+    globalStateProvider: GlobalStateProvider,
+  ) {
+    super(
+      systemLanguage,
+      localesDirectory,
+      (formattedLocale: string) => this.readLanguageFile(formattedLocale),
+      globalStateProvider,
     );
 
     ipcMain.handle("getLanguageFile", async (event, formattedLocale: string) =>
-      this.readLanguageFile(formattedLocale)
+      this.readLanguageFile(formattedLocale),
     );
 
     // Please leave 'en' where it is, as it's our fallback language in case no translation can be found
@@ -27,6 +35,7 @@ export class I18nMainService extends BaseI18nService {
       "bs",
       "ca",
       "cs",
+      "cy",
       "da",
       "de",
       "el",
@@ -40,6 +49,7 @@ export class I18nMainService extends BaseI18nService {
       "fi",
       "fil",
       "fr",
+      "gl",
       "he",
       "hi",
       "hr",
@@ -51,13 +61,18 @@ export class I18nMainService extends BaseI18nService {
       "km",
       "kn",
       "ko",
+      "lt",
       "lv",
       "me",
       "ml",
+      "mr",
+      "my",
       "nb",
+      "ne",
       "nl",
       "nn",
       "pl",
+      "or",
       "pt-BR",
       "pt-PT",
       "ro",
@@ -67,6 +82,7 @@ export class I18nMainService extends BaseI18nService {
       "sl",
       "sr",
       "sv",
+      "te",
       "th",
       "tr",
       "uk",
@@ -76,14 +92,20 @@ export class I18nMainService extends BaseI18nService {
     ];
   }
 
-  private async readLanguageFile(formattedLocale: string): Promise<any> {
+  override async init(): Promise<void> {
+    // Set system language to electron language
+    this.systemLanguage = app.getLocale();
+    await super.init();
+  }
+
+  private readLanguageFile(formattedLocale: string): Promise<any> {
     // Check that the provided locale only contains letters and dashes and underscores to avoid possible path traversal
     if (!/^[a-zA-Z_-]+$/.test(formattedLocale)) {
       return Promise.resolve({});
     }
 
     const filePath = path.join(__dirname, this.localesDirectory, formattedLocale, "messages.json");
-    const localesJson = await fs.readFile(filePath, "utf8");
+    const localesJson = fs.readFileSync(filePath, "utf8");
     const locales = JSON.parse(localesJson.replace(/^\uFEFF/, "")); // strip the BOM
     return Promise.resolve(locales);
   }

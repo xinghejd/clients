@@ -2,19 +2,19 @@ import { ipcMain } from "electron";
 
 import { BiometricKey } from "@bitwarden/common/auth/types/biometric-key";
 import { ConsoleLogService } from "@bitwarden/common/platform/services/console-log.service";
-import { passwords } from "@bitwarden/desktop-native";
+import { passwords } from "@bitwarden/desktop-napi";
 
 import { BiometricMessage, BiometricAction } from "../../types/biometric-message";
 
-import { BiometricsServiceAbstraction } from "./biometric/index";
+import { DesktopBiometricsService } from "./biometric/index";
 
 const AuthRequiredSuffix = "_biometric";
 
 export class DesktopCredentialStorageListener {
   constructor(
     private serviceName: string,
-    private biometricService: BiometricsServiceAbstraction,
-    private logService: ConsoleLogService
+    private biometricService: DesktopBiometricsService,
+    private logService: ConsoleLogService,
   ) {}
 
   init() {
@@ -77,7 +77,16 @@ export class DesktopCredentialStorageListener {
             });
             break;
           case BiometricAction.OsSupported:
-            val = await this.biometricService.osSupportsBiometric();
+            val = await this.biometricService.supportsBiometric();
+            break;
+          case BiometricAction.NeedsSetup:
+            val = await this.biometricService.biometricsNeedsSetup();
+            break;
+          case BiometricAction.Setup:
+            await this.biometricService.biometricsSetup();
+            break;
+          case BiometricAction.CanAutoSetup:
+            val = await this.biometricService.biometricsSupportsAutoSetup();
             break;
           default:
         }

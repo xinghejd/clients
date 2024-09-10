@@ -1,4 +1,4 @@
-import { OrganizationUserUserDetailsResponse } from "@bitwarden/common/admin-console/abstractions/organization-user/responses";
+import { OrganizationUserUserDetailsResponse } from "@bitwarden/admin-console/common";
 import {
   OrganizationUserStatusType,
   OrganizationUserType,
@@ -12,7 +12,6 @@ export class OrganizationUserView {
   userId: string;
   type: OrganizationUserType;
   status: OrganizationUserStatusType;
-  accessAll: boolean;
   permissions: PermissionsApi;
   resetPasswordEnrolled: boolean;
   name: string;
@@ -21,6 +20,10 @@ export class OrganizationUserView {
   twoFactorEnabled: boolean;
   usesKeyConnector: boolean;
   hasMasterPassword: boolean;
+  /**
+   * True if this organizaztion user has been granted access to Secrets Manager, false otherwise.
+   */
+  accessSecretsManager: boolean;
 
   collections: CollectionAccessSelectionView[] = [];
   groups: string[] = [];

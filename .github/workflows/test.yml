@@ -1,31 +1,47 @@
 ---
-name: Run tests
+name: Testing
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - "main"
+      - "rc"
+      - "hotfix-rc-*"
   pull_request:
-    branches-ignore:
-      - 'l10n_master'
-      - 'cf-pages'
-    paths:
-      - 'apps/**'
-      - 'libs/**'
-      - '*'
-      - '!*.md'
-      - '!*.txt'
-      - '.github/workflows/test.yml'
-
-defaults:
-  run:
-    shell: bash
+    types: [opened, synchronize]
 
 jobs:
-  test:
+  check-test-secrets:
+    name: Check for test secrets
+    runs-on: ubuntu-22.04
+    outputs:
+      available: ${{ steps.check-test-secrets.outputs.available }}
+    permissions:
+      contents: read
+
+    steps:
+      - name: Check
+        id: check-test-secrets
+        run: |
+          if [ "${{ secrets.CODECOV_TOKEN }}" != '' ]; then
+            echo "available=true" >> $GITHUB_OUTPUT;
+          else
+            echo "available=false" >> $GITHUB_OUTPUT;
+          fi
+
+  testing:
     name: Run tests
     runs-on: ubuntu-22.04
+    needs: check-test-secrets
+    permissions:
+      checks: write
+      contents: read
+      pull-requests: write
+
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9 # v3.5.3
+      - name: Check out repo
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
 
       - name: Get Node Version
         id: retrieve-node-version
@@ -35,7 +51,7 @@ jobs:
           echo "node_version=$NODE_VERSION" >> $GITHUB_OUTPUT
 
       - name: Set up Node
-        uses: actions/setup-node@64ed1c7eab4cce3362f8c340dee64e5eaeef8f7c # v3.6.0
+        uses: actions/setup-node@1e60f620b9541d16bece96c5465dc8ee9832be0b # v4.0.3
         with:
           cache: 'npm'
           cache-dependency-path: '**/package-lock.json'
@@ -56,20 +72,36 @@ jobs:
         run: npm run test:types
 
       - name: Run tests
-        run: npm run test
+        # maxWorkers is a workaround for a memory leak that crashes tests in CI:
+        # https://github.com/facebook/jest/issues/9430#issuecomment-1149882002
+        run: npm test -- --coverage --maxWorkers=3
 
       - name: Report test results
-        uses: dorny/test-reporter@c9b3d0e2bd2a4e96aaf424dbaa31c46b42318226 # v1.6.0
-        if: always()
+        uses: dorny/test-reporter@31a54ee7ebcacc03a09ea97a7e5465a47b84aea5 # v1.9.1
+        if: ${{ needs.check-test-secrets.outputs.available == 'true' && !cancelled() }}
         with:
           name: Test Results
           path: "junit.xml"
           reporter: jest-junit
           fail-on-error: true
 
+      - name: Upload coverage to codecov.io
+        uses: codecov/codecov-action@e28ff129e5465c2c0dcc6f003fc735cb6ae0c673 # v4.5.0
+        if: ${{ needs.check-test-secrets.outputs.available == 'true' }}
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+
+      - name: Upload results to codecov.io
+        uses: codecov/test-results-action@1b5b448b98e58ba90d1a1a1d9fcb72ca2263be46 # v1.0.0
+        if: ${{ needs.check-test-secrets.outputs.available == 'true' }}
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+
   rust:
-    name: rust - ${{ matrix.os }}
+    name: Run Rust tests on ${{ matrix.os }}
     runs-on: ${{ matrix.os || 'ubuntu-latest' }}
+    permissions:
+      contents: read
 
     strategy:
       matrix:
@@ -79,7 +111,7 @@ jobs:
           - windows-latest
 
     steps:
-      - name: Rust version check
+      - name: Check Rust version
         run: rustup --version
 
       - name: Install gnome-keyring
@@ -88,8 +120,8 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y gnome-keyring dbus-x11
 
-      - name: Checkout repo
-        uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9 # v3.5.3
+      - name: Check out repo
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
 
       - name: Build
         working-directory: ./apps/desktop/desktop_native

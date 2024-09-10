@@ -3,11 +3,9 @@ import { Component, Inject, OnDestroy } from "@angular/core";
 import { FormBuilder } from "@angular/forms";
 import { combineLatest, of, Subject, switchMap, takeUntil } from "rxjs";
 
+import { OrganizationUserApiService } from "@bitwarden/admin-console/common";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
-import { OrganizationUserService } from "@bitwarden/common/admin-console/abstractions/organization-user/organization-user.service";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigServiceAbstraction } from "@bitwarden/common/platform/abstractions/config/config.service.abstraction";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { CollectionView } from "@bitwarden/common/vault/models/view/collection.view";
@@ -44,11 +42,6 @@ export enum BulkCollectionsDialogResult {
   standalone: true,
 })
 export class BulkCollectionsDialogComponent implements OnDestroy {
-  protected flexibleCollectionsEnabled$ = this.configService.getFeatureFlag$(
-    FeatureFlag.FlexibleCollections,
-    false
-  );
-
   protected readonly PermissionMode = PermissionMode;
 
   protected formGroup = this.formBuilder.group({
@@ -67,11 +60,10 @@ export class BulkCollectionsDialogComponent implements OnDestroy {
     private formBuilder: FormBuilder,
     private organizationService: OrganizationService,
     private groupService: GroupService,
-    private organizationUserService: OrganizationUserService,
+    private organizationUserApiService: OrganizationUserApiService,
     private platformUtilsService: PlatformUtilsService,
     private i18nService: I18nService,
     private collectionAdminService: CollectionAdminService,
-    private configService: ConfigServiceAbstraction
   ) {
     this.numCollections = this.params.collections.length;
     const organization$ = this.organizationService.get$(this.params.organizationId);
@@ -81,13 +73,13 @@ export class BulkCollectionsDialogComponent implements OnDestroy {
           return of([] as GroupView[]);
         }
         return this.groupService.getAll(organization.id);
-      })
+      }),
     );
 
     combineLatest([
       organization$,
       groups$,
-      this.organizationUserService.getAllUsers(this.params.organizationId),
+      this.organizationUserApiService.getAllUsers(this.params.organizationId),
     ])
       .pipe(takeUntil(this.destroy$))
       .subscribe(([organization, groups, users]) => {
@@ -95,7 +87,7 @@ export class BulkCollectionsDialogComponent implements OnDestroy {
 
         this.accessItems = [].concat(
           groups.map(mapGroupToAccessItemView),
-          users.data.map(mapUserToAccessItemView)
+          users.data.map(mapUserToAccessItemView),
         );
 
         this.loading = false;
@@ -120,7 +112,7 @@ export class BulkCollectionsDialogComponent implements OnDestroy {
       this.organization.id,
       this.params.collections.map((c) => c.id),
       users,
-      groups
+      groups,
     );
 
     this.platformUtilsService.showToast("success", null, this.i18nService.t("editedCollections"));
@@ -131,7 +123,7 @@ export class BulkCollectionsDialogComponent implements OnDestroy {
   static open(dialogService: DialogService, config: DialogConfig<BulkCollectionsDialogParams>) {
     return dialogService.open<BulkCollectionsDialogResult, BulkCollectionsDialogParams>(
       BulkCollectionsDialogComponent,
-      config
+      config,
     );
   }
 }

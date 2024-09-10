@@ -4,6 +4,7 @@ import { combineLatestWith, Observable, startWith, switchMap } from "rxjs";
 
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { DialogService } from "@bitwarden/components";
 
@@ -19,6 +20,10 @@ import {
   SecretDialogComponent,
   SecretOperation,
 } from "./dialog/secret-dialog.component";
+import {
+  SecretViewDialogComponent,
+  SecretViewDialogParams,
+} from "./dialog/secret-view-dialog.component";
 import { SecretService } from "./secret.service";
 
 @Component({
@@ -38,7 +43,8 @@ export class SecretsComponent implements OnInit {
     private dialogService: DialogService,
     private platformUtilsService: PlatformUtilsService,
     private i18nService: I18nService,
-    private organizationService: OrganizationService
+    private organizationService: OrganizationService,
+    private logService: LogService,
   ) {}
 
   ngOnInit() {
@@ -47,10 +53,12 @@ export class SecretsComponent implements OnInit {
       combineLatestWith(this.route.params),
       switchMap(async ([_, params]) => {
         this.organizationId = params.organizationId;
-        this.organizationEnabled = this.organizationService.get(params.organizationId)?.enabled;
+        this.organizationEnabled = (
+          await this.organizationService.get(params.organizationId)
+        )?.enabled;
 
         return await this.getSecrets();
-      })
+      }),
     );
 
     if (this.route.snapshot.queryParams.search) {
@@ -69,6 +77,15 @@ export class SecretsComponent implements OnInit {
         operation: OperationType.Edit,
         secretId: secretId,
         organizationEnabled: this.organizationEnabled,
+      },
+    });
+  }
+
+  openViewSecret(secretId: string) {
+    this.dialogService.open<unknown, SecretViewDialogParams>(SecretViewDialogComponent, {
+      data: {
+        organizationId: this.organizationId,
+        secretId: secretId,
       },
     });
   }
@@ -95,12 +112,13 @@ export class SecretsComponent implements OnInit {
     SecretsListComponent.copySecretName(name, this.platformUtilsService, this.i18nService);
   }
 
-  copySecretValue(id: string) {
-    SecretsListComponent.copySecretValue(
+  async copySecretValue(id: string) {
+    await SecretsListComponent.copySecretValue(
       id,
       this.platformUtilsService,
       this.i18nService,
-      this.secretService
+      this.secretService,
+      this.logService,
     );
   }
 

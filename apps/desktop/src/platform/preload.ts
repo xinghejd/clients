@@ -1,10 +1,17 @@
 import { ipcRenderer } from "electron";
 
-import { DeviceType, ThemeType, KeySuffixOptions } from "@bitwarden/common/enums";
+import { DeviceType } from "@bitwarden/common/enums";
+import { ThemeType, KeySuffixOptions, LogLevelType } from "@bitwarden/common/platform/enums";
+import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
 
-import { EncryptedMessageResponse, UnencryptedMessageResponse } from "../models/native-messaging";
+import {
+  EncryptedMessageResponse,
+  LegacyMessageWrapper,
+  Message,
+  UnencryptedMessageResponse,
+} from "../models/native-messaging";
 import { BiometricMessage, BiometricAction } from "../types/biometric-message";
-import { isDev, isWindowsStore } from "../utils";
+import { isAppImage, isDev, isFlatpak, isMacAppStore, isSnapStore, isWindowsStore } from "../utils";
 
 import { ClipboardWriteMessage } from "./types/clipboard";
 
@@ -41,6 +48,18 @@ const biometric = {
     ipcRenderer.invoke("biometric", {
       action: BiometricAction.OsSupported,
     } satisfies BiometricMessage),
+  biometricsNeedsSetup: (): Promise<boolean> =>
+    ipcRenderer.invoke("biometric", {
+      action: BiometricAction.NeedsSetup,
+    } satisfies BiometricMessage),
+  biometricsSetup: (): Promise<void> =>
+    ipcRenderer.invoke("biometric", {
+      action: BiometricAction.Setup,
+    } satisfies BiometricMessage),
+  biometricsCanAutoSetup: (): Promise<boolean> =>
+    ipcRenderer.invoke("biometric", {
+      action: BiometricAction.CanAutoSetup,
+    } satisfies BiometricMessage),
   authenticate: (): Promise<boolean> =>
     ipcRenderer.invoke("biometric", {
       action: BiometricAction.Authenticate,
@@ -52,9 +71,57 @@ const clipboard = {
   write: (message: ClipboardWriteMessage) => ipcRenderer.invoke("clipboard.write", message),
 };
 
+const powermonitor = {
+  isLockMonitorAvailable: (): Promise<boolean> =>
+    ipcRenderer.invoke("powermonitor.isLockMonitorAvailable"),
+};
+
 const nativeMessaging = {
   sendReply: (message: EncryptedMessageResponse | UnencryptedMessageResponse) => {
     ipcRenderer.send("nativeMessagingReply", message);
+  },
+  sendMessage: (message: {
+    appId: string;
+    command?: string;
+    sharedSecret?: string;
+    message?: EncString;
+  }) => {
+    ipcRenderer.send("nativeMessagingReply", message);
+  },
+  onMessage: (callback: (message: LegacyMessageWrapper | Message) => void) => {
+    ipcRenderer.on("nativeMessaging", (_event, message) => callback(message));
+  },
+
+  manifests: {
+    generate: (create: boolean): Promise<Error | null> =>
+      ipcRenderer.invoke("nativeMessaging.manifests", { create }),
+    generateDuckDuckGo: (create: boolean): Promise<Error | null> =>
+      ipcRenderer.invoke("nativeMessaging.ddgManifests", { create }),
+  },
+};
+
+const crypto = {
+  argon2: (
+    password: string | Uint8Array,
+    salt: string | Uint8Array,
+    iterations: number,
+    memory: number,
+    parallelism: number,
+  ): Promise<Uint8Array> =>
+    ipcRenderer.invoke("crypto.argon2", { password, salt, iterations, memory, parallelism }),
+};
+
+const ephemeralStore = {
+  setEphemeralValue: (key: string, value: string): Promise<void> =>
+    ipcRenderer.invoke("setEphemeralValue", { key, value }),
+  getEphemeralValue: (key: string): Promise<string> => ipcRenderer.invoke("getEphemeralValue", key),
+  removeEphemeralValue: (key: string): Promise<void> =>
+    ipcRenderer.invoke("deleteEphemeralValue", key),
+};
+
+const localhostCallbackService = {
+  openSsoPrompt: (codeChallenge: string, state: string): Promise<void> => {
+    return ipcRenderer.invoke("openSsoPrompt", { codeChallenge, state });
   },
 };
 
@@ -64,14 +131,20 @@ export default {
   },
   deviceType: deviceType(),
   isDev: isDev(),
+  isMacAppStore: isMacAppStore(),
   isWindowsStore: isWindowsStore(),
+  isFlatpak: isFlatpak(),
+  isSnapStore: isSnapStore(),
+  isAppImage: isAppImage(),
   reloadProcess: () => ipcRenderer.send("reload-process"),
+  log: (level: LogLevelType, message?: any, ...optionalParams: any[]) =>
+    ipcRenderer.invoke("ipc.log", { level, message, optionalParams }),
 
   openContextMenu: (
     menu: {
       label?: string;
       type?: "normal" | "separator" | "submenu" | "checkbox" | "radio";
-    }[]
+    }[],
   ): Promise<number> => ipcRenderer.invoke("openContextMenu", { menu }),
 
   getSystemTheme: (): Promise<ThemeType> => ipcRenderer.invoke("systemTheme"),
@@ -86,12 +159,21 @@ export default {
 
   sendMessage: (message: { command: string } & any) =>
     ipcRenderer.send("messagingService", message),
-  onMessage: (callback: (message: { command: string } & any) => void) => {
-    ipcRenderer.on("messagingService", (_event, message: any) => {
-      if (message.command) {
-        callback(message);
-      }
-    });
+  onMessage: {
+    addListener: (callback: (message: { command: string } & any) => void) => {
+      ipcRenderer.addListener("messagingService", (_event, message: any) => {
+        if (message.command) {
+          callback(message);
+        }
+      });
+    },
+    removeListener: (callback: (message: { command: string } & any) => void) => {
+      ipcRenderer.removeListener("messagingService", (_event, message: any) => {
+        if (message.command) {
+          callback(message);
+        }
+      });
+    },
   },
 
   launchUri: (uri: string) => ipcRenderer.invoke("launchUri", uri),
@@ -100,7 +182,11 @@ export default {
   passwords,
   biometric,
   clipboard,
+  powermonitor,
   nativeMessaging,
+  crypto,
+  ephemeralStore,
+  localhostCallbackService,
 };
 
 function deviceType(): DeviceType {

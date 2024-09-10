@@ -15,13 +15,23 @@ export abstract class DevicesApiServiceAbstraction {
     deviceIdentifier: string,
     devicePublicKeyEncryptedUserKey: string,
     userKeyEncryptedDevicePublicKey: string,
-    deviceKeyEncryptedDevicePrivateKey: string
+    deviceKeyEncryptedDevicePrivateKey: string,
   ) => Promise<DeviceResponse>;
 
-  updateTrust: (updateDevicesTrustRequestModel: UpdateDevicesTrustRequest) => Promise<void>;
+  updateTrust: (
+    updateDevicesTrustRequestModel: UpdateDevicesTrustRequest,
+    deviceIdentifier: string,
+  ) => Promise<void>;
 
   getDeviceKeys: (
     deviceIdentifier: string,
-    secretVerificationRequest: SecretVerificationRequest
+    secretVerificationRequest: SecretVerificationRequest,
   ) => Promise<ProtectedDeviceResponse>;
+
+  /**
+   * Notifies the server that the device has a device key, but didn't receive any associated decryption keys.
+   * Note: For debugging purposes only.
+   * @param deviceIdentifier - current device identifier
+   */
+  postDeviceTrustLoss: (deviceIdentifier: string) => Promise<void>;
 }
