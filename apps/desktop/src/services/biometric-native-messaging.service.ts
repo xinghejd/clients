@@ -116,6 +116,9 @@ export class BiometricMessageHandlerService {
       return;
     }
 
+    this.logService.debug("Received message", message);
+    const messageId = message.messageId;
+
     switch (message.command) {
       case "biometricUnlock": {
         // const isTemporarilyDisabled =
@@ -134,7 +137,10 @@ export class BiometricMessageHandlerService {
           (await firstValueFrom(this.accountService.activeAccount$.pipe(map((a) => a?.id))));
 
         if (userId == null) {
-          return this.send({ command: "biometricUnlock", response: "not unlocked" }, appId);
+          return this.send(
+            { command: "biometricUnlock", messageId, response: "not unlocked" },
+            appId,
+          );
         }
 
         const biometricUnlockPromise =
@@ -142,7 +148,10 @@ export class BiometricMessageHandlerService {
             ? firstValueFrom(this.biometricStateService.biometricUnlockEnabled$)
             : this.biometricStateService.getBiometricUnlockEnabled(message.userId as UserId);
         if (!(await biometricUnlockPromise)) {
-          await this.send({ command: "biometricUnlock", response: "not enabled" }, appId);
+          await this.send(
+            { command: "biometricUnlock", messageId, response: "not enabled" },
+            appId,
+          );
 
           return this.ngZone.run(() =>
             this.dialogService.openSimpleDialog({
@@ -162,10 +171,12 @@ export class BiometricMessageHandlerService {
           );
 
           if (userKey != null) {
+            this.logService.info("sending biometricUnlock response", messageId);
             await this.send(
               {
                 command: "biometricUnlock",
                 response: "unlocked",
+                messageId,
                 userKeyB64: userKey.keyB64,
               },
               appId,
@@ -182,21 +193,34 @@ export class BiometricMessageHandlerService {
               await ipc.platform.reloadProcess();
             }
           } else {
-            await this.send({ command: "biometricUnlock", response: "canceled" }, appId);
+            await this.send({ command: "biometricUnlock", messageId, response: "canceled" }, appId);
           }
         } catch (e) {
-          await this.send({ command: "biometricUnlock", response: "canceled" }, appId);
+          await this.send({ command: "biometricUnlock", messageId, response: "canceled" }, appId);
         }
 
         break;
       }
       case "biometricStatus": {
+        const status = await this.biometricsService.getBiometricsStatus();
+        return this.send(
+          {
+            command: "biometricStatus",
+            messageId,
+            response: status,
+          },
+          appId,
+        );
+      }
+      case "biometricStatusForUser": {
         const status = await this.biometricsService.getBiometricsStatusForUser(
           message.userId as UserId,
         );
+        console.log("biometricStatusForUser", status);
         return this.send(
           {
-            command: "biometricUnlockAvailable",
+            command: "biometricStatusForUser",
+            messageId,
             response: status,
           },
           appId,
@@ -216,7 +240,11 @@ export class BiometricMessageHandlerService {
       SymmetricCryptoKey.fromString(await ipc.platform.ephemeralStore.getEphemeralValue(appId)),
     );
 
-    ipc.platform.nativeMessaging.sendMessage({ appId: appId, message: encrypted });
+    ipc.platform.nativeMessaging.sendMessage({
+      appId: appId,
+      messageId: message.messageId,
+      message: encrypted,
+    });
   }
 
   private async secureCommunication(remotePublicKey: Uint8Array, appId: string) {

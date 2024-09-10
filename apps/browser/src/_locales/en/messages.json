@@ -316,7 +316,7 @@
   "createFoldersToOrganize": {
     "message": "Create folders to organize your vault items"
   },
-  "deleteFolderPermanently":{
+  "deleteFolderPermanently": {
     "message": "Are you sure you want to permanently delete this folder?"
   },
   "deleteFolder": {
@@ -1900,7 +1900,7 @@
     "message": "Use this password"
   },
   "useThisUsername": {
-      "message": "Use this username"
+    "message": "Use this username"
   },
   "securePasswordGenerated": {
     "message": "Secure password generated! Don't forget to also update your password on the website."
@@ -3243,7 +3243,7 @@
     "message": "Unlock your account, opens in a new window",
     "description": "Screen reader text (aria-label) for unlock account button in overlay"
   },
-  "fillCredentialsFor":  {
+  "fillCredentialsFor": {
     "message": "Fill credentials for",
     "description": "Screen reader text for when overlay item is in focused"
   },
@@ -4317,5 +4317,14 @@
   },
   "noEditPermissions": {
     "message": "You don't have permission to edit this item"
+  },
+  "biometricsMPUnlockNeeded": {
+    "message": "Unlock your vault with your master password or PIN to enable biometric unlock."
+  },
+  "biometricsHardwareUnavailable": {
+    "message": "Biometric unlock hardware is currently unavailable."
+  },
+  "biometricsUnavailableReasonUnknown": {
+    "message": "Biometric unlock is currently unavailable for an unknown reason."
   }
 }

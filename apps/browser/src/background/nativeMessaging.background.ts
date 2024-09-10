@@ -24,6 +24,7 @@ const HashAlgorithmForEncryption = "sha1";
 
 type Message = {
   command: string;
+  messageId?: number;
 
   // Filled in by this service
   userId?: string;
@@ -41,6 +42,7 @@ type OuterMessage = {
 type ReceiveMessage = {
   timestamp: number;
   command: string;
+  messageId: number;
   response?: any;
 
   // Unlock key
@@ -51,10 +53,16 @@ type ReceiveMessage = {
 type ReceiveMessageOuter = {
   command: string;
   appId: string;
+  messageId?: number;
 
   // Should only have one of these.
   message?: EncString;
   sharedSecret?: string;
+};
+
+type Callback = {
+  resolver: any;
+  rejecter: any;
 };
 
 export class NativeMessagingBackground {
@@ -62,14 +70,15 @@ export class NativeMessagingBackground {
   private connecting: boolean;
   private port: browser.runtime.Port | chrome.runtime.Port;
 
-  private resolver: any = null;
-  private rejecter: any = null;
   private privateKey: Uint8Array = null;
   private publicKey: Uint8Array = null;
   private secureSetupResolve: any = null;
   private sharedSecret: SymmetricCryptoKey;
   private appId: string;
   private validatingFingerprint: boolean;
+
+  private messageId = 0;
+  private callbacks = new Map<number, Callback>();
 
   constructor(
     private cryptoService: CryptoService,
@@ -157,9 +166,11 @@ export class NativeMessagingBackground {
             this.privateKey = null;
             this.connected = false;
 
-            this.rejecter({
-              message: "invalidateEncryption",
-            });
+            if (this.callbacks.has(message.messageId)) {
+              this.callbacks.get(message.messageId).rejecter({
+                message: "invalidateEncryption",
+              });
+            }
             return;
           case "verifyFingerprint": {
             if (this.sharedSecret == null) {
@@ -171,9 +182,11 @@ export class NativeMessagingBackground {
             break;
           }
           case "wrongUserId":
-            this.rejecter({
-              message: "wrongUserId",
-            });
+            if (this.callbacks.has(message.messageId)) {
+              this.callbacks.get(message.messageId).rejecter({
+                message: "wrongUserId",
+              });
+            }
             return;
           default:
             // Ignore since it belongs to another device
@@ -207,6 +220,31 @@ export class NativeMessagingBackground {
     });
   }
 
+  async callCommand(message: Message): Promise<any> {
+    const messageId = this.messageId++;
+    const callback = new Promise((resolver, rejecter) => {
+      this.callbacks.set(messageId, { resolver, rejecter });
+    });
+    message.messageId = messageId;
+    try {
+      await this.send(message);
+    } catch (e) {
+      this.callbacks.delete(messageId);
+      throw e;
+    }
+
+    setTimeout(() => {
+      if (this.callbacks.has(messageId)) {
+        this.callbacks.get(messageId).rejecter({
+          message: "timeout",
+        });
+        this.callbacks.delete(messageId);
+      }
+    }, 60000);
+
+    return callback;
+  }
+
   async send(message: Message) {
     if (!this.connected) {
       await this.connect();
@@ -230,20 +268,7 @@ export class NativeMessagingBackground {
     return await this.cryptoService.encrypt(JSON.stringify(message), this.sharedSecret);
   }
 
-  getResponse(): Promise<any> {
-    return new Promise((resolve, reject) => {
-      this.resolver = function (response: any) {
-        resolve(response);
-      };
-      this.rejecter = function (resp: any) {
-        reject({
-          message: resp,
-        });
-      };
-    });
-  }
-
-  private postMessage(message: OuterMessage) {
+  private postMessage(message: OuterMessage, messageId?: number) {
     // Wrap in try-catch to when the port disconnected without triggering `onDisconnect`.
     try {
       const msg: any = message;
@@ -265,7 +290,9 @@ export class NativeMessagingBackground {
       this.privateKey = null;
       this.connected = false;
 
-      this.rejecter("invalidateEncryption");
+      if (this.callbacks.has(messageId)) {
+        this.callbacks.get(messageId).rejecter("invalidateEncryption");
+      }
     }
   }
 
@@ -282,14 +309,22 @@ export class NativeMessagingBackground {
       return;
     }
 
+    const messageId = message.messageId;
     switch (message.command) {
       case "biometricUnlock": {
+        if (!this.callbacks.has(messageId)) {
+          this.logService.error("Biometric unlock promise not set");
+          return;
+        }
+
+        this.logService.info("MESSAGE COMMAND", message);
         if (
           ["not available", "not enabled", "not supported", "not unlocked", "canceled"].includes(
             message.response,
           )
         ) {
-          this.rejecter(message.response);
+          this.logService.info("Biometric unlock failed", message.response);
+          this.callbacks.get(messageId).rejecter(message.response);
           return;
         }
 
@@ -299,16 +334,19 @@ export class NativeMessagingBackground {
           if (message.response === "unlocked") {
             await this.biometricStateService.setBiometricUnlockEnabled(true);
           }
+          this.logService.info("Ignoring biometric unlock, not enabled");
           break;
         }
 
-        // Ignore unlock if already unlocked
-        if ((await this.authService.getAuthStatus()) === AuthenticationStatus.Unlocked) {
-          break;
-        }
+        // // Ignore unlock if already unlocked
+        // if ((await this.authService.getAuthStatus()) === AuthenticationStatus.Unlocked) {
+        //   this.logService.info("Ignoring biometric unlock, already unlocked");
+        //   break;
+        // }
 
         if (message.response === "unlocked") {
           try {
+            this.logService.info("setting userkey");
             if (message.userKeyB64) {
               const userKey = new SymmetricCryptoKey(
                 Utils.fromB64ToArray(message.userKeyB64),
@@ -316,24 +354,28 @@ export class NativeMessagingBackground {
               const activeUserId = await firstValueFrom(
                 this.accountService.activeAccount$.pipe(map((a) => a?.id)),
               );
+              this.logService.info("active userid", activeUserId);
               const isUserKeyValid = await this.cryptoService.validateUserKey(
                 userKey,
                 activeUserId,
               );
               if (isUserKeyValid) {
+                this.logService.info("valit setting userkey");
                 await this.cryptoService.setUserKey(userKey, activeUserId);
+                this.callbacks.get(messageId).resolver("unlocked");
               } else {
                 this.logService.error("Unable to verify biometric unlocked userkey");
                 await this.cryptoService.clearKeys(activeUserId);
-                this.rejecter("userkey wrong");
+                this.callbacks.get(messageId).rejecter("userkey wrong");
                 return;
               }
             } else {
+              this.logService.info("no userkey");
               throw new Error("No key received");
             }
           } catch (e) {
             this.logService.error("Unable to set key: " + e);
-            this.rejecter("userkey wrong");
+            this.callbacks.get(messageId).rejecter("userkey wrong");
             return;
           }
 
@@ -344,7 +386,7 @@ export class NativeMessagingBackground {
           } catch (e) {
             this.logService.error("Unable to verify key: " + e);
             await this.cryptoService.clearKeys();
-            this.rejecter("userkey wrong");
+            this.callbacks.get(messageId).rejecter("userkey wrong");
             return;
           }
 
@@ -355,7 +397,20 @@ export class NativeMessagingBackground {
         break;
       }
       case "biometricStatus": {
-        this.resolver(message);
+        console.log("messageid", messageId);
+        if (!this.callbacks.has(messageId)) {
+          this.logService.error("Biometric status promise not set");
+          return;
+        }
+        this.callbacks.get(messageId).resolver(message);
+        break;
+      }
+      case "biometricStatusForUser": {
+        if (!this.callbacks.has(messageId)) {
+          this.logService.error("Biometric status promise not set");
+          return;
+        }
+        this.callbacks.get(messageId).resolver(message);
         break;
       }
       default:
@@ -363,8 +418,8 @@ export class NativeMessagingBackground {
         break;
     }
 
-    if (this.resolver) {
-      this.resolver(message);
+    if (this.callbacks.has(messageId)) {
+      this.callbacks.get(messageId).resolver(message);
     }
   }
 
@@ -380,6 +435,7 @@ export class NativeMessagingBackground {
       command: "setupEncryption",
       publicKey: Utils.fromBufferToB64(publicKey),
       userId: userId,
+      messageId: this.messageId++,
     });
 
     return new Promise((resolve, reject) => (this.secureSetupResolve = resolve));

@@ -73,7 +73,11 @@
           {{ "loggedInAsOn" | i18n: email : webVaultHostname }}
         </div>
       </div>
-      <div class="box" *ngIf="biometricLock">
+
+      <div class="buttons-row">
+        <label *ngIf="!canUseBiometric">{{ biometricUnavailabilityReason }}</label>
+      </div>
+      <div class="box" *ngIf="isBiometricUnlockAvailable">
         <div class="box-footer no-pad">
           <button
             type="button"

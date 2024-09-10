@@ -68,7 +68,8 @@ export default class RuntimeBackground {
     ) => {
       const messagesWithResponse = [
         "biometricUnlock",
-        "biometricUnlockAvailable",
+        "biometricStatus",
+        "biometricStatusForUser",
         "getUseTreeWalkerApiForPageDetailsCollectionFeatureFlag",
         "getInlineMenuFieldQualificationFeatureFlag",
       ];
@@ -180,11 +181,17 @@ export default class RuntimeBackground {
         }
         break;
       case "biometricUnlock": {
+        this.logService.info("biometrickunlock call");
         const result = await this.main.biometricsService.authenticateBiometric();
+        this.logService.info("biometrickunlock called", result);
         return result;
       }
-      case "biometricUnlockAvailable": {
-        const result = await this.main.biometricsService.isBiometricUnlockAvailable();
+      case "biometricStatus": {
+        const result = await this.main.biometricsService.getBiometricsStatus();
+        return result;
+      }
+      case "biometricStatusForUser": {
+        const result = await this.main.biometricsService.getBiometricsStatusForUser(msg.userId);
         return result;
       }
       case "getUseTreeWalkerApiForPageDetailsCollectionFeatureFlag": {

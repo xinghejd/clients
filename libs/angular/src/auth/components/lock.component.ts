@@ -50,7 +50,6 @@ export class LockComponent implements OnInit, OnDestroy {
   webVaultHostname = "";
   formPromise: Promise<MasterPasswordVerificationResponse>;
   supportsBiometric: boolean;
-  biometricLockEnabled: boolean;
   biometricStatus: BiometricsStatus = BiometricsStatus.NotEnabled;
   private timerId: any;
 
@@ -108,11 +107,16 @@ export class LockComponent implements OnInit, OnDestroy {
       .subscribe();
 
     // start background listener until destroyed on interval
+    this.biometricStatus = await this.biometricsService.getBiometricsStatusForUser(
+      this.activeUserId,
+    );
     this.timerId = setInterval(async () => {
+      console.log("getstatus");
       this.biometricStatus = await this.biometricsService.getBiometricsStatusForUser(
         this.activeUserId,
       );
-    }, 500);
+      console.log("status", this.biometricStatus);
+    }, 1000);
   }
 
   ngOnDestroy() {
@@ -143,10 +147,6 @@ export class LockComponent implements OnInit, OnDestroy {
   }
 
   async unlockBiometric(): Promise<boolean> {
-    if (!this.biometricLockEnabled) {
-      return;
-    }
-
     await this.biometricStateService.setUserPromptCancelled();
     const userKey = await this.cryptoService.getUserKeyFromStorage(
       KeySuffixOptions.Biometric,
@@ -168,15 +168,18 @@ export class LockComponent implements OnInit, OnDestroy {
   }
 
   get biometricUnavailabilityReason(): string {
+    console.log(this.biometricStatus);
     switch (this.biometricStatus) {
       case BiometricsStatus.Available:
+        return "";
+      case BiometricsStatus.NotEnabled:
         return "";
       case BiometricsStatus.UnlockNeeded:
         return this.i18nService.t("biometricsMPUnlockNeeded");
       case BiometricsStatus.HardwareUnavailable:
         return this.i18nService.t("biometricsHardwareUnavailable");
       default:
-        return this.i18nService.t("biometricsUnavailableReasonUnknown");
+        return this.i18nService.t("biometricsUnavailableReasonUnknown") + this.biometricStatus;
     }
   }
 
@@ -361,10 +364,6 @@ export class LockComponent implements OnInit, OnDestroy {
 
     this.masterPasswordEnabled = await this.userVerificationService.hasMasterPassword();
 
-    this.biometricLockEnabled =
-      (await this.vaultTimeoutSettingsService.isBiometricLockSet()) &&
-      ((await this.cryptoService.hasUserKeyStored(KeySuffixOptions.Biometric)) ||
-        !this.platformUtilsService.supportsSecureStorage());
     this.email = await firstValueFrom(
       this.accountService.activeAccount$.pipe(map((a) => a?.email)),
     );

@@ -48,6 +48,7 @@ import BrowserPopupUtils from "../../../platform/popup/browser-popup-utils";
 import { SetPinComponent } from "../components/set-pin.component";
 
 import { AwaitDesktopDialogComponent } from "./await-desktop-dialog.component";
+import { BiometricsStatus } from "@bitwarden/common/key-management/biometrics/biometrics-status";
 
 @Component({
   selector: "auth-account-security",
@@ -168,7 +169,8 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
     };
     this.form.patchValue(initialValues, { emitEvent: false });
 
-    this.supportsBiometric = await this.biometricsService.supportsBiometric();
+    this.supportsBiometric =
+      (await this.biometricsService.getBiometricsStatus()) == BiometricsStatus.Available;
     this.showChangeMasterPass = await this.userVerificationService.hasMasterPassword();
 
     this.form.controls.vaultTimeout.valueChanges
