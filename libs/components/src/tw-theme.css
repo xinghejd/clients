@@ -4,41 +4,44 @@
   --color-transparent-hover: rgb(0 0 0 / 0.02);
 
   --color-background: 255 255 255;
-  --color-background-alt: 246 247 249;
+  --color-background-alt: 243 246 249;
   --color-background-alt2: 23 92 219;
   --color-background-alt3: 18 82 163;
   --color-background-alt4: 13 60 119;
 
-  --color-primary-100: 200 217 249;
-  --color-primary-300: 107 154 240;
+  --color-primary-100: 219 229 246;
+  --color-primary-300: 121 161 233;
   --color-primary-500: 23 93 220;
-  --color-primary-600: 20 82 193;
-  --color-primary-700: 14 55 129;
+  --color-primary-600: 23 93 200;
+  --color-primary-700: 26 65 172;
 
   --color-secondary-100: 230 233 239;
   --color-secondary-300: 168 179 200;
-  --color-secondary-500: 96 114 150;
+  --color-secondary-500: 90 109 145;
   --color-secondary-600: 83 99 131;
   --color-secondary-700: 63 75 99;
 
-  --color-info-100: 182 244 247;
-  --color-info-600: 16 148 157;
-  --color-info-700: 12 105 111;
+  --color-info-100: 219 229 246;
+  --color-info-600: 121 161 233;
+  --color-info-700: 26 65 172;
 
-  --color-warning-100: 255 229 190;
-  --color-warning-600: 214 129 0;
-  --color-warning-700: 138 82 0;
+  --color-warning-100: 255 248 228;
+  --color-warning-600: 255 191 0;
+  --color-warning-700: 172 88 0;
 
-  --color-danger-100: 255 226 229;
-  --color-danger-600: 184 0 23;
-  --color-danger-700: 133 0 17;
+  --color-danger-100: 255 236 239;
+  --color-danger-600: 203 38 58;
+  --color-danger-700: 149 27 42;
 
-  --color-success-100: 186 248 192;
-  --color-success-600: 12 130 24;
-  --color-success-700: 8 84 15;
+  --color-success-100: 191 236 195;
+  --color-success-600: 12 128 24;
+  --color-success-700: 11 111 21;
+
+  --color-art-primary: 2 15 102;
+  --color-art-accent: 44 221 223;
 
   --color-text-main: 27 32 41;
-  --color-text-muted: 96 114 150;
+  --color-text-muted: 96 109 145;
   --color-text-contrast: 255 255 255;
   --color-text-alt2: 255 255 255;
   --color-text-code: 192 17 118;
@@ -62,11 +65,11 @@
   --color-background-alt3: 47 52 61;
   --color-background-alt4: 16 18 21;
 
-  --color-primary-100: 8 31 73;
-  --color-primary-300: 19 71 165;
+  --color-primary-100: 2 15 102;
+  --color-primary-300: 26 65 172;
   --color-primary-500: 54 117 232;
-  --color-primary-600: 99 148 237;
-  --color-primary-700: 145 180 242;
+  --color-primary-600: 101 171 255;
+  --color-primary-700: 170 195 239;
 
   --color-secondary-100: 48 57 70;
   --color-secondary-300: 82 91 106;
@@ -74,27 +77,30 @@
   --color-secondary-600: 143 152 166;
   --color-secondary-700: 158 167 181;
 
-  --color-success-100: 7 64 13;
+  --color-success-100: 11 111 21;
   --color-success-600: 107 241 120;
-  --color-success-700: 152 245 161;
+  --color-success-700: 191 236 195;
 
-  --color-danger-100: 82 0 10;
-  --color-danger-600: 255 82 103;
-  --color-danger-700: 255 133 148;
+  --color-danger-100: 149 27 42;
+  --color-danger-600: 255 78 99;
+  --color-danger-700: 255 236 239;
 
-  --color-warning-100: 87 52 0;
-  --color-warning-600: 255 187 87;
-  --color-warning-700: 255 207 138;
+  --color-warning-100: 172 88 0;
+  --color-warning-600: 255 191 0;
+  --color-warning-700: 255 248 228;
 
-  --color-info-100: 7 61 65;
-  --color-info-600: 89 228 238;
-  --color-info-700: 135 236 242;
+  --color-info-100: 26 65 172;
+  --color-info-600: 121 161 233;
+  --color-info-700: 219 229 246;
 
-  --color-text-main: 226 227 228;
-  --color-text-muted: 143 152 166;
+  --color-art-primary: 243 246 249;
+  --color-art-accent: 44 221 233;
+
+  --color-text-main: 243 246 249;
+  --color-text-muted: 136 152 181;
   --color-text-contrast: 18 26 39;
   --color-text-alt2: 255 255 255;
-  --color-text-code: 240 141 199;
+  --color-text-code: 255 143 208;
   --color-text-headers: 226 227 228;
 
   --color-marketing-logo: 255 255 255;
