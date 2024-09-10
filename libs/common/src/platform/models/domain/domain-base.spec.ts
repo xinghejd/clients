@@ -46,21 +46,21 @@ describe("DomainBase", () => {
     it("validates the view matches the domain", async () => {
       const domain = new TestDomain();
 
-      await domain["decryptWithKey"](
+      await domain["decryptObjWithKey"](
         // @ts-expect-error -- clear is not of type EncString
         ["plainText"],
         makeSymmetricCryptoKey(64),
         mock<EncryptService>(),
       );
 
-      await domain["decryptWithKey"](
+      await domain["decryptObjWithKey"](
         // @ts-expect-error -- Clear is not of type EncString
         ["encToString", "encString2", "plainText"],
         makeSymmetricCryptoKey(64),
         mock<EncryptService>(),
       );
 
-      const decrypted = await domain["decryptWithKey"](
+      const decrypted = await domain["decryptObjWithKey"](
         ["encToString"],
         makeSymmetricCryptoKey(64),
         mock<EncryptService>(),
@@ -80,7 +80,7 @@ describe("DomainBase", () => {
 
       domain.encToString = await encryptService.encrypt("string", key);
 
-      const decrypted = await domain["decryptWithKey"](["encToString"], key, encryptService);
+      const decrypted = await domain["decryptObjWithKey"](["encToString"], key, encryptService);
 
       expect(decrypted).toEqual({
         encToString: "string",
@@ -95,7 +95,7 @@ describe("DomainBase", () => {
       domain.encToString = await encryptService.encrypt("string", key);
       domain.encString2 = await encryptService.encrypt("string2", key);
 
-      const decrypted = await domain["decryptWithKey"](
+      const decrypted = await domain["decryptObjWithKey"](
         ["encToString", "encString2"],
         key,
         encryptService,
@@ -111,7 +111,7 @@ describe("DomainBase", () => {
       const domain = new TestDomain();
       domain.plainText = "clear";
 
-      const decrypted = await domain["decryptWithKey"]([], key, encryptService);
+      const decrypted = await domain["decryptObjWithKey"]([], key, encryptService);
 
       expect(decrypted).toEqual({
         plainText: "clear",
@@ -127,7 +127,7 @@ describe("DomainBase", () => {
       domain.encToString = makeEncString("string");
       domain.encString2 = makeEncString("string2");
 
-      const decrypted = await domain["decryptWithKey"]([], key, encryptService);
+      const decrypted = await domain["decryptObjWithKey"]([], key, encryptService);
 
       expect(decrypted).toEqual({
         plainText: "clear",

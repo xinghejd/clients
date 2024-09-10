@@ -1,10 +1,17 @@
-import { ConditionalKeys } from "type-fest";
+import { ConditionalExcept, ConditionalKeys, Constructor } from "type-fest";
 
 import { View } from "../../../models/view/view";
 import { EncryptService } from "../../abstractions/encrypt.service";
 
 import { EncString } from "./enc-string";
 import { SymmetricCryptoKey } from "./symmetric-crypto-key";
+
+// eslint-disable-next-line @typescript-eslint/ban-types
+type EncStringKeys<T> = ConditionalKeys<ConditionalExcept<T, Function>, EncString>;
+export type DecryptedObject<
+  TEncryptedObject,
+  TDecryptedKeys extends EncStringKeys<TEncryptedObject>,
+> = Record<TDecryptedKeys, string> & Omit<TEncryptedObject, TDecryptedKeys>;
 
 // https://contributing.bitwarden.com/architecture/clients/data-model#domain
 export default class Domain {
@@ -93,13 +100,19 @@ export default class Domain {
    * @param encryptedProperties The properties to decrypt. Type restricted to EncString properties of the domain object.
    * @param key The key to use for decryption.
    * @param encryptService The encryption service to use for decryption.
+   * @param _ The constructor of the domain object. Used for type inference if the domain object is not automatically inferred.
    * @returns An object with the requested properties decrypted and the rest of the domain object untouched.
    */
-  protected async decryptWithKey<const TEncryptedKeys extends ConditionalKeys<this, EncString>>(
+  protected async decryptObjWithKey<
+    TThis extends Domain,
+    const TEncryptedKeys extends EncStringKeys<TThis>,
+  >(
+    this: TThis,
     encryptedProperties: TEncryptedKeys[],
     key: SymmetricCryptoKey,
     encryptService: EncryptService,
-  ): Promise<Record<TEncryptedKeys, string> & Omit<this, TEncryptedKeys>> {
+    _: Constructor<TThis> = this.constructor as Constructor<TThis>,
+  ): Promise<DecryptedObject<TThis, TEncryptedKeys>> {
     const promises = [];
 
     for (const prop of encryptedProperties) {
@@ -114,10 +127,10 @@ export default class Domain {
       },
       { ...this },
     );
-    return decryptedObject as Record<TEncryptedKeys, string> & Omit<this, TEncryptedKeys>;
+    return decryptedObject as DecryptedObject<TThis, TEncryptedKeys>;
   }
 
-  private async decryptProperty<const TEncryptedKeys extends ConditionalKeys<this, EncString>>(
+  private async decryptProperty<const TEncryptedKeys extends EncStringKeys<this>>(
     propertyKey: TEncryptedKeys,
     value: EncString,
     key: SymmetricCryptoKey,
