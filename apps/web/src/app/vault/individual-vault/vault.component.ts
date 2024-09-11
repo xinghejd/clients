@@ -167,6 +167,10 @@ export class VaultComponent implements OnInit, OnDestroy {
   protected vaultBulkManagementActionEnabled$ = this.configService.getFeatureFlag$(
     FeatureFlag.VaultBulkManagementAction,
   );
+  /**
+   * Keeps track of whether the password re-prompt was cancelled.
+   */
+  private passwordRePromptCancelled = false;
   private searchText$ = new Subject<string>();
   private refresh$ = new BehaviorSubject<void>(null);
   private destroy$ = new Subject<void>();
@@ -634,10 +638,24 @@ export class VaultComponent implements OnInit, OnDestroy {
   }
 
   async editCipherId(id: string, skipMPReprompt: boolean = false) {
-    // if cipher exists (cipher is null when new) and MP re-prompt
-    // is on for this cipher, then show password re=prompt
-    if (!skipMPReprompt && !(await this.triggerPasswordReprompt(id as CipherId))) {
+    /**
+     * If the password re-prompt was cancelled, then don't open the add/edit modal.
+     */
+    if (this.passwordRePromptCancelled) {
+      this.passwordRePromptCancelled = false;
       return;
+    }
+
+    /**
+     * If the password re-prompt is on for this cipher, then show password re-prompt.
+     */
+    if (!skipMPReprompt) {
+      const rePromptResult = await this.triggerPasswordReprompt(id as CipherId);
+
+      if (!rePromptResult) {
+        this.passwordRePromptCancelled = true;
+        return;
+      }
     }
 
     const [modal, childComponent] = await this.modalService.openViewRef(
@@ -708,7 +726,7 @@ export class VaultComponent implements OnInit, OnDestroy {
     }
 
     if (result?.action === ViewCipherDialogResult.edited) {
-      // Edit cipher and trigger MP reprompt
+      // Edit cipher and trigger MP re-prompt
       await this.editCipher(cipherView, false);
       this.go({ cipherId: null, itemId: cipherView.id, action: "edit" });
     }
@@ -868,7 +886,7 @@ export class VaultComponent implements OnInit, OnDestroy {
       return;
     }
 
-    const component = await this.editCipher(cipher);
+    const component = await this.editCipher(cipher, false);
     component.cloneMode = true;
   }
 

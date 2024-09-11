@@ -182,11 +182,6 @@ export class VaultComponent implements OnInit, OnDestroy {
     return this._restrictProviderAccessFlagEnabled;
   }
 
-  private _extensionRefreshEnabled: boolean;
-  protected get extensionRefreshEnabled(): boolean {
-    return this._extensionRefreshEnabled;
-  }
-
   protected get hideVaultFilters(): boolean {
     return (
       this.restrictProviderAccessEnabled &&
@@ -199,6 +194,10 @@ export class VaultComponent implements OnInit, OnDestroy {
   private refresh$ = new BehaviorSubject<void>(null);
   private destroy$ = new Subject<void>();
   protected addAccessStatus$ = new BehaviorSubject<AddAccessStatusType>(0);
+  /**
+   * Keeps track of whether the password re-prompt was cancelled.
+   */
+  private passwordRePromptCancelled = false;
 
   constructor(
     private route: ActivatedRoute,
@@ -242,10 +241,6 @@ export class VaultComponent implements OnInit, OnDestroy {
 
     this._restrictProviderAccessFlagEnabled = await this.configService.getFeatureFlag(
       FeatureFlag.RestrictProviderAccess,
-    );
-
-    this._extensionRefreshEnabled = await this.configService.getFeatureFlag(
-      FeatureFlag.ExtensionRefresh,
     );
 
     const filter$ = this.routedVaultFilterService.filter$;
@@ -548,15 +543,9 @@ export class VaultComponent implements OnInit, OnDestroy {
             } else {
               /**
                * We need to trigger the password re-prompt here in case a user navigates directly to the cipher edit dialog via the URL.
-               * The password reprompt should not be triggered if the cipher was edited from the view dialog.
+               * The password re-prompt should not be triggered if the cipher was edited from the view dialog.
                */
-              if (this.extensionRefreshEnabled && !this.cipherEditedFromViewDialog) {
-                if (!(await this.triggerPasswordReprompt(cipherId as CipherId))) {
-                  return;
-                }
-              }
-
-              await this.editCipherId(cipherId);
+              await this.editCipherId(cipherId, () => {}, false);
             }
           } else {
             this.toastService.showToast({
@@ -835,16 +824,32 @@ export class VaultComponent implements OnInit, OnDestroy {
   async editCipher(
     cipher: CipherView,
     additionalComponentParameters?: (comp: AddEditComponent) => void,
+    skipMPReprompt: boolean = false,
   ) {
-    return this.editCipherId(cipher?.id, additionalComponentParameters);
+    return this.editCipherId(cipher?.id, additionalComponentParameters, skipMPReprompt);
   }
 
   async editCipherId(
     cipherId: string,
     additionalComponentParameters?: (comp: AddEditComponent) => void,
+    skipMPReprompt: boolean = false,
   ) {
-    if (!this.extensionRefreshEnabled) {
-      if (!(await this.triggerPasswordReprompt(cipherId as CipherId))) {
+    /**
+     * If the password re-prompt was cancelled, then don't open the add/edit modal.
+     */
+    if (this.passwordRePromptCancelled) {
+      this.passwordRePromptCancelled = false;
+      return;
+    }
+
+    /**
+     * If the password re-prompt is on for this cipher, then show password re-prompt.
+     */
+    if (!skipMPReprompt) {
+      const rePromptResult = await this.triggerPasswordReprompt(cipherId as CipherId);
+
+      if (!rePromptResult) {
+        this.passwordRePromptCancelled = true;
         return;
       }
     }
@@ -934,7 +939,7 @@ export class VaultComponent implements OnInit, OnDestroy {
 
     if (result?.action === ViewCipherDialogResult.edited) {
       this.cipherEditedFromViewDialog = true;
-      await this.editCipher(cipherView);
+      await this.editCipher(cipherView, () => {}, false);
       this.go({ cipherId: null, itemId: cipherView.id, action: "edit" });
     }
 
@@ -966,16 +971,20 @@ export class VaultComponent implements OnInit, OnDestroy {
     // Admins limited to only adding items to collections they have access to.
     collections = await firstValueFrom(this.editableCollections$);
 
-    await this.editCipher(cipher, (comp) => {
-      comp.cloneMode = true;
-      comp.collections = collections;
-      comp.collectionIds = cipher.collectionIds;
-    });
+    await this.editCipher(
+      cipher,
+      (comp) => {
+        comp.cloneMode = true;
+        comp.collections = collections;
+        comp.collectionIds = cipher.collectionIds;
+      },
+      false,
+    );
   }
 
   /**
-   * Triggers a password reprompt for a cipher.
-   * @param cipherId - The ID of the cipher to trigger the password reprompt for.
+   * Triggers a password re-prompt for a cipher.
+   * @param cipherId - The ID of the cipher to trigger the password re-prompt for.
    * @returns True if the password prompt was shown, false otherwise.
    */
   async triggerPasswordReprompt(cipherId: CipherId): Promise<boolean> {
