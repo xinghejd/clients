@@ -20,32 +20,27 @@
   <!-----------------------------
     Web UI State 1: Email Entry
   ------------------------------>
+  <!-- TODO-rr-bw: consider refactoring this *ngIf check to something like LoginState.EmailEntry and LoginState.MasterPasswordEntry -->
   <ng-container *ngIf="!validatedEmail">
     <!-- Email Address input -->
     <div class="tw-mb-3">
       <bit-form-field>
         <bit-label>{{ "emailAddress" | i18n }}</bit-label>
-        <input type="email" bitInput formControlName="email" appAutofocus />
+        <input type="email" formControlName="email" bitInput appAutofocus />
       </bit-form-field>
     </div>
 
     <!-- Remember Email input -->
     <div class="tw-mb-3 tw-flex tw-items-start">
       <bit-form-control class="tw-mb-0">
-        <input type="checkbox" bitCheckbox formControlName="rememberEmail" />
+        <input type="checkbox" formControlName="rememberEmail" bitCheckbox />
         <bit-label>{{ "rememberEmail" | i18n }}</bit-label>
       </bit-form-control>
     </div>
 
     <!-- Continue button -->
     <div class="tw-mb-3">
-      <button
-        bitButton
-        type="submit"
-        buttonType="primary"
-        class="tw-w-full"
-        (click)="validateEmail()"
-      >
+      <button type="submit" bitButton block buttonType="primary" (click)="validateEmail()">
         <span> {{ "continue" | i18n }} </span>
       </button>
     </div>
@@ -99,8 +94,8 @@
       <!-- Master Password input -->
       <bit-form-field class="!tw-mb-1">
         <bit-label>{{ "masterPass" | i18n }}</bit-label>
-        <input type="password" bitInput #masterPasswordInput formControlName="masterPassword" />
-        <button type="button" bitSuffix bitIconButton bitPasswordInputToggle></button>
+        <input type="password" formControlName="masterPassword" bitInput #masterPasswordInput />
+        <button type="button" bitIconButton bitSuffix bitPasswordInputToggle></button>
       </bit-form-field>
 
       <!-- Link to Password Hint page -->
@@ -120,31 +115,31 @@
 
     <!-- Button to Login with Master Password -->
     <div class="tw-mb-3 tw-flex tw-space-x-4">
-      <button bitButton buttonType="primary" bitFormButton type="submit" [block]="true">
+      <button type="submit" bitButton bitFormButton block buttonType="primary">
         <span> {{ "loginWithMasterPassword" | i18n }} </span>
       </button>
     </div>
 
     <div class="tw-mb-3" *ngIf="showLoginWithDevice && showPasswordless">
       <button
-        bitButton
         type="button"
-        [block]="true"
+        bitButton
+        block
         buttonType="secondary"
         (click)="startAuthRequestLogin()"
       >
-        <span> <i class="bwi bwi-mobile"></i> {{ "loginWithDevice" | i18n }} </span>
+        <span><i class="bwi bwi-mobile"></i> {{ "loginWithDevice" | i18n }}</span>
       </button>
     </div>
 
     <div class="tw-mb-3">
       <a
+        bitButton
+        block
+        buttonType="secondary"
         routerLink="/sso"
         [queryParams]="{ email: formGroup.value.email }"
         (click)="saveEmailSettings()"
-        bitButton
-        buttonType="secondary"
-        class="tw-w-full"
       >
         <i class="bwi bwi-provider tw-mr-2"></i>
         {{ "enterpriseSingleSignOn" | i18n }}
@@ -179,35 +174,33 @@
     <!-- Email Address input -->
     <bit-form-field>
       <bit-label>{{ "emailAddress" | i18n }}</bit-label>
-      <input type="email" bitInput formControlName="email" appAutofocus />
+      <input type="email" formControlName="email" bitInput appAutofocus />
     </bit-form-field>
 
     <!-- Remember Email input -->
     <bit-form-control>
-      <input type="checkbox" bitCheckbox formControlName="rememberEmail" />
+      <input type="checkbox" formControlName="rememberEmail" bitCheckbox />
       <bit-label>{{ "rememberEmail" | i18n }}</bit-label>
     </bit-form-control>
 
     <div class="tw-grid tw-gap-3">
       <!-- Continue button -->
-      <button bitButton type="submit" buttonType="primary" (click)="validateEmail()">
+      <button type="submit" bitButton buttonType="primary" (click)="validateEmail()">
         <span> {{ "continue" | i18n }} </span>
       </button>
 
       <div class="tw-text-center">{{ "or" | i18n }}</div>
 
       <!-- Link to Login with Passkey page -->
-      <button type="button" bitButton buttonType="secondary" block routerLink="/login-with-passkey">
+      <button type="button" bitButton block buttonType="secondary" routerLink="/login-with-passkey">
         <span><i class="bwi bwi-passkey"></i> {{ "logInWithPasskey" | i18n }}</span>
       </button>
 
       <!-- Link to SSO page -->
-      <button type="button" bitButton buttonType="secondary" block routerLink="/sso">
+      <button type="button" bitButton block buttonType="secondary" routerLink="/sso">
         <span><i class="bwi bwi-provider"></i> {{ "useSingleSignOn" | i18n }}</span>
       </button>
     </div>
-
-    <!-- TODO-rr-bw: add "New to Bitwarden? Create Account (might need to be AnonLayout secondary content)" -->
   </ng-container>
 
   <!-------------------------------------------

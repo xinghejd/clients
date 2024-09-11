@@ -211,7 +211,7 @@ export class LoginComponentV2 implements OnInit, OnDestroy {
 
       // ...on Browser/Desktop
     } else {
-      await this.syncService.fullSync(true); // TODO-rr-bw: browser used `await`, desktop used `return`. Why?
+      await this.syncService.fullSync(true); // TODO-rr-bw: browser used `await`, desktop used `return`. Why? Does it matter?
       this.loginEmailService.clearValues();
 
       if (this.clientType === ClientType.Browser) {
