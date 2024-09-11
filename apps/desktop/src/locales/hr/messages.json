@@ -239,7 +239,7 @@
     "message": "gđica."
   },
   "mx": {
-    "message": "Mx"
+    "message": "gx."
   },
   "dr": {
     "message": "dr."
@@ -602,6 +602,12 @@
   },
   "newAccountCreated": {
     "message": "Tvoj novi račun je stvoren! Sada se možeš prijaviti."
+  },
+  "newAccountCreated2": {
+    "message": "Tvoj novi račun je stvoren!"
+  },
+  "youHaveBeenLoggedIn": {
+    "message": "Prijava uspješna!"
   },
   "masterPassSent": {
     "message": "Poslali smo e-poštu s podsjetnikom glavne lozinke."
@@ -1174,6 +1180,9 @@
   "premiumPurchaseAlert": {
     "message": "Možeš kupiti premium članstvo na web trezoru. Želiš li sada posjetiti bitwarden.com?"
   },
+  "premiumPurchaseAlertV2": {
+    "message": "Premium možeš kupiti u postavkama računa na Bitwarden web aplikaciji."
+  },
   "premiumCurrentMember": {
     "message": "Ti si premium član!"
   },
@@ -1510,8 +1519,14 @@
   "additionalWindowsHelloSettings": {
     "message": "Dodatne Windows Hello postavke"
   },
+  "unlockWithPolkit": {
+    "message": "Otključaj autentifikacijom sustava"
+  },
   "windowsHelloConsentMessage": {
     "message": "Otključaj trezor."
+  },
+  "polkitConsentMessage": {
+    "message": "Otključaj Bitwarden autentifikacijom."
   },
   "unlockWithTouchId": {
     "message": "Otključaj koristeći Touch ID"
@@ -1524,6 +1539,9 @@
   },
   "autoPromptWindowsHello": {
     "message": "Zahtijevaj Windows Hello pri pokretanju"
+  },
+  "autoPromptPolkit": {
+    "message": "Traži autentifikaciju sustava pri pokretanju"
   },
   "autoPromptTouchId": {
     "message": "Zahtijevaj Touch ID pri pokretanju"
@@ -1804,6 +1822,12 @@
   "biometricsNotEnabledDesc": {
     "message": "Biometrija preglednika zahtijeva prethodno omogućenu biometriju u Bitwarden desktop aplikaciji."
   },
+  "biometricsManualSetupTitle": {
+    "message": "Automatsko postavljanje nije dostupno"
+  },
+  "biometricsManualSetupDesc": {
+    "message": "Zbog načina instalacije, biometrijska podrška nije mogla biti automatski omogućena. Želiš li otvoriti dokumentaciju o tome kako to učiniti ručno?"
+  },
   "personalOwnershipSubmitError": {
     "message": "Pravila tvrtke onemogućuju spremanje stavki u osobni trezor. Promijeni vlasništvo stavke na tvrtku i odaberi dostupnu Zbirku."
   },
@@ -2014,6 +2038,9 @@
   },
   "updateWeakMasterPasswordWarning": {
     "message": "Tvoja glavna lozinka ne zadovoljava pravila ove organizacije. Za pristup trezoru moraš odmah ažurirati svoju glavnu lozinku. Ako nastaviš, odjaviti ćeš se iz trenutne sesije te ćeš se morati ponovno prijaviti. Aktivne sesije na drugim uređajima mogu ostati aktivne do jedan sat."
+  },
+  "tdeDisabledMasterPasswordRequired": {
+    "message": "Tvoja je organizacija onemogućila šifriranje pouzdanog uređaja. Postavi glavnu lozinku za pristup svom trezoru."
   },
   "tryAgain": {
     "message": "Pokušaj ponovno"
@@ -3025,5 +3052,14 @@
   },
   "data": {
     "message": "Podaci"
+  },
+  "fileSends": {
+    "message": "Send datoteke"
+  },
+  "textSends": {
+    "message": "Send tekstovi"
+  },
+  "ssoError": {
+    "message": "Nisu nađeni slobodni portovi za SSO prijavu."
   }
 }

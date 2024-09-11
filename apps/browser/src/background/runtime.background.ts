@@ -1,4 +1,4 @@
-import { firstValueFrom, map, mergeMap } from "rxjs";
+import { firstValueFrom, map, mergeMap, of, switchMap } from "rxjs";
 
 import { NotificationsService } from "@bitwarden/common/abstractions/notifications.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -68,6 +68,7 @@ export default class RuntimeBackground {
     ) => {
       const messagesWithResponse = [
         "biometricUnlock",
+        "biometricUnlockAvailable",
         "getUseTreeWalkerApiForPageDetailsCollectionFeatureFlag",
         "getInlineMenuFieldQualificationFeatureFlag",
       ];
@@ -179,7 +180,11 @@ export default class RuntimeBackground {
         }
         break;
       case "biometricUnlock": {
-        const result = await this.main.biometricUnlock();
+        const result = await this.main.biometricsService.authenticateBiometric();
+        return result;
+      }
+      case "biometricUnlockAvailable": {
+        const result = await this.main.biometricsService.isBiometricUnlockAvailable();
         return result;
       }
       case "getUseTreeWalkerApiForPageDetailsCollectionFeatureFlag": {
@@ -229,6 +234,9 @@ export default class RuntimeBackground {
         await this.main.refreshBadge();
         await this.main.refreshMenu(false);
 
+        if (await this.configService.getFeatureFlag(FeatureFlag.ExtensionRefresh)) {
+          await this.autofillService.setAutoFillOnPageLoadOrgPolicy();
+        }
         break;
       }
       case "addToLockedVaultPendingNotifications":
@@ -248,6 +256,10 @@ export default class RuntimeBackground {
           }, 2000);
           await this.configService.ensureConfigFetched();
           await this.main.updateOverlayCiphers();
+
+          if (await this.configService.getFeatureFlag(FeatureFlag.ExtensionRefresh)) {
+            await this.autofillService.setAutoFillOnPageLoadOrgPolicy();
+          }
         }
         break;
       case "openPopup":
@@ -260,9 +272,25 @@ export default class RuntimeBackground {
         await this.main.refreshBadge();
         await this.main.refreshMenu();
         break;
-      case "bgReseedStorage":
-        await this.main.reseedStorage();
+      case "bgReseedStorage": {
+        const doFillBuffer = await firstValueFrom(
+          this.accountService.activeAccount$.pipe(
+            switchMap((account) => {
+              if (account == null) {
+                return of(false);
+              }
+
+              return this.configService.userCachedFeatureFlag$(
+                FeatureFlag.StorageReseedRefactor,
+                account.id,
+              );
+            }),
+          ),
+        );
+
+        await this.main.reseedStorage(doFillBuffer);
         break;
+      }
       case "authResult": {
         const env = await firstValueFrom(this.environmentService.environment$);
         const vaultUrl = env.getWebVaultUrl();

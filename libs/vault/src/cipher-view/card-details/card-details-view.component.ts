@@ -13,7 +13,7 @@ import {
   IconButtonModule,
 } from "@bitwarden/components";
 
-import { OrgIconDirective } from "../../components/org-icon.directive";
+import { ReadOnlyCipherCardComponent } from "../read-only-cipher-card/read-only-cipher-card.component";
 
 @Component({
   selector: "app-card-details-view",
@@ -26,9 +26,9 @@ import { OrgIconDirective } from "../../components/org-icon.directive";
     SectionComponent,
     SectionHeaderComponent,
     TypographyModule,
-    OrgIconDirective,
     FormFieldModule,
     IconButtonModule,
+    ReadOnlyCipherCardComponent,
   ],
 })
 export class CardDetailsComponent {

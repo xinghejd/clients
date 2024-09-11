@@ -11,18 +11,17 @@ import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folde
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { CollectionView } from "@bitwarden/common/vault/models/view/collection.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
-import { SearchModule } from "@bitwarden/components";
-
-import { PopupFooterComponent } from "../../../../apps/browser/src/platform/popup/layout/popup-footer.component";
-import { PopupHeaderComponent } from "../../../../apps/browser/src/platform/popup/layout/popup-header.component";
-import { PopupPageComponent } from "../../../../apps/browser/src/platform/popup/layout/popup-page.component";
+import { isCardExpired } from "@bitwarden/common/vault/utils";
+import { SearchModule, CalloutModule } from "@bitwarden/components";
 
 import { AdditionalOptionsComponent } from "./additional-options/additional-options.component";
 import { AttachmentsV2ViewComponent } from "./attachments/attachments-v2-view.component";
+import { AutofillOptionsViewComponent } from "./autofill-options/autofill-options-view.component";
 import { CardDetailsComponent } from "./card-details/card-details-view.component";
 import { CustomFieldV2Component } from "./custom-fields/custom-fields-v2.component";
 import { ItemDetailsV2Component } from "./item-details/item-details-v2.component";
 import { ItemHistoryV2Component } from "./item-history/item-history-v2.component";
+import { LoginCredentialsViewComponent } from "./login-credentials/login-credentials-view.component";
 import { ViewIdentitySectionsComponent } from "./view-identity-sections/view-identity-sections.component";
 
 @Component({
@@ -30,12 +29,10 @@ import { ViewIdentitySectionsComponent } from "./view-identity-sections/view-ide
   templateUrl: "cipher-view.component.html",
   standalone: true,
   imports: [
+    CalloutModule,
     CommonModule,
     SearchModule,
     JslibModule,
-    PopupPageComponent,
-    PopupHeaderComponent,
-    PopupFooterComponent,
     ItemDetailsV2Component,
     AdditionalOptionsComponent,
     AttachmentsV2ViewComponent,
@@ -43,6 +40,8 @@ import { ViewIdentitySectionsComponent } from "./view-identity-sections/view-ide
     CustomFieldV2Component,
     CardDetailsComponent,
     ViewIdentitySectionsComponent,
+    LoginCredentialsViewComponent,
+    AutofillOptionsViewComponent,
   ],
 })
 export class CipherViewComponent implements OnInit, OnDestroy {
@@ -51,6 +50,7 @@ export class CipherViewComponent implements OnInit, OnDestroy {
   folder$: Observable<FolderView>;
   collections$: Observable<CollectionView[]>;
   private destroyed$: Subject<void> = new Subject();
+  cardIsExpired: boolean = false;
 
   constructor(
     private organizationService: OrganizationService,
@@ -60,15 +60,27 @@ export class CipherViewComponent implements OnInit, OnDestroy {
 
   async ngOnInit() {
     await this.loadCipherData();
+
+    this.cardIsExpired = isCardExpired(this.cipher.card);
   }
+
   ngOnDestroy(): void {
     this.destroyed$.next();
     this.destroyed$.complete();
   }
 
   get hasCard() {
-    const { cardholderName, code, expMonth, expYear, brand, number } = this.cipher.card;
-    return cardholderName || code || expMonth || expYear || brand || number;
+    const { cardholderName, code, expMonth, expYear, number } = this.cipher.card;
+    return cardholderName || code || expMonth || expYear || number;
+  }
+
+  get hasLogin() {
+    const { username, password, totp } = this.cipher.login;
+    return username || password || totp;
+  }
+
+  get hasAutofill() {
+    return this.cipher.login?.uris.length > 0;
   }
 
   async loadCipherData() {
