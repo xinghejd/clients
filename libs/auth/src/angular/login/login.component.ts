@@ -97,7 +97,7 @@ export class LoginComponentV2 implements OnInit, OnDestroy {
 
   // Desktop properties
   deferFocus: boolean = null; // TODO-rr-bw: why initialize to null instead of false
-  showPassword = false; // TODO-rr-bw: is this still needed?
+  showPassword = false; // TODO-rr-bw: is this still needed? It seems we no longer need this now that we have bitPasswordInputToggle
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -153,6 +153,12 @@ export class LoginComponentV2 implements OnInit, OnDestroy {
   }
 
   submit = async (): Promise<void> => {
+    if (this.clientType === ClientType.Desktop) {
+      if (!this.validatedEmail) {
+        return;
+      }
+    }
+
     const { email, masterPassword } = this.formGroup.value;
 
     await this.setupCaptcha();
@@ -188,6 +194,13 @@ export class LoginComponentV2 implements OnInit, OnDestroy {
 
     await this.saveEmailSettings();
     await this.handleAuthResult(authResult);
+
+    if (this.clientType === ClientType.Desktop) {
+      if (this.captchaSiteKey) {
+        const content = document.getElementById("content") as HTMLDivElement;
+        content.setAttribute("style", "width:335px");
+      }
+    }
   };
 
   /**
