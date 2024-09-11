@@ -1,3 +1,6 @@
+import { firstValueFrom, map } from "rxjs";
+
+import { AccountService } from "../../../auth/abstractions/account.service";
 import { CipherService } from "../../../vault/abstractions/cipher.service";
 import { SyncService } from "../../../vault/abstractions/sync/sync.service.abstraction";
 import { CipherRepromptType } from "../../../vault/enums/cipher-reprompt-type";
@@ -42,6 +45,7 @@ export class Fido2AuthenticatorService implements Fido2AuthenticatorServiceAbstr
     private cipherService: CipherService,
     private userInterface: Fido2UserInterfaceService,
     private syncService: SyncService,
+    private accountService: AccountService,
     private logService?: LogService,
   ) {}
 
@@ -111,7 +115,8 @@ export class Fido2AuthenticatorService implements Fido2AuthenticatorServiceAbstr
       let pubKeyDer: ArrayBuffer;
       const response = await userInterfaceSession.confirmNewCredential({
         credentialName: params.rpEntity.name,
-        userName: params.userEntity.displayName,
+        userName: params.userEntity.name,
+        userHandle: Fido2Utils.bufferToString(params.userEntity.id),
         userVerification: params.requireUserVerification,
         rpId: params.rpEntity.id,
       });
@@ -129,8 +134,12 @@ export class Fido2AuthenticatorService implements Fido2AuthenticatorServiceAbstr
         keyPair = await createKeyPair();
         pubKeyDer = await crypto.subtle.exportKey("spki", keyPair.publicKey);
         const encrypted = await this.cipherService.get(cipherId);
+        const activeUserId = await firstValueFrom(
+          this.accountService.activeAccount$.pipe(map((a) => a?.id)),
+        );
+
         cipher = await encrypted.decrypt(
-          await this.cipherService.getKeyForCipherKeyDecryption(encrypted),
+          await this.cipherService.getKeyForCipherKeyDecryption(encrypted, activeUserId),
         );
 
         if (
@@ -145,8 +154,13 @@ export class Fido2AuthenticatorService implements Fido2AuthenticatorServiceAbstr
 
         fido2Credential = await createKeyView(params, keyPair.privateKey);
         cipher.login.fido2Credentials = [fido2Credential];
-        const reencrypted = await this.cipherService.encrypt(cipher);
+        // update username if username is missing
+        if (Utils.isNullOrEmpty(cipher.login.username)) {
+          cipher.login.username = fido2Credential.userName;
+        }
+        const reencrypted = await this.cipherService.encrypt(cipher, activeUserId);
         await this.cipherService.updateWithServer(reencrypted);
+        await this.cipherService.clearCache(activeUserId);
         credentialId = fido2Credential.credentialId;
       } catch (error) {
         this.logService?.error(
@@ -229,10 +243,22 @@ export class Fido2AuthenticatorService implements Fido2AuthenticatorServiceAbstr
         throw new Fido2AuthenticatorError(Fido2AuthenticatorErrorCode.NotAllowed);
       }
 
-      const response = await userInterfaceSession.pickCredential({
-        cipherIds: cipherOptions.map((cipher) => cipher.id),
-        userVerification: params.requireUserVerification,
-      });
+      let response = { cipherId: cipherOptions[0].id, userVerified: false };
+      const masterPasswordRepromptRequired = cipherOptions.some(
+        (cipher) => cipher.reprompt !== CipherRepromptType.None,
+      );
+
+      if (
+        this.requiresUserVerificationPrompt(params, cipherOptions, masterPasswordRepromptRequired)
+      ) {
+        response = await userInterfaceSession.pickCredential({
+          cipherIds: cipherOptions.map((cipher) => cipher.id),
+          userVerification: params.requireUserVerification,
+          assumeUserPresence: params.assumeUserPresence,
+          masterPasswordRepromptRequired,
+        });
+      }
+
       const selectedCipherId = response.cipherId;
       const userVerified = response.userVerified;
       const selectedCipher = cipherOptions.find((c) => c.id === selectedCipherId);
@@ -268,8 +294,12 @@ export class Fido2AuthenticatorService implements Fido2AuthenticatorServiceAbstr
         };
 
         if (selectedFido2Credential.counter > 0) {
-          const encrypted = await this.cipherService.encrypt(selectedCipher);
+          const activeUserId = await firstValueFrom(
+            this.accountService.activeAccount$.pipe(map((a) => a?.id)),
+          );
+          const encrypted = await this.cipherService.encrypt(selectedCipher, activeUserId);
           await this.cipherService.updateWithServer(encrypted);
+          await this.cipherService.clearCache(activeUserId);
         }
 
         const authenticatorData = await generateAuthData({
@@ -303,6 +333,25 @@ export class Fido2AuthenticatorService implements Fido2AuthenticatorServiceAbstr
     } finally {
       userInterfaceSession.close();
     }
+  }
+
+  private requiresUserVerificationPrompt(
+    params: Fido2AuthenticatorGetAssertionParams,
+    cipherOptions: CipherView[],
+    masterPasswordRepromptRequired: boolean,
+  ): boolean {
+    return (
+      params.requireUserVerification ||
+      !params.assumeUserPresence ||
+      cipherOptions.length > 1 ||
+      cipherOptions.length === 0 ||
+      masterPasswordRepromptRequired
+    );
+  }
+
+  async silentCredentialDiscovery(rpId: string): Promise<Fido2CredentialView[]> {
+    const credentials = await this.findCredentialsByRp(rpId);
+    return credentials.map((c) => c.login.fido2Credentials[0]);
   }
 
   /** Finds existing crendetials and returns the `cipherId` for each one */

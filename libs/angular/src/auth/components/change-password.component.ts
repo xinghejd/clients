@@ -14,9 +14,9 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
-import { PasswordGenerationServiceAbstraction } from "@bitwarden/common/tools/generator/password";
 import { UserKey, MasterKey } from "@bitwarden/common/types/key";
-import { DialogService } from "@bitwarden/components";
+import { DialogService, ToastService } from "@bitwarden/components";
+import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legacy";
 
 import { PasswordColorText } from "../../tools/password-strength/password-strength.component";
 
@@ -49,6 +49,7 @@ export class ChangePasswordComponent implements OnInit, OnDestroy {
     protected kdfConfigService: KdfConfigService,
     protected masterPasswordService: InternalMasterPasswordServiceAbstraction,
     protected accountService: AccountService,
+    protected toastService: ToastService,
   ) {}
 
   async ngOnInit() {
@@ -62,6 +63,10 @@ export class ChangePasswordComponent implements OnInit, OnDestroy {
         (enforcedPasswordPolicyOptions) =>
           (this.enforcedPolicyOptions ??= enforcedPasswordPolicyOptions),
       );
+
+    if (this.enforcedPolicyOptions?.minLength) {
+      this.minimumLength = this.enforcedPolicyOptions.minLength;
+    }
   }
 
   ngOnDestroy(): void {
@@ -123,27 +128,27 @@ export class ChangePasswordComponent implements OnInit, OnDestroy {
 
   async strongPassword(): Promise<boolean> {
     if (this.masterPassword == null || this.masterPassword === "") {
-      this.platformUtilsService.showToast(
-        "error",
-        this.i18nService.t("errorOccurred"),
-        this.i18nService.t("masterPasswordRequired"),
-      );
+      this.toastService.showToast({
+        variant: "error",
+        title: this.i18nService.t("errorOccurred"),
+        message: this.i18nService.t("masterPasswordRequired"),
+      });
       return false;
     }
     if (this.masterPassword.length < this.minimumLength) {
-      this.platformUtilsService.showToast(
-        "error",
-        this.i18nService.t("errorOccurred"),
-        this.i18nService.t("masterPasswordMinimumlength", this.minimumLength),
-      );
+      this.toastService.showToast({
+        variant: "error",
+        title: this.i18nService.t("errorOccurred"),
+        message: this.i18nService.t("masterPasswordMinimumlength", this.minimumLength),
+      });
       return false;
     }
     if (this.masterPassword !== this.masterPasswordRetype) {
-      this.platformUtilsService.showToast(
-        "error",
-        this.i18nService.t("errorOccurred"),
-        this.i18nService.t("masterPassDoesntMatch"),
-      );
+      this.toastService.showToast({
+        variant: "error",
+        title: this.i18nService.t("errorOccurred"),
+        message: this.i18nService.t("masterPassDoesntMatch"),
+      });
       return false;
     }
 
@@ -157,11 +162,11 @@ export class ChangePasswordComponent implements OnInit, OnDestroy {
         this.enforcedPolicyOptions,
       )
     ) {
-      this.platformUtilsService.showToast(
-        "error",
-        this.i18nService.t("errorOccurred"),
-        this.i18nService.t("masterPasswordPolicyRequirementsNotMet"),
-      );
+      this.toastService.showToast({
+        variant: "error",
+        title: this.i18nService.t("errorOccurred"),
+        message: this.i18nService.t("masterPasswordPolicyRequirementsNotMet"),
+      });
       return false;
     }
 

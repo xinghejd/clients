@@ -19,12 +19,13 @@
       </div>
       <input
         #fileSelector
-        hidden
         bitInput
         type="file"
         formControlName="file"
         (change)="setSelectedFile($event)"
         accept="application/JSON"
+        hidden
+        class="tw-hidden"
       />
       <bit-hint>{{ "licenseFileDesc" | i18n: "bitwarden_organization_license.json" }}</bit-hint>
     </bit-form-field>
@@ -427,9 +428,12 @@
       {{ paymentDesc }}
     </p>
     <app-payment
-      *ngIf="createOrganization || upgradeRequiresPaymentMethod"
+      *ngIf="!deprecateStripeSourcesAPI && (createOrganization || upgradeRequiresPaymentMethod)"
       [hideCredit]="true"
     ></app-payment>
+    <app-payment-v2
+      *ngIf="deprecateStripeSourcesAPI && (createOrganization || upgradeRequiresPaymentMethod)"
+    ></app-payment-v2>
     <app-tax-info (onCountryChanged)="changedCountry()"></app-tax-info>
     <div id="price" class="tw-my-4">
       <div class="tw-text-muted tw-text-base">

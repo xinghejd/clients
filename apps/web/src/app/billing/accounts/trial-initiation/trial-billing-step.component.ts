@@ -14,6 +14,7 @@ import { PlanResponse } from "@bitwarden/common/billing/models/response/plan.res
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { ToastService } from "@bitwarden/components";
 
 import { BillingSharedModule, PaymentComponent, TaxInfoComponent } from "../../shared";
 
@@ -75,6 +76,7 @@ export class TrialBillingStepComponent implements OnInit {
     private messagingService: MessagingService,
     private organizationBillingService: OrganizationBillingService,
     private platformUtilsService: PlatformUtilsService,
+    private toastService: ToastService,
   ) {}
 
   async ngOnInit(): Promise<void> {
@@ -86,16 +88,21 @@ export class TrialBillingStepComponent implements OnInit {
   }
 
   async submit(): Promise<void> {
+    if (!this.taxInfoComponent.taxFormGroup.valid && this.taxInfoComponent?.taxFormGroup.touched) {
+      this.taxInfoComponent.taxFormGroup.markAllAsTouched();
+      return;
+    }
+
     this.formPromise = this.createOrganization();
 
     const organizationId = await this.formPromise;
     const planDescription = this.getPlanDescription();
 
-    this.platformUtilsService.showToast(
-      "success",
-      this.i18nService.t("organizationCreated"),
-      this.i18nService.t("organizationReadyToGo"),
-    );
+    this.toastService.showToast({
+      variant: "success",
+      title: this.i18nService.t("organizationCreated"),
+      message: this.i18nService.t("organizationReadyToGo"),
+    });
 
     this.organizationCreated.emit({
       organizationId,
@@ -107,7 +114,7 @@ export class TrialBillingStepComponent implements OnInit {
   }
 
   protected changedCountry() {
-    this.paymentComponent.hideBank = this.taxInfoComponent.taxInfo.country !== "US";
+    this.paymentComponent.hideBank = this.taxInfoComponent.taxFormGroup.value.country !== "US";
     if (
       this.paymentComponent.hideBank &&
       this.paymentComponent.method === PaymentMethodType.BankAccount
@@ -201,13 +208,13 @@ export class TrialBillingStepComponent implements OnInit {
 
   private getBillingInformationFromTaxInfoComponent(): BillingInformation {
     return {
-      postalCode: this.taxInfoComponent.taxInfo.postalCode,
-      country: this.taxInfoComponent.taxInfo.country,
-      taxId: this.taxInfoComponent.taxInfo.taxId,
-      addressLine1: this.taxInfoComponent.taxInfo.line1,
-      addressLine2: this.taxInfoComponent.taxInfo.line2,
-      city: this.taxInfoComponent.taxInfo.city,
-      state: this.taxInfoComponent.taxInfo.state,
+      postalCode: this.taxInfoComponent.taxFormGroup?.value.postalCode,
+      country: this.taxInfoComponent.taxFormGroup?.value.country,
+      taxId: this.taxInfoComponent.taxFormGroup?.value.taxId,
+      addressLine1: this.taxInfoComponent.taxFormGroup?.value.line1,
+      addressLine2: this.taxInfoComponent.taxFormGroup?.value.line2,
+      city: this.taxInfoComponent.taxFormGroup?.value.city,
+      state: this.taxInfoComponent.taxFormGroup?.value.state,
     };
   }
 

@@ -1,6 +1,7 @@
-import { Component } from "@angular/core";
+import { Component, OnInit } from "@angular/core";
 import { FormControl, FormGroup, Validators } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
+import { firstValueFrom } from "rxjs";
 import { first } from "rxjs/operators";
 
 import { SsoComponent as BaseSsoComponent } from "@bitwarden/angular/auth/components/sso.component";
@@ -24,14 +25,15 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
-import { PasswordGenerationServiceAbstraction } from "@bitwarden/common/tools/generator/password";
+import { ToastService } from "@bitwarden/components";
+import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legacy";
 
 @Component({
   selector: "app-sso",
   templateUrl: "sso.component.html",
 })
 // eslint-disable-next-line rxjs-angular/prefer-takeuntil
-export class SsoComponent extends BaseSsoComponent {
+export class SsoComponent extends BaseSsoComponent implements OnInit {
   protected formGroup = new FormGroup({
     identifier: new FormControl(null, [Validators.required]),
   });
@@ -59,6 +61,7 @@ export class SsoComponent extends BaseSsoComponent {
     configService: ConfigService,
     masterPasswordService: InternalMasterPasswordServiceAbstraction,
     accountService: AccountService,
+    toastService: ToastService,
   ) {
     super(
       ssoLoginService,
@@ -77,6 +80,7 @@ export class SsoComponent extends BaseSsoComponent {
       configService,
       masterPasswordService,
       accountService,
+      toastService,
     );
     this.redirectUri = window.location.origin + "/sso-connector.html";
     this.clientId = "web";
@@ -92,6 +96,8 @@ export class SsoComponent extends BaseSsoComponent {
       if (qParams.identifier != null) {
         // SSO Org Identifier in query params takes precedence over claimed domains
         this.identifierFormControl.setValue(qParams.identifier);
+        this.loggingIn = true;
+        await this.submit();
       } else {
         // Note: this flow is written for web but both browser and desktop
         // redirect here on SSO button click.
@@ -145,11 +151,21 @@ export class SsoComponent extends BaseSsoComponent {
       return;
     }
 
+    const autoSubmit = (await firstValueFrom(this.route.queryParams)).identifier != null;
+
     this.identifier = this.identifierFormControl.value;
     await this.ssoLoginService.setOrganizationSsoIdentifier(this.identifier);
     if (this.clientId === "browser") {
       document.cookie = `ssoHandOffMessage=${this.i18nService.t("ssoHandOff")};SameSite=strict`;
     }
-    await Object.getPrototypeOf(this).submit.call(this);
+    try {
+      await Object.getPrototypeOf(this).submit.call(this);
+    } catch (error) {
+      if (autoSubmit) {
+        await this.router.navigate(["/login"]);
+      } else {
+        this.validationService.showError(error);
+      }
+    }
   };
 }

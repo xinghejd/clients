@@ -1,4 +1,4 @@
-import { Component, OnInit } from "@angular/core";
+import { Component, OnDestroy, OnInit } from "@angular/core";
 import { FormBuilder, FormControl, ValidatorFn, Validators } from "@angular/forms";
 import { Subject, takeUntil } from "rxjs";
 
@@ -18,7 +18,7 @@ import { ChangeKdfConfirmationComponent } from "./change-kdf-confirmation.compon
   selector: "app-change-kdf",
   templateUrl: "change-kdf.component.html",
 })
-export class ChangeKdfComponent implements OnInit {
+export class ChangeKdfComponent implements OnInit, OnDestroy {
   kdfConfig: KdfConfig = DEFAULT_KDF_CONFIG;
   kdfOptions: any[] = [];
   private destroy$ = new Subject<void>();
@@ -26,30 +26,9 @@ export class ChangeKdfComponent implements OnInit {
   protected formGroup = this.formBuilder.group({
     kdf: new FormControl(KdfType.PBKDF2_SHA256, [Validators.required]),
     kdfConfig: this.formBuilder.group({
-      iterations: [
-        this.kdfConfig.iterations,
-        [
-          Validators.required,
-          Validators.min(PBKDF2KdfConfig.ITERATIONS.min),
-          Validators.max(PBKDF2KdfConfig.ITERATIONS.max),
-        ],
-      ],
-      memory: [
-        null as number,
-        [
-          Validators.required,
-          Validators.min(Argon2KdfConfig.MEMORY.min),
-          Validators.max(Argon2KdfConfig.MEMORY.max),
-        ],
-      ],
-      parallelism: [
-        null as number,
-        [
-          Validators.required,
-          Validators.min(Argon2KdfConfig.PARALLELISM.min),
-          Validators.max(Argon2KdfConfig.PARALLELISM.max),
-        ],
-      ],
+      iterations: [this.kdfConfig.iterations],
+      memory: [null as number],
+      parallelism: [null as number],
     }),
   });
 
@@ -72,7 +51,7 @@ export class ChangeKdfComponent implements OnInit {
 
   async ngOnInit() {
     this.kdfConfig = await this.kdfConfigService.getKdfConfig();
-    this.formGroup.get("kdf").setValue(this.kdfConfig.kdfType, { emitEvent: false });
+    this.formGroup.get("kdf").setValue(this.kdfConfig.kdfType);
     this.setFormControlValues(this.kdfConfig);
 
     this.formGroup

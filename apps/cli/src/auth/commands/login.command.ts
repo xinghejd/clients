@@ -35,9 +35,9 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
-import { PasswordGenerationServiceAbstraction } from "@bitwarden/common/tools/generator/password";
 import { PasswordStrengthServiceAbstraction } from "@bitwarden/common/tools/password-strength";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
+import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legacy";
 import { NodeUtils } from "@bitwarden/node/node-utils";
 
 import { Response } from "../../models/response";
@@ -342,7 +342,7 @@ export class LoginCommand {
         }
       }
 
-      return await this.handleSuccessResponse();
+      return await this.handleSuccessResponse(response);
     } catch (e) {
       return Response.error(e);
     }
@@ -353,8 +353,8 @@ export class LoginCommand {
     process.env.BW_SESSION = Utils.fromBufferToB64(key);
   }
 
-  private async handleSuccessResponse(): Promise<Response> {
-    const usesKeyConnector = await this.keyConnectorService.getUsesKeyConnector();
+  private async handleSuccessResponse(response: AuthResult): Promise<Response> {
+    const usesKeyConnector = await this.keyConnectorService.getUsesKeyConnector(response.userId);
 
     if (
       (this.options.sso != null || this.options.apikey != null) &&

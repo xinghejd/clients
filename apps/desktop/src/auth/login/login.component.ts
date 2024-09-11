@@ -1,4 +1,4 @@
-import { Component, NgZone, OnDestroy, ViewChild, ViewContainerRef } from "@angular/core";
+import { Component, NgZone, OnDestroy, OnInit, ViewChild, ViewContainerRef } from "@angular/core";
 import { FormBuilder } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
 import { Subject, takeUntil } from "rxjs";
@@ -9,13 +9,13 @@ import { ModalService } from "@bitwarden/angular/services/modal.service";
 import {
   LoginStrategyServiceAbstraction,
   LoginEmailServiceAbstraction,
+  RegisterRouteService,
 } from "@bitwarden/auth/common";
 import { DevicesApiServiceAbstraction } from "@bitwarden/common/auth/abstractions/devices-api.service.abstraction";
 import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
 import { WebAuthnLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/webauthn/webauthn-login.service.abstraction";
 import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
 import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { CryptoFunctionService } from "@bitwarden/common/platform/abstractions/crypto-function.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -23,8 +23,10 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
-import { PasswordGenerationServiceAbstraction } from "@bitwarden/common/tools/generator/password";
+import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
+import { ToastService } from "@bitwarden/components";
+import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legacy";
 
 import { EnvironmentComponent } from "../environment.component";
 
@@ -34,7 +36,7 @@ const BroadcasterSubscriptionId = "LoginComponent";
   selector: "app-login",
   templateUrl: "login.component.html",
 })
-export class LoginComponent extends BaseLoginComponent implements OnDestroy {
+export class LoginComponent extends BaseLoginComponent implements OnInit, OnDestroy {
   @ViewChild("environment", { read: ViewContainerRef, static: true })
   environmentModal: ViewContainerRef;
 
@@ -72,7 +74,8 @@ export class LoginComponent extends BaseLoginComponent implements OnDestroy {
     loginEmailService: LoginEmailServiceAbstraction,
     ssoLoginService: SsoLoginServiceAbstraction,
     webAuthnLoginService: WebAuthnLoginServiceAbstraction,
-    configService: ConfigService,
+    registerRouteService: RegisterRouteService,
+    toastService: ToastService,
   ) {
     super(
       devicesApiService,
@@ -93,7 +96,8 @@ export class LoginComponent extends BaseLoginComponent implements OnDestroy {
       loginEmailService,
       ssoLoginService,
       webAuthnLoginService,
-      configService,
+      registerRouteService,
+      toastService,
     );
     super.onSuccessfulLogin = () => {
       return syncService.fullSync(true);
@@ -161,11 +165,11 @@ export class LoginComponent extends BaseLoginComponent implements OnDestroy {
   async continue() {
     await super.validateEmail();
     if (!this.formGroup.controls.email.valid) {
-      this.platformUtilsService.showToast(
-        "error",
-        this.i18nService.t("errorOccured"),
-        this.i18nService.t("invalidEmail"),
-      );
+      this.toastService.showToast({
+        variant: "error",
+        title: this.i18nService.t("errorOccured"),
+        message: this.i18nService.t("invalidEmail"),
+      });
       return;
     }
     this.focusInput();
@@ -186,5 +190,41 @@ export class LoginComponent extends BaseLoginComponent implements OnDestroy {
   private focusInput() {
     const email = this.loggedEmail;
     document.getElementById(email == null || email === "" ? "email" : "masterPassword")?.focus();
+  }
+
+  async launchSsoBrowser(clientId: string, ssoRedirectUri: string) {
+    if (!ipc.platform.isAppImage && !ipc.platform.isSnapStore && !ipc.platform.isDev) {
+      return super.launchSsoBrowser(clientId, ssoRedirectUri);
+    }
+
+    // Save off email for SSO
+    await this.ssoLoginService.setSsoEmail(this.formGroup.value.email);
+
+    // Generate necessary sso params
+    const passwordOptions: any = {
+      type: "password",
+      length: 64,
+      uppercase: true,
+      lowercase: true,
+      numbers: true,
+      special: false,
+    };
+    const state = await this.passwordGenerationService.generatePassword(passwordOptions);
+    const ssoCodeVerifier = await this.passwordGenerationService.generatePassword(passwordOptions);
+    const codeVerifierHash = await this.cryptoFunctionService.hash(ssoCodeVerifier, "sha256");
+    const codeChallenge = Utils.fromBufferToUrlB64(codeVerifierHash);
+
+    // Save sso params
+    await this.ssoLoginService.setSsoState(state);
+    await this.ssoLoginService.setCodeVerifier(ssoCodeVerifier);
+    try {
+      await ipc.platform.localhostCallbackService.openSsoPrompt(codeChallenge, state);
+    } catch (err) {
+      this.platformUtilsService.showToast(
+        "error",
+        this.i18nService.t("errorOccured"),
+        this.i18nService.t("ssoError"),
+      );
+    }
   }
 }

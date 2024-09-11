@@ -500,10 +500,10 @@
     "message": "Crea account"
   },
   "setAStrongPassword": {
-    "message": "Set a strong password"
+    "message": "Imposta una password robusta"
   },
   "finishCreatingYourAccountBySettingAPassword": {
-    "message": "Finish creating your account by setting a password"
+    "message": "Termina la creazione del tuo account impostando una password"
   },
   "logIn": {
     "message": "Accedi"
@@ -527,7 +527,7 @@
     "message": "Suggerimento per la password principale (facoltativo)"
   },
   "masterPassHintText": {
-    "message": "If you forget your password, the password hint can be sent to your email. $CURRENT$/$MAXIMUM$ character maximum.",
+    "message": "Se dimentichi la password, il suggerimento password può essere inviato alla tua email. $CURRENT$/$MAXIMUM$ massimo carattere.",
     "placeholders": {
       "current": {
         "content": "$1",
@@ -538,6 +538,24 @@
         "example": "50"
       }
     }
+  },
+  "masterPassword": {
+    "message": "Password principale"
+  },
+  "masterPassImportant": {
+    "message": "La tua password principale non può essere recuperata se la dimentichi!"
+  },
+  "confirmMasterPassword": {
+    "message": "Conferma password principale"
+  },
+  "masterPassHintLabel": {
+    "message": "Suggerimento per la password principale"
+  },
+  "joinOrganization": {
+    "message": "Unisciti all'organizzazione"
+  },
+  "finishJoiningThisOrganizationBySettingAMasterPassword": {
+    "message": "Termina l'adesione a questa organizzazione impostando una password principale."
   },
   "settings": {
     "message": "Impostazioni"
@@ -573,17 +591,23 @@
       }
     }
   },
+  "youSuccessfullyLoggedIn": {
+    "message": "Hai effettuato l'accesso"
+  },
+  "youMayCloseThisWindow": {
+    "message": "Puoi chiudere questa finestra"
+  },
   "masterPassDoesntMatch": {
     "message": "Le password principali non corrispondono."
   },
   "newAccountCreated": {
     "message": "Il tuo nuovo account è stato creato! Ora puoi eseguire l'accesso."
   },
-  "youSuccessfullyLoggedIn": {
-    "message": "Hai effettuato l'accesso"
+  "newAccountCreated2": {
+    "message": "Il tuo nuovo account è stato creato!"
   },
-  "youMayCloseThisWindow": {
-    "message": "Puoi chiudere questa finestra"
+  "youHaveBeenLoggedIn": {
+    "message": "Hai effettuato l'accesso!"
   },
   "masterPassSent": {
     "message": "Ti abbiamo inviato un'email con il tuo suggerimento per la password principale."
@@ -614,6 +638,9 @@
   },
   "verificationCodeRequired": {
     "message": "Codice di verifica obbligatorio."
+  },
+  "webauthnCancelOrTimeout": {
+    "message": "L'autenticazione è stata annullata o ha richiesto troppo tempo. Per favore riprova."
   },
   "invalidVerificationCode": {
     "message": "Codice di verifica non valido"
@@ -666,18 +693,18 @@
   "authenticatorAppTitle": {
     "message": "App di autenticazione"
   },
-  "authenticatorAppDesc": {
-    "message": "Usa un'app di autenticazione (come Authy o Google Authenticator) per generare codici di verifica a tempo.",
-    "description": "'Authy' and 'Google Authenticator' are product names and should not be translated."
+  "authenticatorAppDescV2": {
+    "message": "Inserisci un codice generato da un'app di autenticazione come Bitwarden Authenticator.",
+    "description": "'Bitwarden Authenticator' is a product name and should not be translated."
   },
-  "yubiKeyTitle": {
+  "yubiKeyTitleV2": {
     "message": "Chiave di sicurezza YubiKey OTP"
   },
   "yubiKeyDesc": {
     "message": "Usa YubiKey per accedere al tuo account. Compatibile con YubiKey 4, 4 Nano, 4C, e dispositivi NEO."
   },
-  "duoDesc": {
-    "message": "Verifica con Duo Security usando l'app Duo Mobile, SMS, chiamata telefonica, o chiave di sicurezza U2F.",
+  "duoDescV2": {
+    "message": "Inserisci un codice generato da Duo Security.",
     "description": "'Duo Security' and 'Duo Mobile' are product names and should not be translated."
   },
   "duoOrganizationDesc": {
@@ -693,8 +720,8 @@
   "emailTitle": {
     "message": "Email"
   },
-  "emailDesc": {
-    "message": "I codici di verifica ti saranno inviati per email."
+  "emailDescV2": {
+    "message": "Inserisci il codice inviato alla tua email."
   },
   "loginUnavailable": {
     "message": "Login non disponibile"
@@ -776,6 +803,18 @@
   },
   "loginExpired": {
     "message": "La tua sessione è scaduta."
+  },
+  "restartRegistration": {
+    "message": "Riprova la registrazione"
+  },
+  "expiredLink": {
+    "message": "Link scaduto"
+  },
+  "pleaseRestartRegistrationOrTryLoggingIn": {
+    "message": "Riavvia la registrazione o prova ad accedere."
+  },
+  "youMayAlreadyHaveAnAccount": {
+    "message": "Potresti già avere un account"
   },
   "logOutConfirmation": {
     "message": "Sei sicuro di voler uscire?"
@@ -1141,6 +1180,9 @@
   "premiumPurchaseAlert": {
     "message": "Puoi acquistare il un abbonamento Premium dalla cassaforte web su bitwarden.com. Vuoi visitare il sito?"
   },
+  "premiumPurchaseAlertV2": {
+    "message": "Puoi acquistare Premium dalle impostazioni del tuo account sull'app web Bitwarden."
+  },
   "premiumCurrentMember": {
     "message": "Sei un membro Premium!"
   },
@@ -1477,8 +1519,14 @@
   "additionalWindowsHelloSettings": {
     "message": "Impostazioni aggiuntive di Windows Hello"
   },
+  "unlockWithPolkit": {
+    "message": "Sblocca con l'autenticazione di sistema"
+  },
   "windowsHelloConsentMessage": {
     "message": "Verifica per Bitwarden."
+  },
+  "polkitConsentMessage": {
+    "message": "Autenticazione per sbloccare Bitwarden."
   },
   "unlockWithTouchId": {
     "message": "Sblocca con Touch ID"
@@ -1491,6 +1539,9 @@
   },
   "autoPromptWindowsHello": {
     "message": "Richiedi Windows Hello all'avvio"
+  },
+  "autoPromptPolkit": {
+    "message": "Chiedi autenticazione di sistema all'avvio"
   },
   "autoPromptTouchId": {
     "message": "Richiedi Touch ID all'avvio"
@@ -1678,20 +1729,20 @@
   "masterPasswordPolicyRequirementsNotMet": {
     "message": "La tua nuova password principale non soddisfa i requisiti di sicurezza."
   },
-  "receiveMarketingEmails": {
-    "message": "Get emails from Bitwarden for announcements, advice, and research opportunities."
+  "receiveMarketingEmailsV2": {
+    "message": "Ottieni consigli, annunci e opportunità di ricerca da Bitwarden nella tua casella di posta."
   },
   "unsubscribe": {
-    "message": "Unsubscribe"
+    "message": "Annulla iscrizione"
   },
   "atAnyTime": {
-    "message": "at any time."
+    "message": "in qualsiasi momento."
   },
   "byContinuingYouAgreeToThe": {
-    "message": "By continuing, you agree to the"
+    "message": "Continuando accetti le"
   },
   "and": {
-    "message": "and"
+    "message": "e"
   },
   "acceptPolicies": {
     "message": "Selezionando questa casella accetti quanto segue:"
@@ -1770,6 +1821,12 @@
   },
   "biometricsNotEnabledDesc": {
     "message": "L'autenticazione biometrica del browser richiede che l'autenticazione biometrica del desktop sia stata già impostata nelle impostazioni."
+  },
+  "biometricsManualSetupTitle": {
+    "message": "Configurazione automatica non disponibile"
+  },
+  "biometricsManualSetupDesc": {
+    "message": "A causa del metodo di installazione, il supporto biometrico non può essere attivato automaticamente. Aprire la documentazione su come farlo manualmente?"
   },
   "personalOwnershipSubmitError": {
     "message": "A causa di una politica aziendale, non puoi salvare elementi nella tua cassaforte personale. Cambia l'opzione di proprietà in un'organizzazione e scegli tra le raccolte disponibili."
@@ -1955,6 +2012,9 @@
   "emailVerificationRequired": {
     "message": "Verifica email obbligatoria"
   },
+  "emailVerifiedV2": {
+    "message": "Email verificata"
+  },
   "emailVerificationRequiredDesc": {
     "message": "Devi verificare la tua email per usare questa funzionalità."
   },
@@ -1978,6 +2038,9 @@
   },
   "updateWeakMasterPasswordWarning": {
     "message": "La tua password principale non soddisfa uno o più politiche della tua organizzazione. Per accedere alla cassaforte, aggiornala ora. Procedere ti farà uscire dalla sessione corrente, richiedendoti di accedere di nuovo. Le sessioni attive su altri dispositivi potrebbero continuare a rimanere attive per un massimo di un'ora."
+  },
+  "tdeDisabledMasterPasswordRequired": {
+    "message": "La tua organizzazione ha disabilitato la crittografia affidabile del dispositivo. Per favore imposta una password principale per accedere alla tua cassaforte."
   },
   "tryAgain": {
     "message": "Riprova"
@@ -2062,6 +2125,9 @@
   },
   "vaultTimeoutTooLarge": {
     "message": "Il timeout della tua cassaforte supera i limiti impostati dalla tua organizzazione."
+  },
+  "inviteAccepted": {
+    "message": "Invito accettato"
   },
   "resetPasswordPolicyAutoEnroll": {
     "message": "Iscrizione automatica"
@@ -2706,7 +2772,7 @@
     "message": "Sottomenu"
   },
   "toggleSideNavigation": {
-    "message": "Toggle side navigation"
+    "message": "Attiva/Disattiva navigazione laterale"
   },
   "skipToContent": {
     "message": "Vai al contenuto"
@@ -2763,6 +2829,9 @@
       }
     }
   },
+  "duoHealthCheckResultsInNullAuthUrlError": {
+    "message": "Errore di connessione con il servizio Duo. Utilizza un metodo di login in due passaggi diverso o contatta Duo per assistenza."
+  },
   "launchDuoAndFollowStepsToFinishLoggingIn": {
     "message": "Avvia Duo e segui i passaggi per finire di accedere."
   },
@@ -2784,8 +2853,8 @@
   "invalidFilePassword": {
     "message": "Password errata, usa la password che hai inserito alla creazione del file di esportazione."
   },
-  "importDestination": {
-    "message": "Destinazione dell'importazione"
+  "destination": {
+    "message": "Destinazione"
   },
   "learnAboutImportOptions": {
     "message": "Ulteriori informazioni sulle tue opzioni di importazione"
@@ -2842,6 +2911,9 @@
   },
   "confirmFilePassword": {
     "message": "Conferma password del file"
+  },
+  "exportSuccess": {
+    "message": "Dati della cassaforte esportati"
   },
   "multifactorAuthenticationCancelled": {
     "message": "Verifica in due passaggi annullata"
@@ -2977,5 +3049,17 @@
         "example": "Work"
       }
     }
+  },
+  "data": {
+    "message": "Dati"
+  },
+  "fileSends": {
+    "message": "Send File"
+  },
+  "textSends": {
+    "message": "Send Testo"
+  },
+  "ssoError": {
+    "message": "Non è stato possibile trovare nessuna porta libera per il login Sso."
   }
 }

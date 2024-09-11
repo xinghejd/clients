@@ -1,8 +1,10 @@
 import { CommonModule } from "@angular/common";
 import { booleanAttribute, Component, Input } from "@angular/core";
 import { Router, RouterModule } from "@angular/router";
+import { firstValueFrom, map } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherRepromptType, CipherType } from "@bitwarden/common/vault/enums";
@@ -18,7 +20,8 @@ import { PasswordRepromptService } from "@bitwarden/vault";
 
 import { BrowserApi } from "../../../../../platform/browser/browser-api";
 import BrowserPopupUtils from "../../../../../platform/popup/browser-popup-utils";
-import { VaultPopupItemsService } from "../../../services/vault-popup-items.service";
+import { VaultPopupAutofillService } from "../../../services/vault-popup-autofill.service";
+import { AddEditQueryParams } from "../add-edit/add-edit-v2.component";
 
 @Component({
   standalone: true,
@@ -39,16 +42,17 @@ export class ItemMoreOptionsComponent {
   @Input({ transform: booleanAttribute })
   hideAutofillOptions: boolean;
 
-  protected autofillAllowed$ = this.vaultPopupItemsService.autofillAllowed$;
+  protected autofillAllowed$ = this.vaultPopupAutofillService.autofillAllowed$;
 
   constructor(
     private cipherService: CipherService,
-    private vaultPopupItemsService: VaultPopupItemsService,
     private passwordRepromptService: PasswordRepromptService,
     private toastService: ToastService,
     private dialogService: DialogService,
     private router: Router,
     private i18nService: I18nService,
+    private vaultPopupAutofillService: VaultPopupAutofillService,
+    private accountService: AccountService,
   ) {}
 
   get canEdit() {
@@ -62,8 +66,20 @@ export class ItemMoreOptionsComponent {
     return [CipherType.Login, CipherType.Card, CipherType.Identity].includes(this.cipher.type);
   }
 
+  get isLogin() {
+    return this.cipher.type === CipherType.Login;
+  }
+
   get favoriteText() {
     return this.cipher.favorite ? "unfavorite" : "favorite";
+  }
+
+  async doAutofill() {
+    await this.vaultPopupAutofillService.doAutofill(this.cipher);
+  }
+
+  async doAutofillAndSave() {
+    await this.vaultPopupAutofillService.doAutofillAndSave(this.cipher, false);
   }
 
   /**
@@ -95,7 +111,10 @@ export class ItemMoreOptionsComponent {
    */
   async toggleFavorite() {
     this.cipher.favorite = !this.cipher.favorite;
-    const encryptedCipher = await this.cipherService.encrypt(this.cipher);
+    const activeUserId = await firstValueFrom(
+      this.accountService.activeAccount$.pipe(map((a) => a?.id)),
+    );
+    const encryptedCipher = await this.cipherService.encrypt(this.cipher, activeUserId);
     await this.cipherService.updateWithServer(encryptedCipher);
     this.toastService.showToast({
       variant: "success",
@@ -133,9 +152,21 @@ export class ItemMoreOptionsComponent {
 
     await this.router.navigate(["/clone-cipher"], {
       queryParams: {
-        cloneMode: true,
+        clone: true.toString(),
         cipherId: this.cipher.id,
-      },
+        type: this.cipher.type.toString(),
+      } as AddEditQueryParams,
+    });
+  }
+
+  /** Prompts for password when necessary then navigates to the assign collections route */
+  async conditionallyNavigateToAssignCollections() {
+    if (this.cipher.reprompt && !(await this.passwordRepromptService.showPasswordPrompt())) {
+      return;
+    }
+
+    await this.router.navigate(["/assign-collections"], {
+      queryParams: { cipherId: this.cipher.id },
     });
   }
 }
