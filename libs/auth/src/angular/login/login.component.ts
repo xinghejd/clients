@@ -21,8 +21,10 @@ import { AuthResult } from "@bitwarden/common/auth/models/domain/auth-result";
 import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/force-set-password-reason";
 import { ClientType } from "@bitwarden/common/enums";
 import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
+import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { SyncService } from "@bitwarden/common/platform/sync";
@@ -38,6 +40,8 @@ import {
 } from "@bitwarden/components";
 
 import { LoginService } from "./login.service";
+
+const BroadcasterSubscriptionId = "LoginComponent";
 
 @Component({
   standalone: true,
@@ -85,15 +89,20 @@ export class LoginComponentV2 implements OnInit, OnDestroy {
     return this.formGroup.value.email;
   }
 
-  // Web specific properties
+  // Web properties
   enforcedPasswordPolicyOptions: MasterPasswordPolicyOptions;
   policies: Policy[];
   showPasswordless = false;
   showResetPasswordAutoEnrollWarning = false;
 
+  // Desktop properties
+  deferFocus: boolean = null; // TODO-rr-bw: why initialize to null instead of false
+  showPassword = false; // TODO-rr-bw: is this still needed?
+
   constructor(
     private activatedRoute: ActivatedRoute,
     private appIdService: AppIdService,
+    private broadcasterService: BroadcasterService,
     private devicesApiService: DevicesApiServiceAbstraction,
     private environmentService: EnvironmentService,
     private formBuilder: FormBuilder,
@@ -101,6 +110,7 @@ export class LoginComponentV2 implements OnInit, OnDestroy {
     private loginEmailService: LoginEmailServiceAbstraction,
     private loginService: LoginService,
     private loginStrategyService: LoginStrategyServiceAbstraction,
+    private messagingService: MessagingService,
     private ngZone: NgZone,
     private passwordStrengthService: PasswordStrengthServiceAbstraction,
     private platformUtilsService: PlatformUtilsService,
@@ -405,6 +415,15 @@ export class LoginComponentV2 implements OnInit, OnDestroy {
     }
   }
 
+  private onWindowHidden() {
+    this.showPassword = false;
+  }
+
+  private focusInput() {
+    const email = this.loggedEmail;
+    document.getElementById(email == null || email === "" ? "email" : "masterPassword")?.focus();
+  }
+
   private async defaultOnInit(): Promise<void> {
     let paramEmailIsSet = false;
 
@@ -477,5 +496,30 @@ export class LoginComponentV2 implements OnInit, OnDestroy {
 
   private async desktopOnInit(): Promise<void> {
     await this.getLoginWithDevice(this.loggedEmail);
+
+    // TODO-rr-bw: refactor to not use deprecated broadcaster service.
+    this.broadcasterService.subscribe(BroadcasterSubscriptionId, async (message: any) => {
+      this.ngZone.run(() => {
+        switch (message.command) {
+          case "windowHidden":
+            this.onWindowHidden();
+            break;
+          case "windowIsFocused":
+            if (this.deferFocus === null) {
+              this.deferFocus = !message.windowIsFocused;
+              if (!this.deferFocus) {
+                this.focusInput();
+              }
+            } else if (this.deferFocus && message.windowIsFocused) {
+              this.focusInput();
+              this.deferFocus = false;
+            }
+            break;
+          default:
+        }
+      });
+    });
+
+    this.messagingService.send("getWindowIsFocused");
   }
 }
