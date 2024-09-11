@@ -400,11 +400,11 @@
     "description": "deprecated. Use specialCharactersLabel instead."
   },
   "include": {
-    "message": "Include",
+    "message": "Incluir",
     "description": "Card header for password generator include block"
   },
   "uppercaseDescription": {
-    "message": "Include uppercase characters",
+    "message": "Incluir caracteres maiúsculos",
     "description": "Tooltip for the password generator uppercase character checkbox"
   },
   "uppercaseLabel": {
@@ -412,7 +412,7 @@
     "description": "Label for the password generator uppercase character checkbox"
   },
   "lowercaseDescription": {
-    "message": "Include lowercase characters",
+    "message": "Incluir caracteres minúsculos",
     "description": "Full description for the password generator lowercase character checkbox"
   },
   "lowercaseLabel": {
@@ -420,15 +420,15 @@
     "description": "Label for the password generator lowercase character checkbox"
   },
   "numbersDescription": {
-    "message": "Include numbers",
+    "message": "Incluir números",
     "description": "Full description for the password generator numbers checkbox"
   },
   "numbersLabel": {
-    "message": "0-9",
+    "message": "0 – 9",
     "description": "Label for the password generator numbers checkbox"
   },
   "specialCharactersDescription": {
-    "message": "Include special characters",
+    "message": "Incluir caracteres especiais",
     "description": "Full description for the password generator special characters checkbox"
   },
   "specialCharactersLabel": {
@@ -459,7 +459,7 @@
     "description": "deprecated. Use avoidAmbiguous instead."
   },
   "avoidAmbiguous": {
-    "message": "Avoid ambiguous characters",
+    "message": "Evitar Caracteres Ambíguos",
     "description": "Label for the avoid ambiguous characters checkbox."
   },
   "searchVault": {
@@ -684,10 +684,10 @@
     "message": "A sua nova conta foi criada! Agora você pode iniciar a sessão."
   },
   "newAccountCreated2": {
-    "message": "Your new account has been created!"
+    "message": "Sua nova conta foi criada!"
   },
   "youHaveBeenLoggedIn": {
-    "message": "You have been logged in!"
+    "message": "Você está conectado!"
   },
   "youSuccessfullyLoggedIn": {
     "message": "Você logou na sua conta com sucesso"
@@ -1795,6 +1795,15 @@
   },
   "noPasswordsInList": {
     "message": "Não existem senhas para listar."
+  },
+  "clearHistory": {
+    "message": "Clear history"
+  },
+  "noPasswordsToShow": {
+    "message": "No passwords to show"
+  },
+  "noRecentlyGeneratedPassword": {
+    "message": "You haven't generated a password recently"
   },
   "remove": {
     "message": "Remover"
@@ -3477,8 +3486,8 @@
   "passkeyFeatureIsNotImplementedForAccountsWithoutMasterPassword": {
     "message": "Verificação requerida pelo site que a iniciou. Esse recurso ainda não está implementado para contas sem senha mestra."
   },
-  "logInWithPasskey": {
-    "message": "Fazer login com chave de acesso?"
+  "logInWithPasskeyQuestion": {
+    "message": "Fazer ‘login’ com chave de acesso?"
   },
   "passkeyAlreadyExists": {
     "message": "Uma chave de acesso já existe para este aplicativo."
@@ -3489,6 +3498,9 @@
   "noMatchingPasskeyLogin": {
     "message": "Você não tem um login correspondente para este site."
   },
+  "noMatchingLoginsForSite": {
+    "message": "Sem credenciais correspondentes para este site"
+  },
   "confirm": {
     "message": "Confirmar"
   },
@@ -3498,8 +3510,11 @@
   "savePasskeyNewLogin": {
     "message": "Salvar chave de acesso como um novo login"
   },
-  "choosePasskey": {
-    "message": "Escolha um login para salvar esta chave de acesso"
+  "chooseCipherForPasskeySave": {
+    "message": "Escolha um ‘login’ para salvar com essa chave de acesso"
+  },
+  "chooseCipherForPasskeyAuth": {
+    "message": "Escolha uma senha para iniciar sessão"
   },
   "passkeyItem": {
     "message": "Item de chave de acesso"
@@ -3697,7 +3712,7 @@
     "description": "Notification message for when saving credentials has succeeded."
   },
   "passwordSaved": {
-    "message": "Password saved!",
+    "message": "Senha salva!",
     "description": "Notification message for when saving credentials has succeeded."
   },
   "updateCipherAttemptSuccess": {
@@ -3705,7 +3720,7 @@
     "description": "Notification message for when updating credentials has succeeded."
   },
   "passwordUpdated": {
-    "message": "Password updated!",
+    "message": "Senha atualizada!",
     "description": "Notification message for when updating credentials has succeeded."
   },
   "saveCipherAttemptFailed": {
@@ -4294,7 +4309,31 @@
   "enterprisePolicyRequirementsApplied": {
     "message": "Os requisitos de política empresarial foram aplicados nesta configuração"
   },
-  "additionalContentAvailable": {
-    "message": "Additional content is available"
+  "showCharacterCount": {
+    "message": "Mostrar contagem de caracteres"
+  },
+  "hideCharacterCount": {
+    "message": "Esconder contagem de caracteres"
+  },
+  "itemsInTrash": {
+    "message": "Itens na lixeira"
+  },
+  "noItemsInTrash": {
+    "message": "Nenhum item na lixeira"
+  },
+  "noItemsInTrashDesc": {
+    "message": "Os itens que você excluir aparecerão aqui e serão excluídos permanentemente após 30 dias"
+  },
+  "trashWarning": {
+    "message": "Os itens que ficarem na lixeira por mais de 30 dias serão excluídos automaticamente"
+  },
+  "restore": {
+    "message": "Restaurar"
+  },
+  "deleteForever": {
+    "message": "Apagar permanentemente"
+  },
+  "noEditPermissions": {
+    "message": "Você não tem permissão para editar este arquivo"
   }
 }
