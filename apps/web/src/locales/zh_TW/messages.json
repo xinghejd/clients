@@ -37,7 +37,7 @@
     "message": "備註"
   },
   "note": {
-    "message": "Note"
+    "message": "備註"
   },
   "customFields": {
     "message": "自訂欄位"
@@ -48,17 +48,41 @@
   "loginCredentials": {
     "message": "Login credentials"
   },
+  "personalDetails": {
+    "message": "Personal details"
+  },
+  "identification": {
+    "message": "Identification"
+  },
+  "contactInfo": {
+    "message": "Contact info"
+  },
+  "cardDetails": {
+    "message": "Card details"
+  },
+  "cardBrandDetails": {
+    "message": "$BRAND$ details",
+    "placeholders": {
+      "brand": {
+        "content": "$1",
+        "example": "Visa"
+      }
+    }
+  },
+  "itemHistory": {
+    "message": "Item history"
+  },
   "authenticatorKey": {
     "message": "Authenticator key"
   },
   "autofillOptions": {
-    "message": "Autofill options"
+    "message": "自動填入選項"
   },
   "websiteUri": {
-    "message": "Website (URI)"
+    "message": "網站 (URI)"
   },
   "websiteUriCount": {
-    "message": "Website (URI) $COUNT$",
+    "message": "網站 (URI) $COUNT$",
     "description": "Label for an input field that contains a website URI. The input field is part of a list of fields, and the count indicates the position of the field in the list.",
     "placeholders": {
       "count": {
@@ -68,13 +92,13 @@
     }
   },
   "websiteAdded": {
-    "message": "Website added"
+    "message": "網站已添加"
   },
   "addWebsite": {
-    "message": "Add website"
+    "message": "添加網站"
   },
   "deleteWebsite": {
-    "message": "Delete website"
+    "message": "刪除網站"
   },
   "defaultLabel": {
     "message": "Default ($VALUE$)",
@@ -105,7 +129,7 @@
     }
   },
   "autoFillOnPageLoad": {
-    "message": "Autofill on page load?"
+    "message": "要在頁面載入時自動填寫嗎？"
   },
   "number": {
     "message": "號碼"
@@ -195,10 +219,10 @@
     "message": "Dr"
   },
   "cardExpiredTitle": {
-    "message": "Expired card"
+    "message": "支付卡已過期"
   },
   "cardExpiredMessage": {
-    "message": "If you've renewed it, update the card's information"
+    "message": "如果您已續卡，請更新支付卡資訊"
   },
   "expirationMonth": {
     "message": "逾期月份"
@@ -257,7 +281,7 @@
     "description": "This is the folder for uncategorized items"
   },
   "selfOwnershipLabel": {
-    "message": "You",
+    "message": "您",
     "description": "Used as a label to indicate that the user is the owner of an item."
   },
   "addFolder": {
@@ -439,6 +463,9 @@
   "fullName": {
     "message": "全名"
   },
+  "address": {
+    "message": "Address"
+  },
   "address1": {
     "message": "地址 1"
   },
@@ -482,7 +509,7 @@
     "message": "檢視項目"
   },
   "viewItemType": {
-    "message": "View $ITEMTYPE$",
+    "message": "檢視 $ITEMTYPE$",
     "placeholders": {
       "itemtype": {
         "content": "$1",
@@ -498,10 +525,10 @@
     "message": "項目"
   },
   "itemDetails": {
-    "message": "Item details"
+    "message": "項目詳細資訊"
   },
   "itemName": {
-    "message": "Item name"
+    "message": "項目名"
   },
   "cannotRemoveViewOnlyCollections": {
     "message": "You cannot remove collections with View only permissions: $COLLECTIONS$",
@@ -963,6 +990,12 @@
   },
   "newAccountCreated": {
     "message": "帳戶已建立！現在可以登入了。"
+  },
+  "newAccountCreated2": {
+    "message": "Your new account has been created!"
+  },
+  "youHaveBeenLoggedIn": {
+    "message": "You have been logged in!"
   },
   "trialAccountCreated": {
     "message": "帳戶建立成功。"
@@ -4983,6 +5016,10 @@
       }
     }
   },
+  "viewSend": {
+    "message": "View Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
   "viewSendHiddenEmailWarning": {
     "message": "建立此 Send 的 Bitwarden 使用者已選擇隱藏他們的電子郵件地址。在使用或下載此連結的內容之前，應確保您信任此連結的來源。",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -5464,7 +5501,7 @@
     "message": "為所有現有的和新的成員啓用瀏覽器擴充套件上的頁面載入時自動填入設定。"
   },
   "experimentalFeature": {
-    "message": "被入侵或不可信任的網站可以利用網頁載入時的自動填入功能。"
+    "message": "被入侵或不可信任的網站可不當利用頁面載入時的自動填入功能。"
   },
   "learnMoreAboutAutofill": {
     "message": "進一步瞭解「自動填入」功能"
@@ -9008,5 +9045,18 @@
   },
   "secretsManagerWithFreePasswordManagerInfo": {
     "message": "Your complementary one year Password Manager subscription will upgrade to the selected plan. You will not be charged until the complimentary period is over."
+  },
+  "publicApi": {
+    "message": "Public API",
+    "description": "The text, 'API', is an acronymn and should not be translated."
+  },
+  "showCharacterCount": {
+    "message": "Show character count"
+  },
+  "hideCharacterCount": {
+    "message": "Hide character count"
+  },
+  "editAccess": {
+    "message": "Edit access"
   }
 }

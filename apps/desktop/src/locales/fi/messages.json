@@ -603,6 +603,12 @@
   "newAccountCreated": {
     "message": "Uusi käyttäjätilisi on luotu! Voit nyt kirjautua sisään."
   },
+  "newAccountCreated2": {
+    "message": "Uusi tilisi on luotu!"
+  },
+  "youHaveBeenLoggedIn": {
+    "message": "Sinut on kirjattu sisään!"
+  },
   "masterPassSent": {
     "message": "Lähetimme pääsalasanasi vihjeen sinulle sähköpostitse."
   },
@@ -3052,5 +3058,8 @@
   },
   "textSends": {
     "message": "Teksti-Sendit"
+  },
+  "ssoError": {
+    "message": "Kertakirjautumiselle ei löytynyt vapaita portteja."
   }
 }

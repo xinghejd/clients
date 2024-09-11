@@ -47,7 +47,7 @@
               (click)="bulkEditCollectionAccess()"
             >
               <i class="bwi bwi-fw bwi-users" aria-hidden="true"></i>
-              {{ "access" | i18n }}
+              {{ "editAccess" | i18n }}
             </button>
             <button
               *ngIf="
@@ -124,6 +124,7 @@
           [collections]="allCollections"
           [checked]="selection.isSelected(item)"
           [canEditCipher]="canEditCipher(item.cipher)"
+          [canManageCollection]="canManageCollection(item.cipher)"
           (checkedToggled)="selection.toggle(item)"
           (onEvent)="event($event)"
         ></tr>
