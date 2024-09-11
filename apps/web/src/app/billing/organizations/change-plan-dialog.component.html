@@ -308,9 +308,14 @@
           <a></a>
         </p>
         <app-payment
-          *ngIf="upgradeRequiresPaymentMethod || showPayment"
+          *ngIf="(upgradeRequiresPaymentMethod || showPayment) && !deprecateStripeSourcesAPI"
           [hideCredit]="true"
         ></app-payment>
+        <app-payment-v2
+          *ngIf="(upgradeRequiresPaymentMethod || showPayment) && deprecateStripeSourcesAPI"
+          [showAccountCredit]="false"
+        >
+        </app-payment-v2>
         <app-tax-info
           *ngIf="showPayment || upgradeRequiresPaymentMethod"
           (onCountryChanged)="changedCountry()"
