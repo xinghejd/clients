@@ -48,6 +48,30 @@
   "loginCredentials": {
     "message": "ログイン情報"
   },
+  "personalDetails": {
+    "message": "個人情報"
+  },
+  "identification": {
+    "message": "ID"
+  },
+  "contactInfo": {
+    "message": "連絡先情報"
+  },
+  "cardDetails": {
+    "message": "カード情報"
+  },
+  "cardBrandDetails": {
+    "message": "$BRAND$ の詳細",
+    "placeholders": {
+      "brand": {
+        "content": "$1",
+        "example": "Visa"
+      }
+    }
+  },
+  "itemHistory": {
+    "message": "アイテム履歴"
+  },
   "authenticatorKey": {
     "message": "認証キー"
   },
@@ -438,6 +462,9 @@
   },
   "fullName": {
     "message": "フルネーム"
+  },
+  "address": {
+    "message": "住所"
   },
   "address1": {
     "message": "住所 1"
@@ -9023,7 +9050,13 @@
     "message": "公開 API",
     "description": "The text, 'API', is an acronymn and should not be translated."
   },
-  "additionalContentAvailable": {
-    "message": "追加コンテンツが利用可能です"
+  "showCharacterCount": {
+    "message": "文字数を表示"
+  },
+  "hideCharacterCount": {
+    "message": "文字数を隠す"
+  },
+  "editAccess": {
+    "message": "編集権限"
   }
 }

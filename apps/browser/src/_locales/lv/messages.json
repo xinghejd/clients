@@ -754,19 +754,19 @@
     "message": "Pieteikšanās sesija ir beigusies."
   },
   "logIn": {
-    "message": "Log in"
+    "message": "Pieteikties"
   },
   "restartRegistration": {
-    "message": "Restart registration"
+    "message": "Sākt reģistrēšanos no jauna"
   },
   "expiredLink": {
-    "message": "Expired link"
+    "message": "Saitei beidzies derīgums"
   },
   "pleaseRestartRegistrationOrTryLoggingIn": {
-    "message": "Please restart registration or try logging in."
+    "message": "Lūgums sākt reģistrēšanos no jauna vai mēģināt pieteikties."
   },
   "youMayAlreadyHaveAnAccount": {
-    "message": "You may already have an account"
+    "message": "Tev jau varētu būt konts"
   },
   "logOutConfirmation": {
     "message": "Vai tiešām atteikties?"
@@ -1796,6 +1796,15 @@
   "noPasswordsInList": {
     "message": "Nav paroļu, ko parādīt."
   },
+  "clearHistory": {
+    "message": "Clear history"
+  },
+  "noPasswordsToShow": {
+    "message": "No passwords to show"
+  },
+  "noRecentlyGeneratedPassword": {
+    "message": "You haven't generated a password recently"
+  },
   "remove": {
     "message": "Noņemt"
   },
@@ -2036,7 +2045,7 @@
     "message": "Jaunā galvenā parole neatbilst nosacījumu prasībām."
   },
   "receiveMarketingEmailsV2": {
-    "message": "Get advice, announcements, and research opportunities from Bitwarden in your inbox."
+    "message": "Iegūt savā iesūtnē padomus, paziņojumus un izpētes iespējas no Bitwarden."
   },
   "unsubscribe": {
     "message": "Atteikt abonēšanu"
@@ -3477,7 +3486,7 @@
   "passkeyFeatureIsNotImplementedForAccountsWithoutMasterPassword": {
     "message": "Vietne, kurā tika uzsākta darbība, pieprasa pārbaudi. Šī iespēja vēl nav īstenota kontiem, kuriem nav galvenās paroles."
   },
-  "logInWithPasskey": {
+  "logInWithPasskeyQuestion": {
     "message": "Pieteikties ar piekļuves atslēgu?"
   },
   "passkeyAlreadyExists": {
@@ -3489,6 +3498,9 @@
   "noMatchingPasskeyLogin": {
     "message": "Nav šai vietnei atbilstoša pieteikšanās vienuma."
   },
+  "noMatchingLoginsForSite": {
+    "message": "Šai vietnei nav atbilstošu pieteikšanās vietnumu"
+  },
   "confirm": {
     "message": "Apstiprināt"
   },
@@ -3498,8 +3510,11 @@
   "savePasskeyNewLogin": {
     "message": "Saglabāt piekļuves atslēgu kā jaunu pieteikšanās vienumu"
   },
-  "choosePasskey": {
+  "chooseCipherForPasskeySave": {
     "message": "Izvēlēties pieteikšanās vienumu, kurā saglabāt šo piekļuves atslēgu"
+  },
+  "chooseCipherForPasskeyAuth": {
+    "message": "Izvēlēties piekļuves atslēgu, ar kuru pieteikties"
   },
   "passkeyItem": {
     "message": "Piekļuves atslēgas vienums"
@@ -4294,7 +4309,31 @@
   "enterprisePolicyRequirementsApplied": {
     "message": "Šim iestatījumam tika piemērotas uzņēmējdarbības nosacījumu prasības"
   },
-  "additionalContentAvailable": {
-    "message": "Ir pieejams papildu saturs"
+  "showCharacterCount": {
+    "message": "Rādīt rakstzīmju skaitu"
+  },
+  "hideCharacterCount": {
+    "message": "Paslēpt rakstzīmju skaitu"
+  },
+  "itemsInTrash": {
+    "message": "Vienumi atkritnē"
+  },
+  "noItemsInTrash": {
+    "message": "Atkritnē nav vienumu"
+  },
+  "noItemsInTrashDesc": {
+    "message": "Izdzēstie vienumi parādīsies šeit, un tie tiks neatgriezeniski izdzēsti pēc 30 dienām"
+  },
+  "trashWarning": {
+    "message": "Vienumi, kas atkritnē atrodas vairāk nekā 30 dienas, tiks automatiski izdzēsti"
+  },
+  "restore": {
+    "message": "Atjaunot"
+  },
+  "deleteForever": {
+    "message": "Izdzēst pavisam"
+  },
+  "noEditPermissions": {
+    "message": "Nav nepieciešamo atļauju, lai labotu šo vienumu"
   }
 }
