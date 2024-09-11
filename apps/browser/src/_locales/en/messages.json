@@ -4318,19 +4318,31 @@
   "noEditPermissions": {
     "message": "You don't have permission to edit this item"
   },
-  "biometricsMPUnlockNeeded": {
-    "message": "Unlock your vault with your master password or PIN to enable biometric unlock."
+  "biometricsStatusHelptextUnlockNeeded": {
+    "message": "Biometric unlock is unavailable because PIN or password unlock is required first."
   },
-  "biometricsHardwareUnavailable": {
-    "message": "Biometric hardware is currently unavailable."
+  "biometricsStatusHelptextHardwareUnavailable": {
+    "message": "Biometric unlock is currently unavailable."
   },
-  "biometricsUnavailableReasonUnknown": {
+  "biometricsStatusHelptextAutoSetupNeeded": {
+    "message": "Biometric unlock is unavailable due to misconfigured system files."
+  },
+  "biometricsStatusHelptextManualSetupNeeded": {
+    "message": "Biometric unlock is unavailable due to misconfigured system files."
+  },
+  "biometricsStatusHelptextDesktopDisconnected": {
+    "message": "Biometric unlock is unavailable because the Bitwarden desktop app is closed."
+  },
+  "biometricsStatusHelptextNotEnabledInDesktop": {
+    "message": "Biometric unlock is unavailable because it is not enabled for $EMAIL$ in the Bitwarden desktop app.",
+    "placeholders": {
+      "email": {
+        "content": "$1",
+        "example": "mail@example.com"
+      }
+    }
+  },
+  "biometricsStatusHelptextUnavailableReasonUnknown": {
     "message": "Biometric unlock is currently unavailable for an unknown reason."
-  },
-  "biometricsUnavailableDesktopNotConnected": {
-    "message": "Biometric unlock is unavailable since the desktop app is not connected."
-  },
-  "biometricsNotEnabledInConnectedDesktopApp": {
-    "message": "Biometric unlock is unavailable since the account is not configured for biometric unlock in the desktop app."
   }
 }

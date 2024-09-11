@@ -1,6 +1,6 @@
 import { Directive, NgZone, OnDestroy, OnInit } from "@angular/core";
 import { Router } from "@angular/router";
-import { firstValueFrom, Subject } from "rxjs";
+import { firstValueFrom, interval, merge, Subject } from "rxjs";
 import { concatMap, map, take, takeUntil } from "rxjs/operators";
 
 import { PinServiceAbstraction, PinLockType } from "@bitwarden/auth/common";
@@ -49,9 +49,7 @@ export class LockComponent implements OnInit, OnDestroy {
   masterPasswordEnabled = false;
   webVaultHostname = "";
   formPromise: Promise<MasterPasswordVerificationResponse>;
-  supportsBiometric: boolean;
   biometricStatus: BiometricsStatus = BiometricsStatus.NotEnabledLocally;
-  private timerId: any;
 
   protected activeUserId: UserId;
   protected successRoute = "vault";
@@ -106,23 +104,29 @@ export class LockComponent implements OnInit, OnDestroy {
       )
       .subscribe();
 
-    // start background listener until destroyed on interval
-    this.biometricStatus = await this.biometricsService.getBiometricsStatusForUser(
-      this.activeUserId,
-    );
-    this.timerId = setInterval(async () => {
-      if (!(await this.vaultTimeoutSettingsService.isBiometricLockSet(this.activeUserId))) {
-        this.biometricStatus = BiometricsStatus.NotEnabledLocally;
-      } else {
-        this.biometricStatus = await this.biometricsService.getBiometricsStatusForUser(
-          this.activeUserId,
-        );
-      }
-    }, 1000);
+    this.biometricStatus = BiometricsStatus.NotEnabledLocally;
+    merge(interval(1000), this.accountService.activeAccount$)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => {
+        (async () => {
+          if (this.activeUserId) {
+            if (!(await this.vaultTimeoutSettingsService.isBiometricLockSet(this.activeUserId))) {
+              this.biometricStatus = BiometricsStatus.NotEnabledLocally;
+            } else {
+              this.biometricStatus = await this.biometricsService.getBiometricsStatusForUser(
+                this.activeUserId,
+              );
+            }
+          }
+        })()
+          .then(() => {})
+          .catch((e) => {
+            this.logService.error("Error checking biometrics status", e);
+          });
+      });
   }
 
   ngOnDestroy() {
-    clearInterval(this.timerId);
     this.destroy$.next();
     this.destroy$.complete();
   }
@@ -170,16 +174,25 @@ export class LockComponent implements OnInit, OnDestroy {
     switch (this.biometricStatus) {
       case BiometricsStatus.Available:
         return "";
-      case BiometricsStatus.NotEnabledInConnectedDesktopApp:
-        return this.i18nService.t("biometricsNotEnabledInConnectedDesktopApp");
       case BiometricsStatus.UnlockNeeded:
-        return this.i18nService.t("biometricsMPUnlockNeeded");
+        return this.i18nService.t("biometricsStatusHelptextUnlockNeeded");
       case BiometricsStatus.HardwareUnavailable:
-        return this.i18nService.t("biometricsHardwareUnavailable");
+        return this.i18nService.t("biometricsStatusHelptextHardwareUnavailable");
+      case BiometricsStatus.AutoSetupNeeded:
+        return this.i18nService.t("biometricsStatusHelptextAutoSetupNeeded");
+      case BiometricsStatus.ManualSetupNeeded:
+        return this.i18nService.t("biometricsStatusHelptextManualSetupNeeded");
+      case BiometricsStatus.NotEnabledInConnectedDesktopApp:
+        return this.i18nService.t("biometricsStatusHelptextNotEnabledInDesktop");
+      case BiometricsStatus.NotEnabledLocally:
+        return this.i18nService.t("biometricsStatusHelptextNotEnabledInDesktop");
       case BiometricsStatus.DesktopDisconnected:
-        return this.i18nService.t("biometricsUnavailableDesktopNotConnected");
+        return this.i18nService.t("biometricsStatusHelptextDesktopDisconnected");
       default:
-        return this.i18nService.t("biometricsUnavailableReasonUnknown") + this.biometricStatus;
+        return (
+          this.i18nService.t("biometricsStatusHelptextUnavailableReasonUnknown") +
+          this.biometricStatus
+        );
     }
   }
 
