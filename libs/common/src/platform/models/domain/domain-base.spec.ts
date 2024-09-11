@@ -43,7 +43,7 @@ describe("DomainBase", () => {
   }
 
   describe("decryptWithKey", () => {
-    it("validates the view matches the domain", async () => {
+    it("domain property types are decryptable", async () => {
       const domain = new TestDomain();
 
       await domain["decryptObjWithKey"](
