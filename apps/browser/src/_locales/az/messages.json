@@ -684,10 +684,10 @@
     "message": "Yeni hesabınız yaradıldı! İndi giriş edə bilərsiniz."
   },
   "newAccountCreated2": {
-    "message": "Your new account has been created!"
+    "message": "Yeni hesabınız yaradıldı!"
   },
   "youHaveBeenLoggedIn": {
-    "message": "You have been logged in!"
+    "message": "Giriş etdiniz!"
   },
   "youSuccessfullyLoggedIn": {
     "message": "Uğurla giriş etdiniz"
@@ -1795,6 +1795,15 @@
   },
   "noPasswordsInList": {
     "message": "Sadalanacaq heç bir parol yoxdur."
+  },
+  "clearHistory": {
+    "message": "Clear history"
+  },
+  "noPasswordsToShow": {
+    "message": "No passwords to show"
+  },
+  "noRecentlyGeneratedPassword": {
+    "message": "You haven't generated a password recently"
   },
   "remove": {
     "message": "Çıxart"
@@ -3477,7 +3486,7 @@
   "passkeyFeatureIsNotImplementedForAccountsWithoutMasterPassword": {
     "message": "Başladan saytın tələb etdiyi doğrulama. Bu özəllik, hələlik ana parolu olmayan hesablara tətbiq olunmur."
   },
-  "logInWithPasskey": {
+  "logInWithPasskeyQuestion": {
     "message": "Keçid açarı ilə giriş edilsin?"
   },
   "passkeyAlreadyExists": {
@@ -3489,6 +3498,9 @@
   "noMatchingPasskeyLogin": {
     "message": "Bu sayt üçün uyuşan bir giriş məlumatınız yoxdur."
   },
+  "noMatchingLoginsForSite": {
+    "message": "Bu sayt üçün uyuşan giriş məlumatı yoxdur"
+  },
   "confirm": {
     "message": "Təsdiqlə"
   },
@@ -3498,8 +3510,11 @@
   "savePasskeyNewLogin": {
     "message": "Keçid açarını yeni bir giriş olaraq saxla"
   },
-  "choosePasskey": {
+  "chooseCipherForPasskeySave": {
     "message": "Bu keçid açarını saxlayacaq bir giriş seçin"
+  },
+  "chooseCipherForPasskeyAuth": {
+    "message": "Giriş ediləcək keçid açarını seçin"
   },
   "passkeyItem": {
     "message": "Keçid açarı elementi"
@@ -4294,7 +4309,31 @@
   "enterprisePolicyRequirementsApplied": {
     "message": "Müəssisə siyasət tələbləri bu ayara tətbiq edildi"
   },
-  "additionalContentAvailable": {
-    "message": "Additional content is available"
+  "showCharacterCount": {
+    "message": "Xarakter sayını göstər"
+  },
+  "hideCharacterCount": {
+    "message": "Xarakter sayını gizlət"
+  },
+  "itemsInTrash": {
+    "message": "Tullantıdakı elementlər"
+  },
+  "noItemsInTrash": {
+    "message": "Tullantıda element yoxdur"
+  },
+  "noItemsInTrashDesc": {
+    "message": "Sildiyiniz elementlər burada görünəcək və 30 gün sonra birdəfəlik silinəcək"
+  },
+  "trashWarning": {
+    "message": "Tullantıda 30 gündən çox qalan elementlər avtomatik silinəcək"
+  },
+  "restore": {
+    "message": "Bərpa et"
+  },
+  "deleteForever": {
+    "message": "Həmişəlik sil"
+  },
+  "noEditPermissions": {
+    "message": "Bu elementə düzəliş etmə icazəniz yoxdur"
   }
 }

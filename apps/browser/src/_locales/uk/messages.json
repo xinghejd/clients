@@ -1796,6 +1796,15 @@
   "noPasswordsInList": {
     "message": "Немає паролів."
   },
+  "clearHistory": {
+    "message": "Clear history"
+  },
+  "noPasswordsToShow": {
+    "message": "No passwords to show"
+  },
+  "noRecentlyGeneratedPassword": {
+    "message": "You haven't generated a password recently"
+  },
   "remove": {
     "message": "Вилучити"
   },
@@ -3477,7 +3486,7 @@
   "passkeyFeatureIsNotImplementedForAccountsWithoutMasterPassword": {
     "message": "Сайт ініціює обов'язкову верифікацію. Ця функція ще не реалізована для облікових записів без головного пароля."
   },
-  "logInWithPasskey": {
+  "logInWithPasskeyQuestion": {
     "message": "Увійти з ключем доступу?"
   },
   "passkeyAlreadyExists": {
@@ -3489,6 +3498,9 @@
   "noMatchingPasskeyLogin": {
     "message": "У вас немає відповідних записів для цього сайту."
   },
+  "noMatchingLoginsForSite": {
+    "message": "Немає відповідних записів для цього сайту"
+  },
   "confirm": {
     "message": "Підтвердити"
   },
@@ -3498,8 +3510,11 @@
   "savePasskeyNewLogin": {
     "message": "Зберегти ключ доступу як новий запис"
   },
-  "choosePasskey": {
+  "chooseCipherForPasskeySave": {
     "message": "Виберіть запис для збереження цього ключа доступу"
+  },
+  "chooseCipherForPasskeyAuth": {
+    "message": "Виберіть ключ доступу для входу"
   },
   "passkeyItem": {
     "message": "Ключ доступу"
@@ -4294,7 +4309,31 @@
   "enterprisePolicyRequirementsApplied": {
     "message": "До цього налаштування застосовано вимоги політики компанії"
   },
-  "additionalContentAvailable": {
-    "message": "Additional content is available"
+  "showCharacterCount": {
+    "message": "Показати кількість символів"
+  },
+  "hideCharacterCount": {
+    "message": "Приховати кількість символів"
+  },
+  "itemsInTrash": {
+    "message": "Записи в смітнику"
+  },
+  "noItemsInTrash": {
+    "message": "Немає записів у смітнику"
+  },
+  "noItemsInTrashDesc": {
+    "message": "Видалені записи з'являтимуться тут і будуть остаточно видалені через 30 днів"
+  },
+  "trashWarning": {
+    "message": "Записи, що знаходяться в смітнику понад 30 днів, автоматично видалятимуться"
+  },
+  "restore": {
+    "message": "Відновити"
+  },
+  "deleteForever": {
+    "message": "Видалити остаточно"
+  },
+  "noEditPermissions": {
+    "message": "Вам не дозволено редагувати цей запис"
   }
 }

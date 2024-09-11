@@ -1796,6 +1796,15 @@
   "noPasswordsInList": {
     "message": "Der er ingen kodeord at vise."
   },
+  "clearHistory": {
+    "message": "Clear history"
+  },
+  "noPasswordsToShow": {
+    "message": "No passwords to show"
+  },
+  "noRecentlyGeneratedPassword": {
+    "message": "You haven't generated a password recently"
+  },
   "remove": {
     "message": "Fjern"
   },
@@ -2237,7 +2246,7 @@
     "message": "Kodeordsbeskyttet"
   },
   "copyLink": {
-    "message": "Copy link"
+    "message": "Kopier link"
   },
   "copySendLink": {
     "message": "Kopiér Send link",
@@ -3477,7 +3486,7 @@
   "passkeyFeatureIsNotImplementedForAccountsWithoutMasterPassword": {
     "message": "Bekræftelse krævet af startwebstedet. Denne funktion er endnu ikke implementeret for konti uden hovedadgangskode."
   },
-  "logInWithPasskey": {
+  "logInWithPasskeyQuestion": {
     "message": "Log ind med adgangsnøgle?"
   },
   "passkeyAlreadyExists": {
@@ -3489,6 +3498,9 @@
   "noMatchingPasskeyLogin": {
     "message": "Der er intet matchende login til dette websted."
   },
+  "noMatchingLoginsForSite": {
+    "message": "Ingen matchende logins for dette websted"
+  },
   "confirm": {
     "message": "Bekræft"
   },
@@ -3498,8 +3510,11 @@
   "savePasskeyNewLogin": {
     "message": "Gem adgangsnøgle som nyt login"
   },
-  "choosePasskey": {
+  "chooseCipherForPasskeySave": {
     "message": "Vælg et login at gemme denne adgangsnøgle til"
+  },
+  "chooseCipherForPasskeyAuth": {
+    "message": "Vælg en adgangsnøgle at logge ind med"
   },
   "passkeyItem": {
     "message": "Adgangsnøgleemne"
@@ -4032,7 +4047,7 @@
     }
   },
   "autoFillOnPageLoad": {
-    "message": "Autofill on page load?"
+    "message": "Autoudfyld ved sideindlæsning?"
   },
   "cardExpiredTitle": {
     "message": "Udløbet kort"
@@ -4294,7 +4309,31 @@
   "enterprisePolicyRequirementsApplied": {
     "message": "Virksomhedspolitikkrav er anvendt på denne indstilling"
   },
-  "additionalContentAvailable": {
-    "message": "Yderligere indhold er tilgængeligt"
+  "showCharacterCount": {
+    "message": "Vis tegnantal"
+  },
+  "hideCharacterCount": {
+    "message": "Skjul tegnantal"
+  },
+  "itemsInTrash": {
+    "message": "Emner i papirkurv"
+  },
+  "noItemsInTrash": {
+    "message": "Ingen emner i papirkurv"
+  },
+  "noItemsInTrashDesc": {
+    "message": "Emner, som slettes, vil fremgå her og slettes permanent efter 30 dage"
+  },
+  "trashWarning": {
+    "message": "Emner, som har været i papirkurven i over 30 dage, slettes automatisk"
+  },
+  "restore": {
+    "message": "Gendan"
+  },
+  "deleteForever": {
+    "message": "Slet permanent"
+  },
+  "noEditPermissions": {
+    "message": "Ingen tilladelse til at redigere dette emne"
   }
 }
