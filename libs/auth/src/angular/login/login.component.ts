@@ -138,7 +138,7 @@ export class LoginComponentV2 implements OnInit, OnDestroy {
   }
 
   submit = async (): Promise<void> => {
-    const data = this.formGroup.value;
+    const { email, masterPassword } = this.formGroup.value;
 
     await this.setupCaptcha();
 
@@ -163,8 +163,8 @@ export class LoginComponentV2 implements OnInit, OnDestroy {
     }
 
     const credentials = new PasswordLoginCredentials(
-      data.email,
-      data.masterPassword,
+      email,
+      masterPassword,
       this.captchaToken,
       null,
     );
