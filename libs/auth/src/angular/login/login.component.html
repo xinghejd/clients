@@ -207,6 +207,12 @@
         <span><i class="bwi bwi-provider"></i> {{ "useSingleSignOn" | i18n }}</span>
       </button>
     </div>
+
+    <!--
+      TODO-rr-bw: in the secondary content ("New to Bitwarden? Create account"), which is
+      now being added via app-routing.module.ts, consider if you need to use `registerRoute$ | async
+      as in the current desktop login component.
+    -->
   </ng-container>
 
   <!-------------------------------------------
