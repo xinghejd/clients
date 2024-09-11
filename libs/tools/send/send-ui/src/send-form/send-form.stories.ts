@@ -36,9 +36,8 @@ class TestAddEditFormService implements SendFormService {
   decryptSend(): Promise<SendView> {
     return Promise.resolve(defaultConfig.originalSend as any);
   }
-  async saveSend(send: SendView, file: File | ArrayBuffer): Promise<SendView> {
+  async saveSend(send: SendView, file: File | ArrayBuffer): Promise<void> {
     await new Promise((resolve) => setTimeout(resolve, 1000));
-    return send;
   }
 }
 

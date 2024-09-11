@@ -65,25 +65,11 @@ export class SendTextDetailsComponent implements OnInit {
     name: ["", [Validators.required]],
     textToShare: [""],
     hideTextByDefault: [false],
-    // sendLink: [null as string],
-    selectedDeletionDatePreset: [DatePreset.SevenDays, Validators.required],
+    selectedDeletionDatePreset: [DatePreset.SevenDays || "", Validators.required],
   });
 
-  get deletionDatePresets(): DatePresetSelectOption[] {
-    const defaultSelections = [
-      { name: this.i18nService.t("oneHour"), value: DatePreset.OneHour },
-      { name: this.i18nService.t("oneDay"), value: DatePreset.OneDay },
-      { name: this.i18nService.t("days", "2"), value: DatePreset.TwoDays },
-      { name: this.i18nService.t("days", "3"), value: DatePreset.ThreeDays },
-      { name: this.i18nService.t("days", "7"), value: DatePreset.SevenDays },
-      { name: this.i18nService.t("days", "14"), value: DatePreset.FourteenDays },
-      { name: this.i18nService.t("days", "30"), value: DatePreset.ThirtyDays },
-    ];
-    if (!this.originalSendView.deletionDate) {
-      return defaultSelections;
-    }
-    return [{ name: null, value: this.formattedDeletionDate }, ...defaultSelections];
-  }
+  customDeletionDateOption: DatePresetSelectOption | null = null;
+  datePresetOptions: DatePresetSelectOption[] = [];
 
   constructor(
     private sendFormContainer: SendFormContainer,
@@ -95,37 +81,62 @@ export class SendTextDetailsComponent implements OnInit {
 
     this.sendTextDetailsForm.valueChanges.pipe(takeUntilDestroyed()).subscribe((value) => {
       this.sendFormContainer.patchSend((send) => {
-        Object.assign(send, {
+        return Object.assign(send, {
           name: value.name,
           text: { text: value.textToShare, hidden: value.hideTextByDefault },
           deletionDate: new Date(this.formattedDeletionDate),
           expirationDate: new Date(this.formattedDeletionDate),
         } as SendView);
-        return send;
       });
     });
   }
 
   async ngOnInit() {
+    this.setupDeletionDatePresets();
+
     if (this.originalSendView) {
       this.sendTextDetailsForm.patchValue({
         name: this.originalSendView.name,
         textToShare: this.originalSendView.text.text,
         hideTextByDefault: this.originalSendView.text.hidden,
-        selectedDeletionDatePreset: DatePreset.SevenDays,
+        selectedDeletionDatePreset: this.originalSendView.deletionDate.toString(),
       });
+
+      // If existing deletion date exists, calculate it once and store it
+      if (this.originalSendView.deletionDate) {
+        this.customDeletionDateOption = {
+          name: this.datePipe.transform(this.originalSendView.deletionDate, "MM/dd/yyyy, hh:mm a"),
+          value: this.originalSendView.deletionDate.toString(),
+        };
+        this.datePresetOptions.unshift(this.customDeletionDateOption);
+      }
     }
+  }
+
+  setupDeletionDatePresets() {
+    const defaultSelections: DatePresetSelectOption[] = [
+      { name: this.i18nService.t("oneHour"), value: DatePreset.OneHour },
+      { name: this.i18nService.t("oneDay"), value: DatePreset.OneDay },
+      { name: this.i18nService.t("days", "2"), value: DatePreset.TwoDays },
+      { name: this.i18nService.t("days", "3"), value: DatePreset.ThreeDays },
+      { name: this.i18nService.t("days", "7"), value: DatePreset.SevenDays },
+      { name: this.i18nService.t("days", "14"), value: DatePreset.FourteenDays },
+      { name: this.i18nService.t("days", "30"), value: DatePreset.ThirtyDays },
+    ];
+
+    this.datePresetOptions = defaultSelections;
   }
 
   get formattedDeletionDate(): string {
     const now = new Date();
-    const milliseconds = now.setTime(
-      now.getTime() +
-        (this.sendTextDetailsForm.controls.selectedDeletionDatePreset.value as number) *
-          60 *
-          60 *
-          1000,
-    );
+    const selectedValue = this.sendTextDetailsForm.controls.selectedDeletionDatePreset.value;
+
+    // If existing deletion date is selected, return it as is
+    if (typeof selectedValue === "string") {
+      return selectedValue;
+    }
+
+    const milliseconds = now.setTime(now.getTime() + (selectedValue as number) * 60 * 60 * 1000);
     return new Date(milliseconds).toString();
   }
 }

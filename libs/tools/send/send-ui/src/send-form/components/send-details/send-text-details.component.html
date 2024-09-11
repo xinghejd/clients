@@ -1,7 +1,6 @@
 <bit-section [formGroup]="sendTextDetailsForm">
   <bit-section-header>
-    <!-- TODO: Add i18n for this header -->
-    <h2 bitTypography="h5">Send details</h2>
+    <h2 bitTypography="h5">{{ "sendDetails" | i18n }}</h2>
   </bit-section-header>
 
   <bit-card>
@@ -28,7 +27,7 @@
         formControlName="selectedDeletionDatePreset"
       >
         <bit-option
-          *ngFor="let o of deletionDatePresets"
+          *ngFor="let o of datePresetOptions"
           [value]="o.value"
           [label]="o.name"
         ></bit-option>

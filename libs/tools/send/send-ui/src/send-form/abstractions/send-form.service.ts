@@ -22,5 +22,5 @@ export abstract class SendFormService {
     send: SendView,
     file: File | ArrayBuffer,
     config: SendFormConfig,
-  ): Promise<SendView>;
+  ): Promise<void>;
 }

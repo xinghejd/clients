@@ -2214,6 +2214,10 @@
     "message": "Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "sendDetails": {
+    "message": "Send details",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
   "searchSends": {
     "message": "Search Sends",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -2246,14 +2250,14 @@
     "message": "Limit views"
   },
   "limitSendViewsHint": {
-    "message": "No one can view this Send after the limit is reached. $ACCESSCOUNT$ views",
+    "message": "No one can view this Send after the limit is reached.",
     "description": "Displayed under the limit views field on Send"
   },
   "limitSendViewsHintWithCount": {
     "message": "No one can view this Send after the limit is reached. $ACCESSCOUNT$ views left",
     "description": "Displayed under the limit views field on Send",
     "placeholders": {
-      "days": {
+      "accessCount": {
         "content": "$1",
         "example": "2"
       }
