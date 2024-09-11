@@ -126,6 +126,10 @@ export class LoginComponentV2 implements OnInit, OnDestroy {
         await this.validateEmail();
       }
     }
+
+    if (this.clientType === ClientType.Desktop) {
+      await this.desktopOnInit();
+    }
   }
 
   ngOnDestroy(): void {
@@ -171,6 +175,14 @@ export class LoginComponentV2 implements OnInit, OnDestroy {
     await this.handleAuthResult(authResult);
   };
 
+  /**
+   * Handles the result of the authentication process.
+   *
+   * @param authResult
+   * @returns A simple `return` statement for each conditional check.
+   *          If you update this method, do not forget to add a `return`
+   *          to each if-condition block where necessary to stop code execution.
+   */
   private async handleAuthResult(authResult: AuthResult): Promise<void> {
     if (this.handleCaptchaRequired(authResult)) {
       this.captchaSiteKey = authResult.captchaSiteKey;
@@ -208,6 +220,7 @@ export class LoginComponentV2 implements OnInit, OnDestroy {
     // ...on Web
     if (this.clientType === ClientType.Web) {
       await this.goAfterLogIn(authResult.userId);
+      return;
 
       // ...on Browser/Desktop
     } else {
@@ -219,6 +232,7 @@ export class LoginComponentV2 implements OnInit, OnDestroy {
       } else {
         await this.router.navigate(["vault"]); // Desktop
       }
+      return;
     }
   }
 
@@ -459,5 +473,9 @@ export class LoginComponentV2 implements OnInit, OnDestroy {
     this.policies = orgPolicies?.policies;
     this.showResetPasswordAutoEnrollWarning = orgPolicies?.isPolicyAndAutoEnrollEnabled;
     this.enforcedPasswordPolicyOptions = orgPolicies?.enforcedPasswordPolicyOptions;
+  }
+
+  private async desktopOnInit(): Promise<void> {
+    await this.getLoginWithDevice(this.loggedEmail);
   }
 }
