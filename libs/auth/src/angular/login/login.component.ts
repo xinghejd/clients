@@ -1,6 +1,6 @@
 import { CommonModule } from "@angular/common";
 import { Component, ElementRef, Input, NgZone, OnDestroy, OnInit, ViewChild } from "@angular/core";
-import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
+import { FormBuilder, FormControl, ReactiveFormsModule, Validators } from "@angular/forms";
 import { ActivatedRoute, Router, RouterModule } from "@angular/router";
 import { first, firstValueFrom, of, Subject, switchMap, take, takeUntil } from "rxjs";
 
@@ -43,6 +43,11 @@ import { LoginService } from "./login.service";
 
 const BroadcasterSubscriptionId = "LoginComponent";
 
+export enum LoginUiState {
+  EMAIL_ENTRY = "EmailEntry",
+  MASTER_PASSWORD_ENTRY = "MasterPasswordEntry",
+}
+
 @Component({
   standalone: true,
   templateUrl: "./login.component.html",
@@ -68,6 +73,7 @@ export class LoginComponentV2 implements OnInit, OnDestroy {
   captchaToken: string = null;
   clientType: ClientType;
   ClientType = ClientType;
+  LoginUiState = LoginUiState;
   registerRoute$ = this.registerRouteService.registerRoute$(); // TODO: remove when email verification flag is removed
   showLoginWithDevice = false;
   validatedEmail = false;
@@ -81,12 +87,16 @@ export class LoginComponentV2 implements OnInit, OnDestroy {
     rememberEmail: [false],
   });
 
-  get emailFormControl() {
+  get emailFormControl(): FormControl<string> {
     return this.formGroup.controls.email;
   }
 
-  get loggedEmail() {
+  get loggedEmail(): string {
     return this.formGroup.value.email;
+  }
+
+  get uiState(): LoginUiState {
+    return this.validatedEmail ? LoginUiState.MASTER_PASSWORD_ENTRY : LoginUiState.EMAIL_ENTRY;
   }
 
   // Web properties

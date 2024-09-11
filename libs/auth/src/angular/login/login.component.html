@@ -42,11 +42,7 @@
   [bitSubmit]="submit"
   [formGroup]="formGroup"
 >
-  <!-----------------------------
-    Web UI State 1: Email Entry
-  ------------------------------>
-  <!-- TODO-rr-bw: consider refactoring this *ngIf check to something like LoginState.EmailEntry and LoginState.MasterPasswordEntry -->
-  <ng-container *ngIf="!validatedEmail">
+  <ng-container *ngIf="uiState === LoginUiState.EMAIL_ENTRY">
     <!-- Email Address input -->
     <div class="tw-mb-3">
       <bit-form-field>
@@ -105,16 +101,13 @@
     </p>
   </ng-container>
 
-  <!---------------------------------------
-    Web UI State 2: Master Password Entry
-  ---------------------------------------->
   <!--
     Why not use <ng-container *ngIf="validatedEmail"> to display this section?
     Because we want access to the masterPasswordInput reference in the class file.
     - Using a hidden div allows us to access the reference without rendering the div initially.
     - Using *ngIf would not allow us to access the reference without rendering the ng-container initially.
   -->
-  <div [ngClass]="{ 'tw-hidden': !validatedEmail }">
+  <div [ngClass]="{ 'tw-hidden': uiState !== LoginUiState.MASTER_PASSWORD_ENTRY }">
     <div class="tw-mb-6 tw-h-28">
       <!-- Master Password input -->
       <bit-form-field class="!tw-mb-1">
