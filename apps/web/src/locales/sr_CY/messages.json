@@ -4816,7 +4816,7 @@
     "message": "Your Billing Sync token can access and edit this organization's subscription settings."
   },
   "manageBillingSync": {
-    "message": "Manage Billing Sync"
+    "message": "Manage Billing Token"
   },
   "setUpBillingSync": {
     "message": "Set Up Billing Sync"
