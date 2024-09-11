@@ -143,6 +143,11 @@ export class LoginComponentV2 implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    if (this.clientType === ClientType.Desktop) {
+      // TODO-rr-bw: refactor to not use deprecated broadcaster service.
+      this.broadcasterService.unsubscribe(BroadcasterSubscriptionId);
+    }
+
     this.destroy$.next();
     this.destroy$.complete();
   }
