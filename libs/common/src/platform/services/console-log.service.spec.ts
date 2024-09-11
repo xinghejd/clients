@@ -1,4 +1,5 @@
 import { interceptConsole, restoreConsole } from "../../../spec";
+import { LogLevelType } from "../enums";
 
 import { ConsoleLogService } from "./console-log.service";
 
@@ -57,6 +58,18 @@ describe("ConsoleLogService", () => {
 
       logService.debug("debug", error, obj);
       expect(consoleSpy.log).toHaveBeenCalledTimes(1);
+    });
+
+    it("does not update filter if null is passed", () => {
+      logService = new ConsoleLogService(true, (level) => level === LogLevelType.Debug);
+      logService.debug("debug", error, obj);
+
+      expect(consoleSpy.log).toHaveBeenCalled();
+
+      logService.updateFilter(null);
+
+      logService.debug("debug", error, obj);
+      expect(consoleSpy.log).toHaveBeenCalled();
     });
   });
 

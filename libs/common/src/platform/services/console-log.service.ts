@@ -14,6 +14,10 @@ export class ConsoleLogService implements LogServiceAbstraction {
   }
 
   updateFilter(filter: (level: LogLevelType) => boolean) {
+    if (filter === null) {
+      this.write(LogLevelType.Warning, "Log level filter cannot be null");
+      return;
+    }
     this._filter = filter;
   }
 
