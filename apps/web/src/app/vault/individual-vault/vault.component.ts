@@ -426,9 +426,6 @@ export class VaultComponent implements OnInit, OnDestroy {
         case "viewAttachments":
           await this.editCipherAttachments(event.item);
           break;
-        case "viewCipherCollections":
-          await this.editCipherCollections(event.item);
-          break;
         case "clone":
           await this.cloneCipher(event.item);
           break;
@@ -444,13 +441,6 @@ export class VaultComponent implements OnInit, OnDestroy {
           break;
         case "moveToFolder":
           await this.bulkMove(event.items);
-          break;
-        case "moveToOrganization":
-          if (event.items.length === 1) {
-            await this.shareCipher(event.items[0]);
-          } else {
-            await this.bulkShare(event.items);
-          }
           break;
         case "copyField":
           await this.copy(event.item, event.field);

@@ -101,10 +101,6 @@ export class VaultItemsComponent {
     return this.showBulkAddToCollections && this.ciphers.length > 0;
   }
 
-  get deleteAllowed() {
-    return this.showDelete();
-  }
-
   protected canEditCollection(collection: CollectionView): boolean {
     // Only allow allow deletion if collection editing is enabled and not deleting "Unassigned"
     if (collection.id === Unassigned) {
@@ -145,15 +141,6 @@ export class VaultItemsComponent {
   protected bulkMoveToFolder() {
     this.event({
       type: "moveToFolder",
-      items: this.selection.selected
-        .filter((item) => item.cipher !== undefined)
-        .map((item) => item.cipher),
-    });
-  }
-
-  protected bulkMoveToOrganization() {
-    this.event({
-      type: "moveToOrganization",
       items: this.selection.selected
         .filter((item) => item.cipher !== undefined)
         .map((item) => item.cipher),

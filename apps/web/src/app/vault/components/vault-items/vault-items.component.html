@@ -65,7 +65,7 @@
               {{ "restoreSelected" | i18n }}
             </button>
             <button
-              *ngIf="deleteAllowed || showBulkTrashOptions"
+              *ngIf="showDelete || showBulkTrashOptions"
               type="button"
               bitMenuItem
               (click)="bulkDelete()"
