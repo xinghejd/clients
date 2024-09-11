@@ -174,7 +174,13 @@
     <!-- Email Address input -->
     <bit-form-field>
       <bit-label>{{ "emailAddress" | i18n }}</bit-label>
-      <input type="email" formControlName="email" bitInput appAutofocus />
+      <input
+        type="email"
+        formControlName="email"
+        bitInput
+        appAutofocus
+        (keyup.enter)="continue()"
+      />
     </bit-form-field>
 
     <!-- Remember Email input -->
@@ -185,7 +191,7 @@
 
     <div class="tw-grid tw-gap-3">
       <!-- Continue button -->
-      <button type="submit" bitButton buttonType="primary" (click)="validateEmail()">
+      <button type="submit" bitButton buttonType="primary" (click)="continue()">
         <span> {{ "continue" | i18n }} </span>
       </button>
 

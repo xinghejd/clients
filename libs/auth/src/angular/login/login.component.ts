@@ -351,6 +351,21 @@ export class LoginComponentV2 implements OnInit, OnDestroy {
     await this.loginEmailService.saveEmailSettings();
   }
 
+  protected async continue(): Promise<void> {
+    await this.validateEmail();
+
+    if (!this.formGroup.controls.email.valid) {
+      this.toastService.showToast({
+        variant: "error",
+        title: this.i18nService.t("errorOccured"),
+        message: this.i18nService.t("invalidEmail"),
+      });
+      return;
+    }
+
+    this.focusInput();
+  }
+
   private async getLoginWithDevice(email: string): Promise<void> {
     try {
       const deviceIdentifier = await this.appIdService.getAppId();
