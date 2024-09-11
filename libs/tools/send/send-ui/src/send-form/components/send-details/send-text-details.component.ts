@@ -27,14 +27,13 @@ enum DatePreset {
   TwoDays = 48,
   ThreeDays = 72,
   SevenDays = 168,
+  FourteenDays = 336,
   ThirtyDays = 720,
-  Custom = 0,
-  Never = null,
 }
 
 interface DatePresetSelectOption {
   name: string;
-  value: DatePreset;
+  value: DatePreset | string;
 }
 
 @Component({
@@ -67,19 +66,24 @@ export class SendTextDetailsComponent implements OnInit {
     textToShare: [""],
     hideTextByDefault: [false],
     // sendLink: [null as string],
-    defaultDeletionDateTime: ["", Validators.required],
     selectedDeletionDatePreset: [DatePreset.SevenDays, Validators.required],
   });
 
-  deletionDatePresets: DatePresetSelectOption[] = [
-    { name: this.i18nService.t("oneHour"), value: DatePreset.OneHour },
-    { name: this.i18nService.t("oneDay"), value: DatePreset.OneDay },
-    { name: this.i18nService.t("days", "2"), value: DatePreset.TwoDays },
-    { name: this.i18nService.t("days", "3"), value: DatePreset.ThreeDays },
-    { name: this.i18nService.t("days", "7"), value: DatePreset.SevenDays },
-    { name: this.i18nService.t("days", "30"), value: DatePreset.ThirtyDays },
-    { name: this.i18nService.t("custom"), value: DatePreset.Custom },
-  ];
+  get deletionDatePresets(): DatePresetSelectOption[] {
+    const defaultSelections = [
+      { name: this.i18nService.t("oneHour"), value: DatePreset.OneHour },
+      { name: this.i18nService.t("oneDay"), value: DatePreset.OneDay },
+      { name: this.i18nService.t("days", "2"), value: DatePreset.TwoDays },
+      { name: this.i18nService.t("days", "3"), value: DatePreset.ThreeDays },
+      { name: this.i18nService.t("days", "7"), value: DatePreset.SevenDays },
+      { name: this.i18nService.t("days", "14"), value: DatePreset.FourteenDays },
+      { name: this.i18nService.t("days", "30"), value: DatePreset.ThirtyDays },
+    ];
+    if (!this.originalSendView.deletionDate) {
+      return defaultSelections;
+    }
+    return [{ name: null, value: this.formattedDeletionDate }, ...defaultSelections];
+  }
 
   constructor(
     private sendFormContainer: SendFormContainer,
@@ -108,44 +112,20 @@ export class SendTextDetailsComponent implements OnInit {
         name: this.originalSendView.name,
         textToShare: this.originalSendView.text.text,
         hideTextByDefault: this.originalSendView.text.hidden,
-        defaultDeletionDateTime: this.datePipe.transform(
-          new Date(this.originalSendView.deletionDate),
-          "yyyy-MM-ddTHH:mm",
-        ),
-        selectedDeletionDatePreset:
-          this.config.mode === "edit" ? DatePreset.Custom : DatePreset.SevenDays,
+        selectedDeletionDatePreset: DatePreset.SevenDays,
       });
     }
-
-    this.sendTextDetailsForm.controls.selectedDeletionDatePreset.valueChanges
-      .pipe(takeUntilDestroyed())
-      .subscribe((datePreset) => {
-        datePreset === DatePreset.Custom
-          ? this.sendTextDetailsForm.controls.defaultDeletionDateTime.enable()
-          : this.sendTextDetailsForm.controls.defaultDeletionDateTime.disable();
-      });
   }
 
   get formattedDeletionDate(): string {
-    switch (this.sendTextDetailsForm.controls.selectedDeletionDatePreset.value as DatePreset) {
-      case DatePreset.Never:
-        this.sendTextDetailsForm.controls.selectedDeletionDatePreset.patchValue(
-          DatePreset.SevenDays,
-        );
-        return this.formattedDeletionDate;
-      case DatePreset.Custom:
-        return this.sendTextDetailsForm.controls.defaultDeletionDateTime.value;
-      default: {
-        const now = new Date();
-        const milliseconds = now.setTime(
-          now.getTime() +
-            (this.sendTextDetailsForm.controls.selectedDeletionDatePreset.value as number) *
-              60 *
-              60 *
-              1000,
-        );
-        return new Date(milliseconds).toString();
-      }
-    }
+    const now = new Date();
+    const milliseconds = now.setTime(
+      now.getTime() +
+        (this.sendTextDetailsForm.controls.selectedDeletionDatePreset.value as number) *
+          60 *
+          60 *
+          1000,
+    );
+    return new Date(milliseconds).toString();
   }
 }

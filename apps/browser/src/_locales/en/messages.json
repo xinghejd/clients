@@ -2225,6 +2225,9 @@
   "sendTypeText": {
     "message": "Text"
   },
+  "sendTypeTextToShare": {
+    "message": "Text to share"
+  },
   "sendTypeFile": {
     "message": "File"
   },
@@ -2236,13 +2239,16 @@
     "message": "When accessing the Send, hide the text by default",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "hideTextByDefault": {
+    "message": "Hide text by default"
+  },
   "limitSendViews": {
     "message": "Limit views"
   },
   "limitSendViewsHint": {
     "message": "No one can view this Send after the limit is reached. $ACCESSCOUNT$ views",
-    "description": "Displayed under the limit views field on Send"    
-  },  
+    "description": "Displayed under the limit views field on Send"
+  },
   "limitSendViewsHintWithCount": {
     "message": "No one can view this Send after the limit is reached. $ACCESSCOUNT$ views left",
     "description": "Displayed under the limit views field on Send",
@@ -2252,7 +2258,7 @@
         "example": "2"
       }
     }
-  },  
+  },
   "maxAccessCountReached": {
     "message": "Max access count reached",
     "description": "This text will be displayed after a Send has been accessed the maximum amount of times."
@@ -2324,6 +2330,10 @@
   },
   "deletionDateDesc": {
     "message": "The Send will be permanently deleted on the specified date and time.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "deletionDateDescV2": {
+    "message": "The Send will be permanently deleted on this date.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "expirationDate": {
