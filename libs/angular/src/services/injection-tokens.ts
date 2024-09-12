@@ -58,3 +58,5 @@ export const CLIENT_TYPE = new SafeInjectionToken<ClientType>("CLIENT_TYPE");
 export const REFRESH_ACCESS_TOKEN_ERROR_CALLBACK = new SafeInjectionToken<() => void>(
   "REFRESH_ACCESS_TOKEN_ERROR_CALLBACK",
 );
+
+export const CLIENT_SUPPORTS_WEB_PUSH = new SafeInjectionToken<boolean>("CLIENT_SUPPORTS_WEB_PUSH");

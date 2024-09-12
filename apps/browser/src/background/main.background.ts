@@ -14,7 +14,6 @@ import { ApiService as ApiServiceAbstraction } from "@bitwarden/common/abstracti
 import { AuditService as AuditServiceAbstraction } from "@bitwarden/common/abstractions/audit.service";
 import { EventCollectionService as EventCollectionServiceAbstraction } from "@bitwarden/common/abstractions/event/event-collection.service";
 import { EventUploadService as EventUploadServiceAbstraction } from "@bitwarden/common/abstractions/event/event-upload.service";
-import { NotificationsService as NotificationsServiceAbstraction } from "@bitwarden/common/abstractions/notifications.service";
 import { SearchService as SearchServiceAbstraction } from "@bitwarden/common/abstractions/search.service";
 import { VaultTimeoutSettingsService as VaultTimeoutSettingsServiceAbstraction } from "@bitwarden/common/abstractions/vault-timeout/vault-timeout-settings.service";
 import { InternalOrganizationServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
@@ -103,6 +102,12 @@ import { Lazy } from "@bitwarden/common/platform/misc/lazy";
 import { clearCaches } from "@bitwarden/common/platform/misc/sequentialize";
 import { GlobalState } from "@bitwarden/common/platform/models/domain/global-state";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
+import { NotificationsService } from "@bitwarden/common/platform/notifications";
+import {
+  DefaultNotificationsService,
+  DefaultWebPushConnectionService,
+  SignalRNotificationsConnectionService,
+} from "@bitwarden/common/platform/notifications/internal";
 import { AppIdService } from "@bitwarden/common/platform/services/app-id.service";
 import { ConfigApiService } from "@bitwarden/common/platform/services/config/config-api.service";
 import { DefaultConfigService } from "@bitwarden/common/platform/services/config/default-config.service";
@@ -117,7 +122,6 @@ import { KeyGenerationService } from "@bitwarden/common/platform/services/key-ge
 import { MigrationBuilderService } from "@bitwarden/common/platform/services/migration-builder.service";
 import { MigrationRunner } from "@bitwarden/common/platform/services/migration-runner";
 import { DefaultWebPushNotificationsApiService } from "@bitwarden/common/platform/services/notifications/web-push-notifications-api.service";
-import { WebPushNotificationsService } from "@bitwarden/common/platform/services/notifications/web-push-notifications.service";
 import { SystemService } from "@bitwarden/common/platform/services/system.service";
 import { UserAutoUnlockKeyService } from "@bitwarden/common/platform/services/user-auto-unlock-key.service";
 import { WebCryptoFunctionService } from "@bitwarden/common/platform/services/web-crypto-function.service";
@@ -145,7 +149,6 @@ import { ApiService } from "@bitwarden/common/services/api.service";
 import { AuditService } from "@bitwarden/common/services/audit.service";
 import { EventCollectionService } from "@bitwarden/common/services/event/event-collection.service";
 import { EventUploadService } from "@bitwarden/common/services/event/event-upload.service";
-import { NotificationsService } from "@bitwarden/common/services/notifications.service";
 import { SearchService } from "@bitwarden/common/services/search.service";
 import { VaultTimeoutSettingsService } from "@bitwarden/common/services/vault-timeout/vault-timeout-settings.service";
 import {
@@ -281,8 +284,7 @@ export default class MainBackground {
   importService: ImportServiceAbstraction;
   exportService: VaultExportServiceAbstraction;
   searchService: SearchServiceAbstraction;
-  notificationsService: NotificationsServiceAbstraction;
-  webPushNotificationsService: WebPushNotificationsService;
+  notificationsService: NotificationsService;
   stateService: StateServiceAbstraction;
   userNotificationSettingsService: UserNotificationSettingsServiceAbstraction;
   autofillSettingsService: AutofillSettingsServiceAbstraction;
@@ -342,6 +344,8 @@ export default class MainBackground {
   offscreenDocumentService: OffscreenDocumentService;
   syncServiceListener: SyncServiceListener;
 
+  webPushConnectionService: DefaultWebPushConnectionService;
+
   onUpdatedRan: boolean;
   onReplacedRan: boolean;
   loginToAutoFill: CipherView = null;
@@ -363,11 +367,6 @@ export default class MainBackground {
   constructor(public popupOnlyContext: boolean = false) {
     // Services
     const lockedCallback = async (userId?: string) => {
-      if (this.notificationsService != null) {
-        // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-        // eslint-disable-next-line @typescript-eslint/no-floating-promises
-        this.notificationsService.updateConnection(false);
-      }
       await this.refreshBadge();
       await this.refreshMenu(true);
       if (this.systemService != null) {
@@ -929,38 +928,46 @@ export default class MainBackground {
       this.organizationVaultExportService,
     );
 
-    this.notificationsService = new NotificationsService(
-      this.logService,
+    this.webPushConnectionService = new DefaultWebPushConnectionService(
+      true,
+      this.configService,
+      new DefaultWebPushNotificationsApiService(this.apiService, this.appIdService),
+      (self as unknown as { registration: ServiceWorkerRegistration }).registration,
+    );
+
+    this.notificationsService = new DefaultNotificationsService(
       this.syncService,
       this.appIdService,
-      this.apiService,
       this.environmentService,
       logoutCallback,
-      this.stateService,
-      this.authService,
       this.messagingService,
+      this.accountService,
+      new SignalRNotificationsConnectionService(this.apiService, this.logService),
+      this.authService,
+      this.webPushConnectionService,
+      this.logService,
     );
-    if (BrowserApi.isManifestVersion(3)) {
-      this.webPushNotificationsService = new WebPushNotificationsService(
-        (self as any).registration as ServiceWorkerRegistration,
-        new DefaultWebPushNotificationsApiService(this.apiService, this.appIdService),
-        this.configService,
-      );
-    } else {
-      const websocket = new WebSocket("wss://push.services.mozilla.com");
-      websocket.onopen = (e) => {
-        this.logService.debug("Websocket opened", e);
-        websocket.send(
-          JSON.stringify({
-            messageType: "hello",
-            uaid: "",
-            channel_ids: [],
-            status: 0,
-            use_webpush: true,
-          }),
-        );
-      };
-    }
+    // if (BrowserApi.isManifestVersion(3)) {
+    //   this.webPushNotificationsService = new WebPushNotificationsService(
+    //     (self as any).registration as ServiceWorkerRegistration,
+    //     new DefaultWebPushNotificationsApiService(this.apiService, this.appIdService),
+    //     this.configService,
+    //   );
+    // } else {
+    //   const websocket = new WebSocket("wss://push.services.mozilla.com");
+    //   websocket.onopen = (e) => {
+    //     this.logService.debug("Websocket opened", e);
+    //     websocket.send(
+    //       JSON.stringify({
+    //         messageType: "hello",
+    //         uaid: "",
+    //         channel_ids: [],
+    //         status: 0,
+    //         use_webpush: true,
+    //       }),
+    //     );
+    //   };
+    // }
 
     this.fido2UserInterfaceService = new BrowserFido2UserInterfaceService(this.authService);
     this.fido2AuthenticatorService = new Fido2AuthenticatorService(
@@ -1169,6 +1176,7 @@ export default class MainBackground {
   }
 
   async bootstrap() {
+    this.webPushConnectionService.start();
     this.containerService.attachToGlobal(self);
 
     // Only the "true" background should run migrations
@@ -1209,15 +1217,11 @@ export default class MainBackground {
     this.webRequestBackground?.startListening();
     this.syncServiceListener?.listener$().subscribe();
 
-    if (this.webPushNotificationsService) {
-      await this.webPushNotificationsService.init();
-    }
-
     return new Promise<void>((resolve) => {
       setTimeout(async () => {
         await this.refreshBadge();
         await this.fullSync(true);
-        setTimeout(() => this.notificationsService.init(), 2500);
+        this.notificationsService.startListening();
         resolve();
       }, 500);
     });
@@ -1293,7 +1297,6 @@ export default class MainBackground {
         ForceSetPasswordReason.None;
 
       await this.systemService.clearPendingClipboard();
-      await this.notificationsService.updateConnection(false);
 
       if (nextAccountStatus === AuthenticationStatus.LoggedOut) {
         this.messagingService.send("goHome");
@@ -1397,7 +1400,6 @@ export default class MainBackground {
     }
     await this.refreshBadge();
     await this.mainContextMenuHandler?.noAccess();
-    await this.notificationsService.updateConnection(false);
     await this.systemService.clearPendingClipboard();
     await this.systemService.startProcessReload(this.authService);
   }
