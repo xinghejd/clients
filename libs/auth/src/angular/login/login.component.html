@@ -84,7 +84,7 @@
 
   <!--
     TODO-rr-bw: Clarify this comment if necessary. Also check if there's a better way to handle this.
-    
+
     Why not use <ng-container *ngIf="validatedEmail"> to display this section?
     Because we want access to the masterPasswordInput reference in the class file.
     - Using a hidden div allows us to access the reference without rendering the div initially.
@@ -114,12 +114,13 @@
       <iframe id="hcaptcha_iframe" height="80" sandbox="allow-scripts allow-same-origin"></iframe>
     </div>
 
-    <!-- Button to Login with Master Password -->
     <div class="tw-grid tw-gap-3">
+      <!-- Button to Login with Master Password -->
       <button type="submit" bitButton bitFormButton block buttonType="primary">
         <span>{{ "loginWithMasterPassword" | i18n }}</span>
       </button>
 
+      <!-- Button to Login with Device -->
       <ng-container *ngIf="showLoginWithDevice && showPasswordless">
         <div class="tw-text-center">{{ "or" | i18n }}</div>
 
