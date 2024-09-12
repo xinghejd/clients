@@ -17,6 +17,7 @@ import {
   AnonLayoutWrapperComponent,
   AnonLayoutWrapperData,
   LoginComponentV2,
+  LoginSecondaryContentComponent,
   RegistrationFinishComponent,
   RegistrationStartComponent,
   RegistrationStartSecondaryComponent,
@@ -403,6 +404,7 @@ const routes: Routes = [
           }, // TODO-rr-bw: add `satisfies DataProperties & ExtensionAnonLayoutWrapperData
           children: [
             { path: "", component: LoginComponentV2 },
+            { path: "", component: LoginSecondaryContentComponent, outlet: "secondary" },
             { path: "", component: EnvironmentSelectorComponent, outlet: "environment-selector" },
           ],
         },

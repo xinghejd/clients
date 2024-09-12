@@ -224,6 +224,8 @@ export class LoginComponentV2 implements OnInit, OnDestroy {
    * @returns A simple `return` statement for each conditional check.
    *          If you update this method, do not forget to add a `return`
    *          to each if-condition block where necessary to stop code execution.
+   *
+   * TODO-rr-bw: is using returns a good approach, or should we stick with is/else if/else?
    */
   private async handleAuthResult(authResult: AuthResult): Promise<void> {
     if (this.handleCaptchaRequired(authResult)) {
@@ -512,7 +514,6 @@ export class LoginComponentV2 implements OnInit, OnDestroy {
 
   private async webOnInit(): Promise<void> {
     this.activatedRoute.queryParams.pipe(first(), takeUntil(this.destroy$)).subscribe((qParams) => {
-      // If there is a parameter called 'org', set previousUrl to `/create-organization?org=<paramValue>`
       if (qParams.org != null) {
         const route = this.router.createUrlTree(["create-organization"], {
           queryParams: { plan: qParams.org },
@@ -520,10 +521,9 @@ export class LoginComponentV2 implements OnInit, OnDestroy {
         this.loginService.setPreviousUrl(route);
       }
 
-      /**
-       * If there is a parameter called 'sponsorshipToken', they are coming from an email for sponsoring a families organization.
-       * Therefore set the prevousUrl to `/setup/families-for-enterprise?token=<paramValue>`
-       */
+      /* If there is a parameter called 'sponsorshipToken', they are coming
+         from an email for sponsoring a families organization. Therefore set
+         the prevousUrl to /setup/families-for-enterprise?token=<paramValue> */
       if (qParams.sponsorshipToken != null) {
         const route = this.router.createUrlTree(["setup/families-for-enterprise"], {
           queryParams: { token: qParams.sponsorshipToken },

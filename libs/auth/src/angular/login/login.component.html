@@ -122,7 +122,53 @@
 <!--             Browser Template             -->
 <!---------------------------------------------->
 <form *ngIf="clientType === ClientType.Browser" [bitSubmit]="submit" [formGroup]="formGroup">
-  <main tabindex="-1"></main>
+  <ng-container *ngIf="uiState === LoginUiState.EMAIL_ENTRY">
+    <!-- Email Address input -->
+    <bit-form-field class="!tw-mb-4">
+      <bit-label>{{ "emailAddress" | i18n }}</bit-label>
+      <input type="email" formControlName="email" bitInput appAutofocus />
+    </bit-form-field>
+
+    <!-- Remember Email input -->
+    <bit-form-control class="!tw-mb-4">
+      <input type="checkbox" formControlName="rememberEmail" bitCheckbox />
+      <bit-label>{{ "rememberEmail" | i18n }}</bit-label>
+    </bit-form-control>
+
+    <div class="tw-grid tw-gap-3">
+      <!-- Continue button -->
+      <button type="submit" bitButton block buttonType="primary" (click)="validateEmail()">
+        {{ "continue" | i18n }}
+      </button>
+
+      <!-- TODO-rr-bw: Figma shows no Login with Passkey option on browser? -->
+      <!-- Link to Login with Passkey page -->
+      <!-- <div class="tw-text-center">{{ "or" | i18n }}</div>
+      <a
+        bitButton
+        block
+        linkType="primary"
+        routerLink="/login-with-passkey"
+        (mousedown)="$event.preventDefault()"
+      >
+        <i class="bwi bwi-passkey tw-mr-1"></i>
+        {{ "logInWithPasskey" | i18n }}
+      </a> -->
+
+      <!-- Link to Login with SSO page -->
+      <a
+        bitButton
+        block
+        buttonType="secondary"
+        routerLink="/sso"
+        [queryParams]="{ email: formGroup.value.email }"
+        (click)="saveEmailSettings()"
+      >
+        <i class="bwi bwi-provider tw-mr-1"></i>
+        {{ "useSingleSignOn" | i18n }}
+      </a>
+    </div>
+  </ng-container>
 </form>
 
 <!---------------------------------------------->
