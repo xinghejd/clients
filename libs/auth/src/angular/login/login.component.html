@@ -74,25 +74,6 @@
         <span><i class="bwi bwi-passkey"></i> {{ "logInWithPasskey" | i18n }}</span>
       </a>
     </div>
-
-    <!-- TODO-rr-bw: according to Figma, move this to AnonLayout secondary content -->
-    <!-- Link to Create Account page -->
-    <!-- <p class="tw-m-0 tw-text-sm">
-      {{ "newAroundHere" | i18n }} -->
-    <!-- Two notes:  
-           (1) We check the value and validity of email so we don't send an invalid email to autofill 
-           on load of register for both enter and mouse based navigation
-           (2) We use mousedown to trigger navigation so that the onBlur form validation does not fire 
-           and move the create account link down the page on click which causes the user to miss actually 
-           clicking on the link. Mousedown fires before onBlur. 
-      -->
-    <!-- <a
-        [routerLink]="registerRoute$ | async"
-        [queryParams]="emailFormControl.valid ? { email: emailFormControl.value } : {}"
-        (mousedown)="goToRegister()"
-        >{{ "createAccount" | i18n }}</a
-      >
-    </p> -->
   </ng-container>
 
   <!--
