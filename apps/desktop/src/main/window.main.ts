@@ -3,7 +3,7 @@ import * as path from "path";
 import * as url from "url";
 
 import { app, BrowserWindow, ipcMain, nativeTheme, screen, session } from "electron";
-import { firstValueFrom } from "rxjs";
+import { concatMap, firstValueFrom, pairwise } from "rxjs";
 
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { AbstractStorageService } from "@bitwarden/common/platform/abstractions/storage.service";
@@ -11,6 +11,7 @@ import { BiometricStateService } from "@bitwarden/common/platform/biometrics/bio
 import { processisolations } from "@bitwarden/desktop-napi";
 
 import { WindowState } from "../platform/models/domain/window-state";
+import { applyMainWindowStyles } from "../platform/popup-modal-styles";
 import { DesktopSettingsService } from "../platform/services/desktop-settings.service";
 import {
   cleanUserAgent,
@@ -68,6 +69,18 @@ export class WindowMain {
       this.session.clearCache();
       this.logService.info("Render process reloaded");
     });
+
+    this.desktopSettingsService.inModalMode$
+      .pipe(
+        pairwise(),
+        concatMap(async ([lastValue, newValue]) => {
+          console.log("inModalMode updated", { lastValue, newValue });
+          if (lastValue && !newValue) {
+            applyMainWindowStyles(this.win, this.windowStates[mainWindowSizeKey]);
+          }
+        }),
+      )
+      .subscribe();
 
     return new Promise<void>((resolve, reject) => {
       try {
@@ -203,7 +216,6 @@ export class WindowMain {
         },
       });
     } else {
-      //
       this.win = new BrowserWindow({
         width: 450,
         height: 450,
@@ -353,7 +365,16 @@ export class WindowMain {
   }
 
   private async updateWindowState(configKey: string, win: BrowserWindow) {
+    console.log("updateWindowState");
     if (win == null || win.isDestroyed()) {
+      console.log("no window/destroyed");
+      return;
+    }
+
+    const inModalMode = await firstValueFrom(this.desktopSettingsService.inModalMode$);
+
+    if (inModalMode) {
+      console.log("in modal mode, ignore");
       return;
     }
 
