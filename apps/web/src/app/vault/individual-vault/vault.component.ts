@@ -82,16 +82,7 @@ import {
   BulkMoveDialogResult,
   openBulkMoveDialog,
 } from "./bulk-action-dialogs/bulk-move-dialog/bulk-move-dialog.component";
-import {
-  BulkShareDialogResult,
-  openBulkShareDialog,
-} from "./bulk-action-dialogs/bulk-share-dialog/bulk-share-dialog.component";
-import {
-  CollectionsDialogResult,
-  openIndividualVaultCollectionsDialog,
-} from "./collections.component";
 import { FolderAddEditDialogResult, openFolderAddEditDialog } from "./folder-add-edit.component";
-import { ShareComponent } from "./share.component";
 import { VaultBannersComponent } from "./vault-banners/vault-banners.component";
 import { VaultFilterComponent } from "./vault-filter/components/vault-filter.component";
 import { VaultFilterService } from "./vault-filter/services/abstractions/vault-filter.service";
@@ -541,41 +532,6 @@ export class VaultComponent implements OnInit, OnDestroy {
       }
       madeAttachmentChanges = false;
     });
-  }
-
-  async shareCipher(cipher: CipherView) {
-    if (cipher.organizationId != null) {
-      // You cannot move ciphers between organizations
-      this.showMissingPermissionsError();
-      return;
-    }
-
-    if (cipher?.reprompt !== 0 && !(await this.passwordRepromptService.showPasswordPrompt())) {
-      this.go({ cipherId: null, itemId: null });
-      return;
-    }
-    const [modal] = await this.modalService.openViewRef(
-      ShareComponent,
-      this.shareModalRef,
-      (comp) => {
-        comp.cipherId = cipher.id;
-        comp.onSharedCipher.pipe(takeUntil(this.destroy$)).subscribe(() => {
-          modal.close();
-          this.refresh();
-        });
-      },
-    );
-  }
-
-  async editCipherCollections(cipher: CipherView) {
-    const dialog = openIndividualVaultCollectionsDialog(this.dialogService, {
-      data: { cipherId: cipher.id },
-    });
-    const result = await lastValueFrom(dialog.closed);
-
-    if (result === CollectionsDialogResult.Saved) {
-      this.refresh();
-    }
   }
 
   async addCipher(cipherType?: CipherType) {
@@ -1089,34 +1045,6 @@ export class VaultComponent implements OnInit, OnDestroy {
         EventType.Cipher_ClientCopiedHiddenField,
         cipher.id,
       );
-    }
-  }
-
-  async bulkShare(ciphers: CipherView[]) {
-    if (!(await this.repromptCipher(ciphers))) {
-      return;
-    }
-
-    if (ciphers.some((c) => c.organizationId != null)) {
-      // You cannot move ciphers between organizations
-      this.showMissingPermissionsError();
-      return;
-    }
-
-    if (ciphers.length === 0) {
-      this.toastService.showToast({
-        variant: "error",
-        title: null,
-        message: this.i18nService.t("nothingSelected"),
-      });
-      return;
-    }
-
-    const dialog = openBulkShareDialog(this.dialogService, { data: { ciphers } });
-
-    const result = await lastValueFrom(dialog.closed);
-    if (result === BulkShareDialogResult.Shared) {
-      this.refresh();
     }
   }
 
