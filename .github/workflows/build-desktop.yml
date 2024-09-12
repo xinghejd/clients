@@ -1196,6 +1196,11 @@ jobs:
           APPLE_ID_USERNAME: ${{ secrets.APPLE_ID_USERNAME }}
           APPLE_ID_PASSWORD: ${{ secrets.APPLE_ID_PASSWORD }}
 
+      - name: Resign
+        run: |
+          security find-identity -v -p codesigning
+          # codesign --force --sign "Developer ID Application: " dist/mas-dev-universal/Bitwarden.app
+
       - name: Zip masdev asset
         run: |
           cd dist/mas-dev-universal
