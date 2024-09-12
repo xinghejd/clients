@@ -111,7 +111,6 @@ export class LoginComponentV2 implements OnInit, OnDestroy {
 
   // Desktop properties
   deferFocus: boolean = null; // TODO-rr-bw: why initialize to null instead of false
-  showPassword = false; // TODO-rr-bw: is this still needed? It seems we no longer need this now that we have bitPasswordInputToggle
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -473,10 +472,6 @@ export class LoginComponentV2 implements OnInit, OnDestroy {
     }
   }
 
-  private onWindowHidden() {
-    this.showPassword = false;
-  }
-
   private focusInput() {
     const email = this.loggedEmail;
     document.getElementById(email == null || email === "" ? "email" : "masterPassword")?.focus();
@@ -559,9 +554,6 @@ export class LoginComponentV2 implements OnInit, OnDestroy {
     this.broadcasterService.subscribe(BroadcasterSubscriptionId, async (message: any) => {
       this.ngZone.run(() => {
         switch (message.command) {
-          case "windowHidden":
-            this.onWindowHidden();
-            break;
           case "windowIsFocused":
             if (this.deferFocus === null) {
               this.deferFocus = !message.windowIsFocused;
