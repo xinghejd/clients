@@ -169,6 +169,54 @@
       </a>
     </div>
   </ng-container>
+
+  <ng-container *ngIf="uiState === LoginUiState.MASTER_PASSWORD_ENTRY">
+    <!-- Master Password input -->
+    <bit-form-field class="!tw-mb-1">
+      <bit-label>{{ "masterPass" | i18n }}</bit-label>
+      <input type="password" formControlName="masterPassword" bitInput #masterPasswordInputRef />
+      <button type="button" bitIconButton bitSuffix bitPasswordInputToggle></button>
+    </bit-form-field>
+
+    <!-- Link to Password Hint page -->
+    <a
+      class="tw-inline-block tw-mb-4 tw-font-semibold"
+      routerLink="/hint"
+      (mousedown)="goToHint()"
+      (click)="saveEmailSettings()"
+    >
+      {{ "getMasterPasswordHint" | i18n }}
+    </a>
+
+    <!-- TODO-rr-bw: will we still be handling captcha? -->
+    <!-- Captcha iframe -->
+    <div [hidden]="!showCaptcha()">
+      <iframe id="hcaptcha_iframe" height="80" sandbox="allow-scripts allow-same-origin"></iframe>
+    </div>
+
+    <div class="tw-grid tw-gap-3">
+      <!-- Submit button to Login with Master Password -->
+      <button type="submit" bitButton bitFormButton block buttonType="primary">
+        {{ "loginWithMasterPassword" | i18n }}
+      </button>
+
+      <!-- Button to Login with Device -->
+      <ng-container *ngIf="showLoginWithDevice && showPasswordless">
+        <div class="tw-text-center">{{ "or" | i18n }}</div>
+
+        <button
+          type="button"
+          bitButton
+          block
+          buttonType="secondary"
+          (click)="startAuthRequestLogin()"
+        >
+          <i class="bwi bwi-mobile"></i>
+          {{ "loginWithDevice" | i18n }}
+        </button>
+      </ng-container>
+    </div>
+  </ng-container>
 </form>
 
 <!---------------------------------------------->
