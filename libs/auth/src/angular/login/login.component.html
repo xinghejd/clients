@@ -37,7 +37,7 @@
     <div class="tw-grid tw-gap-3">
       <!-- Continue button -->
       <button type="submit" bitButton block buttonType="primary" (click)="validateEmail()">
-        <span>{{ "continue" | i18n }}</span>
+        {{ "continue" | i18n }}
       </button>
 
       <div class="tw-text-center">{{ "or" | i18n }}</div>
@@ -50,7 +50,8 @@
         routerLink="/login-with-passkey"
         (mousedown)="$event.preventDefault()"
       >
-        <span><i class="bwi bwi-passkey"></i>{{ "logInWithPasskey" | i18n }}</span>
+        <i class="bwi bwi-passkey tw-mr-1"></i>
+        {{ "logInWithPasskey" | i18n }}
       </a>
 
       <!-- Link to Login with SSO page -->
@@ -62,7 +63,7 @@
         [queryParams]="{ email: formGroup.value.email }"
         (click)="saveEmailSettings()"
       >
-        <i class="bwi bwi-provider"></i>
+        <i class="bwi bwi-provider tw-mr-1"></i>
         {{ "useSingleSignOn" | i18n }}
       </a>
     </div>
@@ -93,9 +94,9 @@
     </div>
 
     <div class="tw-grid tw-gap-3">
-      <!-- Button to Login with Master Password -->
+      <!-- Submit button to Login with Master Password -->
       <button type="submit" bitButton bitFormButton block buttonType="primary">
-        <span>{{ "loginWithMasterPassword" | i18n }}</span>
+        {{ "loginWithMasterPassword" | i18n }}
       </button>
 
       <!-- Button to Login with Device -->
@@ -109,7 +110,8 @@
           buttonType="secondary"
           (click)="startAuthRequestLogin()"
         >
-          <span><i class="bwi bwi-mobile"></i>{{ "loginWithDevice" | i18n }}</span>
+          <i class="bwi bwi-mobile"></i>
+          {{ "loginWithDevice" | i18n }}
         </button>
       </ng-container>
     </div>
@@ -127,12 +129,9 @@
 <!--             Desktop Template             -->
 <!---------------------------------------------->
 <form *ngIf="clientType === ClientType.Desktop" [bitSubmit]="submit" [formGroup]="formGroup">
-  <!---------------------------------
-    Desktop UI State 1: Email Entry
-  ---------------------------------->
-  <ng-container *ngIf="!validatedEmail">
+  <ng-container *ngIf="uiState === LoginUiState.EMAIL_ENTRY">
     <!-- Email Address input -->
-    <bit-form-field>
+    <bit-form-field class="!tw-mb-4">
       <bit-label>{{ "emailAddress" | i18n }}</bit-label>
       <input
         type="email"
@@ -144,7 +143,7 @@
     </bit-form-field>
 
     <!-- Remember Email input -->
-    <bit-form-control>
+    <bit-form-control class="!tw-mb-4">
       <input type="checkbox" formControlName="rememberEmail" bitCheckbox />
       <bit-label>{{ "rememberEmail" | i18n }}</bit-label>
     </bit-form-control>
@@ -152,59 +151,50 @@
     <div class="tw-grid tw-gap-3">
       <!-- Continue button -->
       <button type="submit" bitButton buttonType="primary" (click)="continue()">
-        <span> {{ "continue" | i18n }} </span>
+        {{ "continue" | i18n }}
       </button>
 
       <div class="tw-text-center">{{ "or" | i18n }}</div>
 
       <!-- Link to Login with Passkey page -->
       <button type="button" bitButton block buttonType="secondary" routerLink="/login-with-passkey">
-        <span><i class="bwi bwi-passkey"></i> {{ "logInWithPasskey" | i18n }}</span>
+        <i class="bwi bwi-passkey tw-mr-1"></i>
+        {{ "logInWithPasskey" | i18n }}
       </button>
 
       <!-- Link to SSO page -->
       <button type="button" bitButton block buttonType="secondary" routerLink="/sso">
-        <span><i class="bwi bwi-provider"></i> {{ "useSingleSignOn" | i18n }}</span>
+        <i class="bwi bwi-provider tw-mr-1"></i>
+        {{ "useSingleSignOn" | i18n }}
       </button>
     </div>
-
-    <!--
-      TODO-rr-bw: in the secondary content ("New to Bitwarden? Create account"), which is
-      now being added via app-routing.module.ts, consider if you need to use `registerRoute$ | async
-      as in the current desktop login component.
-    -->
   </ng-container>
 
-  <!-------------------------------------------
-    Desktop UI State 2: Master Password Entry
-  -------------------------------------------->
+  <ng-container *ngIf="uiState === LoginUiState.MASTER_PASSWORD_ENTRY">
+    <!-- Master Password input -->
+    <bit-form-field class="!tw-mb-1">
+      <bit-label>{{ "masterPassword" | i18n }}</bit-label>
+      <input type="password" formControlName="masterPassword" bitInput />
+      <button type="button" bitIconButton bitSuffix bitPasswordInputToggle></button>
+    </bit-form-field>
 
-  <ng-container *ngIf="validatedEmail">
-    <div class="tw-grid tw-gap-4">
-      <div>
-        <!-- Master Password input -->
-        <bit-form-field class="!tw-mb-1">
-          <bit-label>{{ "masterPassword" | i18n }}</bit-label>
-          <input type="password" formControlName="masterPassword" bitInput />
-          <button type="button" bitIconButton bitSuffix bitPasswordInputToggle></button>
-        </bit-form-field>
+    <!-- Link to Password Hint page -->
+    <a
+      class="tw-inline-block tw-mb-4 tw-font-semibold"
+      routerLink="/hint"
+      (mousedown)="goToHint()"
+      (click)="saveEmailSettings()"
+    >
+      {{ "getMasterPasswordHint" | i18n }}
+    </a>
 
-        <!-- Link to Password Hint page -->
-        <a
-          class="tw-font-semibold"
-          routerLink="/hint"
-          (mousedown)="goToHint()"
-          (click)="saveEmailSettings()"
-        >
-          {{ "getMasterPasswordHint" | i18n }}
-        </a>
-      </div>
-
-      <!-- Button to Login with Master Password -->
+    <div class="tw-grid tw-gap-3">
+      <!-- Submit button to Login with Master Password -->
       <button type="submit" bitButton bitFormButton block buttonType="primary">
-        <span> {{ "loginWithMasterPassword" | i18n }} </span>
+        {{ "loginWithMasterPassword" | i18n }}
       </button>
 
+      <!-- Button to Login with Device -->
       <ng-container *ngIf="showLoginWithDevice && showPasswordless">
         <div class="tw-text-center">{{ "or" | i18n }}</div>
 
@@ -215,7 +205,8 @@
           buttonType="secondary"
           (click)="startAuthRequestLogin()"
         >
-          <span><i class="bwi bwi-mobile"></i> {{ "loginWithDevice" | i18n }}</span>
+          <i class="bwi bwi-mobile"></i>
+          {{ "loginWithDevice" | i18n }}
         </button>
       </ng-container>
     </div>

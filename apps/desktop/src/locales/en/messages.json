@@ -517,6 +517,9 @@
   "logInWithPasskey": {
     "message": "Log in with passkey"
   },
+  "loginWithDevice": {
+    "message": "Log in with device"
+  },
   "or": {
     "message": "or"
   },
