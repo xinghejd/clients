@@ -12,29 +12,15 @@
 
   # UI States
 
-    Each client template has two UI states, defined by `LoginUiState` enum:
+    Each client template has two UI states, defined by the `LoginUiState` enum:
       State 1: displays the email input field + continue button
       State 2: displays the master password input field + login button
 -->
 
-<!--------------------------------->
-<!--        Web Template         -->
-<!--------------------------------->
-<!--
-    TODO-rr-bw: Clarify this comment if necessary. Also check if there's a better way to handle this.
-
-    Why not use <form *ngIf="clientType === ClientType.Web"> to display this section?
-    Because this file contains 3 separate templates for Web, Browser, and Desktop. For Web,
-    we want access to the masterPasswordInput reference in the class file.
-    - If we used *ngIf, we would not be able to access the reference initially.
-    - Using a hidden form allows us to access the reference, because it ensures that the element
-      reference does exist (it's just potentially hidden instead of non-existent).
-  -->
-<form
-  [ngClass]="{ 'tw-hidden': clientType !== ClientType.Web }"
-  [bitSubmit]="submit"
-  [formGroup]="formGroup"
->
+<!---------------------------------------------->
+<!--               Web Template               -->
+<!---------------------------------------------->
+<form *ngIf="clientType === ClientType.Web" [bitSubmit]="submit" [formGroup]="formGroup">
   <ng-container *ngIf="uiState === LoginUiState.EMAIL_ENTRY">
     <!-- Email Address input -->
     <bit-form-field class="!tw-mb-4">
@@ -82,19 +68,11 @@
     </div>
   </ng-container>
 
-  <!--
-    TODO-rr-bw: Clarify this comment if necessary. Also check if there's a better way to handle this.
-
-    Why not use <ng-container *ngIf="validatedEmail"> to display this section?
-    Because we want access to the masterPasswordInput reference in the class file.
-    - Using a hidden div allows us to access the reference without rendering the div initially.
-    - Using *ngIf would not allow us to access the reference without rendering the ng-container initially.
-  -->
-  <div [ngClass]="{ 'tw-hidden': uiState !== LoginUiState.MASTER_PASSWORD_ENTRY }">
+  <ng-container *ngIf="uiState === LoginUiState.MASTER_PASSWORD_ENTRY">
     <!-- Master Password input -->
     <bit-form-field class="!tw-mb-1">
       <bit-label>{{ "masterPass" | i18n }}</bit-label>
-      <input type="password" formControlName="masterPassword" bitInput #masterPasswordInput />
+      <input type="password" formControlName="masterPassword" bitInput #masterPasswordInputRef />
       <button type="button" bitIconButton bitSuffix bitPasswordInputToggle></button>
     </bit-form-field>
 
@@ -135,19 +113,19 @@
         </button>
       </ng-container>
     </div>
-  </div>
+  </ng-container>
 </form>
 
-<!--------------------------------->
-<!--      Browser Template       -->
-<!--------------------------------->
+<!---------------------------------------------->
+<!--             Browser Template             -->
+<!---------------------------------------------->
 <form *ngIf="clientType === ClientType.Browser" [bitSubmit]="submit" [formGroup]="formGroup">
   <main tabindex="-1"></main>
 </form>
 
-<!--------------------------------->
-<!--      Desktop Template       -->
-<!--------------------------------->
+<!---------------------------------------------->
+<!--             Desktop Template             -->
+<!---------------------------------------------->
 <form *ngIf="clientType === ClientType.Desktop" [bitSubmit]="submit" [formGroup]="formGroup">
   <!---------------------------------
     Desktop UI State 1: Email Entry

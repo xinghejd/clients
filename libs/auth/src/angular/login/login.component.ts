@@ -67,7 +67,7 @@ export enum LoginUiState {
   ],
 })
 export class LoginComponentV2 implements OnInit, OnDestroy {
-  @ViewChild("masterPasswordInput", { static: true }) masterPasswordInput: ElementRef;
+  @ViewChild("masterPasswordInputRef") masterPasswordInputRef: ElementRef;
   @Input() captchaSiteKey: string = null;
 
   private destroy$ = new Subject<void>();
@@ -360,10 +360,10 @@ export class LoginComponentV2 implements OnInit, OnDestroy {
 
       // When email is validated, focus on master password after waiting for input to be rendered
       if (this.ngZone.isStable) {
-        this.masterPasswordInput?.nativeElement?.focus();
+        this.masterPasswordInputRef?.nativeElement?.focus();
       } else {
         this.ngZone.onStable.pipe(take(1), takeUntil(this.destroy$)).subscribe(() => {
-          this.masterPasswordInput?.nativeElement?.focus();
+          this.masterPasswordInputRef?.nativeElement?.focus();
         });
       }
     }
