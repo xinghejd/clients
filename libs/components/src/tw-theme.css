@@ -12,7 +12,7 @@
   --color-primary-100: 219 229 246;
   --color-primary-300: 121 161 233;
   --color-primary-500: 23 93 220;
-  --color-primary-600: 23 93 200;
+  --color-primary-600: 23 93 220;
   --color-primary-700: 26 65 172;
 
   --color-secondary-100: 230 233 239;
@@ -45,7 +45,6 @@
   --color-text-contrast: 255 255 255;
   --color-text-alt2: 255 255 255;
   --color-text-code: 192 17 118;
-  --color-text-headers: 2 15 102;
 
   --color-marketing-logo: 23 93 220;
 
@@ -101,7 +100,6 @@
   --color-text-contrast: 18 26 39;
   --color-text-alt2: 255 255 255;
   --color-text-code: 255 143 208;
-  --color-text-headers: 226 227 228;
 
   --color-marketing-logo: 255 255 255;
 
