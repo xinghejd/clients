@@ -46,7 +46,6 @@ export class VaultItemsComponent {
   @Input() viewingOrgVault: boolean;
   @Input() addAccessStatus: number;
   @Input() addAccessToggle: boolean;
-  @Input() restrictProviderAccess: boolean;
   @Input() activeCollection: CollectionView | undefined;
 
   private _ciphers?: CipherView[] = [];
