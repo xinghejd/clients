@@ -803,6 +803,9 @@
   "useSingleSignOn": {
     "message": "Use single sign-on"
   },
+  "welcomeBack": {
+    "message": "Welcome back"
+  },
   "invalidPasskeyPleaseTryAgain": {
     "message": "Invalid Passkey. Please try again."
   },

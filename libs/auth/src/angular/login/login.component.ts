@@ -39,6 +39,9 @@ import {
   ToastService,
 } from "@bitwarden/components";
 
+import { AnonLayoutWrapperDataService } from "../anon-layout/anon-layout-wrapper-data.service";
+import { WaveIcon } from "../icons";
+
 import { LoginService } from "./login.service";
 
 const BroadcasterSubscriptionId = "LoginComponent";
@@ -68,6 +71,7 @@ export class LoginComponentV2 implements OnInit, OnDestroy {
   @Input() captchaSiteKey: string = null;
 
   private destroy$ = new Subject<void>();
+  readonly Icons = { WaveIcon };
 
   captcha: CaptchaIFrame;
   captchaToken: string = null;
@@ -79,7 +83,7 @@ export class LoginComponentV2 implements OnInit, OnDestroy {
   validatedEmail = false;
 
   formGroup = this.formBuilder.group({
-    email: ["", { validators: [Validators.required, Validators.email], updateOn: "submit" }],
+    email: ["", [Validators.required, Validators.email]],
     masterPassword: [
       "",
       [Validators.required, Validators.minLength(Utils.originalMinimumPasswordLength)],
@@ -111,6 +115,7 @@ export class LoginComponentV2 implements OnInit, OnDestroy {
 
   constructor(
     private activatedRoute: ActivatedRoute,
+    private anonLayoutWrapperDataService: AnonLayoutWrapperDataService,
     private appIdService: AppIdService,
     private broadcasterService: BroadcasterService,
     private devicesApiService: DevicesApiServiceAbstraction,
@@ -330,6 +335,16 @@ export class LoginComponentV2 implements OnInit, OnDestroy {
     if (emailValid) {
       this.toggleValidateEmail(true);
       await this.getLoginWithDevice(this.loggedEmail);
+
+      this.anonLayoutWrapperDataService.setAnonLayoutWrapperData({
+        pageTitle: "welcomeBack",
+        pageSubtitle: {
+          // TODO-rr-bw: add an icon that takes the user back
+          subtitle: `(todo: back btn) ${this.loggedEmail}`,
+          translate: false,
+        },
+        pageIcon: this.Icons.WaveIcon,
+      });
     }
   }
 
