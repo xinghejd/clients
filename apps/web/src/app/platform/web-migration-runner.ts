@@ -18,6 +18,9 @@ export class WebMigrationRunner extends MigrationRunner {
   }
 
   override async run(): Promise<void> {
+    // eslint-disable-next-line no-console
+    console.groupCollapsed("WebMigrationRunner");
+
     // Run the default migration against session storage
     await super.run();
 
@@ -33,8 +36,10 @@ export class WebMigrationRunner extends MigrationRunner {
 
     // Run migrations again specifically for web `localStorage`.
     const helper = new WebMigrationHelper(stateVersion, this.diskLocalStorage, this.logService);
-
     await migrationBuilder.migrate(helper);
+
+    // eslint-disable-next-line no-console
+    console.groupEnd();
   }
 }
 
