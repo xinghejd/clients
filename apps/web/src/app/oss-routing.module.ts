@@ -1,6 +1,7 @@
 import { NgModule } from "@angular/core";
 import { Route, RouterModule, Routes } from "@angular/router";
 
+import { unauthUiRefreshSwap } from "@bitwarden/angular/auth/functions/unauth-ui-refresh-route-swap";
 import {
   authGuard,
   lockGuard,
@@ -20,6 +21,7 @@ import {
   LockIcon,
   RegistrationLinkExpiredComponent,
   LoginComponentV2,
+  LoginSecondaryContentComponent,
 } from "@bitwarden/auth/angular";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 
@@ -168,6 +170,51 @@ const routes: Routes = [
       },
     ],
   },
+  ...unauthUiRefreshSwap(
+    AnonLayoutWrapperComponent,
+    AnonLayoutWrapperComponent,
+    {
+      path: "login",
+      canActivate: [unauthGuardFn()],
+      children: [
+        {
+          path: "",
+          component: LoginComponent,
+        },
+        {
+          path: "",
+          component: EnvironmentSelectorComponent,
+          outlet: "environment-selector",
+        },
+      ],
+      data: {
+        pageTitle: "logIn",
+      },
+    },
+    {
+      path: "login",
+      canActivate: [unauthGuardFn()],
+      data: {
+        pageTitle: "logInToBitwarden",
+      } satisfies DataProperties & AnonLayoutWrapperData,
+      children: [
+        {
+          path: "",
+          component: LoginComponentV2,
+        },
+        {
+          path: "",
+          component: LoginSecondaryContentComponent,
+          outlet: "secondary",
+        },
+        {
+          path: "",
+          component: EnvironmentSelectorComponent,
+          outlet: "environment-selector",
+        },
+      ],
+    },
+  ),
   {
     path: "",
     component: AnonLayoutWrapperComponent,
@@ -261,24 +308,6 @@ const routes: Routes = [
           {
             path: "",
             component: SsoComponent,
-          },
-          {
-            path: "",
-            component: EnvironmentSelectorComponent,
-            outlet: "environment-selector",
-          },
-        ],
-      },
-      {
-        path: "login",
-        canActivate: [unauthGuardFn()],
-        data: {
-          pageTitle: "logInToBitwarden",
-        } satisfies DataProperties & AnonLayoutWrapperData,
-        children: [
-          {
-            path: "",
-            component: LoginComponentV2,
           },
           {
             path: "",

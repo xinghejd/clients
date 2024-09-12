@@ -881,6 +881,9 @@
   "createAccount": {
     "message": "Create account"
   },
+  "newToBitwarden": {
+    "message": "New to Bitwarden?"
+  },
   "setAStrongPassword": {
     "message": "Set a strong password"
   },

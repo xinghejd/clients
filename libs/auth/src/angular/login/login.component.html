@@ -44,31 +44,26 @@
 >
   <ng-container *ngIf="uiState === LoginUiState.EMAIL_ENTRY">
     <!-- Email Address input -->
-    <div class="tw-mb-3">
-      <bit-form-field>
-        <bit-label>{{ "emailAddress" | i18n }}</bit-label>
-        <input type="email" formControlName="email" bitInput appAutofocus />
-      </bit-form-field>
-    </div>
+    <bit-form-field class="!tw-mb-4">
+      <bit-label>{{ "emailAddress" | i18n }}</bit-label>
+      <input type="email" formControlName="email" bitInput appAutofocus />
+    </bit-form-field>
 
     <!-- Remember Email input -->
-    <div class="tw-mb-3 tw-flex tw-items-start">
-      <bit-form-control class="tw-mb-0">
-        <input type="checkbox" formControlName="rememberEmail" bitCheckbox />
-        <bit-label>{{ "rememberEmail" | i18n }}</bit-label>
-      </bit-form-control>
-    </div>
+    <bit-form-control class="!tw-mb-4">
+      <input type="checkbox" formControlName="rememberEmail" bitCheckbox />
+      <bit-label>{{ "rememberEmail" | i18n }}</bit-label>
+    </bit-form-control>
 
-    <!-- Continue button -->
-    <div class="tw-mb-3">
+    <div class="tw-grid tw-gap-3 tw-text-center">
+      <!-- Continue button -->
       <button type="submit" bitButton block buttonType="primary" (click)="validateEmail()">
         <span> {{ "continue" | i18n }} </span>
       </button>
-    </div>
 
-    <!-- Link to Login with Passkey page -->
-    <div class="tw-mb-3 tw-flex tw-flex-col tw-items-center tw-justify-center">
-      <p class="tw-mb-3">{{ "or" | i18n }}</p>
+      <div>{{ "or" | i18n }}</div>
+
+      <!-- Link to Login with Passkey page -->
       <a
         bitLink
         block
@@ -80,25 +75,24 @@
       </a>
     </div>
 
-    <hr />
-
+    <!-- TODO-rr-bw: according to Figma, move this to AnonLayout secondary content -->
     <!-- Link to Create Account page -->
-    <p class="tw-m-0 tw-text-sm">
-      {{ "newAroundHere" | i18n }}
-      <!-- Two notes:  
+    <!-- <p class="tw-m-0 tw-text-sm">
+      {{ "newAroundHere" | i18n }} -->
+    <!-- Two notes:  
            (1) We check the value and validity of email so we don't send an invalid email to autofill 
            on load of register for both enter and mouse based navigation
            (2) We use mousedown to trigger navigation so that the onBlur form validation does not fire 
            and move the create account link down the page on click which causes the user to miss actually 
            clicking on the link. Mousedown fires before onBlur. 
       -->
-      <a
+    <!-- <a
         [routerLink]="registerRoute$ | async"
         [queryParams]="emailFormControl.valid ? { email: emailFormControl.value } : {}"
         (mousedown)="goToRegister()"
         >{{ "createAccount" | i18n }}</a
       >
-    </p>
+    </p> -->
   </ng-container>
 
   <!--
