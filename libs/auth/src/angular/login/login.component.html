@@ -12,23 +12,16 @@
 
   # UI States
 
-    Each client template is split into two UI states:
+    Each client template has two UI states, defined by `LoginUiState` enum:
       State 1: displays the email input field + continue button
       State 2: displays the master password input field + login button
-    
-    These are defined by the `LoginUiState` enum:
-
-      enum LoginUiState {
-        EMAIL_ENTRY = "EmailEntry",
-        MASTER_PASSWORD_ENTRY = "MasterPasswordEntry",
-      }
 -->
 
 <!--------------------------------->
 <!--        Web Template         -->
 <!--------------------------------->
 <!--
-    TODO-rr-bw: Clarify this comment if necessary.
+    TODO-rr-bw: Clarify this comment if necessary. Also check if there's a better way to handle this.
 
     Why not use <form *ngIf="clientType === ClientType.Web"> to display this section?
     Because this file contains 3 separate templates for Web, Browser, and Desktop. For Web,
@@ -55,78 +48,26 @@
       <bit-label>{{ "rememberEmail" | i18n }}</bit-label>
     </bit-form-control>
 
-    <div class="tw-grid tw-gap-3 tw-text-center">
+    <div class="tw-grid tw-gap-3">
       <!-- Continue button -->
       <button type="submit" bitButton block buttonType="primary" (click)="validateEmail()">
-        <span> {{ "continue" | i18n }} </span>
+        <span>{{ "continue" | i18n }}</span>
       </button>
 
-      <div>{{ "or" | i18n }}</div>
+      <div class="tw-text-center">{{ "or" | i18n }}</div>
 
       <!-- Link to Login with Passkey page -->
       <a
-        bitLink
+        bitButton
         block
         linkType="primary"
         routerLink="/login-with-passkey"
         (mousedown)="$event.preventDefault()"
       >
-        <span><i class="bwi bwi-passkey"></i> {{ "logInWithPasskey" | i18n }}</span>
+        <span><i class="bwi bwi-passkey"></i>{{ "logInWithPasskey" | i18n }}</span>
       </a>
-    </div>
-  </ng-container>
 
-  <!--
-    Why not use <ng-container *ngIf="validatedEmail"> to display this section?
-    Because we want access to the masterPasswordInput reference in the class file.
-    - Using a hidden div allows us to access the reference without rendering the div initially.
-    - Using *ngIf would not allow us to access the reference without rendering the ng-container initially.
-  -->
-  <div [ngClass]="{ 'tw-hidden': uiState !== LoginUiState.MASTER_PASSWORD_ENTRY }">
-    <div class="tw-mb-6 tw-h-28">
-      <!-- Master Password input -->
-      <bit-form-field class="!tw-mb-1">
-        <bit-label>{{ "masterPass" | i18n }}</bit-label>
-        <input type="password" formControlName="masterPassword" bitInput #masterPasswordInput />
-        <button type="button" bitIconButton bitSuffix bitPasswordInputToggle></button>
-      </bit-form-field>
-
-      <!-- Link to Password Hint page -->
-      <a
-        class="tw-mt-2 tw-font-semibold"
-        routerLink="/hint"
-        (mousedown)="goToHint()"
-        (click)="saveEmailSettings()"
-        >{{ "getMasterPasswordHint" | i18n }}</a
-      >
-    </div>
-
-    <!-- TODO-rr-bw: will we still be handling captcha? -->
-    <!-- Captcha iframe -->
-    <div [hidden]="!showCaptcha()">
-      <iframe id="hcaptcha_iframe" height="80" sandbox="allow-scripts allow-same-origin"></iframe>
-    </div>
-
-    <!-- Button to Login with Master Password -->
-    <div class="tw-mb-3 tw-flex tw-space-x-4">
-      <button type="submit" bitButton bitFormButton block buttonType="primary">
-        <span> {{ "loginWithMasterPassword" | i18n }} </span>
-      </button>
-    </div>
-
-    <div class="tw-mb-3" *ngIf="showLoginWithDevice && showPasswordless">
-      <button
-        type="button"
-        bitButton
-        block
-        buttonType="secondary"
-        (click)="startAuthRequestLogin()"
-      >
-        <span><i class="bwi bwi-mobile"></i> {{ "loginWithDevice" | i18n }}</span>
-      </button>
-    </div>
-
-    <div class="tw-mb-3">
+      <!-- Link to Login with SSO page -->
       <a
         bitButton
         block
@@ -135,17 +76,63 @@
         [queryParams]="{ email: formGroup.value.email }"
         (click)="saveEmailSettings()"
       >
-        <i class="bwi bwi-provider tw-mr-2"></i>
-        {{ "enterpriseSingleSignOn" | i18n }}
+        <i class="bwi bwi-provider"></i>
+        {{ "useSingleSignOn" | i18n }}
       </a>
     </div>
+  </ng-container>
 
-    <hr />
+  <!--
+    TODO-rr-bw: Clarify this comment if necessary. Also check if there's a better way to handle this.
+    
+    Why not use <ng-container *ngIf="validatedEmail"> to display this section?
+    Because we want access to the masterPasswordInput reference in the class file.
+    - Using a hidden div allows us to access the reference without rendering the div initially.
+    - Using *ngIf would not allow us to access the reference without rendering the ng-container initially.
+  -->
+  <div [ngClass]="{ 'tw-hidden': uiState !== LoginUiState.MASTER_PASSWORD_ENTRY }">
+    <!-- Master Password input -->
+    <bit-form-field class="!tw-mb-1">
+      <bit-label>{{ "masterPass" | i18n }}</bit-label>
+      <input type="password" formControlName="masterPassword" bitInput #masterPasswordInput />
+      <button type="button" bitIconButton bitSuffix bitPasswordInputToggle></button>
+    </bit-form-field>
 
-    <div class="tw-m-0 tw-text-sm">
-      <p class="tw-mb-1">{{ "loggingInAs" | i18n }} {{ loggedEmail }}</p>
-      <!-- TODO-rr-bw: check link -->
-      <a [routerLink]="[]" (click)="toggleValidateEmail(false)">{{ "notYou" | i18n }}</a>
+    <!-- Link to Password Hint page -->
+    <a
+      class="tw-inline-block tw-mb-4 tw-font-semibold"
+      routerLink="/hint"
+      (mousedown)="goToHint()"
+      (click)="saveEmailSettings()"
+    >
+      {{ "getMasterPasswordHint" | i18n }}
+    </a>
+
+    <!-- TODO-rr-bw: will we still be handling captcha? -->
+    <!-- Captcha iframe -->
+    <div [hidden]="!showCaptcha()">
+      <iframe id="hcaptcha_iframe" height="80" sandbox="allow-scripts allow-same-origin"></iframe>
+    </div>
+
+    <!-- Button to Login with Master Password -->
+    <div class="tw-grid tw-gap-3">
+      <button type="submit" bitButton bitFormButton block buttonType="primary">
+        <span>{{ "loginWithMasterPassword" | i18n }}</span>
+      </button>
+
+      <ng-container *ngIf="showLoginWithDevice && showPasswordless">
+        <div class="tw-text-center">{{ "or" | i18n }}</div>
+
+        <button
+          type="button"
+          bitButton
+          block
+          buttonType="secondary"
+          (click)="startAuthRequestLogin()"
+        >
+          <span><i class="bwi bwi-mobile"></i>{{ "loginWithDevice" | i18n }}</span>
+        </button>
+      </ng-container>
     </div>
   </div>
 </form>

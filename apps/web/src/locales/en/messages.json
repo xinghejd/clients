@@ -800,6 +800,9 @@
   "logInWithPasskey": {
     "message": "Log in with passkey"
   },
+  "useSingleSignOn": {
+    "message": "Use single sign-on"
+  },
   "invalidPasskeyPleaseTryAgain": {
     "message": "Invalid Passkey. Please try again."
   },
