@@ -136,12 +136,12 @@ input[type="checkbox"] {
   background-color: rgb(var(--color-background));
 
   &:hover {
-    border-color: rgb(var(--color-primary-500));
+    border-color: rgb(var(--color-primary-600));
   }
 
   &.is-focused {
     outline: 0;
-    border-color: rgb(var(--color-primary-500));
+    border-color: rgb(var(--color-primary-600));
   }
 
   &.is-invalid {
