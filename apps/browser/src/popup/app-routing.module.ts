@@ -134,7 +134,8 @@ const routes: Routes = [
   {
     path: "home",
     component: HomeComponent,
-    canActivate: [unauthGuardFn(unauthRouteOverrides)],
+    // TODO-rr-bw: verify if was the correct feature-flag/redirect to use, and should it go in canActivate?
+    canActivate: [unauthGuardFn(unauthRouteOverrides), extensionRefreshRedirect("login")],
     data: { state: "home" },
   },
   ...extensionRefreshSwap(Fido2V1Component, Fido2Component, {

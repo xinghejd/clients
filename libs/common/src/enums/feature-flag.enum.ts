@@ -56,7 +56,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.EnableConsolidatedBilling]: FALSE,
   [FeatureFlag.AC1795_UpdatedSubscriptionStatusSection]: FALSE,
   [FeatureFlag.EnableDeleteProvider]: FALSE,
-  [FeatureFlag.ExtensionRefresh]: FALSE,
+  [FeatureFlag.ExtensionRefresh]: true,
   [FeatureFlag.PersistPopupView]: FALSE,
   [FeatureFlag.PM4154_BulkEncryptionService]: FALSE,
   [FeatureFlag.UseTreeWalkerApiForPageDetailsCollection]: FALSE,
