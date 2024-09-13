@@ -75,8 +75,6 @@ const BroadcasterSubscriptionId = "LockComponent";
 export class LockV2Component implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
 
-  loading = true;
-
   activeAccount: { id: UserId | undefined } & AccountInfo;
 
   clientType: ClientType;
@@ -189,8 +187,6 @@ export class LockV2Component implements OnInit, OnDestroy {
     if (this.clientType === "browser") {
       await this.extensionOnInit();
     }
-
-    this.loading = false;
   }
 
   // Base component methods
@@ -236,7 +232,6 @@ export class LockV2Component implements OnInit, OnDestroy {
   }
 
   private async handleActiveAccountChange(activeAccount: { id: UserId | undefined } & AccountInfo) {
-    this.loading = true;
     this.activeAccount = activeAccount;
 
     this.resetDataDueToActiveAccountChange();
@@ -262,8 +257,6 @@ export class LockV2Component implements OnInit, OnDestroy {
           }
         }),
       );
-
-    this.loading = false;
   }
 
   private resetDataDueToActiveAccountChange() {
@@ -618,7 +611,7 @@ export class LockV2Component implements OnInit, OnDestroy {
     }
 
     if (
-      !this.unlockOptions.biometrics.enabled ||
+      !this.unlockOptions?.biometrics?.enabled ||
       !this.autoPromptBiometric ||
       this.biometricAsked
     ) {
