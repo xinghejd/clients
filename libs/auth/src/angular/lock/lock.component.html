@@ -9,15 +9,20 @@
   <ng-container
     *ngIf="unlockOptions.biometrics.enabled && activeUnlockOption === UnlockOption.Biometrics"
   >
-    <button type="button" bitButton buttonType="primary" block (click)="unlockViaBiometrics()">
+    <button
+      type="button"
+      bitButton
+      buttonType="primary"
+      class="tw-mb-3"
+      block
+      (click)="unlockViaBiometrics()"
+    >
       {{ "unlockWithBiometrics" | i18n }}
     </button>
 
-    <hr />
-
     <!-- TODO: wire up disable logic on unlock with biometrics -->
     <div class="tw-flex tw-flex-col tw-space-y-3">
-      <p class="tw-text-center">{{ "or" | i18n }}</p>
+      <p class="tw-text-center tw-mb-0">{{ "or" | i18n }}</p>
 
       <ng-container *ngIf="unlockOptions.pin.enabled">
         <button
