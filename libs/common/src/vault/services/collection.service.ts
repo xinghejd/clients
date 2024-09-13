@@ -1,4 +1,4 @@
-import { firstValueFrom, map, Observable } from "rxjs";
+import { combineLatest, firstValueFrom, map, Observable, of, switchMap } from "rxjs";
 import { Jsonify } from "type-fest";
 
 import { CryptoService } from "../../platform/abstractions/crypto.service";
@@ -13,6 +13,7 @@ import {
   UserKeyDefinition,
 } from "../../platform/state";
 import { CollectionId, OrganizationId, UserId } from "../../types/guid";
+import { OrgKey } from "../../types/key";
 import { CollectionService as CollectionServiceAbstraction } from "../../vault/abstractions/collection.service";
 import { CollectionData } from "../models/data/collection.data";
 import { Collection } from "../models/domain/collection";
@@ -29,19 +30,19 @@ const ENCRYPTED_COLLECTION_DATA_KEY = UserKeyDefinition.record<CollectionData, C
   },
 );
 
-const DECRYPTED_COLLECTION_DATA_KEY = DeriveDefinition.from<
-  Record<CollectionId, CollectionData>,
+const DECRYPTED_COLLECTION_DATA_KEY_2 = new DeriveDefinition<
+  [Record<CollectionId, CollectionData>, Record<OrganizationId, OrgKey>],
   CollectionView[],
   { collectionService: CollectionService }
->(ENCRYPTED_COLLECTION_DATA_KEY, {
+>(COLLECTION_DATA, "decryptedCollections", {
   deserializer: (obj) => obj.map((collection) => CollectionView.fromJSON(collection)),
-  derive: async (collections: Record<CollectionId, CollectionData>, { collectionService }) => {
+  derive: async ([collections, orgKeys], { collectionService }) => {
     const data: Collection[] = [];
     for (const id in collections ?? {}) {
       const collectionId = id as CollectionId;
       data.push(new Collection(collections[collectionId]));
     }
-    return await collectionService.decryptMany(data);
+    return await collectionService.decryptMany(data, orgKeys);
   },
 });
 
@@ -65,6 +66,7 @@ export class CollectionService implements CollectionServiceAbstraction {
     protected stateProvider: StateProvider,
   ) {
     this.encryptedCollectionDataState = this.stateProvider.getActive(ENCRYPTED_COLLECTION_DATA_KEY);
+
     this.encryptedCollections$ = this.encryptedCollectionDataState.state$.pipe(
       map((collections) => {
         const response: Collection[] = [];
@@ -75,9 +77,15 @@ export class CollectionService implements CollectionServiceAbstraction {
       }),
     );
 
+    const encryptedCollectionsWithKeys = this.encryptedCollectionDataState.combinedState$.pipe(
+      switchMap(([userId, collectionData]) =>
+        combineLatest([of(collectionData), this.cryptoService.orgKeys$(userId)]),
+      ),
+    );
+
     this.decryptedCollectionDataState = this.stateProvider.getDerived(
-      this.encryptedCollectionDataState.state$,
-      DECRYPTED_COLLECTION_DATA_KEY,
+      encryptedCollectionsWithKeys,
+      DECRYPTED_COLLECTION_DATA_KEY_2,
       { collectionService: this },
     );
 
@@ -105,19 +113,21 @@ export class CollectionService implements CollectionServiceAbstraction {
     return collection;
   }
 
-  async decryptMany(collections: Collection[]): Promise<CollectionView[]> {
+  // TODO: finish making this private and refactor outside callers to use another service
+  private async decryptMany(
+    collections: Collection[],
+    orgKeys: Record<OrganizationId, OrgKey>,
+  ): Promise<CollectionView[]> {
     if (collections == null) {
       return [];
     }
     const decCollections: CollectionView[] = [];
 
-    const organizationKeys = await firstValueFrom(this.cryptoService.activeUserOrgKeys$);
-
     const promises: Promise<any>[] = [];
     collections.forEach((collection) => {
       promises.push(
         collection
-          .decrypt(organizationKeys[collection.organizationId as OrganizationId])
+          .decrypt(orgKeys[collection.organizationId as OrganizationId])
           .then((c) => decCollections.push(c)),
       );
     });
