@@ -28,7 +28,7 @@ describe("CardDetailsSectionComponent", () => {
       imports: [CardDetailsSectionComponent, CommonModule, ReactiveFormsModule],
       providers: [
         { provide: CipherFormContainer, useValue: cipherFormProvider },
-        { provide: I18nService, useValue: mock<I18nService>() },
+        { provide: I18nService, useValue: { t: (key: string) => key } },
       ],
     }).compileComponents();
   });
@@ -62,9 +62,11 @@ describe("CardDetailsSectionComponent", () => {
     cardView.number = "4242 4242 4242 4242";
     cardView.brand = "Visa";
 
-    expect(patchCipherSpy).toHaveBeenCalledWith({
-      card: cardView,
-    });
+    expect(patchCipherSpy).toHaveBeenCalled();
+    const patchFn = patchCipherSpy.mock.lastCall[0];
+
+    const updateCipher = patchFn(new CipherView());
+    expect(updateCipher.card).toEqual(cardView);
   });
 
   it("it converts the year integer to a string", () => {
@@ -75,9 +77,11 @@ describe("CardDetailsSectionComponent", () => {
     const cardView = new CardView();
     cardView.expYear = "2022";
 
-    expect(patchCipherSpy).toHaveBeenCalledWith({
-      card: cardView,
-    });
+    expect(patchCipherSpy).toHaveBeenCalled();
+    const patchFn = patchCipherSpy.mock.lastCall[0];
+
+    const updatedCipher = patchFn(new CipherView());
+    expect(updatedCipher.card).toEqual(cardView);
   });
 
   it('disables `cardDetailsForm` when "disabled" is true', () => {
@@ -121,5 +125,25 @@ describe("CardDetailsSectionComponent", () => {
     numberInput.nativeElement.dispatchEvent(new Event("input"));
 
     expect(component.cardDetailsForm.controls.brand.value).toBe("Visa");
+  });
+
+  it('displays brand heading text when "brand" is not "Other"', () => {
+    component.cardDetailsForm.patchValue({
+      brand: "Visa",
+    });
+
+    fixture.detectChanges();
+
+    const heading = fixture.debugElement.query(By.css("h2"));
+
+    expect(heading.nativeElement.textContent.trim()).toBe("cardBrandDetails");
+
+    component.cardDetailsForm.patchValue({
+      brand: "Other",
+    });
+
+    fixture.detectChanges();
+
+    expect(heading.nativeElement.textContent.trim()).toBe("cardDetails");
   });
 });

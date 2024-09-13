@@ -1,6 +1,9 @@
-import { Component, EventEmitter, Input, Output } from "@angular/core";
+import { Component, EventEmitter, Input, OnInit, Output } from "@angular/core";
+import { firstValueFrom } from "rxjs";
 
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { CollectionView } from "@bitwarden/common/vault/models/view/collection.view";
@@ -12,8 +15,13 @@ import { RowHeightClass } from "./vault-items.component";
   selector: "tr[appVaultCipherRow]",
   templateUrl: "vault-cipher-row.component.html",
 })
-export class VaultCipherRowComponent {
+export class VaultCipherRowComponent implements OnInit {
   protected RowHeightClass = RowHeightClass;
+
+  /**
+   * Flag to determine if the extension refresh feature flag is enabled.
+   */
+  protected extensionRefreshEnabled = false;
 
   @Input() disabled: boolean;
   @Input() cipher: CipherView;
@@ -26,6 +34,9 @@ export class VaultCipherRowComponent {
   @Input() organizations: Organization[];
   @Input() collections: CollectionView[];
   @Input() viewingOrgVault: boolean;
+  @Input() canEditCipher: boolean;
+  @Input() vaultBulkManagementActionEnabled: boolean;
+  @Input() canManageCollection: boolean;
 
   @Output() onEvent = new EventEmitter<VaultItemEvent>();
 
@@ -33,6 +44,18 @@ export class VaultCipherRowComponent {
   @Output() checkedToggled = new EventEmitter<void>();
 
   protected CipherType = CipherType;
+
+  constructor(private configService: ConfigService) {}
+
+  /**
+   * Lifecycle hook for component initialization.
+   * Checks if the extension refresh feature flag is enabled to provide to template.
+   */
+  async ngOnInit(): Promise<void> {
+    this.extensionRefreshEnabled = await firstValueFrom(
+      this.configService.getFeatureFlag$(FeatureFlag.ExtensionRefresh),
+    );
+  }
 
   protected get showTotpCopyButton() {
     return (
@@ -43,6 +66,53 @@ export class VaultCipherRowComponent {
 
   protected get showFixOldAttachments() {
     return this.cipher.hasOldAttachments && this.cipher.organizationId == null;
+  }
+
+  protected get showAttachments() {
+    return this.canEditCipher || this.cipher.attachments?.length > 0;
+  }
+
+  protected get showAssignToCollections() {
+    return this.canEditCipher && !this.cipher.isDeleted;
+  }
+
+  protected get showClone() {
+    return this.cloneable && !this.cipher.isDeleted;
+  }
+
+  protected get showEventLogs() {
+    return this.useEvents && this.cipher.organizationId;
+  }
+
+  protected get isNotDeletedLoginCipher() {
+    return this.cipher.type === this.CipherType.Login && !this.cipher.isDeleted;
+  }
+
+  protected get showCopyPassword(): boolean {
+    return this.isNotDeletedLoginCipher && this.cipher.viewPassword;
+  }
+
+  protected get showCopyTotp(): boolean {
+    return this.isNotDeletedLoginCipher && this.showTotpCopyButton;
+  }
+
+  protected get showLaunchUri(): boolean {
+    return this.isNotDeletedLoginCipher && this.cipher.login.canLaunch;
+  }
+
+  protected get disableMenu() {
+    return (
+      !(
+        this.isNotDeletedLoginCipher ||
+        this.showCopyPassword ||
+        this.showCopyTotp ||
+        this.showLaunchUri ||
+        this.showAttachments ||
+        this.showClone ||
+        this.canEditCipher ||
+        this.cipher.isDeleted
+      ) && this.vaultBulkManagementActionEnabled
+    );
   }
 
   protected copy(field: "username" | "password" | "totp") {
@@ -75,5 +145,9 @@ export class VaultCipherRowComponent {
 
   protected attachments() {
     this.onEvent.emit({ type: "viewAttachments", item: this.cipher });
+  }
+
+  protected assignToCollections() {
+    this.onEvent.emit({ type: "assignToCollections", items: [this.cipher] });
   }
 }

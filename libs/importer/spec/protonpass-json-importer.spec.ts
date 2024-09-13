@@ -31,9 +31,12 @@ describe("Protonpass Json Importer", () => {
     expect(uriView.uri).toEqual("https://example.com/");
     expect(cipher.notes).toEqual("My login secure note.");
 
-    expect(cipher.fields.at(2).name).toEqual("second 2fa secret");
-    expect(cipher.fields.at(2).value).toEqual("TOTPCODE");
-    expect(cipher.fields.at(2).type).toEqual(FieldType.Hidden);
+    expect(cipher.fields.at(0).name).toEqual("email");
+    expect(cipher.fields.at(0).value).toEqual("Email");
+
+    expect(cipher.fields.at(3).name).toEqual("second 2fa secret");
+    expect(cipher.fields.at(3).value).toEqual("TOTPCODE");
+    expect(cipher.fields.at(3).type).toEqual(FieldType.Hidden);
   });
 
   it("should parse note data", async () => {
@@ -112,5 +115,15 @@ describe("Protonpass Json Importer", () => {
     }
 
     expect(ciphers.length).toBe(4);
+  });
+
+  it("should set favorites", async () => {
+    const testDataJson = JSON.stringify(testData);
+    const result = await importer.parse(testDataJson);
+
+    const ciphers = result.ciphers;
+    expect(ciphers[0].favorite).toBe(true);
+    expect(ciphers[1].favorite).toBe(false);
+    expect(ciphers[2].favorite).toBe(true);
   });
 });

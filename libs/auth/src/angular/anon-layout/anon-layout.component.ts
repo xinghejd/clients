@@ -1,5 +1,5 @@
 import { CommonModule } from "@angular/common";
-import { Component, Input } from "@angular/core";
+import { Component, Input, OnChanges, OnInit, SimpleChanges } from "@angular/core";
 import { firstValueFrom } from "rxjs";
 
 import { ClientType } from "@bitwarden/common/enums";
@@ -9,7 +9,7 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { IconModule, Icon } from "../../../../components/src/icon";
 import { SharedModule } from "../../../../components/src/shared";
 import { TypographyModule } from "../../../../components/src/typography";
-import { BitwardenLogo } from "../icons/bitwarden-logo.icon";
+import { BitwardenLogo, BitwardenShield } from "../icons";
 
 @Component({
   standalone: true,
@@ -17,20 +17,28 @@ import { BitwardenLogo } from "../icons/bitwarden-logo.icon";
   templateUrl: "./anon-layout.component.html",
   imports: [IconModule, CommonModule, TypographyModule, SharedModule],
 })
-export class AnonLayoutComponent {
+export class AnonLayoutComponent implements OnInit, OnChanges {
   @Input() title: string;
   @Input() subtitle: string;
   @Input() icon: Icon;
   @Input() showReadonlyHostname: boolean;
+  @Input() hideLogo: boolean = false;
+  @Input() hideFooter: boolean = false;
+  @Input() decreaseTopPadding: boolean = false;
+  /**
+   * Max width of the layout content
+   *
+   * @default 'md'
+   */
+  @Input() maxWidth: "md" | "3xl" = "md";
 
   protected logo = BitwardenLogo;
-
   protected year = "2024";
   protected clientType: ClientType;
   protected hostname: string;
   protected version: string;
 
-  protected showYearAndVersion = true;
+  protected hideYearAndVersion = false;
 
   constructor(
     private environmentService: EnvironmentService,
@@ -38,11 +46,23 @@ export class AnonLayoutComponent {
   ) {
     this.year = new Date().getFullYear().toString();
     this.clientType = this.platformUtilsService.getClientType();
-    this.showYearAndVersion = this.clientType === ClientType.Web;
+    this.hideYearAndVersion = this.clientType !== ClientType.Web;
   }
 
   async ngOnInit() {
+    this.maxWidth = this.maxWidth ?? "md";
     this.hostname = (await firstValueFrom(this.environmentService.environment$)).getHostname();
     this.version = await this.platformUtilsService.getApplicationVersion();
+
+    // If there is no icon input, then use the default icon
+    if (this.icon == null) {
+      this.icon = BitwardenShield;
+    }
+  }
+
+  async ngOnChanges(changes: SimpleChanges) {
+    if (changes.maxWidth) {
+      this.maxWidth = changes.maxWidth.currentValue ?? "md";
+    }
   }
 }
