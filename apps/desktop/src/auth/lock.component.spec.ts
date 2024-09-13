@@ -359,7 +359,6 @@ describe("LockComponent", () => {
 
   describe("delayedAskForBiometric", () => {
     beforeEach(() => {
-      component["supportsBiometric"] = true;
       component["autoPromptBiometric"] = true;
     });
 
@@ -403,7 +402,6 @@ describe("LockComponent", () => {
     }));
 
     it('should return; if "supportsBiometric" is false', fakeAsync(async () => {
-      component["supportsBiometric"] = false;
       // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
       // eslint-disable-next-line @typescript-eslint/no-floating-promises
       component["delayedAskForBiometric"](5000);

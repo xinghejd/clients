@@ -157,7 +157,7 @@ export class LockComponent extends BaseLockComponent implements OnInit, OnDestro
       return;
     }
 
-    if (!this.supportsBiometric || !this.autoPromptBiometric || this.biometricAsked) {
+    if (!this.autoPromptBiometric || this.biometricAsked) {
       return;
     }
 
