@@ -147,32 +147,13 @@
         {{ "continue" | i18n }}
       </button>
 
-      <!-- TODO-rr-bw: Figma shows no Login with Passkey option on browser? -->
-      <!-- Link to Login with Passkey page -->
-      <!-- <div class="tw-text-center">{{ "or" | i18n }}</div>
-      <a
-        bitButton
-        block
-        linkType="primary"
-        routerLink="/login-with-passkey"
-        (mousedown)="$event.preventDefault()"
-      >
-        <i class="bwi bwi-passkey tw-mr-1"></i>
-        {{ "logInWithPasskey" | i18n }}
-      </a> -->
+      <!-- TODO-rr-bw: Figma shows no Login with Passkey option on browser. Is that intentional? -->
 
-      <!-- Link to Login with SSO page -->
-      <a
-        bitButton
-        block
-        buttonType="secondary"
-        routerLink="/sso"
-        [queryParams]="{ email: formGroup.value.email }"
-        (click)="saveEmailSettings()"
-      >
+      <!-- Button to Login with SSO -->
+      <button type="button" bitButton block buttonType="secondary" (click)="launchSsoBrowser()">
         <i class="bwi bwi-provider tw-mr-1"></i>
         {{ "useSingleSignOn" | i18n }}
-      </a>
+      </button>
     </div>
   </ng-container>
 
