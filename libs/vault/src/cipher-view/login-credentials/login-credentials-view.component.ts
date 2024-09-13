@@ -19,6 +19,12 @@ import {
 } from "@bitwarden/components";
 
 import { BitTotpCountdownComponent } from "../../components/totp-countdown/totp-countdown.component";
+import { ReadOnlyCipherCardComponent } from "../read-only-cipher-card/read-only-cipher-card.component";
+
+type TotpCodeValues = {
+  totpCode: string;
+  totpCodeFormatted?: string;
+};
 
 @Component({
   selector: "app-login-credentials-view",
@@ -36,6 +42,7 @@ import { BitTotpCountdownComponent } from "../../components/totp-countdown/totp-
     BadgeModule,
     ColorPasswordModule,
     BitTotpCountdownComponent,
+    ReadOnlyCipherCardComponent,
   ],
 })
 export class LoginCredentialsViewComponent {
@@ -47,7 +54,7 @@ export class LoginCredentialsViewComponent {
     );
   showPasswordCount: boolean = false;
   passwordRevealed: boolean = false;
-  totpCopyCode: string;
+  totpCodeCopyObj: TotpCodeValues;
   private datePipe = inject(DatePipe);
 
   constructor(
@@ -77,7 +84,7 @@ export class LoginCredentialsViewComponent {
     this.showPasswordCount = !this.showPasswordCount;
   }
 
-  setTotpCopyCode(e: any) {
-    this.totpCopyCode = e;
+  setTotpCopyCode(e: TotpCodeValues) {
+    this.totpCodeCopyObj = e;
   }
 }

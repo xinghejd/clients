@@ -384,16 +384,56 @@
     "message": "パスワードの最低文字数"
   },
   "uppercase": {
-    "message": "大文字（A-Z）"
+    "message": "大文字（A-Z）",
+    "description": "deprecated. Use uppercaseLabel instead."
   },
   "lowercase": {
-    "message": "小文字（a-z）"
+    "message": "小文字（a-z）",
+    "description": "deprecated. Use lowercaseLabel instead."
   },
   "numbers": {
-    "message": "数字 (0～9)"
+    "message": "数字 (0～9)",
+    "description": "deprecated. Use numbersLabel instead."
   },
   "specialCharacters": {
-    "message": "特殊文字（!@#$%^&*)"
+    "message": "特殊文字（!@#$%^&*)",
+    "description": "deprecated. Use specialCharactersLabel instead."
+  },
+  "include": {
+    "message": "含む文字",
+    "description": "Card header for password generator include block"
+  },
+  "uppercaseDescription": {
+    "message": "大文字を含める",
+    "description": "Tooltip for the password generator uppercase character checkbox"
+  },
+  "uppercaseLabel": {
+    "message": "A～Z",
+    "description": "Label for the password generator uppercase character checkbox"
+  },
+  "lowercaseDescription": {
+    "message": "小文字を含める",
+    "description": "Full description for the password generator lowercase character checkbox"
+  },
+  "lowercaseLabel": {
+    "message": "a-z",
+    "description": "Label for the password generator lowercase character checkbox"
+  },
+  "numbersDescription": {
+    "message": "数字を含める",
+    "description": "Full description for the password generator numbers checkbox"
+  },
+  "numbersLabel": {
+    "message": "0～9",
+    "description": "Label for the password generator numbers checkbox"
+  },
+  "specialCharactersDescription": {
+    "message": "特殊記号を含める",
+    "description": "Full description for the password generator special characters checkbox"
+  },
+  "specialCharactersLabel": {
+    "message": "!@#$%^&*",
+    "description": "Label for the password generator special characters checkbox"
   },
   "numWords": {
     "message": "単語数"
@@ -415,7 +455,12 @@
     "message": "記号の最小数"
   },
   "avoidAmbChar": {
-    "message": "あいまいな文字を省く"
+    "message": "あいまいな文字を省く",
+    "description": "deprecated. Use avoidAmbiguous instead."
+  },
+  "avoidAmbiguous": {
+    "message": "あいまいな文字を避ける",
+    "description": "Label for the avoid ambiguous characters checkbox."
   },
   "searchVault": {
     "message": "保管庫を検索"
@@ -637,6 +682,12 @@
   },
   "newAccountCreated": {
     "message": "新しいアカウントを作成しました！今すぐログインできます。"
+  },
+  "newAccountCreated2": {
+    "message": "新しいアカウントを作成しました！"
+  },
+  "youHaveBeenLoggedIn": {
+    "message": "ログインしました！"
   },
   "youSuccessfullyLoggedIn": {
     "message": "ログインに成功しました"
@@ -1745,6 +1796,15 @@
   "noPasswordsInList": {
     "message": "表示するパスワードがありません"
   },
+  "clearHistory": {
+    "message": "履歴を消去"
+  },
+  "noPasswordsToShow": {
+    "message": "パスワードがありません"
+  },
+  "noRecentlyGeneratedPassword": {
+    "message": "最近パスワードを生成していません"
+  },
   "remove": {
     "message": "削除"
   },
@@ -2082,6 +2142,12 @@
   },
   "biometricsNotUnlockedDesc": {
     "message": "デスクトップアプリでこのユーザーのロックを解除して、もう一度やり直してください。"
+  },
+  "biometricsNotAvailableTitle": {
+    "message": "生体認証ロック解除が利用できません"
+  },
+  "biometricsNotAvailableDesc": {
+    "message": "生体認証ロック解除は現在利用できません。しばらくしてからもう一度お試しください。"
   },
   "biometricsFailedTitle": {
     "message": "生体認証に失敗しました"
@@ -3420,7 +3486,7 @@
   "passkeyFeatureIsNotImplementedForAccountsWithoutMasterPassword": {
     "message": "開始サイトでの認証が必要です。この機能はマスターパスワードのないアカウントではまだ対応していません。"
   },
-  "logInWithPasskey": {
+  "logInWithPasskeyQuestion": {
     "message": "パスキーでログインしますか?"
   },
   "passkeyAlreadyExists": {
@@ -3432,6 +3498,9 @@
   "noMatchingPasskeyLogin": {
     "message": "このサイトに一致するログイン情報がありません。"
   },
+  "noMatchingLoginsForSite": {
+    "message": "このサイトに一致するログイン情報がありません"
+  },
   "confirm": {
     "message": "確認"
   },
@@ -3441,8 +3510,11 @@
   "savePasskeyNewLogin": {
     "message": "パスキーを新しいログイン情報として保存"
   },
-  "choosePasskey": {
+  "chooseCipherForPasskeySave": {
     "message": "このパスキーを保存するログイン情報を選択してください"
+  },
+  "chooseCipherForPasskeyAuth": {
+    "message": "ログインに使うパスキーを選択してください"
   },
   "passkeyItem": {
     "message": "パスキーアイテム"
@@ -3639,8 +3711,16 @@
     "message": "認証情報を保存しました！",
     "description": "Notification message for when saving credentials has succeeded."
   },
+  "passwordSaved": {
+    "message": "パスワードを保存しました!",
+    "description": "Notification message for when saving credentials has succeeded."
+  },
   "updateCipherAttemptSuccess": {
     "message": "認証情報を更新しました！",
+    "description": "Notification message for when updating credentials has succeeded."
+  },
+  "passwordUpdated": {
+    "message": "パスワードを更新しました!",
     "description": "Notification message for when updating credentials has succeeded."
   },
   "saveCipherAttemptFailed": {
@@ -4228,5 +4308,35 @@
   },
   "enterprisePolicyRequirementsApplied": {
     "message": "エンタープライズポリシー要件がこの設定に適用されました"
+  },
+  "fileSavedToDevice": {
+    "message": "ファイルをデバイスに保存しました。デバイスのダウンロードで管理できます。"
+  },
+  "showCharacterCount": {
+    "message": "文字数を表示"
+  },
+  "hideCharacterCount": {
+    "message": "文字数を隠す"
+  },
+  "itemsInTrash": {
+    "message": "ゴミ箱にあるアイテム"
+  },
+  "noItemsInTrash": {
+    "message": "ゴミ箱にアイテムはありません"
+  },
+  "noItemsInTrashDesc": {
+    "message": "削除したアイテムはここに表示され、30日後に完全に削除されます"
+  },
+  "trashWarning": {
+    "message": "30日以上ゴミ箱にあったアイテムは自動的に削除されます"
+  },
+  "restore": {
+    "message": "復元"
+  },
+  "deleteForever": {
+    "message": "完全に削除"
+  },
+  "noEditPermissions": {
+    "message": "このアイテムを編集する権限がありません"
   }
 }

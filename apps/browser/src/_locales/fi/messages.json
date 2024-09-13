@@ -308,13 +308,13 @@
     "message": "Kansion nimi"
   },
   "folderHintText": {
-    "message": "Luo alikansio lisäämällä olemassa olevan kansion nimi \"/\"-merkin jälkeen. Esim: Some/Foorumit."
+    "message": "Luo alikansio lisäämällä olemassa olevan kansion nimi \"/\"-merkin edelle. Esim: Some/Foorumit."
   },
   "noFoldersAdded": {
     "message": "Kansioita ei ole lisätty"
   },
   "createFoldersToOrganize": {
-    "message": "Lajittele holvisi kohteita luomalla kansioita"
+    "message": "Järjestä holvisi kohteita luomalla kansioita"
   },
   "deleteFolderPermanently": {
     "message": "Haluatko varmasti poistaa kansion pysyvästi?"
@@ -384,16 +384,56 @@
     "message": "Salasanan vähimmäispituus"
   },
   "uppercase": {
-    "message": "Isot kirjaimet (A-Z)"
+    "message": "Isot kirjaimet (A-Z)",
+    "description": "deprecated. Use uppercaseLabel instead."
   },
   "lowercase": {
-    "message": "Pienet kirjaimet (a-z)"
+    "message": "Pienet kirjaimet (a-z)",
+    "description": "deprecated. Use lowercaseLabel instead."
   },
   "numbers": {
-    "message": "Numerot (0-9)"
+    "message": "Numerot (0-9)",
+    "description": "deprecated. Use numbersLabel instead."
   },
   "specialCharacters": {
-    "message": "Erikoismerkit (!@#$%^&*)"
+    "message": "Erikoismerkit (!@#$%^&*)",
+    "description": "deprecated. Use specialCharactersLabel instead."
+  },
+  "include": {
+    "message": "Sisällytys",
+    "description": "Card header for password generator include block"
+  },
+  "uppercaseDescription": {
+    "message": "Sisällytä isoja kirjaimia",
+    "description": "Tooltip for the password generator uppercase character checkbox"
+  },
+  "uppercaseLabel": {
+    "message": "A-Z",
+    "description": "Label for the password generator uppercase character checkbox"
+  },
+  "lowercaseDescription": {
+    "message": "Sisällytä pieniä kirjaimia",
+    "description": "Full description for the password generator lowercase character checkbox"
+  },
+  "lowercaseLabel": {
+    "message": "a-z",
+    "description": "Label for the password generator lowercase character checkbox"
+  },
+  "numbersDescription": {
+    "message": "Sisällytä numeroita",
+    "description": "Full description for the password generator numbers checkbox"
+  },
+  "numbersLabel": {
+    "message": "0-9",
+    "description": "Label for the password generator numbers checkbox"
+  },
+  "specialCharactersDescription": {
+    "message": "Sisällytä erikoismerkkejä",
+    "description": "Full description for the password generator special characters checkbox"
+  },
+  "specialCharactersLabel": {
+    "message": "!@#$%^&*",
+    "description": "Label for the password generator special characters checkbox"
   },
   "numWords": {
     "message": "Sanojen määrä"
@@ -415,7 +455,12 @@
     "message": "Erikoismerkkejä vähintään"
   },
   "avoidAmbChar": {
-    "message": "Vältä epäselviä merkkejä"
+    "message": "Vältä epäselviä merkkejä",
+    "description": "deprecated. Use avoidAmbiguous instead."
+  },
+  "avoidAmbiguous": {
+    "message": "Vältä epäselviä merkkejä",
+    "description": "Label for the avoid ambiguous characters checkbox."
   },
   "searchVault": {
     "message": "Etsi holvista"
@@ -637,6 +682,12 @@
   },
   "newAccountCreated": {
     "message": "Uusi käyttäjätilisi on luotu! Voit nyt kirjautua sisään."
+  },
+  "newAccountCreated2": {
+    "message": "Uusi tilisi on luotu!"
+  },
+  "youHaveBeenLoggedIn": {
+    "message": "Sinut on kirjattu sisään!"
   },
   "youSuccessfullyLoggedIn": {
     "message": "Kirjautuminen onnistui"
@@ -1745,6 +1796,15 @@
   "noPasswordsInList": {
     "message": "Ei näytettäviä salasanoja."
   },
+  "clearHistory": {
+    "message": "Clear history"
+  },
+  "noPasswordsToShow": {
+    "message": "No passwords to show"
+  },
+  "noRecentlyGeneratedPassword": {
+    "message": "You haven't generated a password recently"
+  },
   "remove": {
     "message": "Poista"
   },
@@ -1852,7 +1912,7 @@
     "message": "Käytä tätä käyttäjätunnusta"
   },
   "securePasswordGenerated": {
-    "message": "Turvallinen salasana luotiin! Muista päivittää salasana myös verkkosivustolla."
+    "message": "Turvallinen salasana luotiin! Muista vaihtaa se myös verkkosivuston tiliasetuksiin."
   },
   "useGeneratorHelpTextPartOne": {
     "message": "Käytä generaattoria",
@@ -2082,6 +2142,12 @@
   },
   "biometricsNotUnlockedDesc": {
     "message": "Poista käyttäjän lukitus työpöytäsovelluksesta ja yritä uudelleen."
+  },
+  "biometricsNotAvailableTitle": {
+    "message": "Biometrinen avaus ei ole käytettävissä"
+  },
+  "biometricsNotAvailableDesc": {
+    "message": "Biometrinen avaus ei tällä hetkellä ole käytettävissä. Yritä myöhemmin uudelleen."
   },
   "biometricsFailedTitle": {
     "message": "Biometria epäonnistui"
@@ -3420,7 +3486,7 @@
   "passkeyFeatureIsNotImplementedForAccountsWithoutMasterPassword": {
     "message": "Käynnistänyt sivusto edellyttää vahvistusta. Ominaisuutta ei ole vielä toteutettu tileille, joilla ei ole pääsalasanaa."
   },
-  "logInWithPasskey": {
+  "logInWithPasskeyQuestion": {
     "message": "Kirjaudutaanko pääsyavaimella?"
   },
   "passkeyAlreadyExists": {
@@ -3432,6 +3498,9 @@
   "noMatchingPasskeyLogin": {
     "message": "Holvissasi ei ole tälle sivustolle sopivaa kirjautumistietoa."
   },
+  "noMatchingLoginsForSite": {
+    "message": "Ei tälle sivustolle sopivia kirjautumistietoja"
+  },
   "confirm": {
     "message": "Vahvista"
   },
@@ -3441,8 +3510,11 @@
   "savePasskeyNewLogin": {
     "message": "Tallenna pääsyavain uuteen kirjautumistietoon"
   },
-  "choosePasskey": {
+  "chooseCipherForPasskeySave": {
     "message": "Valitse kirjautumistieto, johon pääsyavain tallennetaan"
+  },
+  "chooseCipherForPasskeyAuth": {
+    "message": "Valitse pääsyavain, jolla kirjaudutaan"
   },
   "passkeyItem": {
     "message": "Pääsyavainkohde"
@@ -3639,8 +3711,16 @@
     "message": "Käyttäjätiedot tallennettiin!",
     "description": "Notification message for when saving credentials has succeeded."
   },
+  "passwordSaved": {
+    "message": "Salasana tallennettiin!",
+    "description": "Notification message for when saving credentials has succeeded."
+  },
   "updateCipherAttemptSuccess": {
     "message": "Käyttäjätiedot päivitettiin!",
+    "description": "Notification message for when updating credentials has succeeded."
+  },
+  "passwordUpdated": {
+    "message": "Salasana vaihdettiin!",
     "description": "Notification message for when updating credentials has succeeded."
   },
   "saveCipherAttemptFailed": {
@@ -3657,10 +3737,10 @@
     "message": "Pääsyavain poistettiin"
   },
   "autofillSuggestions": {
-    "message": "Automaattitäytä ehdotukset"
+    "message": "Automaattitäytön ehdotukset"
   },
   "autofillSuggestionsTip": {
-    "message": "Tallenna sivustolle kirjautumiskohde automaattista täyttöä varten"
+    "message": "Tallenna tälle sivustolle automaattisesti täytettävä kirjautumistieto."
   },
   "yourVaultIsEmpty": {
     "message": "Holvisi on tyhjä"
@@ -3722,7 +3802,7 @@
     }
   },
   "autofillTitle": {
-    "message": "Automaattitäyttö - $ITEMNAME$",
+    "message": "Automaattitäytä - $ITEMNAME$",
     "description": "Title for a button that autofills a login item.",
     "placeholders": {
       "itemname": {
@@ -4228,5 +4308,35 @@
   },
   "enterprisePolicyRequirementsApplied": {
     "message": "Yrityskäytännön vaatimuksia on sovellettu tähän asetukseen"
+  },
+  "fileSavedToDevice": {
+    "message": "File saved to device. Manage from your device downloads."
+  },
+  "showCharacterCount": {
+    "message": "Show character count"
+  },
+  "hideCharacterCount": {
+    "message": "Hide character count"
+  },
+  "itemsInTrash": {
+    "message": "Roskakorin kohteet"
+  },
+  "noItemsInTrash": {
+    "message": "Roskakorissa ei ole kohteita"
+  },
+  "noItemsInTrashDesc": {
+    "message": "Poistamasi kohteet näkyvät täällä ja poistetaan pysyvästi 30 päivän kuluttua."
+  },
+  "trashWarning": {
+    "message": "Roskakorissa yli 30 päivää olleet kohteet poistetaan automaattisesti"
+  },
+  "restore": {
+    "message": "Palauta"
+  },
+  "deleteForever": {
+    "message": "Poista pysyvästi"
+  },
+  "noEditPermissions": {
+    "message": "Sinulla ei ole oikeutta muokata tätä kohdetta"
   }
 }

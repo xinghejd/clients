@@ -603,6 +603,12 @@
   "newAccountCreated": {
     "message": "Your new account has been created! You may now log in."
   },
+  "newAccountCreated2": {
+    "message": "Your new account has been created!"
+  },
+  "youHaveBeenLoggedIn": {
+    "message": "You have been logged in!"
+  },
   "masterPassSent": {
     "message": "We've sent you an email with your master password hint."
   },
@@ -1279,6 +1285,9 @@
       }
     }
   },
+  "copySuccessful": {
+    "message": "Copy Successful"
+  },
   "errorRefreshingAccessToken": {
     "message": "Access Token Refresh Error"
   },
@@ -1624,7 +1633,7 @@
   },
   "lock": {
     "message": "Lock",
-    "description": "Verb form: to make secure or inaccesible by"
+    "description": "Verb form: to make secure or inaccessible by"
   },
   "trash": {
     "message": "Trash",
@@ -3055,5 +3064,8 @@
   },
   "ssoError": {
     "message": "No free ports could be found for the sso login."
+  },
+  "fileSavedToDevice": {
+    "message": "File saved to device. Manage from your device downloads."
   }
 }
