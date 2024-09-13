@@ -17,7 +17,7 @@ import { extensionRefreshSwap } from "@bitwarden/angular/utils/extension-refresh
 import {
   AnonLayoutWrapperComponent,
   AnonLayoutWrapperData,
-  LoginComponentV2,
+  LoginComponent,
   LoginSecondaryContentComponent,
   PasswordHintComponent,
   RegistrationFinishComponent,
@@ -434,7 +434,7 @@ const routes: Routes = [
             state: "login",
           }, // TODO-rr-bw: add `satisfies DataProperties & ExtensionAnonLayoutWrapperData}
           children: [
-            { path: "", component: LoginComponentV2 },
+            { path: "", component: LoginComponent },
             { path: "", component: LoginSecondaryContentComponent, outlet: "secondary" },
             { path: "", component: EnvironmentSelectorComponent, outlet: "environment-selector" },
           ],

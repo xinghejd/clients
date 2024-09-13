@@ -66,7 +66,7 @@ export enum LoginUiState {
     RouterModule,
   ],
 })
-export class LoginComponentV2 implements OnInit, OnDestroy {
+export class LoginComponent implements OnInit, OnDestroy {
   @ViewChild("masterPasswordInputRef") masterPasswordInputRef: ElementRef;
   @Input() captchaSiteKey: string = null;
 

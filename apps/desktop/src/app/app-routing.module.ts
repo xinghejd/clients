@@ -14,7 +14,7 @@ import { canAccessFeature } from "@bitwarden/angular/platform/guard/feature-flag
 import {
   AnonLayoutWrapperComponent,
   AnonLayoutWrapperData,
-  LoginComponentV2,
+  LoginComponent,
   LoginSecondaryContentComponent,
   PasswordHintComponent,
   RegistrationFinishComponent,
@@ -166,7 +166,7 @@ const routes: Routes = [
             pageTitle: "logInToBitwarden",
           },
           children: [
-            { path: "", component: LoginComponentV2 },
+            { path: "", component: LoginComponent },
             { path: "", component: LoginSecondaryContentComponent, outlet: "secondary" },
             {
               path: "",

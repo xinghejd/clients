@@ -20,7 +20,7 @@ import {
   RegistrationStartSecondaryComponentData,
   SetPasswordJitComponent,
   RegistrationLinkExpiredComponent,
-  LoginComponentV2,
+  LoginComponent,
   LoginSecondaryContentComponent,
   LockIcon,
   UserLockIcon,
@@ -202,7 +202,7 @@ const routes: Routes = [
       children: [
         {
           path: "",
-          component: LoginComponentV2,
+          component: LoginComponent,
         },
         {
           path: "",
