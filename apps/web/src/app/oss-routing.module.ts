@@ -13,15 +13,17 @@ import { canAccessFeature } from "@bitwarden/angular/platform/guard/feature-flag
 import {
   AnonLayoutWrapperComponent,
   AnonLayoutWrapperData,
+  PasswordHintComponent,
   RegistrationFinishComponent,
   RegistrationStartComponent,
   RegistrationStartSecondaryComponent,
   RegistrationStartSecondaryComponentData,
   SetPasswordJitComponent,
-  LockIcon,
   RegistrationLinkExpiredComponent,
   LoginComponentV2,
   LoginSecondaryContentComponent,
+  LockIcon,
+  UserLockIcon,
 } from "@bitwarden/auth/angular";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 
@@ -211,6 +213,49 @@ const routes: Routes = [
           path: "",
           component: EnvironmentSelectorComponent,
           outlet: "environment-selector",
+        },
+      ],
+    },
+  ),
+  ...unauthUiRefreshSwap(
+    AnonLayoutWrapperComponent,
+    AnonLayoutWrapperComponent,
+    {
+      path: "hint",
+      canActivate: [unauthGuardFn()],
+      data: {
+        pageTitle: "passwordHint",
+        titleId: "passwordHint",
+      },
+      children: [
+        { path: "", component: HintComponent },
+        {
+          path: "",
+          component: EnvironmentSelectorComponent,
+          outlet: "environment-selector",
+        },
+      ],
+    },
+    {
+      path: "",
+      children: [
+        {
+          path: "hint",
+          canActivate: [unauthGuardFn()],
+          data: {
+            pageTitle: "requestPasswordHint",
+            pageSubtitle: "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou",
+            pageIcon: UserLockIcon,
+            state: "hint",
+          },
+          children: [
+            { path: "", component: PasswordHintComponent },
+            {
+              path: "",
+              component: EnvironmentSelectorComponent,
+              outlet: "environment-selector",
+            },
+          ],
         },
       ],
     },
@@ -415,25 +460,6 @@ const routes: Routes = [
           {
             path: "",
             component: VerifyRecoverDeleteComponent,
-          },
-        ],
-      },
-      {
-        path: "hint",
-        canActivate: [unauthGuardFn()],
-        data: {
-          pageTitle: "passwordHint",
-          titleId: "passwordHint",
-        } satisfies DataProperties & AnonLayoutWrapperData,
-        children: [
-          {
-            path: "",
-            component: HintComponent,
-          },
-          {
-            path: "",
-            component: EnvironmentSelectorComponent,
-            outlet: "environment-selector",
           },
         ],
       },

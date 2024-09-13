@@ -12,17 +12,20 @@ import {
 } from "@bitwarden/angular/auth/guards";
 import { canAccessFeature } from "@bitwarden/angular/platform/guard/feature-flag.guard";
 import { generatorSwap } from "@bitwarden/angular/tools/generator/generator-swap";
+import { extensionRefreshRedirect } from "@bitwarden/angular/utils/extension-refresh-redirect";
 import { extensionRefreshSwap } from "@bitwarden/angular/utils/extension-refresh-swap";
 import {
   AnonLayoutWrapperComponent,
   AnonLayoutWrapperData,
   LoginComponentV2,
   LoginSecondaryContentComponent,
+  PasswordHintComponent,
   RegistrationFinishComponent,
   RegistrationStartComponent,
   RegistrationStartSecondaryComponent,
   RegistrationStartSecondaryComponentData,
   SetPasswordJitComponent,
+  UserLockIcon,
 } from "@bitwarden/auth/angular";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 
@@ -103,7 +106,6 @@ import { TrashComponent } from "../vault/popup/settings/trash.component";
 import { VaultSettingsV2Component } from "../vault/popup/settings/vault-settings-v2.component";
 import { VaultSettingsComponent } from "../vault/popup/settings/vault-settings.component";
 
-import { extensionRefreshRedirect } from "./extension-refresh-route-utils";
 import { debounceNavigationGuard } from "./services/debounce-navigation.service";
 import { TabsV2Component } from "./tabs-v2.component";
 import { TabsComponent } from "./tabs.component";
@@ -211,12 +213,6 @@ const routes: Routes = [
     component: RegisterComponent,
     canActivate: [unauthGuardFn(unauthRouteOverrides)],
     data: { state: "register" },
-  },
-  {
-    path: "hint",
-    component: HintComponent,
-    canActivate: [unauthGuardFn(unauthRouteOverrides)],
-    data: { state: "hint" },
   },
   {
     path: "environment",
@@ -385,6 +381,41 @@ const routes: Routes = [
     data: { state: "update-temp-password" },
   },
   ...unauthUiRefreshSwap(
+    HintComponent,
+    ExtensionAnonLayoutWrapperComponent,
+    {
+      path: "hint",
+      canActivate: [unauthGuardFn(unauthRouteOverrides)],
+      data: {
+        state: "hint",
+      },
+    },
+    {
+      path: "",
+      children: [
+        {
+          path: "hint",
+          canActivate: [unauthGuardFn(unauthRouteOverrides)],
+          data: {
+            pageTitle: "requestPasswordHint",
+            pageSubtitle: "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou",
+            pageIcon: UserLockIcon,
+            showBackButton: true,
+            state: "hint",
+          },
+          children: [
+            { path: "", component: PasswordHintComponent },
+            {
+              path: "",
+              component: EnvironmentSelectorComponent,
+              outlet: "environment-selector",
+            },
+          ],
+        },
+      ],
+    },
+  ),
+  ...unauthUiRefreshSwap(
     LoginComponent,
     ExtensionAnonLayoutWrapperComponent,
     {
@@ -401,7 +432,7 @@ const routes: Routes = [
           data: {
             pageTitle: "logInToBitwarden",
             state: "login",
-          }, // TODO-rr-bw: add `satisfies DataProperties & ExtensionAnonLayoutWrapperData
+          }, // TODO-rr-bw: add `satisfies DataProperties & ExtensionAnonLayoutWrapperData}
           children: [
             { path: "", component: LoginComponentV2 },
             { path: "", component: LoginSecondaryContentComponent, outlet: "secondary" },
