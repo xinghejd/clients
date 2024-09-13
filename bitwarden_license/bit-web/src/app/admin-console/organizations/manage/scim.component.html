@@ -3,12 +3,7 @@
 <p bitTypography="body1">{{ "scimDescription" | i18n }}</p>
 
 <div *ngIf="loading">
-  <i
-    class="bwi bwi-spinner bwi-spin tw-text-muted"
-    title="{{ 'loading' | i18n }}"
-    aria-hidden="true"
-  ></i>
-  <span class="tw-sr-only">{{ "loading" | i18n }}</span>
+  <loading-indicator />
 </div>
 <form [bitSubmit]="submit" [formGroup]="formData" *ngIf="!loading">
   <bit-form-control>

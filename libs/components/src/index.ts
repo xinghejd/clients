@@ -19,6 +19,7 @@ export * from "./icon";
 export * from "./input";
 export * from "./item";
 export * from "./layout";
+export * from "./loading-indicator";
 export * from "./link";
 export * from "./menu";
 export * from "./multi-select";
