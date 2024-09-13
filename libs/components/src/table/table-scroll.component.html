@@ -10,7 +10,7 @@
       <ng-content select="[header]"></ng-content>
     </thead>
     <tbody>
-      <tr *cdkVirtualFor="let r of rows | async" bitRow>
+      <tr *cdkVirtualFor="let r of rows$; trackBy: trackBy" bitRow>
         <ng-container *ngTemplateOutlet="rowDef.template; context: { $implicit: r }"></ng-container>
       </tr>
     </tbody>

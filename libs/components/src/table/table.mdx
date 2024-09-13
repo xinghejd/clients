@@ -146,12 +146,12 @@ component. This component behaves slightly different from the `bit-table` compon
 using the `*ngFor` directive to render the rows, you provide a `bitRowDef` template that will be
 used for rendering the rows.
 
-Due to limitations in the Angular Component Dev Kit you must provide an `itemSize` which corresponds
+Due to limitations in the Angular Component Dev Kit you must provide an `rowSize` which corresponds
 to the height of each row. If the height of the rows are not uniform, you should set an explicit row
 height and align vertically.
 
 ```html
-<bit-table-scroll [dataSource]="dataSource" itemSize="47">
+<bit-table-scroll [dataSource]="dataSource" rowSize="47">
   <ng-container header>
     <tr>
       <th bitCell bitSortable="id" default>Id</th>

@@ -9,6 +9,7 @@ import {
   NgZone,
   AfterViewInit,
   ElementRef,
+  TrackByFunction,
 } from "@angular/core";
 
 import { TableComponent } from "./table.component";
@@ -18,7 +19,7 @@ import { TableComponent } from "./table.component";
  *
  * ```html
  * <ng-template bitRowDef let-row>
- *   <td bitCell>{{ row }}</td>
+ *   <td bitCell>{{ row.id }}</td>
  * </ng-template>
  * ```
  */
@@ -46,6 +47,9 @@ export class TableScrollComponent
 {
   /** The size of the rows in the list (in pixels). */
   @Input({ required: true }) rowSize: number;
+
+  /** Optional trackBy function. */
+  @Input() trackBy: TrackByFunction<any> | undefined;
 
   @ContentChild(BitRowDef) protected rowDef: BitRowDef;
 

@@ -1,4 +1,3 @@
-import { ScrollingModule } from "@angular/cdk/scrolling";
 import { Meta, moduleMetadata, StoryObj } from "@storybook/angular";
 
 import { countries } from "../form/countries";
@@ -10,7 +9,7 @@ export default {
   title: "Component Library/Table",
   decorators: [
     moduleMetadata({
-      imports: [TableModule, ScrollingModule],
+      imports: [TableModule],
     }),
   ],
   argTypes: {
@@ -114,6 +113,7 @@ export const Scrollable: Story = {
     props: {
       dataSource: data2,
       sortFn: (a: any, b: any) => a.id - b.id,
+      trackBy: (index: number, item: any) => item.id,
     },
     template: `
       <bit-table-scroll [dataSource]="dataSource" [rowSize]="43">
@@ -147,22 +147,18 @@ export const Filterable: Story = {
     },
     template: `
       <input type="search" placeholder="Search" (input)="dataSource.filter = $event.target.value" />
-      <cdk-virtual-scroll-viewport scrollWindow itemSize="47">
-        <bit-table [dataSource]="dataSource">
-          <ng-container header>
-            <tr>
-              <th bitCell bitSortable="name" default>Name</th>
-              <th bitCell bitSortable="value" width="120px">Value</th>
-            </tr>
-          </ng-container>
-          <ng-template body let-rows$>
-            <tr bitRow *cdkVirtualFor="let r of rows$">
-              <td bitCell>{{ r.name }}</td>
-              <td bitCell>{{ r.value }}</td>
-            </tr>
-          </ng-template>
-        </bit-table>
-      </cdk-virtual-scroll-viewport>
+      <bit-table-scroll [dataSource]="dataSource" [rowSize]="43">
+        <ng-container header>
+          <tr>
+            <th bitCell bitSortable="name" default>Name</th>
+            <th bitCell bitSortable="value" width="120px">Value</th>
+          </tr>
+        </ng-container>
+        <ng-template bitRowDef let-row>
+          <td bitCell>{{ row.name }}</td>
+          <td bitCell>{{ row.value }}</td>
+        </ng-template>
+      </bit-table-scroll>
     `,
   }),
 };
