@@ -551,6 +551,12 @@
   "masterPassHintLabel": {
     "message": "Mesterjelszó emlékeztető"
   },
+  "joinOrganization": {
+    "message": "Csatlakozás szervezethez"
+  },
+  "finishJoiningThisOrganizationBySettingAMasterPassword": {
+    "message": "Fejezzük be a szervezethez csatlakozást egy mesterjelszó beállításával."
+  },
   "settings": {
     "message": "Beállítások"
   },
@@ -596,6 +602,12 @@
   },
   "newAccountCreated": {
     "message": "A fiók létrehozásra került. Most már be lehet jelentkezni."
+  },
+  "newAccountCreated2": {
+    "message": "Az új fiók létrrejött."
+  },
+  "youHaveBeenLoggedIn": {
+    "message": "Megtörtént a bejelentkezés!"
   },
   "masterPassSent": {
     "message": "Elküldtünk neked egy emailt a mesterjelszó emlékeztetővel."
@@ -791,6 +803,18 @@
   },
   "loginExpired": {
     "message": "A bejelentkezési munkamenet lejárt."
+  },
+  "restartRegistration": {
+    "message": "Regisztráció újra indítása"
+  },
+  "expiredLink": {
+    "message": "A hivatkozás lejárt."
+  },
+  "pleaseRestartRegistrationOrTryLoggingIn": {
+    "message": "A Bitwarden képes tárolni és kitölteni a kétlépcsős ellenőrző kódokat. Válasszuk a kamera ikont, hogy képernyőképet készítsünk a webhely hitelesítő QR kódjáról vagy másoljuk ki és illesszük be a kulcsot ebbe a mezőbe."
+  },
+  "youMayAlreadyHaveAnAccount": {
+    "message": "Már rendelkezünkk fiókkal."
   },
   "logOutConfirmation": {
     "message": "Biztosan szeretnénk kijelentkezni?"
@@ -1156,6 +1180,9 @@
   "premiumPurchaseAlert": {
     "message": "Prémium tagságot a bitwarden.com webes széfben lehet vásárolni. Szeretnénk most felkeresni a webhelyet?"
   },
+  "premiumPurchaseAlertV2": {
+    "message": "Prémium szolgáltatást vásárolhatunk a Bitwarden webalkalmazás fiókbeállításai között."
+  },
   "premiumCurrentMember": {
     "message": "Jelenleg a prémium tagság érvényben van."
   },
@@ -1257,6 +1284,9 @@
         "example": "Password"
       }
     }
+  },
+  "copySuccessful": {
+    "message": "Copy Successful"
   },
   "errorRefreshingAccessToken": {
     "message": "Hozzáférési vezérjel frissítési hiba"
@@ -1492,8 +1522,14 @@
   "additionalWindowsHelloSettings": {
     "message": "Kiegészítő Windows Hello beállítások"
   },
+  "unlockWithPolkit": {
+    "message": "Feloldás rendszer hitelesítéssel"
+  },
   "windowsHelloConsentMessage": {
     "message": "Bitwarden ellenőrzés."
+  },
+  "polkitConsentMessage": {
+    "message": "Hitelesítés a Bitwarden feloldásához."
   },
   "unlockWithTouchId": {
     "message": "Feloldás Touch ID segítségével"
@@ -1506,6 +1542,9 @@
   },
   "autoPromptWindowsHello": {
     "message": "Windows Hello kérése indításkor"
+  },
+  "autoPromptPolkit": {
+    "message": "Rendszer hiteletesítés bekérése indításkor"
   },
   "autoPromptTouchId": {
     "message": "Érintés AZ kérése indításkor"
@@ -1693,8 +1732,8 @@
   "masterPasswordPolicyRequirementsNotMet": {
     "message": "Az új mesterjelszó nem felel meg a szabály követelményeknek."
   },
-  "receiveMarketingEmails": {
-    "message": "Emaileket kaphatunk a Bitwardentől bejelentésekről, tanácsokról és kutatási lehetőségekről."
+  "receiveMarketingEmailsV2": {
+    "message": "Tanácsokat, bejelentéseket és kutatási lehetőségeket kaphatunk a Bitwardentől a postaládába."
   },
   "unsubscribe": {
     "message": "Leiratkozás"
@@ -1785,6 +1824,12 @@
   },
   "biometricsNotEnabledDesc": {
     "message": "A böngésző biometrikus adataihoz először az asztali biometrikus adatokat kell engedélyezni a beállításokban."
+  },
+  "biometricsManualSetupTitle": {
+    "message": "Az automatikus beüzemelés nem érhető el."
+  },
+  "biometricsManualSetupDesc": {
+    "message": "A telepítési mód miatt a biometrikus adatok támogatása nem volt automatikusan engedélyezhető. Szeretnénk megnyitni a dokumentációt arról, hogyan kell ezt manuálisan megtenni?"
   },
   "personalOwnershipSubmitError": {
     "message": "Egy vállalati házirend miatt korlátozásra került az elemek személyes tárolóba történő mentése. Módosítsuk a Tulajdon opciót egy szervezetre és válasszunk az elérhető gyűjtemények közül."
@@ -1997,6 +2042,9 @@
   "updateWeakMasterPasswordWarning": {
     "message": "A mesterjelszó nem felel meg egy vagy több szervezeti szabályzatnak. A széf eléréséhez frissíteni kell a meszerjelszót. A továbblépés kijelentkeztet az aktuális munkamenetből és újra be kell jelentkezni. A többi eszközön lévő aktív munkamenetek akár egy óráig is aktívak maradhatnak."
   },
+  "tdeDisabledMasterPasswordRequired": {
+    "message": "A szervezete letiltotta a megbízható eszközök titkosítását. Állítsunk be egy mesterjelszót a széf eléréséhez."
+  },
   "tryAgain": {
     "message": "Próbáluk újra"
   },
@@ -2080,6 +2128,9 @@
   },
   "vaultTimeoutTooLarge": {
     "message": "A széf időkorlátja túllépi a szervezet által beállított korlátozást."
+  },
+  "inviteAccepted": {
+    "message": "A meghívás elfogadásra került."
   },
   "resetPasswordPolicyAutoEnroll": {
     "message": "Automatikus regisztráció"
@@ -2805,8 +2856,8 @@
   "invalidFilePassword": {
     "message": "A fájl jelszó érvénytelen. Használjuk az exportfájl létrehozásakor megadott jelszót."
   },
-  "importDestination": {
-    "message": "Importálás leírás"
+  "destination": {
+    "message": "Cél"
   },
   "learnAboutImportOptions": {
     "message": "Információ az importálási opciókról"
@@ -3001,5 +3052,20 @@
         "example": "Work"
       }
     }
+  },
+  "data": {
+    "message": "Adat"
+  },
+  "fileSends": {
+    "message": "Fájl küldés"
+  },
+  "textSends": {
+    "message": "Szöveg küldés"
+  },
+  "ssoError": {
+    "message": "Nem található szabad port az sso bejelentkezéshez."
+  },
+  "fileSavedToDevice": {
+    "message": "A fájl mentésre került az eszközre. Kezeljük az eszközről a letöltéseket."
   }
 }

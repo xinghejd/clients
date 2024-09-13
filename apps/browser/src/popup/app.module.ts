@@ -17,7 +17,6 @@ import { ColorPasswordPipe } from "@bitwarden/angular/pipes/color-password.pipe"
 import { UserVerificationDialogComponent } from "@bitwarden/auth/angular";
 import { AvatarModule, ButtonModule, ToastModule } from "@bitwarden/components";
 
-import { AccountSwitcherComponent } from "../auth/popup/account-switching/account-switcher.component";
 import { AccountComponent } from "../auth/popup/account-switching/account.component";
 import { CurrentAccountComponent } from "../auth/popup/account-switching/current-account.component";
 import { EnvironmentComponent } from "../auth/popup/environment.component";
@@ -36,6 +35,12 @@ import { SsoComponent } from "../auth/popup/sso.component";
 import { TwoFactorOptionsComponent } from "../auth/popup/two-factor-options.component";
 import { TwoFactorComponent } from "../auth/popup/two-factor.component";
 import { UpdateTempPasswordComponent } from "../auth/popup/update-temp-password.component";
+import { Fido2CipherRowV1Component } from "../autofill/popup/fido2/fido2-cipher-row-v1.component";
+import { Fido2CipherRowComponent } from "../autofill/popup/fido2/fido2-cipher-row.component";
+import { Fido2UseBrowserLinkV1Component } from "../autofill/popup/fido2/fido2-use-browser-link-v1.component";
+import { Fido2UseBrowserLinkComponent } from "../autofill/popup/fido2/fido2-use-browser-link.component";
+import { Fido2V1Component } from "../autofill/popup/fido2/fido2-v1.component";
+import { Fido2Component } from "../autofill/popup/fido2/fido2.component";
 import { AutofillV1Component } from "../autofill/popup/settings/autofill-v1.component";
 import { AutofillComponent } from "../autofill/popup/settings/autofill.component";
 import { ExcludedDomainsV1Component } from "../autofill/popup/settings/excluded-domains-v1.component";
@@ -59,9 +64,6 @@ import { SendTypeComponent } from "../tools/popup/send/send-type.component";
 import { SettingsComponent } from "../tools/popup/settings/settings.component";
 import { ActionButtonsComponent } from "../vault/popup/components/action-buttons.component";
 import { CipherRowComponent } from "../vault/popup/components/cipher-row.component";
-import { Fido2CipherRowComponent } from "../vault/popup/components/fido2/fido2-cipher-row.component";
-import { Fido2UseBrowserLinkComponent } from "../vault/popup/components/fido2/fido2-use-browser-link.component";
-import { Fido2Component } from "../vault/popup/components/fido2/fido2.component";
 import { AddEditCustomFieldsComponent } from "../vault/popup/components/vault/add-edit-custom-fields.component";
 import { AddEditComponent } from "../vault/popup/components/vault/add-edit.component";
 import { AttachmentsComponent } from "../vault/popup/components/vault/attachments.component";
@@ -113,6 +115,9 @@ import "../platform/popup/locales";
     ServicesModule,
     DialogModule,
     ExcludedDomainsComponent,
+    Fido2CipherRowComponent,
+    Fido2Component,
+    Fido2UseBrowserLinkComponent,
     FilePopoutCalloutComponent,
     AvatarModule,
     AccountComponent,
@@ -123,6 +128,7 @@ import "../platform/popup/locales";
     PopupTabNavigationComponent,
     PopupFooterComponent,
     PopupHeaderComponent,
+    HeaderComponent,
     UserVerificationDialogComponent,
     CurrentAccountComponent,
   ],
@@ -140,12 +146,11 @@ import "../platform/popup/locales";
     CurrentTabComponent,
     EnvironmentComponent,
     ExcludedDomainsV1Component,
-    Fido2CipherRowComponent,
-    Fido2UseBrowserLinkComponent,
+    Fido2CipherRowV1Component,
+    Fido2UseBrowserLinkV1Component,
     FolderAddEditComponent,
     FoldersComponent,
     VaultFilterComponent,
-    HeaderComponent,
     HintComponent,
     HomeComponent,
     LockComponent,
@@ -181,11 +186,11 @@ import "../platform/popup/locales";
     ViewCustomFieldsComponent,
     RemovePasswordComponent,
     VaultSelectComponent,
-    Fido2Component,
+    Fido2V1Component,
     AutofillV1Component,
     EnvironmentSelectorComponent,
-    AccountSwitcherComponent,
   ],
+  exports: [],
   providers: [CurrencyPipe, DatePipe],
   bootstrap: [AppComponent],
 })

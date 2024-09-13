@@ -117,6 +117,13 @@ export class StateService<
         state.accounts = {};
       }
       state.accounts[userId] = this.createAccount();
+
+      if (diskAccount == null) {
+        // Return early because we can't set the diskAccount.profile
+        // if diskAccount itself is null
+        return state;
+      }
+
       state.accounts[userId].profile = diskAccount.profile;
       return state;
     });
@@ -298,23 +305,6 @@ export class StateService<
     return (
       (await this.tokenService.getAccessToken(options?.userId as UserId)) != null &&
       (await this.getUserId(options)) != null
-    );
-  }
-
-  async getLastSync(options?: StorageOptions): Promise<string> {
-    return (
-      await this.getAccount(this.reconcileOptions(options, await this.defaultOnDiskMemoryOptions()))
-    )?.profile?.lastSync;
-  }
-
-  async setLastSync(value: string, options?: StorageOptions): Promise<void> {
-    const account = await this.getAccount(
-      this.reconcileOptions(options, await this.defaultOnDiskMemoryOptions()),
-    );
-    account.profile.lastSync = value;
-    await this.saveAccount(
-      account,
-      this.reconcileOptions(options, await this.defaultOnDiskMemoryOptions()),
     );
   }
 

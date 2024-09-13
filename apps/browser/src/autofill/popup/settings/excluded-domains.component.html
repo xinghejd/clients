@@ -13,7 +13,7 @@
     </p>
     <bit-section>
       <bit-section-header>
-        <h2 bitTypography="h5">{{ "domainsTitle" | i18n }}</h2>
+        <h2 bitTypography="h6">{{ "domainsTitle" | i18n }}</h2>
         <span bitTypography="body2" slot="end">{{ excludedDomainsState?.length || 0 }}</span>
       </bit-section-header>
 
@@ -27,6 +27,7 @@
             }}</bit-label>
             <input
               *ngIf="i >= fieldsEditThreshold"
+              #uriInput
               appInputVerbatim
               bitInput
               id="excludedDomain{{ i }}"
@@ -36,7 +37,7 @@
               (change)="fieldChange()"
               [(ngModel)]="excludedDomainsState[i]"
             />
-            <div *ngIf="i < fieldsEditThreshold">{{ domain }}</div>
+            <div id="excludedDomain{{ i }}" *ngIf="i < fieldsEditThreshold">{{ domain }}</div>
           </bit-item-content>
           <button
             *ngIf="i < fieldsEditThreshold"

@@ -47,6 +47,8 @@ import { EmergencyAccessComponent } from "./auth/settings/emergency-access/emerg
 import { EmergencyAccessViewComponent } from "./auth/settings/emergency-access/view/emergency-access-view.component";
 import { SecurityRoutingModule } from "./auth/settings/security/security-routing.module";
 import { SsoComponent } from "./auth/sso.component";
+import { CompleteTrialInitiationComponent } from "./auth/trial-initiation/complete-trial-initiation/complete-trial-initiation.component";
+import { freeTrialTextResolver } from "./auth/trial-initiation/complete-trial-initiation/resolver/free-trial-text.resolver";
 import { TrialInitiationComponent } from "./auth/trial-initiation/trial-initiation.component";
 import { TwoFactorAuthComponent } from "./auth/two-factor-auth.component";
 import { TwoFactorComponent } from "./auth/two-factor.component";
@@ -66,6 +68,7 @@ import { PreferencesComponent } from "./settings/preferences.component";
 import { GeneratorComponent } from "./tools/generator.component";
 import { ReportsModule } from "./tools/reports";
 import { AccessComponent } from "./tools/send/access.component";
+import { SendAccessExplainerComponent } from "./tools/send/send-access-explainer.component";
 import { SendComponent } from "./tools/send/send.component";
 import { VaultModule } from "./vault/individual-vault/vault.module";
 
@@ -144,11 +147,6 @@ const routes: Routes = [
         data: { titleId: "deleteAccount" } satisfies DataProperties,
       },
       {
-        path: "send/:sendId/:key",
-        component: AccessComponent,
-        data: { titleId: "Bitwarden Send" } satisfies DataProperties,
-      },
-      {
         path: "update-temp-password",
         component: UpdateTempPasswordComponent,
         canActivate: [authGuard],
@@ -205,6 +203,24 @@ const routes: Routes = [
           {
             path: "",
             component: RegistrationFinishComponent,
+          },
+        ],
+      },
+      {
+        path: "send/:sendId/:key",
+        data: {
+          pageTitle: "viewSend",
+          showReadonlyHostname: true,
+        } satisfies DataProperties & AnonLayoutWrapperData,
+        children: [
+          {
+            path: "",
+            component: AccessComponent,
+          },
+          {
+            path: "",
+            outlet: "secondary",
+            component: SendAccessExplainerComponent,
           },
         ],
       },
@@ -399,6 +415,28 @@ const routes: Routes = [
           pageTitle: "removeMasterPassword",
           titleId: "removeMasterPassword",
         } satisfies DataProperties & AnonLayoutWrapperData,
+      },
+      {
+        path: "trial-initiation",
+        canActivate: [canAccessFeature(FeatureFlag.EmailVerification), unauthGuardFn()],
+        component: CompleteTrialInitiationComponent,
+        resolve: {
+          pageTitle: freeTrialTextResolver,
+        },
+        data: {
+          maxWidth: "3xl",
+        } satisfies AnonLayoutWrapperData,
+      },
+      {
+        path: "secrets-manager-trial-initiation",
+        canActivate: [canAccessFeature(FeatureFlag.EmailVerification), unauthGuardFn()],
+        component: CompleteTrialInitiationComponent,
+        resolve: {
+          pageTitle: freeTrialTextResolver,
+        },
+        data: {
+          maxWidth: "3xl",
+        } satisfies AnonLayoutWrapperData,
       },
     ],
   },

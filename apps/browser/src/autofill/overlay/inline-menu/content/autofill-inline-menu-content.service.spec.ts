@@ -1,5 +1,8 @@
+import { mock, MockProxy } from "jest-mock-extended";
+
 import AutofillInit from "../../../content/autofill-init";
 import { AutofillOverlayElement } from "../../../enums/autofill-overlay.enum";
+import { DomQueryService } from "../../../services/abstractions/dom-query.service";
 import { createMutationRecordMock } from "../../../spec/autofill-mocks";
 import { flushPromises, sendMockExtensionMessage } from "../../../spec/testing-utils";
 import { ElementWithOpId } from "../../../types";
@@ -7,6 +10,7 @@ import { ElementWithOpId } from "../../../types";
 import { AutofillInlineMenuContentService } from "./autofill-inline-menu-content.service";
 
 describe("AutofillInlineMenuContentService", () => {
+  let domQueryService: MockProxy<DomQueryService>;
   let autofillInlineMenuContentService: AutofillInlineMenuContentService;
   let autofillInit: AutofillInit;
   let sendExtensionMessageSpy: jest.SpyInstance;
@@ -17,8 +21,9 @@ describe("AutofillInlineMenuContentService", () => {
   beforeEach(() => {
     globalThis.document.body.innerHTML = "";
     globalThis.requestIdleCallback = jest.fn((cb, options) => setTimeout(cb, 100));
+    domQueryService = mock<DomQueryService>();
     autofillInlineMenuContentService = new AutofillInlineMenuContentService();
-    autofillInit = new AutofillInit(null, autofillInlineMenuContentService);
+    autofillInit = new AutofillInit(domQueryService, null, autofillInlineMenuContentService);
     autofillInit.init();
     observeBodyMutationsSpy = jest.spyOn(
       autofillInlineMenuContentService["bodyElementMutationObserver"] as any,
@@ -399,6 +404,11 @@ describe("AutofillInlineMenuContentService", () => {
       });
 
       it("sets the z-index of to a lower value", async () => {
+        autofillInlineMenuContentService["handlePersistentLastChildOverrideTimeout"] = setTimeout(
+          jest.fn(),
+          1000,
+        );
+
         await autofillInlineMenuContentService["handleBodyElementMutationObserverUpdate"]();
         await waitForIdleCallback();
 
@@ -411,8 +421,9 @@ describe("AutofillInlineMenuContentService", () => {
         });
         globalThis.document.elementFromPoint = jest.fn(() => persistentLastChild);
 
-        await autofillInlineMenuContentService["handleBodyElementMutationObserverUpdate"]();
-        await waitForIdleCallback();
+        await autofillInlineMenuContentService["verifyInlineMenuIsNotObscured"](
+          persistentLastChild,
+        );
 
         expect(sendExtensionMessageSpy).toHaveBeenCalledWith("autofillOverlayElementClosed", {
           overlayElement: AutofillOverlayElement.Button,
@@ -425,8 +436,9 @@ describe("AutofillInlineMenuContentService", () => {
         });
         globalThis.document.elementFromPoint = jest.fn(() => persistentLastChild);
 
-        await autofillInlineMenuContentService["handleBodyElementMutationObserverUpdate"]();
-        await waitForIdleCallback();
+        await autofillInlineMenuContentService["verifyInlineMenuIsNotObscured"](
+          persistentLastChild,
+        );
 
         expect(sendExtensionMessageSpy).toHaveBeenCalledWith("autofillOverlayElementClosed", {
           overlayElement: AutofillOverlayElement.List,

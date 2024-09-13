@@ -1,11 +1,8 @@
 import { DIALOG_DATA, DialogConfig, DialogRef } from "@angular/cdk/dialog";
 import { Component, Inject } from "@angular/core";
-import { firstValueFrom } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
@@ -54,14 +51,6 @@ export class BulkDeleteDialogComponent {
   collections: CollectionView[];
   unassignedCiphers: string[];
 
-  private flexibleCollectionsV1Enabled$ = this.configService.getFeatureFlag$(
-    FeatureFlag.FlexibleCollectionsV1,
-  );
-
-  private restrictProviderAccess$ = this.configService.getFeatureFlag$(
-    FeatureFlag.RestrictProviderAccess,
-  );
-
   constructor(
     @Inject(DIALOG_DATA) params: BulkDeleteDialogParams,
     private dialogRef: DialogRef<BulkDeleteDialogResult>,
@@ -70,7 +59,6 @@ export class BulkDeleteDialogComponent {
     private i18nService: I18nService,
     private apiService: ApiService,
     private collectionService: CollectionService,
-    private configService: ConfigService,
   ) {
     this.cipherIds = params.cipherIds ?? [];
     this.permanent = params.permanent;
@@ -86,23 +74,13 @@ export class BulkDeleteDialogComponent {
 
   protected submit = async () => {
     const deletePromises: Promise<void>[] = [];
-    const restrictProviderAccess = await firstValueFrom(this.restrictProviderAccess$);
 
     // Unassigned ciphers under an Owner/Admin OR Custom Users With Edit will call the deleteCiphersAdmin method
-    if (
-      this.unassignedCiphers.length &&
-      this.organization.canEditUnassignedCiphers(restrictProviderAccess)
-    ) {
+    if (this.unassignedCiphers.length && this.organization.canEditUnassignedCiphers) {
       deletePromises.push(this.deleteCiphersAdmin(this.unassignedCiphers));
     }
     if (this.cipherIds.length) {
-      const flexibleCollectionsV1Enabled = await firstValueFrom(this.flexibleCollectionsV1Enabled$);
-      const restrictProviderAccess = await firstValueFrom(this.restrictProviderAccess$);
-
-      if (
-        !this.organization ||
-        !this.organization.canEditAllCiphers(flexibleCollectionsV1Enabled, restrictProviderAccess)
-      ) {
+      if (!this.organization || !this.organization.canEditAllCiphers) {
         deletePromises.push(this.deleteCiphers());
       } else {
         deletePromises.push(this.deleteCiphersAdmin(this.cipherIds));
@@ -134,12 +112,7 @@ export class BulkDeleteDialogComponent {
   };
 
   private async deleteCiphers(): Promise<any> {
-    const flexibleCollectionsV1Enabled = await firstValueFrom(this.flexibleCollectionsV1Enabled$);
-    const restrictProviderAccess = await firstValueFrom(this.restrictProviderAccess$);
-    const asAdmin = this.organization?.canEditAllCiphers(
-      flexibleCollectionsV1Enabled,
-      restrictProviderAccess,
-    );
+    const asAdmin = this.organization?.canEditAllCiphers;
     if (this.permanent) {
       await this.cipherService.deleteManyWithServer(this.cipherIds, asAdmin);
     } else {
@@ -157,12 +130,9 @@ export class BulkDeleteDialogComponent {
   }
 
   private async deleteCollections(): Promise<any> {
-    const flexibleCollectionsV1Enabled = await firstValueFrom(this.flexibleCollectionsV1Enabled$);
     // From org vault
     if (this.organization) {
-      if (
-        this.collections.some((c) => !c.canDelete(this.organization, flexibleCollectionsV1Enabled))
-      ) {
+      if (this.collections.some((c) => !c.canDelete(this.organization))) {
         this.platformUtilsService.showToast(
           "error",
           this.i18nService.t("errorOccurred"),
@@ -179,7 +149,7 @@ export class BulkDeleteDialogComponent {
       const deletePromises: Promise<any>[] = [];
       for (const organization of this.organizations) {
         const orgCollections = this.collections.filter((o) => o.organizationId === organization.id);
-        if (orgCollections.some((c) => !c.canDelete(organization, flexibleCollectionsV1Enabled))) {
+        if (orgCollections.some((c) => !c.canDelete(organization))) {
           this.platformUtilsService.showToast(
             "error",
             this.i18nService.t("errorOccurred"),

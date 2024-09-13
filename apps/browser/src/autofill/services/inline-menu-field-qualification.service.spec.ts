@@ -16,19 +16,34 @@ describe("InlineMenuFieldQualificationService", () => {
       forms: {},
       fields: [],
     });
-    chrome.runtime.sendMessage = jest.fn().mockImplementation((message) => ({
-      result: message.command === "getInlineMenuFieldQualificationFeatureFlag",
-    }));
     inlineMenuFieldQualificationService = new InlineMenuFieldQualificationService();
+    inlineMenuFieldQualificationService["inlineMenuFieldQualificationFlagSet"] = true;
   });
 
   describe("isFieldForLoginForm", () => {
+    it("disqualifies totp fields", () => {
+      const field = mock<AutofillField>({
+        type: "text",
+        autoCompleteType: "one-time-code",
+        htmlName: "totp",
+        htmlID: "totp",
+        placeholder: "totp",
+      });
+
+      expect(inlineMenuFieldQualificationService.isFieldForLoginForm(field, pageDetails)).toBe(
+        false,
+      );
+    });
+
     describe("qualifying a password field for a login form", () => {
       describe("an invalid password field", () => {
         it("has a `new-password` autoCompleteType", () => {
           const field = mock<AutofillField>({
             type: "password",
             autoCompleteType: "new-password",
+            htmlName: "input-password",
+            htmlID: "input-password",
+            placeholder: "input-password",
           });
 
           expect(inlineMenuFieldQualificationService.isFieldForLoginForm(field, pageDetails)).toBe(
@@ -41,6 +56,8 @@ describe("InlineMenuFieldQualificationService", () => {
             type: "password",
             placeholder: "create account password",
             autoCompleteType: "",
+            htmlName: "input-password",
+            htmlID: "input-password",
           });
 
           expect(inlineMenuFieldQualificationService.isFieldForLoginForm(field, pageDetails)).toBe(
@@ -504,7 +521,7 @@ describe("InlineMenuFieldQualificationService", () => {
             ).toBe(false);
           });
 
-          it("is structured on a page with multiple viewable password field", () => {
+          it("is structured on a page with multiple viewable password fields", () => {
             const field = mock<AutofillField>({
               type: "text",
               autoCompleteType: "",
@@ -536,7 +553,7 @@ describe("InlineMenuFieldQualificationService", () => {
             ).toBe(false);
           });
 
-          it("is structured on a page with a with no visible password fields and but contains a disabled autocomplete type", () => {
+          it("contains a disabled autocomplete type when multiple password fields are on the page", () => {
             const field = mock<AutofillField>({
               type: "text",
               autoCompleteType: "off",
@@ -554,7 +571,16 @@ describe("InlineMenuFieldQualificationService", () => {
               form: "validFormId",
               viewable: false,
             });
-            pageDetails.fields = [field, passwordField];
+            const secondPasswordField = mock<AutofillField>({
+              type: "password",
+              autoCompleteType: "current-password",
+              htmlID: "second-password",
+              htmlName: "second-password",
+              placeholder: "second-password",
+              form: "validFormId",
+              viewable: false,
+            });
+            pageDetails.fields = [field, passwordField, secondPasswordField];
 
             expect(
               inlineMenuFieldQualificationService.isFieldForLoginForm(field, pageDetails),

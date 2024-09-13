@@ -551,6 +551,12 @@
   "masterPassHintLabel": {
     "message": "Подсказка к мастер-паролю"
   },
+  "joinOrganization": {
+    "message": "Присоединиться к организации"
+  },
+  "finishJoiningThisOrganizationBySettingAMasterPassword": {
+    "message": "Завершите присоединение к этой организации, установив мастер-пароль."
+  },
   "settings": {
     "message": "Настройки"
   },
@@ -596,6 +602,12 @@
   },
   "newAccountCreated": {
     "message": "Аккаунт создан! Теперь вы можете войти в систему."
+  },
+  "newAccountCreated2": {
+    "message": "Ваш новый аккаунт создан!"
+  },
+  "youHaveBeenLoggedIn": {
+    "message": "Вы авторизовались!"
   },
   "masterPassSent": {
     "message": "Мы отправили вам письмо с подсказкой к мастер-паролю."
@@ -791,6 +803,18 @@
   },
   "loginExpired": {
     "message": "Истек срок действия вашего сеанса."
+  },
+  "restartRegistration": {
+    "message": "Перезапустить регистрацию"
+  },
+  "expiredLink": {
+    "message": "Истекшая ссылка"
+  },
+  "pleaseRestartRegistrationOrTryLoggingIn": {
+    "message": "Пожалуйста, перезапустите регистрацию или попробуйте авторизоваться."
+  },
+  "youMayAlreadyHaveAnAccount": {
+    "message": "Возможно, у вас уже есть аккаунт"
   },
   "logOutConfirmation": {
     "message": "Вы действительно хотите выйти?"
@@ -1156,6 +1180,9 @@
   "premiumPurchaseAlert": {
     "message": "Вы можете купить Премиум на bitwarden.com. Перейти на сайт сейчас?"
   },
+  "premiumPurchaseAlertV2": {
+    "message": "Премиум можно приобрести в настройках аккаунта в веб-версии Bitwarden."
+  },
   "premiumCurrentMember": {
     "message": "У вас есть Премиум!"
   },
@@ -1257,6 +1284,9 @@
         "example": "Password"
       }
     }
+  },
+  "copySuccessful": {
+    "message": "Скопировано успешно"
   },
   "errorRefreshingAccessToken": {
     "message": "Ошибка обновления токена доступа"
@@ -1492,8 +1522,14 @@
   "additionalWindowsHelloSettings": {
     "message": "Дополнительные настройки Windows Hello"
   },
+  "unlockWithPolkit": {
+    "message": "Разблокировать с помощью системной аутентификации"
+  },
   "windowsHelloConsentMessage": {
     "message": "Верификация для Bitwarden."
+  },
+  "polkitConsentMessage": {
+    "message": "Для разблокировки Bitwarden пройдите аутентификацию."
   },
   "unlockWithTouchId": {
     "message": "Разблокировать с Touch ID"
@@ -1506,6 +1542,9 @@
   },
   "autoPromptWindowsHello": {
     "message": "Запрашивать Windows Hello при запуске приложения"
+  },
+  "autoPromptPolkit": {
+    "message": "Запрашивать системную аутентификацию при запуске"
   },
   "autoPromptTouchId": {
     "message": "Запрашивать Touch ID при запуске приложения"
@@ -1693,8 +1732,8 @@
   "masterPasswordPolicyRequirementsNotMet": {
     "message": "Ваш новый мастер-пароль не соответствует требованиям политики."
   },
-  "receiveMarketingEmails": {
-    "message": "Получайте электронные письма от Bitwarden с анонсами, советами и возможностями для исследований."
+  "receiveMarketingEmailsV2": {
+    "message": "Получайте советы, анонсы и возможности для исследований от Bitwarden на свой email."
   },
   "unsubscribe": {
     "message": "Отписаться"
@@ -1785,6 +1824,12 @@
   },
   "biometricsNotEnabledDesc": {
     "message": "Для активации биометрии в браузере сначала необходимо включить биометрию в приложении для компьютера."
+  },
+  "biometricsManualSetupTitle": {
+    "message": "Автоматическая настройка недоступна"
+  },
+  "biometricsManualSetupDesc": {
+    "message": "Из-за метода инсталляции не удалось автоматически включить поддержку биометрии. Вы хотите открыть документацию чтобы узнать, как это сделать вручную?"
   },
   "personalOwnershipSubmitError": {
     "message": "В соответствии с корпоративной политикой вам запрещено сохранять элементы в личном хранилище. Измените владельца на организацию и выберите из доступных Коллекций."
@@ -1997,6 +2042,9 @@
   "updateWeakMasterPasswordWarning": {
     "message": "Ваш мастер-пароль не соответствует требованиям политики вашей организации. Для доступа к хранилищу вы должны обновить свой мастер-пароль прямо сейчас. При этом текущий сеанс будет завершен и потребуется повторная авторизация. Сеансы на других устройствах могут оставаться активными в течение часа."
   },
+  "tdeDisabledMasterPasswordRequired": {
+    "message": "В вашей организации отключено шифрование доверенных устройств. Пожалуйста, установите мастер-пароль для доступа к вашему хранилищу."
+  },
   "tryAgain": {
     "message": "Попробуйте снова"
   },
@@ -2080,6 +2128,9 @@
   },
   "vaultTimeoutTooLarge": {
     "message": "Тайм-аут вашего хранилища превышает ограничения, установленные вашей организацией."
+  },
+  "inviteAccepted": {
+    "message": "Приглашение принято"
   },
   "resetPasswordPolicyAutoEnroll": {
     "message": "Автоматическое развертывание"
@@ -2805,8 +2856,8 @@
   "invalidFilePassword": {
     "message": "Неверный пароль к файлу. Используйте пароль, введенный при создании файла экспорта."
   },
-  "importDestination": {
-    "message": "Цель импорта"
+  "destination": {
+    "message": "Назначение"
   },
   "learnAboutImportOptions": {
     "message": "Узнайте о возможностях импорта"
@@ -3001,5 +3052,20 @@
         "example": "Work"
       }
     }
+  },
+  "data": {
+    "message": "Данные"
+  },
+  "fileSends": {
+    "message": "Файловая Send"
+  },
+  "textSends": {
+    "message": "Текстовая Send"
+  },
+  "ssoError": {
+    "message": "Не удалось найти свободные порты для авторизации SSO."
+  },
+  "fileSavedToDevice": {
+    "message": "Файл сохранен на устройстве. Управляйте им из загрузок устройства."
   }
 }

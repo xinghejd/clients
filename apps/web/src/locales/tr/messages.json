@@ -36,6 +36,9 @@
   "notes": {
     "message": "Notlar"
   },
+  "note": {
+    "message": "Not"
+  },
   "customFields": {
     "message": "Özel Alanlar"
   },
@@ -43,10 +46,90 @@
     "message": "Kart sahibinin adı"
   },
   "loginCredentials": {
-    "message": "Login credentials"
+    "message": "Hesap bilgileri"
+  },
+  "personalDetails": {
+    "message": "Kişisel bilgiler"
+  },
+  "identification": {
+    "message": "Kimlik"
+  },
+  "contactInfo": {
+    "message": "İletişim bilgileri"
+  },
+  "cardDetails": {
+    "message": "Kart bilgileri"
+  },
+  "cardBrandDetails": {
+    "message": "$BRAND$ bilgileri",
+    "placeholders": {
+      "brand": {
+        "content": "$1",
+        "example": "Visa"
+      }
+    }
+  },
+  "itemHistory": {
+    "message": "Kayıt geçmişi"
   },
   "authenticatorKey": {
-    "message": "Authenticator key"
+    "message": "Kimlik doğrulama anahtarı"
+  },
+  "autofillOptions": {
+    "message": "Otomatik doldurma ayarları"
+  },
+  "websiteUri": {
+    "message": "Web sitesi (URI)"
+  },
+  "websiteUriCount": {
+    "message": "Web sitesi (URI) $COUNT$",
+    "description": "Label for an input field that contains a website URI. The input field is part of a list of fields, and the count indicates the position of the field in the list.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "websiteAdded": {
+    "message": "Web sitesi eklendi"
+  },
+  "addWebsite": {
+    "message": "Web sitesi ekle"
+  },
+  "deleteWebsite": {
+    "message": "Web sitesini sil"
+  },
+  "defaultLabel": {
+    "message": "Varsayılan ($VALUE$)",
+    "description": "A label that indicates the default value for a field with the current default value in parentheses.",
+    "placeholders": {
+      "value": {
+        "content": "$1",
+        "example": "Base domain"
+      }
+    }
+  },
+  "showMatchDetection": {
+    "message": "$WEBSITE$ eşleşme tespitini göster",
+    "placeholders": {
+      "website": {
+        "content": "$1",
+        "example": "https://example.com"
+      }
+    }
+  },
+  "hideMatchDetection": {
+    "message": "$WEBSITE$ eşleşme tespitini gizle",
+    "placeholders": {
+      "website": {
+        "content": "$1",
+        "example": "https://example.com"
+      }
+    }
+  },
+  "autoFillOnPageLoad": {
+    "message": "Sayfa yüklendiğinde otomatik doldur"
   },
   "number": {
     "message": "Numara"
@@ -59,6 +142,9 @@
   },
   "securityCode": {
     "message": "Güvenlik kodu (CVV)"
+  },
+  "securityCodeSlashCVV": {
+    "message": "Güvenlik kodu / CVV"
   },
   "identityName": {
     "message": "Kimlik adı"
@@ -135,6 +221,12 @@
   "dr": {
     "message": "Dr"
   },
+  "cardExpiredTitle": {
+    "message": "Kartın süresi dolmuş"
+  },
+  "cardExpiredMessage": {
+    "message": "Kartı yenilediyseniz kart bilgilerini güncelleyin"
+  },
   "expirationMonth": {
     "message": "Son kullanma ayı"
   },
@@ -152,6 +244,9 @@
   },
   "totpHelperWithCapture": {
     "message": "Bitwarden can store and fill 2-step verification codes. Select the camera icon to take a screenshot of this website's authenticator QR code, or copy and paste the key into this field."
+  },
+  "learnMoreAboutAuthenticators": {
+    "message": "Kimlik doğrulayıcılar hakkında bilgi alın"
   },
   "folder": {
     "message": "Klasör"
@@ -371,6 +466,9 @@
   "fullName": {
     "message": "Ad, Soyad"
   },
+  "address": {
+    "message": "Adres"
+  },
   "address1": {
     "message": "Adres 1"
   },
@@ -412,6 +510,15 @@
   },
   "viewItem": {
     "message": "Kaydı göster"
+  },
+  "viewItemType": {
+    "message": "$ITEMTYPE$ bilgileri",
+    "placeholders": {
+      "itemtype": {
+        "content": "$1",
+        "example": "login"
+      }
+    }
   },
   "new": {
     "message": "Yeni",
@@ -457,6 +564,9 @@
         "example": "Password"
       }
     }
+  },
+  "copySuccessful": {
+    "message": "Kopyalama başarılı"
   },
   "copyValue": {
     "message": "Değeri kopyala",
@@ -570,6 +680,24 @@
       }
     }
   },
+  "itemsMovedToOrg": {
+    "message": "Kayıtlar $ORGNAME$ kuruluşuna taşındı",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Company Name"
+      }
+    }
+  },
+  "itemMovedToOrg": {
+    "message": "Kayıt $ORGNAME$ kuruluşuna taşındı",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Company Name"
+      }
+    }
+  },
   "deleteItem": {
     "message": "Kaydı sil"
   },
@@ -628,16 +756,16 @@
     "message": "Oturumunuz zaman aşımına uğradı."
   },
   "restartRegistration": {
-    "message": "Restart registration"
+    "message": "Kaydı yeniden başlat"
   },
   "expiredLink": {
-    "message": "Expired link"
+    "message": "Bağlantının süresi dolmuş"
   },
   "pleaseRestartRegistrationOrTryLoggingIn": {
-    "message": "Please restart registration or try logging in."
+    "message": "Lütfen kaydı yeniden başlatın veya giriş yapmayı deneyin."
   },
   "youMayAlreadyHaveAnAccount": {
-    "message": "You may already have an account"
+    "message": "Zaten hesabınız olabilir"
   },
   "logOutConfirmation": {
     "message": "Çıkmak istediğinizden emin misiniz?"
@@ -810,11 +938,14 @@
   "masterPassHint": {
     "message": "Ana parola ipucu (isteğe bağlı)"
   },
+  "newMasterPassHint": {
+    "message": "Yeni ana parola ipucu (isteğe bağlı)"
+  },
   "masterPassHintLabel": {
     "message": "Ana parola ipucu"
   },
   "masterPassHintText": {
-    "message": "If you forget your password, the password hint can be sent to your email. $CURRENT$/$MAXIMUM$ character maximum.",
+    "message": "Parolanızı unutursanız parola ipucunuzu e-posta adresinize gönderebiliriz. Maksimum $CURRENT$/$MAXIMUM$ karakter.",
     "placeholders": {
       "current": {
         "content": "$1",
@@ -866,6 +997,12 @@
   "newAccountCreated": {
     "message": "Yeni hesabınız oluşturuldu! Şimdi giriş yapabilirsiniz."
   },
+  "newAccountCreated2": {
+    "message": "Yeni hesabınız oluşturuldu."
+  },
+  "youHaveBeenLoggedIn": {
+    "message": "Oturum açtınız."
+  },
   "trialAccountCreated": {
     "message": "Hesap başarıyla oluşturuldu."
   },
@@ -882,7 +1019,7 @@
     "message": "E-posta adresi"
   },
   "yourVaultIsLockedV2": {
-    "message": "Your vault is locked"
+    "message": "Kasanız kilitli"
   },
   "uuid": {
     "message": "UUID"
@@ -1009,17 +1146,17 @@
     "message": "Kimlik doğrulama uygulaması"
   },
   "authenticatorAppDescV2": {
-    "message": "Enter a code generated by an authenticator app like Bitwarden Authenticator.",
+    "message": "Kimlik doğrulama uygulamanızın (örn. Bitwarden Authenticator) ürettiği kodu girin.",
     "description": "'Bitwarden Authenticator' is a product name and should not be translated."
   },
   "yubiKeyTitleV2": {
-    "message": "Yubico OTP security key"
+    "message": "YubiKey OTP güvenlik anahtarı"
   },
   "yubiKeyDesc": {
     "message": "YubiKey 4, 5 veya NEO cihazı kullanın."
   },
   "duoDescV2": {
-    "message": "Enter a code generated by Duo Security.",
+    "message": "Duo Security'nin ürettiği kodu girin.",
     "description": "'Duo Security' and 'Duo Mobile' are product names and should not be translated."
   },
   "duoOrganizationDesc": {
@@ -1045,7 +1182,7 @@
     "message": "E-posta"
   },
   "emailDescV2": {
-    "message": "Enter a code sent to your email."
+    "message": "E-posta adresinize gönderilen kodu girin."
   },
   "continue": {
     "message": "Devam"
@@ -1087,7 +1224,7 @@
     "message": "Devam etmek istediğinizden emin misiniz?"
   },
   "moveSelectedItemsDesc": {
-    "message": "Choose a folder that you would like to add the $COUNT$ selected item(s) to.",
+    "message": "Seçtiğiniz $COUNT$ kaydı eklemek istediğiniz klasörü seçin.",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -1441,6 +1578,10 @@
     "message": "yeni bir kayıt",
     "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead. (Optional second half: You may need to wait until your administrator confirms your organization membership.)"
   },
+  "onboardingImportDataDetailsLoginLink": {
+    "message": "yeni hesap",
+    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new login instead. (Optional second half: You may need to wait until your administrator confirms your organization membership.)"
+  },
   "onboardingImportDataDetailsPartTwoNoOrgs": {
     "message": " oluşturabilirsiniz.",
     "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead."
@@ -1488,8 +1629,8 @@
   "importEncKeyError": {
     "message": "Dışa aktarılmış dosya çözülemedi. Şifreleme anahtarınız, veri dışa aktarılırken kullanılanla uyuşmuyor."
   },
-  "importDestination": {
-    "message": "İçe aktarma hedefi"
+  "destination": {
+    "message": "Hedef"
   },
   "learnAboutImportOptions": {
     "message": "İçe aktarma seçeneklerinizi öğrenin"
@@ -1686,19 +1827,19 @@
     "message": "İki aşamalı giriş ayarlarını değiştirmek için ana parolanızı girin."
   },
   "twoStepAuthenticatorInstructionPrefix": {
-    "message": "Download an authenticator app such as"
+    "message": "Bir kimlik doğrulama uygulaması indirin. Örnek:"
   },
   "twoStepAuthenticatorInstructionInfix1": {
     "message": ","
   },
   "twoStepAuthenticatorInstructionInfix2": {
-    "message": "or"
+    "message": "veya"
   },
   "twoStepAuthenticatorInstructionSuffix": {
     "message": "."
   },
   "continueToExternalUrlTitle": {
-    "message": "Continue to $URL$?",
+    "message": "%1$s adresine gidilsin mi?",
     "placeholders": {
       "url": {
         "content": "$1",
@@ -1716,7 +1857,7 @@
     "message": "Bitwarden Authenticator allows you to store authenticator keys and generate TOTP codes for 2-step verification flows. Learn more on the bitwarden.com website."
   },
   "twoStepAuthenticatorScanCodeV2": {
-    "message": "Scan the QR code below with your authenticator app or enter the key."
+    "message": "Aşağıdaki QR kodunu kimlik doğrulama uygulamanıza okutun veya anahtarı girin."
   },
   "twoStepAuthenticatorQRCanvasError": {
     "message": "Could not load QR code. Try again or use the key below."
@@ -1905,7 +2046,7 @@
     "message": "Güvensiz web siteleri bulundu"
   },
   "unsecuredWebsitesFoundReportDesc": {
-    "message": "We found $COUNT$ items in your $VAULT$ with unsecured URIs. You should change their URI scheme to https:// if the website allows it.",
+    "message": "$VAULT$nızda güvenli olmayan URI'ye sahip $COUNT$ kayıt bulduk. Web sitesi izin veriyorsa URI şemasını https:// olarak değiştirmelisiniz.",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -2781,12 +2922,6 @@
   "accessControl": {
     "message": "Erişim kontrolü"
   },
-  "groupAccessAllItems": {
-    "message": "Bu grup tüm kayıtlara erişebilir ve onları değiştirebilir."
-  },
-  "groupAccessSelectedCollections": {
-    "message": "Bu grup sadece seçili koleksiyonlara erişebilir."
-  },
   "readOnly": {
     "message": "Salt okunur"
   },
@@ -2832,12 +2967,6 @@
   "userUsingTwoStep": {
     "message": "Bu kullanıcı hesabını korumak için iki aşamalı giriş kullanıyor."
   },
-  "userAccessAllItems": {
-    "message": "Bu kullanıcı tüm kayıtlara erişebilir ve onları değiştirebilir."
-  },
-  "userAccessSelectedCollections": {
-    "message": "Bu kullanıcı sadece seçili koleksiyonlara erişebilir."
-  },
   "search": {
     "message": "Ara"
   },
@@ -2875,7 +3004,7 @@
     "message": "Tümü"
   },
   "addAccess": {
-    "message": "Add Access"
+    "message": "Erişim ekle"
   },
   "addAccessFilter": {
     "message": "Add Access Filter"
@@ -3453,6 +3582,9 @@
   "joinOrganizationDesc": {
     "message": "Yukarıdaki kuruluşa katılmaya davet edildiniz. Daveti kabul etmek için giriş yapmanız veya yeni bir Bitwarden hesabı açmanız gerekiyor."
   },
+  "finishJoiningThisOrganizationBySettingAMasterPassword": {
+    "message": "Kuruluşa katılmayı tamamlamak için ana parolanızı belirleyin."
+  },
   "inviteAccepted": {
     "message": "Davet kabul edildi"
   },
@@ -3768,6 +3900,12 @@
       }
     }
   },
+  "encryptionKeyUpdateCannotProceed": {
+    "message": "Şifreleme anahtarı güncellemesine devam edilemiyor"
+  },
+  "keyUpdateFoldersFailed": {
+    "message": "When updating your encryption key, your folders could not be decrypted. To continue with the update, your folders must be deleted. No vault items will be deleted if you proceed."
+  },
   "keyUpdated": {
     "message": "Anahtar güncellendi"
   },
@@ -3811,7 +3949,7 @@
     "message": "Hiçbir şey seçmediniz."
   },
   "receiveMarketingEmailsV2": {
-    "message": "Get advice, announcements, and research opportunities from Bitwarden in your inbox."
+    "message": "Bitwarden'dan öneriler, duyurular ve araştırma fırsatları e-posta adresinize gelsin."
   },
   "unsubscribe": {
     "message": "İstediğiniz zaman"
@@ -3908,6 +4046,9 @@
   },
   "selected": {
     "message": "Seçildi"
+  },
+  "recommended": {
+    "message": "Önerilen"
   },
   "ownership": {
     "message": "Sahip"
@@ -4090,8 +4231,9 @@
   "minimumNumberOfWords": {
     "message": "Minimum kelime sayısı"
   },
-  "defaultType": {
-    "message": "Varsayılan tür"
+  "overridePasswordTypePolicy": {
+    "message": "Parola türü",
+    "description": "Name of the password generator policy that overrides the user's password/passphrase selection."
   },
   "userPreference": {
     "message": "Kullanıcı tercihi"
@@ -4376,6 +4518,9 @@
   "sendLink": {
     "message": "Send bağlantısı",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "copyLink": {
+    "message": "Bağlantıyı kopyala"
   },
   "copySendLink": {
     "message": "Send bağlantısını kopyala",
@@ -4792,6 +4937,75 @@
     "message": "veya",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Learn more, see how it works, **or** try it now.'"
   },
+  "developmentDevOpsAndITTeamsChooseBWSecret": {
+    "message": "Development, DevOps, and IT teams choose Bitwarden Secrets Manager to securely manage and deploy their infrastructure and machine secrets."
+  },
+  "centralizeSecretsManagement": {
+    "message": "Centralize secrets management."
+  },
+  "centralizeSecretsManagementDescription": {
+    "message": "Securely store and manage secrets in one location to prevent secret sprawl across your organization."
+  },
+  "preventSecretLeaks": {
+    "message": "Prevent secret leaks."
+  },
+  "preventSecretLeaksDescription": {
+    "message": "Protect secrets with end-to-end encryption. No more hard coding secrets or sharing through .env files."
+  },
+  "enhanceDeveloperProductivity": {
+    "message": "Enhance developer productivity."
+  },
+  "enhanceDeveloperProductivityDescription": {
+    "message": "Programmatically retrieve and deploy secrets at runtime so developers can focus on what matters most, like improving code quality."
+  },
+  "strengthenBusinessSecurity": {
+    "message": "Strengthen business security."
+  },
+  "strengthenBusinessSecurityDescription": {
+    "message": "Maintain tight control over machine and human access to secrets with SSO integrations, event logs, and access rotation."
+  },
+  "tryItNow": {
+    "message": "Şimdi deneyin"
+  },
+  "sendRequest": {
+    "message": "İstek gönder"
+  },
+  "addANote": {
+    "message": "Not ekle"
+  },
+  "bitwardenSecretsManager": {
+    "message": "Bitwarden Secrets Manager"
+  },
+  "moreProductsFromBitwarden": {
+    "message": "Diğer Bitwarden ürünleri"
+  },
+  "requestAccessToSecretsManager": {
+    "message": "Request access to Secrets Manager"
+  },
+  "youNeedApprovalFromYourAdminToTrySecretsManager": {
+    "message": "You need approval from your administrator to try Secrets Manager."
+  },
+  "smAccessRequestEmailSent": {
+    "message": "Access request for secrets manager email sent to admins."
+  },
+  "requestAccessSMDefaultEmailContent": {
+    "message": "Hi,\n\nI am requesting a subscription to Bitwarden Secrets Manager for our team. Your support would mean a great deal!\n\nBitwarden Secrets Manager is an end-to-end encrypted secrets management solution for securely storing, sharing, and deploying machine credentials like API keys, database passwords, and authentication certificates.\n\nSecrets Manager will help us to:\n\n- Improve security\n- Streamline operations\n- Prevent costly secret leaks\n\nTo request a free trial for our team, please reach out to Bitwarden.\n\nThank you for your help!"
+  },
+  "giveMembersAccess": {
+    "message": "Give members access:"
+  },
+  "viewAndSelectTheMembers": {
+    "message": "view and select the members you want to give access to Secrets Manager."
+  },
+  "openYourOrganizations": {
+    "message": "Open your organization's"
+  },
+  "usingTheMenuSelect": {
+    "message": "Using the menu, select"
+  },
+  "toGrantAccessToSelectedMembers": {
+    "message": "to grant access to selected members."
+  },
   "sendVaultCardTryItNow": {
     "message": "hemen deneyin",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Learn more, see how it works, or **try it now**.'"
@@ -4816,6 +5030,10 @@
         "example": "An email address"
       }
     }
+  },
+  "viewSend": {
+    "message": "Send'i görüntüle",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "viewSendHiddenEmailWarning": {
     "message": "Bu Send'i oluşturan Bitwarden kullanıcısı e-posta adresini gizlemeyi seçti. Kullanmadan veya içeriğini indirmeden önce bu bağlantının kaynağının güvenilir olduğundan emin olun.",
@@ -5194,6 +5412,21 @@
   },
   "updateWeakMasterPasswordWarning": {
     "message": "Ana parolanız kuruluş ilkelerinizi karşılamıyor. Kasanıza erişmek için ana parolanızı güncellemelisiniz. Devam ettiğinizde oturumunuz kapanacak ve yeniden oturum açmanız gerekecektir. Diğer cihazlardaki aktif oturumlar bir saate kadar aktif kalabilir."
+  },
+  "automaticAppLogin": {
+    "message": "Automatically log in users for allowed applications"
+  },
+  "automaticAppLoginDesc": {
+    "message": "Login forms will automatically be filled and submitted for apps launched from your configured identity provider."
+  },
+  "automaticAppLoginIdpHostLabel": {
+    "message": "Identity provider host"
+  },
+  "automaticAppLoginIdpHostDesc": {
+    "message": "Enter your identity provider host URL. Enter multiple URLs by separating with a comma."
+  },
+  "tdeDisabledMasterPasswordRequired": {
+    "message": "Your organization has updated your decryption options. Please set a master password to access your vault."
   },
   "maximumVaultTimeout": {
     "message": "Kasa zaman aşımı"
@@ -5919,6 +6152,26 @@
   "randomWord": {
     "message": "Rastgele kelime"
   },
+  "usernameGenerator": {
+    "message": "Kullanıcı adı üreteci"
+  },
+  "useThisPassword": {
+    "message": "Bu parolayı kullan"
+  },
+  "useThisUsername": {
+    "message": "Bu kullanıcı adını kullan"
+  },
+  "securePasswordGenerated": {
+    "message": "Secure password generated! Don't forget to also update your password on the website."
+  },
+  "useGeneratorHelpTextPartOne": {
+    "message": "Üreteci kullanarak",
+    "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
+  },
+  "useGeneratorHelpTextPartTwo": {
+    "message": "güçlü ve benzersiz parola üretebilirsiniz",
+    "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
+  },
   "service": {
     "message": "Servis"
   },
@@ -6103,7 +6356,7 @@
     "message": "Cihaz doğrulaması güncellendi"
   },
   "areYouSureYouWantToEnableDeviceVerificationTheVerificationCodeEmailsWillArriveAtX": {
-    "message": "Cihaz Doğrulamayı etkinleştirmek istediğinizden emin misiniz? Doğrulama kodu e-postaları şu adrese gelecek: $EMAIL$",
+    "message": "Cihaz doğrulamayı açmak istediğinizden emin misiniz? Doğrulama kodu e-postaları $EMAIL$ adresine gönderilecektir",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -7232,7 +7485,7 @@
     "description": "Software Development Kit"
   },
   "createAnAccount": {
-    "message": "Bir hesap oluşturun"
+    "message": "Hesap oluştur"
   },
   "createSecret": {
     "message": "Sır oluştur"
@@ -7547,6 +7800,9 @@
   "requestedDeviceApproval": {
     "message": "Cihaz onayı istendi."
   },
+  "tdeOffboardingPasswordSet": {
+    "message": "User set a master password during TDE offboarding."
+  },
   "startYour7DayFreeTrialOfBitwardenFor": {
     "message": "7 günlük ücretsiz $ORG$ için Bitwarden denemenizi başlatın",
     "placeholders": {
@@ -7745,7 +8001,7 @@
     "message": "Zaten hesabınız var mı?"
   },
   "toggleSideNavigation": {
-    "message": "Toggle side navigation"
+    "message": "Kenar menüsünü aç/kapat"
   },
   "skipToContent": {
     "message": "İçeriğe geç"
@@ -7886,7 +8142,7 @@
     "message": "1 yıl boyunca ücretsiz"
   },
   "newWebApp": {
-    "message": "Yeni ve geliştirilmiş web uygulamasına hoş geldiniz. Nelerin değiştiği hakkında daha fazla bilgi edinin."
+    "message": "Yeni ve geliştirilmiş web uygulamasına hoş geldiniz. Nelerin değiştiğini öğrenin."
   },
   "releaseBlog": {
     "message": "Sürüm blogunu okuyun"
@@ -7915,7 +8171,10 @@
   "assignToTheseCollections": {
     "message": "Bu koleksiyonlara ata"
   },
-  "bulkCollectionAssignmentDialogDescription": {
+  "bulkCollectionAssignmentDialogDescriptionSingular": {
+    "message": "Only organization members with access to these collections will be able to see the item."
+  },
+  "bulkCollectionAssignmentDialogDescriptionPlural": {
     "message": "Only organization members with access to these collections will be able to see the items."
   },
   "selectCollectionsToAssign": {
@@ -7939,6 +8198,9 @@
         "example": "3"
       }
     }
+  },
+  "addField": {
+    "message": "Alan ekle"
   },
   "items": {
     "message": "Kayıtlar"
@@ -8032,39 +8294,39 @@
     "message": "Machine accounts cannot be created in suspended organizations. Please contact your organization owner for assistance."
   },
   "machineAccount": {
-    "message": "Machine account",
+    "message": "Makine hesabı",
     "description": "A machine user which can be used to automate processes and access secrets in the system."
   },
   "machineAccounts": {
-    "message": "Machine accounts",
+    "message": "Makine hesapları",
     "description": "The title for the section that deals with machine accounts."
   },
   "newMachineAccount": {
-    "message": "New machine account",
+    "message": "Yeni makine hesabı",
     "description": "Title for creating a new machine account."
   },
   "machineAccountsNoItemsMessage": {
-    "message": "Create a new machine account to get started automating secret access.",
+    "message": "Sır erişimini otomatikleştirmeye başlamak için yeni bir makine hesabı oluşturun.",
     "description": "Message to encourage the user to start creating machine accounts."
   },
   "machineAccountsNoItemsTitle": {
-    "message": "Nothing to show yet",
+    "message": "Henüz gösterecek bir şey yok",
     "description": "Title to indicate that there are no machine accounts to display."
   },
   "deleteMachineAccounts": {
-    "message": "Delete machine accounts",
+    "message": "Makine hesaplarını sil",
     "description": "Title for the action to delete one or multiple machine accounts."
   },
   "deleteMachineAccount": {
-    "message": "Delete machine account",
+    "message": "Makine hesabını sil",
     "description": "Title for the action to delete a single machine account."
   },
   "viewMachineAccount": {
-    "message": "View machine account",
+    "message": "Makine hesabını görüntüle",
     "description": "Action to view the details of a machine account."
   },
   "deleteMachineAccountDialogMessage": {
-    "message": "Deleting machine account $MACHINE_ACCOUNT$ is permanent and irreversible.",
+    "message": "$MACHINE_ACCOUNT$ makine hesabının silinmesi kalıcıdır ve geri alınamaz.",
     "placeholders": {
       "machine_account": {
         "content": "$1",
@@ -8073,7 +8335,7 @@
     }
   },
   "deleteMachineAccountsDialogMessage": {
-    "message": "Deleting machine accounts is permanent and irreversible."
+    "message": "Makine hesaplarının silinmesi kalıcıdır ve geri alınamaz."
   },
   "deleteMachineAccountsConfirmMessage": {
     "message": "$COUNT$ makine hesabını sil",
@@ -8129,7 +8391,7 @@
     "message": "Makine hesabı oluştur"
   },
   "maPeopleWarningMessage": {
-    "message": "Removing people from a machine account does not remove the access tokens they created. For security best practice, it is recommended to revoke access tokens created by people removed from a machine account."
+    "message": "Kişileri bir makine hesabından kaldırmak, oluşturdukları erişim belirteçlerini kaldırmaz. En iyi güvenlik uygulaması için, bir makine hesabından kaldırılan kişiler tarafından oluşturulan erişim belirteçlerinin iptal edilmesi önerilir."
   },
   "smAccessRemovalWarningMaTitle": {
     "message": "Bu makine hesabına erişimi kaldır"
@@ -8219,7 +8481,7 @@
     }
   },
   "providerDeleted": {
-    "message": "Provider deleted"
+    "message": "Sağlayıcı silindi"
   },
   "providerDeletedDesc": {
     "message": "The Provider and all associated data has been deleted."
@@ -8330,6 +8592,51 @@
   "manageBillingFromProviderPortalMessage": {
     "message": "Manage billing from the Provider Portal"
   },
+  "startYour7DayFreeTrialOfBitwarden": {
+    "message": "7 günlük ücretsiz Bitwarden denemenizi başlatın"
+  },
+  "startYour7DayFreeTrialOfBitwardenForTeams": {
+    "message": "Start your 7-Day free trial of Bitwarden for Teams"
+  },
+  "startYour7DayFreeTrialOfBitwardenForFamilies": {
+    "message": "Start your 7-Day free trial of Bitwarden for Families"
+  },
+  "startYour7DayFreeTrialOfBitwardenForEnterprise": {
+    "message": "Start your 7-Day free trial of Bitwarden for Enterprise"
+  },
+  "startYour7DayFreeTrialOfBitwardenSecretsManager": {
+    "message": "Start your 7-Day free trial of Bitwarden Secrets Manager"
+  },
+  "startYour7DayFreeTrialOfBitwardenSecretsManagerForTeams": {
+    "message": "Start your 7-Day free trial of Bitwarden Secrets Manager for Teams"
+  },
+  "startYour7DayFreeTrialOfBitwardenSecretsManagerForFamilies": {
+    "message": "Start your 7-Day free trial of Bitwarden Secrets Manager for Families"
+  },
+  "startYour7DayFreeTrialOfBitwardenSecretsManagerForEnterprise": {
+    "message": "Start your 7-Day free trial of Bitwarden Secrets Manager for Enterprise"
+  },
+  "startYour7DayFreeTrialOfBitwardenPasswordManager": {
+    "message": "Start your 7-Day free trial of Bitwarden Password Manager"
+  },
+  "startYour7DayFreeTrialOfBitwardenPasswordManagerForTeams": {
+    "message": "Start your 7-Day free trial of Bitwarden Password Manager for Teams"
+  },
+  "startYour7DayFreeTrialOfBitwardenPasswordManagerForFamilies": {
+    "message": "Start your 7-Day free trial of Bitwarden Password Manager for Families"
+  },
+  "startYour7DayFreeTrialOfBitwardenPasswordManagerForEnterprise": {
+    "message": "Start your 7-Day free trial of Bitwarden Password Manager for Enterprise"
+  },
+  "enterTeamsOrgInfo": {
+    "message": "Enter your Teams organization information"
+  },
+  "enterFamiliesOrgInfo": {
+    "message": "Enter your Families organization information"
+  },
+  "enterEnterpriseOrgInfo": {
+    "message": "Enter your Enterprise organization information"
+  },
   "viewItemsIn": {
     "message": "View items in $NAME$",
     "description": "Button to view the contents of a folder or collection",
@@ -8398,7 +8705,7 @@
     "message": "Low KDF iterations. Increase your iterations to improve the security of your account."
   },
   "changeKDFSettings": {
-    "message": "Change KDF settings"
+    "message": "KDF ayarlarını değiştir"
   },
   "secureYourInfrastructure": {
     "message": "Secure your infrastructure"
@@ -8463,6 +8770,27 @@
   },
   "memberAccessReportPageDesc": {
     "message": "Audit organization member access across groups, collections, and collection items. The CSV export provides a detailed breakdown per member, including information on collection permissions and account configurations."
+  },
+  "memberAccessReportNoCollection": {
+    "message": "(Koleksiyon yok)"
+  },
+  "memberAccessReportNoCollectionPermission": {
+    "message": "(Koleksiyon izni yok)"
+  },
+  "memberAccessReportNoGroup": {
+    "message": "(Grup yok)"
+  },
+  "memberAccessReportTwoFactorEnabledTrue": {
+    "message": "Açık"
+  },
+  "memberAccessReportTwoFactorEnabledFalse": {
+    "message": "Kapalı"
+  },
+  "memberAccessReportAuthenticationEnabledTrue": {
+    "message": "Açık"
+  },
+  "memberAccessReportAuthenticationEnabledFalse": {
+    "message": "Kapalı"
   },
   "higherKDFIterations": {
     "message": "KDF iterasyonunun daha yüksek olması ana parolanızı kaba kuvvet saldırılarına karşı daha iyi korur."
@@ -8570,21 +8898,33 @@
   "selectFolder": {
     "message": "Klasör seç"
   },
-  "personalItemsTransferWarning": {
-    "message": "$PERSONAL_ITEMS_COUNT$ will be permanently transferred to the selected organization. You will no longer own these items.",
+  "personalItemTransferWarningSingular": {
+    "message": "1 item will be permanently transferred to the selected organization. You will no longer own this item."
+  },
+  "personalItemsTransferWarningPlural": {
+    "message": "$PERSONAL_ITEMS_COUNT$ items will be permanently transferred to the selected organization. You will no longer own these items.",
     "placeholders": {
       "personal_items_count": {
         "content": "$1",
-        "example": "2 items"
+        "example": "2"
       }
     }
   },
-  "personalItemsWithOrgTransferWarning": {
-    "message": "$PERSONAL_ITEMS_COUNT$ will be permanently transferred to $ORG$. You will no longer own these items.",
+  "personalItemWithOrgTransferWarningSingular": {
+    "message": "1 item will be permanently transferred to $ORG$. You will no longer own this item.",
+    "placeholders": {
+      "org": {
+        "content": "$1",
+        "example": "Organization name"
+      }
+    }
+  },
+  "personalItemsWithOrgTransferWarningPlural": {
+    "message": "$PERSONAL_ITEMS_COUNT$ items will be permanently transferred to $ORG$. You will no longer own these items.",
     "placeholders": {
       "personal_items_count": {
         "content": "$1",
-        "example": "2 items"
+        "example": "2"
       },
       "org": {
         "content": "$2",
@@ -8592,7 +8932,170 @@
       }
     }
   },
+  "data": {
+    "message": "Veri"
+  },
   "purchasedSeatsRemoved": {
     "message": "purchased seats removed"
+  },
+  "fileSends": {
+    "message": "Dosya Send'leri"
+  },
+  "textSends": {
+    "message": "Metin Send'leri"
+  },
+  "includesXMembers": {
+    "message": "for $COUNT$ member",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "costPerMember": {
+    "message": "$COST$",
+    "placeholders": {
+      "cost": {
+        "content": "$1",
+        "example": "$3"
+      }
+    }
+  },
+  "optionalOnPremHosting": {
+    "message": "Optional on-premises hosting"
+  },
+  "upgradeFreeOrganization": {
+    "message": "Upgrade your $NAME$ organization ",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Teams"
+      }
+    }
+  },
+  "includeSsoAuthenticationMessage": {
+    "message": "SSO Authentication"
+  },
+  "familiesPlanInvLimitReachedManageBilling": {
+    "message": "Families organizations may have up to $SEATCOUNT$ members. Upgrade to a paid plan to invite more members.",
+    "placeholders": {
+      "seatcount": {
+        "content": "$1",
+        "example": "6"
+      }
+    }
+  },
+  "familiesPlanInvLimitReachedNoManageBilling": {
+    "message": "Families organizations may have up to $SEATCOUNT$ members. Contact your organization owner to upgrade.",
+    "placeholders": {
+      "seatcount": {
+        "content": "$1",
+        "example": "6"
+      }
+    }
+  },
+  "upgradePlans": {
+    "message": "Upgrade your plan to invite members and experience powerful security features."
+  },
+  "upgradeDiscount": {
+    "message": "Save $AMOUNT$%",
+    "placeholders": {
+      "amount": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "enterprisePlanUpgradeMessage": {
+    "message": "Advanced capabilities for larger organizations"
+  },
+  "teamsPlanUpgradeMessage": {
+    "message": "Resilient protection for growing teams"
+  },
+  "teamsInviteMessage": {
+    "message": "Invite unlimited members"
+  },
+  "accessToCreateGroups": {
+    "message": "Access to create groups"
+  },
+  "syncGroupsAndUsersFromDirectory": {
+    "message": "Sync groups and users from a directory"
+  },
+  "familyPlanUpgradeMessage": {
+    "message": "Secure your family logins"
+  },
+  "accessToPremiumFeatures": {
+    "message": "Access to Premium features"
+  },
+  "additionalStorageGbMessage": {
+    "message": "GB additional storage"
+  },
+  "premiumAccounts": {
+    "message": "6 premium hesap"
+  },
+  "unlimitedSharing": {
+    "message": "Sınırsız paylaşım"
+  },
+  "unlimitedCollections": {
+    "message": "Sınırsız koleksiyon"
+  },
+  "secureDataSharing": {
+    "message": "Güvenli veri paylaşımı"
+  },
+  "eventLogMonitoring": {
+    "message": "Olay günlüğü takibi"
+  },
+  "directoryIntegration": {
+    "message": "Dizin entegrasyonu"
+  },
+  "passwordLessSso": {
+    "message": "Parolasız SSO"
+  },
+  "accountRecovery": {
+    "message": "Hesap kurtarma"
+  },
+  "customRoles": {
+    "message": "Özel roller"
+  },
+  "unlimitedSecretsStorage": {
+    "message": "Sınırsız sız depolama"
+  },
+  "unlimitedUsers": {
+    "message": "Sınırsız kullanıcı"
+  },
+  "UpTo50MachineAccounts": {
+    "message": "50 makine hesabı"
+  },
+  "UpTo20MachineAccounts": {
+    "message": "20 makine hesabı"
+  },
+  "current": {
+    "message": "Current"
+  },
+  "secretsManagerSubInfo": {
+    "message": "Your Secrets Manager subscription will upgrade base on the plan selected"
+  },
+  "bitwardenPasswordManager": {
+    "message": "Bitwarden Parola Yöneticisi"
+  },
+  "secretsManagerComplimentaryPasswordManager": {
+    "message": "Your complimentary one year Password Manager subscription will upgrade to the selected plan. You will not be charged until the complimentary period is over."
+  },
+  "fileSavedToDevice": {
+    "message": "Dosya cihaza kaydedildi. Cihazınızın indirilenler klasöründen yönetebilirsiniz."
+  },
+  "publicApi": {
+    "message": "Genel API",
+    "description": "The text, 'API', is an acronymn and should not be translated."
+  },
+  "showCharacterCount": {
+    "message": "Karakter sayacını göster"
+  },
+  "hideCharacterCount": {
+    "message": "Karakter sayacını gizle"
+  },
+  "editAccess": {
+    "message": "Edit access"
   }
 }

@@ -21,7 +21,7 @@
     "message": "Картка"
   },
   "typeIdentity": {
-    "message": "Особисті дані"
+    "message": "Посвідчення"
   },
   "typeSecureNote": {
     "message": "Захищена нотатка"
@@ -151,7 +151,7 @@
     "message": "Код безпеки"
   },
   "identityName": {
-    "message": "Назва"
+    "message": "Назва посвідчення"
   },
   "company": {
     "message": "Компанія"
@@ -346,7 +346,7 @@
     "message": "Видалити"
   },
   "nameRequired": {
-    "message": "Потрібна назва."
+    "message": "Необхідно ввести назву."
   },
   "addedItem": {
     "message": "Запис додано"
@@ -551,6 +551,12 @@
   "masterPassHintLabel": {
     "message": "Підказка для головного пароля"
   },
+  "joinOrganization": {
+    "message": "Приєднатися до організації"
+  },
+  "finishJoiningThisOrganizationBySettingAMasterPassword": {
+    "message": "Завершіть приєднання до цієї організації, встановивши головний пароль."
+  },
   "settings": {
     "message": "Налаштування"
   },
@@ -597,6 +603,12 @@
   "newAccountCreated": {
     "message": "Ваш обліковий запис створений! Тепер ви можете увійти."
   },
+  "newAccountCreated2": {
+    "message": "Ваш обліковий запис створено!"
+  },
+  "youHaveBeenLoggedIn": {
+    "message": "Ви увійшли!"
+  },
   "masterPassSent": {
     "message": "Ми надіслали вам лист з підказкою для головного пароля."
   },
@@ -628,7 +640,7 @@
     "message": "Потрібний код підтвердження."
   },
   "webauthnCancelOrTimeout": {
-    "message": "The authentication was cancelled or took too long. Please try again."
+    "message": "Автентифікацію було скасовано або вона тривала надто довго. Повторіть спробу."
   },
   "invalidVerificationCode": {
     "message": "Недійсний код підтвердження"
@@ -696,7 +708,7 @@
     "description": "'Duo Security' and 'Duo Mobile' are product names and should not be translated."
   },
   "duoOrganizationDesc": {
-    "message": "Авторизуйтесь за допомогою Duo Security для вашої організації з використанням мобільного додатку Duo Mobile, SMS, телефонного виклику, або ключа безпеки U2F.",
+    "message": "Авторизуйтесь за допомогою Duo Security для вашої організації з використанням програми Duo Mobile, SMS, телефонного виклику, або ключа безпеки U2F.",
     "description": "'Duo Security' and 'Duo Mobile' are product names and should not be translated."
   },
   "webAuthnTitle": {
@@ -727,10 +739,10 @@
     "message": "Середовище власного хостингу"
   },
   "selfHostedEnvironmentFooter": {
-    "message": "Вкажіть основну URL-адресу локально розміщеного встановлення Bitwarden."
+    "message": "Вкажіть основну URL-адресу вашого встановлення Bitwarden на власному хостингу."
   },
   "selfHostedBaseUrlHint": {
-    "message": "Вкажіть основну URL-адресу вашого локально розміщеного встановлення Bitwarden. Зразок: https://bitwarden.company.com"
+    "message": "Вкажіть основну URL-адресу вашого встановлення Bitwarden на власному хостингу. Зразок: https://bitwarden.company.com"
   },
   "selfHostedCustomEnvHeader": {
     "message": "Для розширеної конфігурації ви можете вказати основну URL-адресу окремо для кожної служби."
@@ -791,6 +803,18 @@
   },
   "loginExpired": {
     "message": "Тривалість вашого сеансу завершилась."
+  },
+  "restartRegistration": {
+    "message": "Перезапустити реєстрацію"
+  },
+  "expiredLink": {
+    "message": "Протерміноване посилання"
+  },
+  "pleaseRestartRegistrationOrTryLoggingIn": {
+    "message": "Перезапустіть реєстрацію або спробуйте ввійти."
+  },
+  "youMayAlreadyHaveAnAccount": {
+    "message": "Можливо, ви вже зареєстровані"
   },
   "logOutConfirmation": {
     "message": "Ви дійсно хочете вийти?"
@@ -864,7 +888,7 @@
     "message": "Перейти у вебсховище"
   },
   "getMobileApp": {
-    "message": "Отримати мобільний додаток"
+    "message": "Отримати програму для мобільних пристроїв"
   },
   "getBrowserExtension": {
     "message": "Отримати розширення браузера"
@@ -1156,6 +1180,9 @@
   "premiumPurchaseAlert": {
     "message": "Ви можете передплатити преміум у сховищі на bitwarden.com. Хочете перейти на вебсайт зараз?"
   },
+  "premiumPurchaseAlertV2": {
+    "message": "Ви можете придбати Преміум у налаштуваннях облікового запису вебпрограмі Bitwarden."
+  },
   "premiumCurrentMember": {
     "message": "Ви користуєтеся передплатою преміум!"
   },
@@ -1257,6 +1284,9 @@
         "example": "Password"
       }
     }
+  },
+  "copySuccessful": {
+    "message": "Успішно скопійовано"
   },
   "errorRefreshingAccessToken": {
     "message": "Помилка оновлення токена доступу"
@@ -1492,8 +1522,14 @@
   "additionalWindowsHelloSettings": {
     "message": "Додаткові налаштування Windows Hello"
   },
+  "unlockWithPolkit": {
+    "message": "Розблокувати за допомогою системної автентифікації"
+  },
   "windowsHelloConsentMessage": {
     "message": "Перевірити на Bitwarden."
+  },
+  "polkitConsentMessage": {
+    "message": "Автентифікуйтесь для розблокування Bitwarden."
   },
   "unlockWithTouchId": {
     "message": "Розблокувати з Touch ID"
@@ -1506,6 +1542,9 @@
   },
   "autoPromptWindowsHello": {
     "message": "Запитувати Windows Hello під час запуску"
+  },
+  "autoPromptPolkit": {
+    "message": "Запитувати системну автентифікацію під час запуску"
   },
   "autoPromptTouchId": {
     "message": "Запитувати Touch ID під час запуску"
@@ -1693,8 +1732,8 @@
   "masterPasswordPolicyRequirementsNotMet": {
     "message": "Ваш новий головний пароль не задовольняє вимоги політики."
   },
-  "receiveMarketingEmails": {
-    "message": "Отримуйте електронні листи від Bitwarden з оголошеннями, порадами та інформацією про нові можливості."
+  "receiveMarketingEmailsV2": {
+    "message": "Отримуйте поради, оголошення та можливості дослідження від Bitwarden у своїй поштовій скриньці."
   },
   "unsubscribe": {
     "message": "Відписатися"
@@ -1786,6 +1825,12 @@
   "biometricsNotEnabledDesc": {
     "message": "Для використання біометрії в браузері необхідно спершу налаштувати її в програмі на комп'ютері."
   },
+  "biometricsManualSetupTitle": {
+    "message": "Автоналаштування недоступне"
+  },
+  "biometricsManualSetupDesc": {
+    "message": "У зв'язку з методом встановлення, не можна автоматично ввімкнути підтримку біометрії. Бажаєте переглянути документацію про те, як зробити це вручну?"
+  },
   "personalOwnershipSubmitError": {
     "message": "Згідно з політикою компанії, вам заборонено зберігати записи в особистому сховищі. Змініть опцію власника на організацію та виберіть серед доступних збірок."
   },
@@ -1796,7 +1841,7 @@
     "message": "Політика організації впливає на ваші параметри власності."
   },
   "personalOwnershipPolicyInEffectImports": {
-    "message": "Політика організації заблокувала імпортування елементів до вашого особистого сховища."
+    "message": "Політика організації заблокувала імпортування записів до вашого особистого сховища."
   },
   "allSends": {
     "message": "Усі відправлення",
@@ -1997,6 +2042,9 @@
   "updateWeakMasterPasswordWarning": {
     "message": "Ваш головний пароль не відповідає одній або більше політикам вашої організації. Щоб отримати доступ до сховища, вам необхідно оновити свій головний пароль зараз. Продовживши, ви вийдете з поточного сеансу, після чого потрібно буде повторно виконати вхід. Сеанси на інших пристроях можуть залишатися активними протягом однієї години."
   },
+  "tdeDisabledMasterPasswordRequired": {
+    "message": "Ваша організація вимкнула шифрування довірених пристроїв. Встановіть головний пароль для доступу до сховища."
+  },
   "tryAgain": {
     "message": "Спробуйте знову"
   },
@@ -2080,6 +2128,9 @@
   },
   "vaultTimeoutTooLarge": {
     "message": "Час очікування сховища перевищує обмеження, встановлені вашою організацією."
+  },
+  "inviteAccepted": {
+    "message": "Запрошення прийнято"
   },
   "resetPasswordPolicyAutoEnroll": {
     "message": "Автоматичне подання запиту"
@@ -2175,7 +2226,7 @@
     "message": "Експортування сховища організації"
   },
   "exportingOrganizationVaultDesc": {
-    "message": "Буде експортовано лише сховище організації, пов'язане з $ORGANIZATION$. Елементи особистих сховищ або інших організацій не будуть включені.",
+    "message": "Буде експортовано лише сховище організації, пов'язане з $ORGANIZATION$. Записи особистих сховищ або інших організацій не будуть включені.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -2761,7 +2812,7 @@
     "message": "Дані успішно імпортовано"
   },
   "importSuccessNumberOfItems": {
-    "message": "Всього імпортовано $AMOUNT$ елементів.",
+    "message": "Всього імпортовано $AMOUNT$ записів.",
     "placeholders": {
       "amount": {
         "content": "$1",
@@ -2782,7 +2833,7 @@
     }
   },
   "duoHealthCheckResultsInNullAuthUrlError": {
-    "message": "Error connecting with the Duo service. Use a different two-step login method or contact Duo for assistance."
+    "message": "Помилка під'єднання до служби Duo. Скористайтеся іншим способом двоетапної перевірки або зверніться до служби підтримки Duo по допомогу."
   },
   "launchDuoAndFollowStepsToFinishLoggingIn": {
     "message": "Запустіть Duo і виконайте дії для завершення входу."
@@ -2805,8 +2856,8 @@
   "invalidFilePassword": {
     "message": "Неправильний пароль файлу. Використайте пароль, який ви вводили під час створення експортованого файлу."
   },
-  "importDestination": {
-    "message": "Призначення імпорту"
+  "destination": {
+    "message": "Призначення"
   },
   "learnAboutImportOptions": {
     "message": "Дізнайтеся про параметри імпорту"
@@ -2828,7 +2879,7 @@
     }
   },
   "importUnassignedItemsError": {
-    "message": "Файл містить непризначені елементи."
+    "message": "Файл містить непризначені записи."
   },
   "selectFormat": {
     "message": "Оберіть формат імпортованого файлу"
@@ -3001,5 +3052,20 @@
         "example": "Work"
       }
     }
+  },
+  "data": {
+    "message": "Дані"
+  },
+  "fileSends": {
+    "message": "Відправлення файлів"
+  },
+  "textSends": {
+    "message": "Відправлення тексту"
+  },
+  "ssoError": {
+    "message": "Не знайдено вільних портів для цього входу SSO."
+  },
+  "fileSavedToDevice": {
+    "message": "Файл збережено на пристрої. Ви можете його знайти у теці завантажень."
   }
 }

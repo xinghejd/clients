@@ -1,6 +1,9 @@
 import { firstValueFrom, startWith } from "rxjs";
 import { pairwise } from "rxjs/operators";
 
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { Fido2ActiveRequestManager } from "@bitwarden/common/platform/abstractions/fido2/fido2-active-request-manager.abstraction";
 import {
   AssertCredentialParams,
   AssertCredentialResult,
@@ -47,9 +50,11 @@ export class Fido2Background implements Fido2BackgroundInterface {
 
   constructor(
     private logService: LogService,
+    private fido2ActiveRequestManager: Fido2ActiveRequestManager,
     private fido2ClientService: Fido2ClientService,
     private vaultSettingsService: VaultSettingsService,
     private scriptInjectorService: ScriptInjectorService,
+    private configService: ConfigService,
   ) {}
 
   /**
@@ -93,6 +98,7 @@ export class Fido2Background implements Fido2BackgroundInterface {
     previousEnablePasskeysSetting: boolean,
     enablePasskeys: boolean,
   ) {
+    this.fido2ActiveRequestManager.removeAllActiveRequests();
     await this.updateContentScriptRegistration();
 
     if (previousEnablePasskeysSetting === undefined) {
@@ -132,7 +138,7 @@ export class Fido2Background implements Fido2BackgroundInterface {
 
     this.registeredContentScripts = await BrowserApi.registerContentScriptsMv2({
       js: [
-        { file: Fido2ContentScript.PageScriptAppend },
+        { file: await this.getFido2PageScriptAppendFileName() },
         { file: Fido2ContentScript.ContentScript },
       ],
       ...this.sharedRegistrationOptions,
@@ -176,7 +182,7 @@ export class Fido2Background implements Fido2BackgroundInterface {
     void this.scriptInjectorService.inject({
       tabId: tab.id,
       injectDetails: { frame: "all_frames", ...this.sharedInjectionDetails },
-      mv2Details: { file: Fido2ContentScript.PageScriptAppend },
+      mv2Details: { file: await this.getFido2PageScriptAppendFileName() },
       mv3Details: { file: Fido2ContentScript.PageScript, world: "MAIN" },
     });
 
@@ -353,4 +359,20 @@ export class Fido2Background implements Fido2BackgroundInterface {
 
     this.fido2ContentScriptPortsSet.delete(port);
   };
+
+  /**
+   * Gets the file name of the page-script used within mv2. Will return the
+   * delayed append script if the associated feature flag is enabled.
+   */
+  private async getFido2PageScriptAppendFileName() {
+    const shouldDelayInit = await this.configService.getFeatureFlag(
+      FeatureFlag.DelayFido2PageScriptInitWithinMv2,
+    );
+
+    if (shouldDelayInit) {
+      return Fido2ContentScript.PageScriptDelayAppend;
+    }
+
+    return Fido2ContentScript.PageScriptAppend;
+  }
 }
