@@ -56,6 +56,8 @@ import { CollectionService } from "@bitwarden/common/vault/abstractions/collecti
 import { TotpService } from "@bitwarden/common/vault/abstractions/totp.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherRepromptType } from "@bitwarden/common/vault/enums/cipher-reprompt-type";
+import { CipherData } from "@bitwarden/common/vault/models/data/cipher.data";
+import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
 import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { CollectionView } from "@bitwarden/common/vault/models/view/collection.view";
@@ -856,7 +858,16 @@ export class VaultComponent implements OnInit, OnDestroy {
    * @returns Promise<void>
    */
   async viewCipherById(id: string) {
-    const cipher = await this.cipherService.get(id);
+    let cipher = await this.cipherService.get(id);
+
+    if (cipher == null) {
+      // A cipher can be in an unassigned collection,
+      // when that is the case `getCipherAdmin` is needed to fetch it
+      const response = await this.apiService.getCipherAdmin(id);
+
+      cipher = new Cipher(new CipherData(response));
+    }
+
     // if cipher exists (cipher is null when new) and MP reprompt
     // is on for this cipher, then show password reprompt.
     if (
