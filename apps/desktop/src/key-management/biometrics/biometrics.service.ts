@@ -91,7 +91,10 @@ export class BiometricsService extends DesktopBiometricsService {
     }
 
     const requireClientKeyHalf = await this.biometricStateService.getRequirePasswordOnStart(userId);
-    const clientKeyHalfB64 = this.getClientKeyHalf("Bitwarden", `${userId}_user_biometric`);
+    const clientKeyHalfB64 = this.getClientKeyHalf(
+      "Bitwarden_biometric",
+      `${userId}_user_biometric`,
+    );
     const clientKeyHalfSatisfied = !requireClientKeyHalf || !!clientKeyHalfB64;
     if (!clientKeyHalfSatisfied) {
       return BiometricsStatus.UnlockNeeded;
