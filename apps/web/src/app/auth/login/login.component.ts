@@ -4,7 +4,7 @@ import { ActivatedRoute, Router } from "@angular/router";
 import { firstValueFrom, takeUntil } from "rxjs";
 import { first } from "rxjs/operators";
 
-import { LoginComponent as BaseLoginComponent } from "@bitwarden/angular/auth/components/login.component";
+import { LoginComponentV1 as BaseLoginComponent } from "@bitwarden/angular/auth/components/login.component";
 import { FormValidationErrorsService } from "@bitwarden/angular/platform/abstractions/form-validation-errors.service";
 import {
   LoginStrategyServiceAbstraction,
@@ -42,7 +42,7 @@ import { OrganizationInvite } from "../organization-invite/organization-invite";
   templateUrl: "login.component.html",
 })
 // eslint-disable-next-line rxjs-angular/prefer-takeuntil
-export class LoginComponent extends BaseLoginComponent implements OnInit {
+export class LoginComponentV1 extends BaseLoginComponent implements OnInit {
   showResetPasswordAutoEnrollWarning = false;
   enforcedPasswordPolicyOptions: MasterPasswordPolicyOptions;
   policies: Policy[];

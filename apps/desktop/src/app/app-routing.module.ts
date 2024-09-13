@@ -33,7 +33,7 @@ import { HintComponent } from "../auth/hint.component";
 import { LockComponent } from "../auth/lock.component";
 import { LoginDecryptionOptionsComponent } from "../auth/login/login-decryption-options/login-decryption-options.component";
 import { LoginViaAuthRequestComponent } from "../auth/login/login-via-auth-request.component";
-import { LoginComponent } from "../auth/login/login.component";
+import { LoginComponentV1 } from "../auth/login/login.component";
 import { RegisterComponent } from "../auth/register.component";
 import { RemovePasswordComponent } from "../auth/remove-password.component";
 import { SetPasswordComponent } from "../auth/set-password.component";
@@ -149,11 +149,11 @@ const routes: Routes = [
     },
   ),
   ...unauthUiRefreshSwap(
-    LoginComponent,
+    LoginComponentV1,
     AnonLayoutWrapperComponent,
     {
       path: "login",
-      component: LoginComponent,
+      component: LoginComponentV1,
       canActivate: [maxAccountsGuardFn()],
     },
     {

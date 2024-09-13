@@ -3,7 +3,7 @@ import { FormBuilder } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
 import { Subject, takeUntil } from "rxjs";
 
-import { LoginComponent as BaseLoginComponent } from "@bitwarden/angular/auth/components/login.component";
+import { LoginComponentV1 as BaseLoginComponent } from "@bitwarden/angular/auth/components/login.component";
 import { FormValidationErrorsService } from "@bitwarden/angular/platform/abstractions/form-validation-errors.service";
 import { ModalService } from "@bitwarden/angular/services/modal.service";
 import {
@@ -36,7 +36,7 @@ const BroadcasterSubscriptionId = "LoginComponent";
   selector: "app-login",
   templateUrl: "login.component.html",
 })
-export class LoginComponent extends BaseLoginComponent implements OnInit, OnDestroy {
+export class LoginComponentV1 extends BaseLoginComponent implements OnInit, OnDestroy {
   @ViewChild("environment", { read: ViewContainerRef, static: true })
   environmentModal: ViewContainerRef;
 
