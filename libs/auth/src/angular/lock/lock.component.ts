@@ -640,7 +640,9 @@ export class LockV2Component implements OnInit, OnDestroy {
   }
 
   private focusInput() {
-    document.getElementById(this.unlockOptions.pin.enabled ? "pin" : "masterPassword")?.focus();
+    if (this.unlockOptions) {
+      document.getElementById(this.unlockOptions.pin.enabled ? "pin" : "masterPassword")?.focus();
+    }
   }
 
   // -----------------------------------------------------------------------------------------------
