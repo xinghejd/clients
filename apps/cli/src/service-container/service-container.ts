@@ -61,6 +61,7 @@ import { ConfigApiServiceAbstraction } from "@bitwarden/common/platform/abstract
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { KeyGenerationService as KeyGenerationServiceAbstraction } from "@bitwarden/common/platform/abstractions/key-generation.service";
+import { SdkService } from "@bitwarden/common/platform/abstractions/sdk.service";
 import {
   BiometricStateService,
   DefaultBiometricStateService,
@@ -82,6 +83,7 @@ import { CryptoService } from "@bitwarden/common/platform/services/crypto.servic
 import { EncryptServiceImplementation } from "@bitwarden/common/platform/services/cryptography/encrypt.service.implementation";
 import { FallbackBulkEncryptService } from "@bitwarden/common/platform/services/cryptography/fallback-bulk-encrypt.service";
 import { DefaultEnvironmentService } from "@bitwarden/common/platform/services/default-environment.service";
+import { DefaultSdkService } from "@bitwarden/common/platform/services/default-sdk.service";
 import { FileUploadService } from "@bitwarden/common/platform/services/file-upload/file-upload.service";
 import { KeyGenerationService } from "@bitwarden/common/platform/services/key-generation.service";
 import { MemoryStorageService } from "@bitwarden/common/platform/services/memory-storage.service";
@@ -250,6 +252,7 @@ export class ServiceContainer {
   userAutoUnlockKeyService: UserAutoUnlockKeyService;
   kdfConfigService: KdfConfigServiceAbstraction;
   taskSchedulerService: TaskSchedulerService;
+  sdkService: SdkService;
 
   constructor() {
     let p = null;
@@ -521,6 +524,12 @@ export class ServiceContainer {
       this.i18nService,
       this.platformUtilsService,
       this.globalStateProvider,
+    );
+
+    this.sdkService = new DefaultSdkService(
+      this.environmentService,
+      this.platformUtilsService,
+      customUserAgent,
     );
 
     this.passwordStrengthService = new PasswordStrengthService();
