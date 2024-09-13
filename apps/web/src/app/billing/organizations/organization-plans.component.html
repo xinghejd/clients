@@ -1,6 +1,4 @@
-<ng-container *ngIf="loading">
-  <loading-indicator />
-</ng-container>
+<loading-indicator *ngIf="loading" />
 <ng-container *ngIf="createOrganization && selfHosted">
   <p bitTypography="body1">{{ "uploadLicenseFileOrg" | i18n }}</p>
   <form [formGroup]="selfHostedForm" [bitSubmit]="submit">
