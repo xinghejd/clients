@@ -22,7 +22,5 @@
   "flags": {
     "showPasswordless": true
   },
-  "devFlags": {
-    "configRetrievalIntervalMs": 10000
-  }
+  "devFlags": {}
 }
