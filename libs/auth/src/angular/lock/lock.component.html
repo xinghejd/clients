@@ -17,7 +17,9 @@
       block
       (click)="unlockViaBiometrics()"
     >
-      {{ "unlockWithBiometrics" | i18n }}
+      <!-- TODO: ask if we want to keep biometricUnlockBtnText -->
+      <span *ngIf="biometricUnlockBtnText"> {{ biometricUnlockBtnText | i18n }}</span>
+      <span *ngIf="!biometricUnlockBtnText"> {{ "unlockWithBiometrics" | i18n }}</span>
     </button>
 
     <!-- TODO: wire up disable logic on unlock with biometrics -->
