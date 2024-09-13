@@ -1054,7 +1054,7 @@ jobs:
             || github.ref == 'refs/heads/vgrassia/test-upload-testflight')
         uses: slackapi/slack-github-action@6c661ce58804a1a20f6dc5fbee7f0381b469e001 # v1.25.0
         with:
-          channel-id: C05T0840415
+          channel-id: C074F5UESQ0
           payload: |
             {
               "blocks": [
