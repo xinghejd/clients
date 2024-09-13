@@ -9,9 +9,12 @@ import {
   unauthGuardFn,
 } from "@bitwarden/angular/auth/guards";
 import { canAccessFeature } from "@bitwarden/angular/platform/guard/feature-flag.guard";
+import { extensionRefreshRedirect } from "@bitwarden/angular/utils/extension-refresh-redirect";
 import {
   AnonLayoutWrapperComponent,
   AnonLayoutWrapperData,
+  LockIcon,
+  LockV2Component,
   RegistrationFinishComponent,
   RegistrationStartComponent,
   RegistrationStartSecondaryComponent,
@@ -50,6 +53,7 @@ const routes: Routes = [
     path: "lock",
     component: LockComponent,
     canActivate: [lockGuard()],
+    canMatch: [extensionRefreshRedirect("/lockV2")],
   },
   {
     path: "login",
@@ -150,6 +154,21 @@ const routes: Routes = [
           },
         ],
       },
+      {
+        path: "lockV2",
+        canActivate: [canAccessFeature(FeatureFlag.EmailVerification), lockGuard()],
+        data: {
+          pageIcon: LockIcon,
+          pageTitle: "yourVaultIsLockedV2",
+        } satisfies AnonLayoutWrapperData,
+        children: [
+          {
+            path: "",
+            component: LockV2Component,
+          },
+        ],
+      },
+
       {
         path: "set-password-jit",
         canActivate: [canAccessFeature(FeatureFlag.EmailVerification)],
