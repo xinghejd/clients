@@ -19,24 +19,22 @@ import { SupportStatus } from "../../misc/support-status";
 import { Utils } from "../../misc/utils";
 import { WebPushNotificationsApiService } from "../../services/notifications/web-push-notifications-api.service";
 
+import { WebPushConnectionService, WebPushConnector } from "./webpush-connection.service";
+
 // Ref: https://w3c.github.io/push-api/#the-pushsubscriptionchange-event
 interface PushSubscriptionChangeEvent extends ExtendableEvent {
   readonly newSubscription?: PushSubscription;
   readonly oldSubscription?: PushSubscription;
 }
 
-export interface WebPushConnector {
-  connect$(userId: UserId): Observable<NotificationResponse>;
-}
-
-type MySupport = SupportStatus<WebPushConnector>;
-
-export class DefaultWebPushConnectionService implements WebPushConnector {
+/**
+ * An implementation for connecting to web push based notifications running in a Worker.
+ */
+export class WorkerWebPushConnectionService implements WebPushConnectionService, WebPushConnector {
   private pushEvent = new Subject<PushEvent>();
   private pushChangeEvent = new Subject<PushSubscriptionChangeEvent>();
 
   constructor(
-    private readonly isClientSupported: boolean,
     private readonly configService: ConfigService,
     private readonly webPushApiService: WebPushNotificationsApiService,
     private readonly serviceWorkerRegistration: ServiceWorkerRegistration,
@@ -63,34 +61,22 @@ export class DefaultWebPushConnectionService implements WebPushConnector {
   }
 
   supportStatus$(userId: UserId): Observable<SupportStatus<WebPushConnector>> {
-    if (!this.isClientSupported) {
-      // If the client doesn't support it, nothing more we can check
-      return of({ type: "not-supported", reason: "client-not-supported" } satisfies MySupport);
-    }
-
     // Check the server config to see if it supports sending WebPush notifications
-    return this.configService.serverConfig$.pipe(
+    return this.configService.serverConfig$.pipe<SupportStatus<WebPushConnector>>(
       map((config) => {
         if (config.push?.pushTechnology === PushTechnology.WebPush) {
           return {
             type: "supported",
             service: this,
-          } satisfies MySupport;
+          };
         }
 
-        return { type: "not-supported", reason: "server-not-configured" } satisfies MySupport;
+        return { type: "not-supported", reason: "server-not-configured" };
       }),
     );
   }
 
   connect$(userId: UserId): Observable<NotificationResponse> {
-    if (!this.isClientSupported) {
-      // Fail as early as possible when connect$ should not have been called.
-      throw new Error(
-        "This client does not support WebPush, call 'supportStatus$' to check if the WebPush is supported before calling 'connect$'",
-      );
-    }
-
     // Do connection
     return this.configService.serverConfig$.pipe(
       switchMap((config) => {
@@ -115,7 +101,7 @@ export class DefaultWebPushConnectionService implements WebPushConnector {
     );
   }
 
-  getOrCreateSubscription$(key: string) {
+  private getOrCreateSubscription$(key: string) {
     return concat(
       defer(async () => await this.serviceWorkerRegistration.pushManager.getSubscription()).pipe(
         concatMap((subscription) => {

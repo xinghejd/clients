@@ -15,7 +15,7 @@ export type ReceiveMessage = { type: "ReceiveMessage"; message: NotificationResp
 
 export type SignalRNotification = Heartbeat | ReceiveMessage;
 
-export class SignalRNotificationsConnectionService {
+export class SignalRConnectionService {
   constructor(
     private readonly apiService: ApiService,
     private readonly logService: LogService,

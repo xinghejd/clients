@@ -17,14 +17,11 @@ import { SupportStatus } from "../../misc/support-status";
 import { SyncService } from "../../sync";
 
 import { DefaultNotificationsService } from "./default-notifications.service";
-import {
-  SignalRNotification,
-  SignalRNotificationsConnectionService,
-} from "./signalr-notifications-connection.service";
+import { SignalRNotification, SignalRConnectionService } from "./signalr-connection.service";
 import {
   WebPushConnector,
-  DefaultWebPushConnectionService,
-} from "./webpush-notifications-connection.service";
+  WorkerWebPushConnectionService,
+} from "./worker-webpush-connection.service";
 
 describe("NotificationsService", () => {
   const syncService = mock<SyncService>();
@@ -33,9 +30,9 @@ describe("NotificationsService", () => {
   const logoutCallback = jest.fn<Promise<void>, [logoutReason: LogoutReason]>();
   const messagingService = mock<MessageSender>();
   const accountService = mock<AccountService>();
-  const signalRNotificationConnectionService = mock<SignalRNotificationsConnectionService>();
+  const signalRNotificationConnectionService = mock<SignalRConnectionService>();
   const authService = mock<AuthService>();
-  const webPushNotificationConnectionService = mock<DefaultWebPushConnectionService>();
+  const webPushNotificationConnectionService = mock<WorkerWebPushConnectionService>();
 
   const activeAccount = new BehaviorSubject<ObservedValueOf<AccountService["activeAccount$"]>>(
     null,

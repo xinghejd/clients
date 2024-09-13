@@ -105,8 +105,9 @@ import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/sym
 import { NotificationsService } from "@bitwarden/common/platform/notifications";
 import {
   DefaultNotificationsService,
-  DefaultWebPushConnectionService,
-  SignalRNotificationsConnectionService,
+  WorkerWebPushConnectionService,
+  SignalRConnectionService,
+  WebSocketWebPushConnectionService,
 } from "@bitwarden/common/platform/notifications/internal";
 import { AppIdService } from "@bitwarden/common/platform/services/app-id.service";
 import { ConfigApiService } from "@bitwarden/common/platform/services/config/config-api.service";
@@ -344,7 +345,7 @@ export default class MainBackground {
   offscreenDocumentService: OffscreenDocumentService;
   syncServiceListener: SyncServiceListener;
 
-  webPushConnectionService: DefaultWebPushConnectionService;
+  webPushConnectionService: WorkerWebPushConnectionService | WebSocketWebPushConnectionService;
 
   onUpdatedRan: boolean;
   onReplacedRan: boolean;
@@ -928,12 +929,15 @@ export default class MainBackground {
       this.organizationVaultExportService,
     );
 
-    this.webPushConnectionService = new DefaultWebPushConnectionService(
-      true,
-      this.configService,
-      new DefaultWebPushNotificationsApiService(this.apiService, this.appIdService),
-      (self as unknown as { registration: ServiceWorkerRegistration }).registration,
-    );
+    if (BrowserApi.isManifestVersion(3)) {
+      this.webPushConnectionService = new WorkerWebPushConnectionService(
+        this.configService,
+        new DefaultWebPushNotificationsApiService(this.apiService, this.appIdService),
+        (self as unknown as { registration: ServiceWorkerRegistration }).registration,
+      );
+    } else {
+      this.webPushConnectionService = new WebSocketWebPushConnectionService();
+    }
 
     this.notificationsService = new DefaultNotificationsService(
       this.syncService,
@@ -942,32 +946,11 @@ export default class MainBackground {
       logoutCallback,
       this.messagingService,
       this.accountService,
-      new SignalRNotificationsConnectionService(this.apiService, this.logService),
+      new SignalRConnectionService(this.apiService, this.logService),
       this.authService,
       this.webPushConnectionService,
       this.logService,
     );
-    // if (BrowserApi.isManifestVersion(3)) {
-    //   this.webPushNotificationsService = new WebPushNotificationsService(
-    //     (self as any).registration as ServiceWorkerRegistration,
-    //     new DefaultWebPushNotificationsApiService(this.apiService, this.appIdService),
-    //     this.configService,
-    //   );
-    // } else {
-    //   const websocket = new WebSocket("wss://push.services.mozilla.com");
-    //   websocket.onopen = (e) => {
-    //     this.logService.debug("Websocket opened", e);
-    //     websocket.send(
-    //       JSON.stringify({
-    //         messageType: "hello",
-    //         uaid: "",
-    //         channel_ids: [],
-    //         status: 0,
-    //         use_webpush: true,
-    //       }),
-    //     );
-    //   };
-    // }
 
     this.fido2UserInterfaceService = new BrowserFido2UserInterfaceService(this.authService);
     this.fido2AuthenticatorService = new Fido2AuthenticatorService(
@@ -1176,7 +1159,9 @@ export default class MainBackground {
   }
 
   async bootstrap() {
-    this.webPushConnectionService.start();
+    if ("start" in this.webPushConnectionService) {
+      this.webPushConnectionService.start();
+    }
     this.containerService.attachToGlobal(self);
 
     // Only the "true" background should run migrations

@@ -34,6 +34,10 @@ import { StateService as BaseStateServiceAbstraction } from "@bitwarden/common/p
 import { AbstractStorageService } from "@bitwarden/common/platform/abstractions/storage.service";
 import { ThemeType } from "@bitwarden/common/platform/enums";
 import { StateFactory } from "@bitwarden/common/platform/factories/state-factory";
+import {
+  UnsupportedWebPushConnectionService,
+  WebPushConnectionService,
+} from "@bitwarden/common/platform/notifications/internal";
 import { MemoryStorageService } from "@bitwarden/common/platform/services/memory-storage.service";
 // eslint-disable-next-line import/no-restricted-paths -- Implementation for memory storage
 import { MigrationBuilderService } from "@bitwarden/common/platform/services/migration-builder.service";
@@ -189,6 +193,12 @@ const safeProviders: SafeProvider[] = [
       LogService,
       PolicyService,
     ],
+  }),
+  safeProvider({
+    provide: WebPushConnectionService,
+    // We can support web in the future by creating a worker
+    useClass: UnsupportedWebPushConnectionService,
+    deps: [],
   }),
 ];
 

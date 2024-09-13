@@ -160,9 +160,10 @@ import { NotificationsService } from "@bitwarden/common/platform/notifications";
 // eslint-disable-next-line no-restricted-imports -- Needed for service creation
 import {
   DefaultNotificationsService,
-  DefaultWebPushConnectionService,
   NoopNotificationsService,
-  SignalRNotificationsConnectionService,
+  SignalRConnectionService,
+  UnsupportedWebPushConnectionService,
+  WebPushConnectionService,
 } from "@bitwarden/common/platform/notifications/internal";
 import { AppIdService } from "@bitwarden/common/platform/services/app-id.service";
 import { ConfigApiService } from "@bitwarden/common/platform/services/config/config-api.service";
@@ -297,7 +298,6 @@ import {
   INTRAPROCESS_MESSAGING_SUBJECT,
   CLIENT_TYPE,
   REFRESH_ACCESS_TOKEN_ERROR_CALLBACK,
-  CLIENT_SUPPORTS_WEB_PUSH,
 } from "./injection-tokens";
 import { ModalService } from "./modal.service";
 
@@ -807,34 +807,19 @@ const safeProviders: SafeProvider[] = [
     deps: [LogService, I18nServiceAbstraction, StateProvider],
   }),
   safeProvider({
-    provide: CLIENT_SUPPORTS_WEB_PUSH,
-    useValue: false,
-  }),
-  safeProvider({
     provide: WebPushNotificationsApiService,
     useClass: DefaultWebPushNotificationsApiService,
     deps: [ApiServiceAbstraction, AppIdServiceAbstraction],
   }),
   safeProvider({
-    provide: SignalRNotificationsConnectionService,
-    useClass: SignalRNotificationsConnectionService,
+    provide: SignalRConnectionService,
+    useClass: SignalRConnectionService,
     deps: [ApiServiceAbstraction, LogService],
   }),
   safeProvider({
-    provide: DefaultWebPushConnectionService,
-    useFactory: (
-      clientSupportsWebPush: boolean,
-      configService: ConfigService,
-      webPushApiService: WebPushNotificationsApiService,
-    ) =>
-      // TODO: CHANGE isClientSupported to be an injection token
-      new DefaultWebPushConnectionService(
-        clientSupportsWebPush,
-        configService,
-        webPushApiService,
-        null,
-      ),
-    deps: [CLIENT_SUPPORTS_WEB_PUSH, ConfigService, WebPushNotificationsApiService],
+    provide: WebPushConnectionService,
+    useClass: UnsupportedWebPushConnectionService,
+    deps: [],
   }),
   safeProvider({
     provide: NotificationsService,
@@ -848,9 +833,9 @@ const safeProviders: SafeProvider[] = [
       LOGOUT_CALLBACK,
       MessagingServiceAbstraction,
       AccountServiceAbstraction,
-      SignalRNotificationsConnectionService,
+      SignalRConnectionService,
       AuthServiceAbstraction,
-      DefaultWebPushConnectionService,
+      WebPushConnectionService,
       LogService,
     ],
   }),

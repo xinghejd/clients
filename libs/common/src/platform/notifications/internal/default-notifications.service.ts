@@ -30,11 +30,8 @@ import { MessagingService } from "../../abstractions/messaging.service";
 import { supportSwitch } from "../../misc/support-status";
 import { NotificationsService as NotificationsServiceAbstraction } from "../notifications.service";
 
-import {
-  ReceiveMessage,
-  SignalRNotificationsConnectionService,
-} from "./signalr-notifications-connection.service";
-import { DefaultWebPushConnectionService as WebPushNotificationConnectionService } from "./webpush-notifications-connection.service";
+import { ReceiveMessage, SignalRConnectionService } from "./signalr-connection.service";
+import { WebPushConnectionService } from "./webpush-connection.service";
 
 export class DefaultNotificationsService implements NotificationsServiceAbstraction {
   notifications$: Observable<readonly [NotificationResponse, UserId]>;
@@ -48,9 +45,9 @@ export class DefaultNotificationsService implements NotificationsServiceAbstract
     private logoutCallback: (logoutReason: LogoutReason, userId: UserId) => Promise<void>,
     private messagingService: MessagingService,
     private readonly accountService: AccountService,
-    private readonly signalRNotificationConnectionService: SignalRNotificationsConnectionService,
+    private readonly signalRConnectionService: SignalRConnectionService,
     private readonly authService: AuthService,
-    private readonly webPushNotificationService: WebPushNotificationConnectionService,
+    private readonly webPushConnectionService: WebPushConnectionService,
     private readonly logService: LogService,
   ) {
     this.notifications$ = this.accountService.activeAccount$.pipe(
@@ -90,17 +87,15 @@ export class DefaultNotificationsService implements NotificationsServiceAbstract
                   return EMPTY;
                 }
 
-                return this.webPushNotificationService.supportStatus$(userId).pipe(
+                return this.webPushConnectionService.supportStatus$(userId).pipe(
                   supportSwitch({
                     supported: (service) =>
                       service.connect$(userId).pipe(map((n) => [n, userId] as const)),
                     notSupported: () =>
-                      this.signalRNotificationConnectionService
-                        .connect$(userId, notificationsUrl)
-                        .pipe(
-                          filter((n) => n.type === "ReceiveMessage"),
-                          map((n) => [(n as ReceiveMessage).message, userId] as const),
-                        ),
+                      this.signalRConnectionService.connect$(userId, notificationsUrl).pipe(
+                        filter((n) => n.type === "ReceiveMessage"),
+                        map((n) => [(n as ReceiveMessage).message, userId] as const),
+                      ),
                   }),
                 );
               }),
