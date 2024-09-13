@@ -1,6 +1,4 @@
-<ng-container *ngIf="!firstLoaded && loading">
-  <loading-indicator />
-</ng-container>
+<loading-indicator *ngIf="!firstLoaded && loading" />
 <ng-container *ngIf="sub">
   <bit-callout
     type="warning"

@@ -3,9 +3,7 @@
     {{ "billingHistory" | i18n }}
   </h2>
 </div>
-<ng-container *ngIf="!firstLoaded && loading">
-  <loading-indicator />
-</ng-container>
+<loading-indicator *ngIf="!firstLoaded && loading" />
 <ng-container *ngIf="invoices || transactions">
   <app-billing-history [invoices]="invoices" [transactions]="transactions"></app-billing-history>
   <button
