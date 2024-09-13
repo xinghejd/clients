@@ -124,6 +124,10 @@
 <!--             Browser Template             -->
 <!---------------------------------------------->
 <form *ngIf="clientType === ClientType.Browser" [bitSubmit]="submit" [formGroup]="formGroup">
+  <!--
+    TODO-rr-bw: the orignal Browser template had `main tabindex="-1".
+    Why? And do we need to add it here?
+  -->
   <ng-container *ngIf="uiState === LoginUiState.EMAIL_ENTRY">
     <!-- Email Address input -->
     <bit-form-field class="!tw-mb-4">
