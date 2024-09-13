@@ -224,8 +224,6 @@ export class LoginComponentV2 implements OnInit, OnDestroy {
    * @returns A simple `return` statement for each conditional check.
    *          If you update this method, do not forget to add a `return`
    *          to each if-condition block where necessary to stop code execution.
-   *
-   * TODO-rr-bw: is using returns a good approach, or should we stick with is/else if/else?
    */
   private async handleAuthResult(authResult: AuthResult): Promise<void> {
     if (this.handleCaptchaRequired(authResult)) {
@@ -254,6 +252,8 @@ export class LoginComponentV2 implements OnInit, OnDestroy {
       return;
     }
 
+    await this.syncService.fullSync(true);
+
     if (authResult.forcePasswordReset != ForceSetPasswordReason.None) {
       this.loginEmailService.clearValues();
       await this.router.navigate(["update-temp-password"]);
@@ -268,7 +268,6 @@ export class LoginComponentV2 implements OnInit, OnDestroy {
 
       // ...on Browser/Desktop
     } else {
-      await this.syncService.fullSync(true); // TODO-rr-bw: browser used `await`, desktop used `return`. Why? Does it matter?
       this.loginEmailService.clearValues();
 
       if (this.clientType === ClientType.Browser) {
