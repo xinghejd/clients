@@ -49,7 +49,7 @@ export class BadgeDirective implements FocusableElement {
       "focus-visible:tw-outline-none",
       "focus-visible:tw-ring-2",
       "focus-visible:tw-ring-offset-2",
-      "focus-visible:tw-ring-primary-500",
+      "focus-visible:tw-ring-primary-600",
       "disabled:tw-bg-secondary-300",
       "disabled:hover:tw-bg-secondary-300",
       "disabled:tw-border-secondary-300",

@@ -128,15 +128,15 @@ export class BitInputDirective implements BitFormFieldControl {
       "tw-py-2",
       "tw-rounded-lg",
       // Hover
-      this.hasError ? "hover:tw-border-danger-700" : "hover:tw-border-primary-500",
+      this.hasError ? "hover:tw-border-danger-700" : "hover:tw-border-primary-600",
       // Focus
-      "focus:hover:tw-border-primary-500",
+      "focus:hover:tw-border-primary-600",
       "disabled:tw-bg-secondary-100",
       "disabled:hover:tw-border-secondary-500",
-      "focus:tw-border-primary-500",
+      "focus:tw-border-primary-600",
       "focus:tw-ring-1",
       "focus:tw-ring-inset",
-      "focus:tw-ring-primary-500",
+      "focus:tw-ring-primary-600",
       "focus:tw-z-10",
     ];
   }

@@ -6,7 +6,7 @@ import { ButtonLikeAbstraction, ButtonType } from "../shared/button-like.abstrac
 const focusRing = [
   "focus-visible:tw-ring-2",
   "focus-visible:tw-ring-offset-2",
-  "focus-visible:tw-ring-primary-500",
+  "focus-visible:tw-ring-primary-600",
   "focus-visible:tw-z-10",
 ];
 

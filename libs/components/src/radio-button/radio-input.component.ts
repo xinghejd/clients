@@ -37,7 +37,7 @@ export class RadioInputComponent implements BitFormControlAbstraction {
     // if it exists, the parent form control handles focus
     "[&:not(bit-form-control_*)]:focus-visible:tw-ring-2",
     "[&:not(bit-form-control_*)]:focus-visible:tw-ring-offset-2",
-    "[&:not(bit-form-control_*)]:focus-visible:tw-ring-primary-500",
+    "[&:not(bit-form-control_*)]:focus-visible:tw-ring-primary-600",
 
     "before:tw-content-['']",
     "before:tw-transition",
