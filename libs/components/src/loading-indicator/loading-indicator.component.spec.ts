@@ -7,8 +7,6 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 
 import { LoadingIndicatorComponent } from "./loading-indicator.component";
 
-
-
 describe("LoadingIndicatorComponent", () => {
   let fixture: ComponentFixture<LoadingIndicatorComponent>;
 
