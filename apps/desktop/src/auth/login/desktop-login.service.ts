@@ -5,8 +5,8 @@ import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/
 import { CryptoFunctionService } from "@bitwarden/common/platform/abstractions/crypto-function.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { ToastService } from "@bitwarden/components";
 import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legacy";
 
 export class DesktopLoginService extends DefaultLoginService implements LoginService {
@@ -15,8 +15,8 @@ export class DesktopLoginService extends DefaultLoginService implements LoginSer
   i18nService = inject(I18nService);
   // TODO-rr-bw: refactor to not use deprecated service
   passwordGenerationService = inject(PasswordGenerationServiceAbstraction);
-  platformUtilsService = inject(PlatformUtilsService);
   ssoLoginService = inject(SsoLoginServiceAbstraction);
+  toastService = inject(ToastService);
 
   override async launchSsoBrowserWindow(email: string, clientId: "desktop"): Promise<void | null> {
     if (!ipc.platform.isAppImage && !ipc.platform.isSnapStore && !ipc.platform.isDev) {
@@ -48,12 +48,11 @@ export class DesktopLoginService extends DefaultLoginService implements LoginSer
     try {
       await ipc.platform.localhostCallbackService.openSsoPrompt(codeChallenge, state);
     } catch (err) {
-      // TODO-rr-bw: refactor to not use deprecated service
-      this.platformUtilsService.showToast(
-        "error",
-        this.i18nService.t("errorOccured"),
-        this.i18nService.t("ssoError"),
-      );
+      this.toastService.showToast({
+        variant: "error",
+        title: this.i18nService.t("errorOccured"),
+        message: this.i18nService.t("ssoError"),
+      });
     }
   }
 }
