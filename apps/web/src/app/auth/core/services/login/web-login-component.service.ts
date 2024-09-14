@@ -2,7 +2,11 @@ import { inject } from "@angular/core";
 import { Router, UrlTree } from "@angular/router";
 import { firstValueFrom } from "rxjs";
 
-import { DefaultLoginService, LoginService, PasswordPolicies } from "@bitwarden/auth/angular";
+import {
+  DefaultLoginComponentService,
+  LoginComponentService,
+  PasswordPolicies,
+} from "@bitwarden/auth/angular";
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
 import { InternalPolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
@@ -12,7 +16,10 @@ import { flagEnabled } from "../../../../../utils/flags";
 import { RouterService } from "../../../../core/router.service";
 import { AcceptOrganizationInviteService } from "../../../organization-invite/accept-organization.service";
 
-export class WebLoginService extends DefaultLoginService implements LoginService {
+export class WebLoginComponentService
+  extends DefaultLoginComponentService
+  implements LoginComponentService
+{
   acceptOrganizationInviteService = inject(AcceptOrganizationInviteService);
   logService = inject(LogService);
   policyApiService = inject(PolicyApiServiceAbstraction);

@@ -1,1 +1,1 @@
-export * from "./web-login.service";
+export * from "./web-login-component.service";

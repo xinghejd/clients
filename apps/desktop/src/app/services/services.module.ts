@@ -19,7 +19,7 @@ import {
   CLIENT_TYPE,
 } from "@bitwarden/angular/services/injection-tokens";
 import { JslibServicesModule } from "@bitwarden/angular/services/jslib-services.module";
-import { LoginService, SetPasswordJitService } from "@bitwarden/auth/angular";
+import { LoginComponentService, SetPasswordJitService } from "@bitwarden/auth/angular";
 import {
   InternalUserDecryptionOptionsServiceAbstraction,
   PinServiceAbstraction,
@@ -73,7 +73,7 @@ import { CipherService as CipherServiceAbstraction } from "@bitwarden/common/vau
 import { DialogService } from "@bitwarden/components";
 import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legacy";
 
-import { DesktopLoginService } from "../../auth/login/desktop-login.service";
+import { DesktopLoginComponentService } from "../../auth/login/desktop-login-component.service";
 import { DesktopAutofillSettingsService } from "../../autofill/services/desktop-autofill-settings.service";
 import { DesktopSettingsService } from "../../platform/services/desktop-settings.service";
 import { ElectronBiometricsService } from "../../platform/services/electron-biometrics.service";
@@ -293,8 +293,8 @@ const safeProviders: SafeProvider[] = [
     ],
   }),
   safeProvider({
-    provide: LoginService,
-    useClass: DesktopLoginService,
+    provide: LoginComponentService,
+    useClass: DesktopLoginComponentService,
     deps: [
       CryptoFunctionServiceAbstraction,
       EnvironmentService,

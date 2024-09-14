@@ -1,7 +1,7 @@
 import { UrlTree } from "@angular/router";
 import { firstValueFrom } from "rxjs";
 
-import { LoginService, PasswordPolicies } from "@bitwarden/auth/angular";
+import { LoginComponentService, PasswordPolicies } from "@bitwarden/auth/angular";
 import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
 import { CryptoFunctionService } from "@bitwarden/common/platform/abstractions/crypto-function.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
@@ -9,7 +9,7 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legacy";
 
-export class DefaultLoginService implements LoginService {
+export class DefaultLoginComponentService implements LoginComponentService {
   constructor(
     protected cryptoFunctionService: CryptoFunctionService,
     protected environmentService: EnvironmentService,

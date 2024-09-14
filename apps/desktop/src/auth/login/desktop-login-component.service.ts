@@ -1,11 +1,14 @@
 import { inject } from "@angular/core";
 
-import { DefaultLoginService, LoginService } from "@bitwarden/auth/angular";
+import { DefaultLoginComponentService, LoginComponentService } from "@bitwarden/auth/angular";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { ToastService } from "@bitwarden/components";
 
-export class DesktopLoginService extends DefaultLoginService implements LoginService {
+export class DesktopLoginComponentService
+  extends DefaultLoginComponentService
+  implements LoginComponentService
+{
   i18nService = inject(I18nService);
   toastService = inject(ToastService);
 

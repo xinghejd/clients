@@ -42,7 +42,7 @@ import {
 import { AnonLayoutWrapperDataService } from "../anon-layout/anon-layout-wrapper-data.service";
 import { WaveIcon } from "../icons";
 
-import { LoginService } from "./login.service";
+import { LoginComponentService } from "./login-component.service";
 
 const BroadcasterSubscriptionId = "LoginComponent";
 
@@ -122,7 +122,7 @@ export class LoginComponent implements OnInit, OnDestroy {
     private formBuilder: FormBuilder,
     private i18nService: I18nService,
     private loginEmailService: LoginEmailServiceAbstraction,
-    private loginService: LoginService,
+    private loginService: LoginComponentService,
     private loginStrategyService: LoginStrategyServiceAbstraction,
     private messagingService: MessagingService,
     private ngZone: NgZone,

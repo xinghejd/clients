@@ -21,7 +21,7 @@ import { ModalService as ModalServiceAbstraction } from "@bitwarden/angular/serv
 import {
   SetPasswordJitService,
   RegistrationFinishService as RegistrationFinishServiceAbstraction,
-  LoginService,
+  LoginComponentService,
 } from "@bitwarden/auth/angular";
 import { InternalUserDecryptionOptionsServiceAbstraction } from "@bitwarden/auth/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
@@ -64,7 +64,11 @@ import { VaultTimeout, VaultTimeoutStringType } from "@bitwarden/common/types/va
 import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legacy";
 
 import { PolicyListService } from "../admin-console/core/policy-list.service";
-import { WebSetPasswordJitService, WebRegistrationFinishService, WebLoginService } from "../auth";
+import {
+  WebSetPasswordJitService,
+  WebRegistrationFinishService,
+  WebLoginComponentService,
+} from "../auth";
 import { AcceptOrganizationInviteService } from "../auth/organization-invite/accept-organization.service";
 import { HtmlStorageService } from "../core/html-storage.service";
 import { I18nService } from "../core/i18n.service";
@@ -219,8 +223,8 @@ const safeProviders: SafeProvider[] = [
     deps: [OBSERVABLE_DISK_LOCAL_STORAGE, LogService],
   }),
   safeProvider({
-    provide: LoginService,
-    useClass: WebLoginService,
+    provide: LoginComponentService,
+    useClass: WebLoginComponentService,
     deps: [
       CryptoFunctionServiceAbstraction,
       EnvironmentService,

@@ -9,7 +9,7 @@ export interface PasswordPolicies {
   enforcedPasswordPolicyOptions: MasterPasswordPolicyOptions;
 }
 
-export abstract class LoginService {
+export abstract class LoginComponentService {
   // Web
   getOrgPolicies: () => Promise<PasswordPolicies | null>;
   setPreviousUrl: (route: UrlTree) => void | null;
