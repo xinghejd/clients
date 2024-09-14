@@ -150,7 +150,13 @@
       <!-- TODO-rr-bw: Figma shows no Login with Passkey option on browser. Is that intentional? -->
 
       <!-- Button to Login with SSO -->
-      <button type="button" bitButton block buttonType="secondary" (click)="launchSsoBrowser()">
+      <button
+        type="button"
+        bitButton
+        block
+        buttonType="secondary"
+        (click)="launchSsoBrowserWindow()"
+      >
         <i class="bwi bwi-provider tw-mr-1"></i>
         {{ "useSingleSignOn" | i18n }}
       </button>

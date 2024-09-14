@@ -11,6 +11,10 @@ export class DefaultLoginService implements LoginService {
     protected toastService: ToastService,
   ) {}
 
+  async launchSsoBrowserWindow(email: string): Promise<void | null> {
+    return null;
+  }
+
   getShowPasswordlessFlag(): boolean {
     return null;
   }

@@ -10,7 +10,10 @@ export interface PasswordPolicies {
 }
 
 export abstract class LoginService {
-  // Web specific
+  // Browser/Desktop
+  launchSsoBrowserWindow: (email: string) => Promise<void>;
+
+  // Web
   getShowPasswordlessFlag: () => boolean;
   getOrgPolicies: () => Promise<PasswordPolicies | null>;
   setPreviousUrl: (route: UrlTree) => void | null;
