@@ -10,11 +10,13 @@ export interface PasswordPolicies {
 }
 
 export abstract class LoginService {
-  // Browser/Desktop
-  launchSsoBrowserWindow: (email: string) => Promise<void>;
-
   // Web
-  getShowPasswordlessFlag: () => boolean;
   getOrgPolicies: () => Promise<PasswordPolicies | null>;
   setPreviousUrl: (route: UrlTree) => void | null;
+
+  // Web/Browser
+  getShowPasswordlessFlag: () => boolean;
+
+  // Used on Browser and overriden on Desktop
+  launchSsoBrowserWindow: (email: string, clientId: "browser" | "desktop") => Promise<void>;
 }

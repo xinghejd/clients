@@ -279,8 +279,8 @@ export class LoginComponent implements OnInit, OnDestroy {
     }
   }
 
-  protected async launchSsoBrowserWindow(): Promise<void> {
-    await this.loginService.launchSsoBrowserWindow(this.loggedEmail);
+  protected async launchSsoBrowserWindow(clientId: "browser" | "desktop"): Promise<void> {
+    await this.loginService.launchSsoBrowserWindow(this.loggedEmail, clientId);
   }
 
   protected async goAfterLogIn(userId: UserId): Promise<void> {

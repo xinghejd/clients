@@ -32,8 +32,10 @@ import { AccountApiService as AccountApiServiceAbstraction } from "@bitwarden/co
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { KdfConfigService } from "@bitwarden/common/auth/abstractions/kdf-config.service";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/auth/abstractions/master-password.service.abstraction";
+import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
 import { ClientType } from "@bitwarden/common/enums";
 import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
+import { CryptoFunctionService as CryptoFunctionServiceAbstraction } from "@bitwarden/common/platform/abstractions/crypto-function.service";
 import { CryptoService as CryptoServiceAbstraction } from "@bitwarden/common/platform/abstractions/crypto.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { FileDownloadService } from "@bitwarden/common/platform/abstractions/file-download/file-download.service";
@@ -59,6 +61,7 @@ import {
   ThemeStateService,
 } from "@bitwarden/common/platform/theming/theme-state.service";
 import { VaultTimeout, VaultTimeoutStringType } from "@bitwarden/common/types/vault-timeout.type";
+import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legacy";
 
 import { PolicyListService } from "../admin-console/core/policy-list.service";
 import { WebSetPasswordJitService, WebRegistrationFinishService, WebLoginService } from "../auth";
@@ -218,7 +221,13 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: LoginService,
     useClass: WebLoginService,
-    deps: [],
+    deps: [
+      SsoLoginServiceAbstraction,
+      PasswordGenerationServiceAbstraction,
+      CryptoFunctionServiceAbstraction,
+      EnvironmentService,
+      PlatformUtilsServiceAbstraction,
+    ],
   }),
 ];
 
