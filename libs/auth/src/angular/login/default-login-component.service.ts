@@ -19,21 +19,18 @@ export class DefaultLoginComponentService implements LoginComponentService {
     protected ssoLoginService: SsoLoginServiceAbstraction,
   ) {}
 
-  // Web
-  setPreviousUrl(route: UrlTree): void | null {
-    return null;
-  }
-
   async getOrgPolicies(): Promise<PasswordPolicies | null> {
     return null;
   }
 
-  // Web/Browser
+  setPreviousUrl(route: UrlTree): void | null {
+    return null;
+  }
+
   getShowPasswordlessFlag(): boolean {
     return null;
   }
 
-  // Used on Browser and overriden on Desktop
   async launchSsoBrowserWindow(
     email: string,
     clientId: "browser" | "desktop",

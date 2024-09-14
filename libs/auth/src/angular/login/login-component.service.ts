@@ -9,14 +9,37 @@ export interface PasswordPolicies {
   enforcedPasswordPolicyOptions: MasterPasswordPolicyOptions;
 }
 
+/**
+ * The `LoginComponentService` allows the single libs/auth `LoginComponent` to
+ * delegate all client-specific functionality to client-specific service
+ * implementations of `LoginComponentService`.
+ *
+ * The `LoginComponentService` should not be confused with the
+ * `LoginStrategyService`, which is used to determine the login strategy and
+ * performs the core login logic.
+ */
 export abstract class LoginComponentService {
-  // Web
+  /**
+   * Gets the organization policies if there is an organization invite.
+   * - Used by: Web
+   */
   getOrgPolicies: () => Promise<PasswordPolicies | null>;
+
+  /**
+   * Sets the previous URL to keep track of in memory.
+   * - Used by: Web
+   */
   setPreviousUrl: (route: UrlTree) => void | null;
 
-  // Web/Browser
+  /**
+   * Gets the status of the `showPasswordless` feature flag.
+   * - Used by: Web, Browser
+   */
   getShowPasswordlessFlag: () => boolean;
 
-  // Used on Browser and overriden on Desktop
+  /**
+   * Launches the SSO flow in a new browser window.
+   * - Used by: Browser, Desktop
+   */
   launchSsoBrowserWindow: (email: string, clientId: "browser" | "desktop") => Promise<void>;
 }
