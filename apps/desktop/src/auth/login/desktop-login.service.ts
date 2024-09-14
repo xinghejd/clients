@@ -4,24 +4,23 @@ import { DefaultLoginService, LoginService } from "@bitwarden/auth/angular";
 import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
 import { CryptoFunctionService } from "@bitwarden/common/platform/abstractions/crypto-function.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legacy";
 
 export class DesktopLoginService extends DefaultLoginService implements LoginService {
-  ssoLoginService = inject(SsoLoginServiceAbstraction);
-  passwordGenerationService = inject(PasswordGenerationServiceAbstraction);
   cryptoFunctionService = inject(CryptoFunctionService);
   environmentService = inject(EnvironmentService);
+  i18nService = inject(I18nService);
+  // TODO-rr-bw: refactor to not use deprecated service
+  passwordGenerationService = inject(PasswordGenerationServiceAbstraction);
   platformUtilsService = inject(PlatformUtilsService);
+  ssoLoginService = inject(SsoLoginServiceAbstraction);
 
-  async launchSsoBrowserWindow(
-    email: string,
-    clientId: string,
-    redirectUri: string,
-  ): Promise<void | null> {
+  override async launchSsoBrowserWindow(email: string, clientId: "desktop"): Promise<void | null> {
     if (!ipc.platform.isAppImage && !ipc.platform.isSnapStore && !ipc.platform.isDev) {
-      return super.launchSsoBrowser(clientId, redirectUri);
+      return super.launchSsoBrowserWindow(email, clientId);
     }
 
     // Save email for SSO
@@ -36,18 +35,20 @@ export class DesktopLoginService extends DefaultLoginService implements LoginSer
       numbers: true,
       special: false,
     };
+
     const state = await this.passwordGenerationService.generatePassword(passwordOptions);
-    const ssoCodeVerifier = await this.passwordGenerationService.generatePassword(passwordOptions);
-    const codeVerifierHash = await this.cryptoFunctionService.hash(ssoCodeVerifier, "sha256");
+    const codeVerifier = await this.passwordGenerationService.generatePassword(passwordOptions);
+    const codeVerifierHash = await this.cryptoFunctionService.hash(codeVerifier, "sha256");
     const codeChallenge = Utils.fromBufferToUrlB64(codeVerifierHash);
 
     // Save SSO params
     await this.ssoLoginService.setSsoState(state);
-    await this.ssoLoginService.setCodeVerifier(ssoCodeVerifier);
+    await this.ssoLoginService.setCodeVerifier(codeVerifier);
 
     try {
       await ipc.platform.localhostCallbackService.openSsoPrompt(codeChallenge, state);
     } catch (err) {
+      // TODO-rr-bw: refactor to not use deprecated service
       this.platformUtilsService.showToast(
         "error",
         this.i18nService.t("errorOccured"),

@@ -573,11 +573,11 @@ const safeProviders: SafeProvider[] = [
     provide: LoginService,
     useClass: ExtensionLoginService,
     deps: [
-      SsoLoginServiceAbstraction,
-      PasswordGenerationServiceAbstraction,
       CryptoFunctionServiceAbstraction,
       EnvironmentService,
+      PasswordGenerationServiceAbstraction,
       PlatformUtilsServiceAbstraction,
+      SsoLoginServiceAbstraction,
     ],
   }),
 ];

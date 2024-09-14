@@ -11,12 +11,12 @@ import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legac
 
 export class DefaultLoginService implements LoginService {
   constructor(
-    protected ssoLoginService: SsoLoginServiceAbstraction,
-    // TODO-rr-bw: refactor to not use deprecated service
-    protected passwordGenerationService: PasswordGenerationServiceAbstraction,
     protected cryptoFunctionService: CryptoFunctionService,
     protected environmentService: EnvironmentService,
+    // TODO-rr-bw: refactor to not use deprecated service
+    protected passwordGenerationService: PasswordGenerationServiceAbstraction,
     protected platformUtilsService: PlatformUtilsService,
+    protected ssoLoginService: SsoLoginServiceAbstraction,
   ) {}
 
   // Web

@@ -222,11 +222,11 @@ const safeProviders: SafeProvider[] = [
     provide: LoginService,
     useClass: WebLoginService,
     deps: [
-      SsoLoginServiceAbstraction,
-      PasswordGenerationServiceAbstraction,
       CryptoFunctionServiceAbstraction,
       EnvironmentService,
+      PasswordGenerationServiceAbstraction,
       PlatformUtilsServiceAbstraction,
+      SsoLoginServiceAbstraction,
     ],
   }),
 ];

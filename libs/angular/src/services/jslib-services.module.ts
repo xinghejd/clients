@@ -1314,11 +1314,11 @@ const safeProviders: SafeProvider[] = [
     provide: LoginService,
     useClass: DefaultLoginService,
     deps: [
-      SsoLoginServiceAbstraction,
-      PasswordGenerationServiceAbstraction,
       CryptoFunctionServiceAbstraction,
       EnvironmentService,
+      PasswordGenerationServiceAbstraction,
       PlatformUtilsServiceAbstraction,
+      SsoLoginServiceAbstraction,
     ],
   }),
 ];
