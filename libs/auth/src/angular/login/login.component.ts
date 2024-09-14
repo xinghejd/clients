@@ -122,7 +122,7 @@ export class LoginComponent implements OnInit, OnDestroy {
     private formBuilder: FormBuilder,
     private i18nService: I18nService,
     private loginEmailService: LoginEmailServiceAbstraction,
-    private loginService: LoginComponentService,
+    private loginComponentService: LoginComponentService,
     private loginStrategyService: LoginStrategyServiceAbstraction,
     private messagingService: MessagingService,
     private ngZone: NgZone,
@@ -135,7 +135,7 @@ export class LoginComponent implements OnInit, OnDestroy {
     private toastService: ToastService,
   ) {
     this.clientType = this.platformUtilsService.getClientType();
-    this.showPasswordless = this.loginService.getShowPasswordlessFlag();
+    this.showPasswordless = this.loginComponentService.getShowPasswordlessFlag();
   }
 
   async ngOnInit(): Promise<void> {
@@ -280,7 +280,7 @@ export class LoginComponent implements OnInit, OnDestroy {
   }
 
   protected async launchSsoBrowserWindow(clientId: "browser" | "desktop"): Promise<void> {
-    await this.loginService.launchSsoBrowserWindow(this.loggedEmail, clientId);
+    await this.loginComponentService.launchSsoBrowserWindow(this.loggedEmail, clientId);
   }
 
   protected async goAfterLogIn(userId: UserId): Promise<void> {
@@ -521,7 +521,7 @@ export class LoginComponent implements OnInit, OnDestroy {
         const route = this.router.createUrlTree(["create-organization"], {
           queryParams: { plan: qParams.org },
         });
-        this.loginService.setPreviousUrl(route);
+        this.loginComponentService.setPreviousUrl(route);
       }
 
       /* If there is a parameter called 'sponsorshipToken', they are coming
@@ -531,7 +531,7 @@ export class LoginComponent implements OnInit, OnDestroy {
         const route = this.router.createUrlTree(["setup/families-for-enterprise"], {
           queryParams: { token: qParams.sponsorshipToken },
         });
-        this.loginService.setPreviousUrl(route);
+        this.loginComponentService.setPreviousUrl(route);
       }
     });
 
@@ -543,7 +543,7 @@ export class LoginComponent implements OnInit, OnDestroy {
      * logic here BEFORE the defaultOnInit() call.
      */
     // If there's an existing org invite, use it to get the password policies
-    const orgPolicies = await this.loginService.getOrgPolicies();
+    const orgPolicies = await this.loginComponentService.getOrgPolicies();
 
     this.policies = orgPolicies?.policies;
     this.showResetPasswordAutoEnrollWarning = orgPolicies?.isPolicyAndAutoEnrollEnabled;
