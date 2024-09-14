@@ -1,21 +1,12 @@
 import { inject } from "@angular/core";
 
 import { DefaultLoginService, LoginService } from "@bitwarden/auth/angular";
-import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
-import { CryptoFunctionService } from "@bitwarden/common/platform/abstractions/crypto-function.service";
-import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { ToastService } from "@bitwarden/components";
-import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legacy";
 
 export class DesktopLoginService extends DefaultLoginService implements LoginService {
-  cryptoFunctionService = inject(CryptoFunctionService);
-  environmentService = inject(EnvironmentService);
   i18nService = inject(I18nService);
-  // TODO-rr-bw: refactor to not use deprecated service
-  passwordGenerationService = inject(PasswordGenerationServiceAbstraction);
-  ssoLoginService = inject(SsoLoginServiceAbstraction);
   toastService = inject(ToastService);
 
   override async launchSsoBrowserWindow(email: string, clientId: "desktop"): Promise<void | null> {
