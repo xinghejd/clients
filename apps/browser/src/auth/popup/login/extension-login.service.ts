@@ -13,6 +13,7 @@ import { flagEnabled } from "../../../platform/flags"; // TODO-rr-bw: do I need 
 
 export class ExtensionLoginService extends DefaultLoginService implements LoginService {
   ssoLoginService = inject(SsoLoginServiceAbstraction);
+  // TODO-rr-bw: refactor to not use deprecated service
   passwordGenerationService = inject(PasswordGenerationServiceAbstraction);
   cryptoFunctionService = inject(CryptoFunctionService);
   environmentService = inject(EnvironmentService);
@@ -23,10 +24,10 @@ export class ExtensionLoginService extends DefaultLoginService implements LoginS
   }
 
   async launchSsoBrowserWindow(email: string): Promise<void | null> {
-    // Save off email for SSO
+    // Save email for SSO
     await this.ssoLoginService.setSsoEmail(email);
 
-    // Generate necessary sso params
+    // Generate SSO params
     const passwordOptions: any = {
       type: "password",
       length: 64,
@@ -35,7 +36,6 @@ export class ExtensionLoginService extends DefaultLoginService implements LoginS
       numbers: true,
       special: false,
     };
-
     const state =
       (await this.passwordGenerationService.generatePassword(passwordOptions)) +
       ":clientId=browser";
@@ -43,20 +43,20 @@ export class ExtensionLoginService extends DefaultLoginService implements LoginS
     const codeVerifierHash = await this.cryptoFunctionService.hash(codeVerifier, "sha256");
     const codeChallenge = Utils.fromBufferToUrlB64(codeVerifierHash);
 
+    // Save SSO params
     await this.ssoLoginService.setCodeVerifier(codeVerifier);
     await this.ssoLoginService.setSsoState(state);
 
+    // Build URL
     const env = await firstValueFrom(this.environmentService.environment$);
-
     let url = env.getWebVaultUrl();
-
     if (url == null) {
       url = "https://vault.bitwarden.com";
     }
 
     const redirectUri = url + "/sso-connector.html";
 
-    // Launch browser
+    // Launch browser window with URL
     this.platformUtilsService.launchUri(
       url +
         "/#/sso?clientId=browser" +

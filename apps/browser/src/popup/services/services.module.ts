@@ -564,7 +564,7 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: LoginService,
     useClass: ExtensionLoginService,
-    deps: [I18nServiceAbstraction, ToastService],
+    deps: [],
   }),
 ];
 
