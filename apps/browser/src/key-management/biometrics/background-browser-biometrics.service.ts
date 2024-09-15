@@ -1,22 +1,22 @@
 import { Injectable } from "@angular/core";
 
+import { BiometricsService } from "@bitwarden/common/key-management/biometrics/biometric.service";
 import { BiometricsStatus } from "@bitwarden/common/key-management/biometrics/biometrics-status";
 import { UserId } from "@bitwarden/common/types/guid";
+import { UserKey } from "@bitwarden/common/types/key";
 
 import { NativeMessagingBackground } from "../../background/nativeMessaging.background";
 
-import { BrowserBiometricsService } from "./browser-biometrics.service";
-
 @Injectable()
-export class BackgroundBrowserBiometricsService extends BrowserBiometricsService {
+export class BackgroundBrowserBiometricsService extends BiometricsService {
   constructor(private nativeMessagingBackground: () => NativeMessagingBackground) {
     super();
   }
 
-  async authenticateBiometric(): Promise<boolean> {
+  async authenticateWithBiometrics(): Promise<boolean> {
     try {
       const response = await this.nativeMessagingBackground().callCommand({
-        command: "biometricUnlock",
+        command: "authenticateWithBiometrics",
       });
       return response == "unlocked";
     } catch (e) {
@@ -27,7 +27,7 @@ export class BackgroundBrowserBiometricsService extends BrowserBiometricsService
   async getBiometricsStatus(): Promise<BiometricsStatus> {
     try {
       const response = await this.nativeMessagingBackground().callCommand({
-        command: "biometricStatus",
+        command: "getBiometricsStatus",
       });
       return response.response;
     } catch (e) {
@@ -35,13 +35,27 @@ export class BackgroundBrowserBiometricsService extends BrowserBiometricsService
     }
   }
 
+  async unlockWithBiometricsForUser(userId: UserId): Promise<UserKey> {
+    try {
+      return (
+        await this.nativeMessagingBackground().callCommand({
+          command: "unlockWithBiometricsForUser",
+          userId: userId,
+        })
+      ).response;
+    } catch (e) {
+      throw new Error("Biometric unlock failed");
+    }
+  }
+
   async getBiometricsStatusForUser(id: UserId): Promise<BiometricsStatus> {
     try {
-      const resp = await this.nativeMessagingBackground().callCommand({
-        command: "biometricStatusForUser",
-        userId: id,
-      });
-      return resp.response;
+      return (
+        await this.nativeMessagingBackground().callCommand({
+          command: "getBiometricsStatusForUser",
+          userId: id,
+        })
+      ).response;
     } catch (e) {
       return BiometricsStatus.DesktopDisconnected;
     }

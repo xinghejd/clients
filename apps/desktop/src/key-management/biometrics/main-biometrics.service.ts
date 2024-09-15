@@ -39,7 +39,7 @@ export class MainBiometricsService extends DesktopBiometricsService {
       );
     } else if (platform === "darwin") {
       // eslint-disable-next-line
-      const OsBiometricsServiceMac = require("./os-biometrics-macos.service").default;
+      const OsBiometricsServiceMac = require("./os-biometrics-mac.service").default;
       this.osBiometricsService = new OsBiometricsServiceMac(this.i18nService);
     } else if (platform === "linux") {
       // eslint-disable-next-line

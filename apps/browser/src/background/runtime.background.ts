@@ -67,9 +67,10 @@ export default class RuntimeBackground {
       sendResponse: (response: any) => void,
     ) => {
       const messagesWithResponse = [
-        "biometricUnlock",
+        "authenticateWithBiometrics",
         "biometricStatus",
-        "biometricStatusForUser",
+        "unlockWithBiometricsForUser",
+        "getBiometricsStatusForUser",
         "getUseTreeWalkerApiForPageDetailsCollectionFeatureFlag",
         "getInlineMenuFieldQualificationFeatureFlag",
       ];
@@ -180,19 +181,17 @@ export default class RuntimeBackground {
             break;
         }
         break;
-      case "biometricUnlock": {
-        this.logService.info("biometrickunlock call");
-        const result = await this.main.biometricsService.authenticateBiometric();
-        this.logService.info("biometrickunlock called", result);
-        return result;
+      case "authenticateWithBiometrics": {
+        return await this.main.biometricsService.authenticateWithBiometrics();
       }
-      case "biometricStatus": {
-        const result = await this.main.biometricsService.getBiometricsStatus();
-        return result;
+      case "getBiometricsStatus": {
+        return await this.main.biometricsService.getBiometricsStatus();
       }
-      case "biometricStatusForUser": {
-        const result = await this.main.biometricsService.getBiometricsStatusForUser(msg.userId);
-        return result;
+      case "unlockWithBiometricsForUser": {
+        return await this.main.biometricsService.unlockWithBiometricsForUser(msg.userId);
+      }
+      case "getBiometricsStatusForUser": {
+        return await this.main.biometricsService.getBiometricsStatusForUser(msg.userId);
       }
       case "getUseTreeWalkerApiForPageDetailsCollectionFeatureFlag": {
         return await this.configService.getFeatureFlag(

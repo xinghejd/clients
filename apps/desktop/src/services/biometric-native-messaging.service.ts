@@ -120,7 +120,7 @@ export class BiometricMessageHandlerService {
     const messageId = message.messageId;
 
     switch (message.command) {
-      case "biometricUnlock": {
+      case "unlockWithBiometricsForUser": {
         // const isTemporarilyDisabled =
         //   (await this.biometricStateService.getBiometricUnlockEnabled(message.userId as UserId)) &&
         //   !(await this.biometricsServicei.supportsBiometric());
@@ -197,18 +197,21 @@ export class BiometricMessageHandlerService {
 
         break;
       }
-      case "biometricStatus": {
+      case "authenticateWithBiometrics": {
+        break;
+      }
+      case "getBiometricsStatus": {
         const status = await this.biometricsService.getBiometricsStatus();
         return this.send(
           {
-            command: "biometricStatus",
+            command: "getBiometricsStatus",
             messageId,
             response: status,
           },
           appId,
         );
       }
-      case "biometricStatusForUser": {
+      case "getBiometricsStatusForUser": {
         let status = await this.biometricsService.getBiometricsStatusForUser(
           message.userId as UserId,
         );
@@ -217,7 +220,7 @@ export class BiometricMessageHandlerService {
         }
         return this.send(
           {
-            command: "biometricStatusForUser",
+            command: "getBiometricsStatusForUser",
             messageId,
             response: status,
           },

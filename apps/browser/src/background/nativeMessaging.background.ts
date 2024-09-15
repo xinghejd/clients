@@ -1,4 +1,4 @@
-import { firstValueFrom, map } from "rxjs";
+import { firstValueFrom } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
@@ -12,13 +12,13 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
-import { UserKey } from "@bitwarden/common/types/key";
 
 import { BrowserApi } from "../platform/browser/browser-api";
 
 import RuntimeBackground from "./runtime.background";
 
 const MessageValidTimeout = 10 * 1000;
+const MessageNoResponseTimeout = 60 * 1000;
 const HashAlgorithmForEncryption = "sha1";
 
 type Message = {
@@ -102,6 +102,7 @@ export class NativeMessagingBackground {
   }
 
   async connect() {
+    this.logService.info("[Native Messaging IPC] Connecting to Bitwarden Desktop app...");
     this.appId = await this.appIdService.getAppId();
     await this.biometricStateService.setFingerprintValidated(false);
 
@@ -111,6 +112,9 @@ export class NativeMessagingBackground {
       this.connecting = true;
 
       const connectedCallback = () => {
+        this.logService.info(
+          "[Native Messaging IPC] Connection to Bitwarden Desktop app establishd!",
+        );
         this.connected = true;
         this.connecting = false;
         resolve();
@@ -128,6 +132,7 @@ export class NativeMessagingBackground {
             connectedCallback();
             break;
           case "disconnected":
+            this.logService.info("[Native Messaging IPC] Disconnected from Bitwarden Desktop app.");
             if (this.connecting) {
               reject(new Error("startDesktop"));
             }
@@ -152,6 +157,7 @@ export class NativeMessagingBackground {
               await this.biometricStateService.setFingerprintValidated(true);
             }
             this.sharedSecret = new SymmetricCryptoKey(decrypted);
+            this.logService.info("[Native Messaging IPC] Secure channel established");
             this.secureSetupResolve();
             break;
           }
@@ -160,6 +166,9 @@ export class NativeMessagingBackground {
             if (message.appId !== this.appId) {
               return;
             }
+            this.logService.info(
+              "[Native Messaging IPC] Secure channel encountered an error; disconnecting and wiping keys...",
+            );
 
             this.sharedSecret = null;
             this.privateKey = null;
@@ -173,6 +182,9 @@ export class NativeMessagingBackground {
             return;
           case "verifyFingerprint": {
             if (this.sharedSecret == null) {
+              this.logService.info(
+                "[Native Messaging IPC] Desktop app requested trust verification by fingerprint.",
+              );
               this.validatingFingerprint = true;
               // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
               // eslint-disable-next-line @typescript-eslint/no-floating-promises
@@ -227,21 +239,23 @@ export class NativeMessagingBackground {
     message.messageId = messageId;
     try {
       await this.send(message);
-      this.logService.info("connected");
     } catch (e) {
-      this.logService.info("error", e);
+      this.logService.info(
+        `[Native Messaging IPC] Error sending message of type ${message.command} to Bitwarden Desktop app.`,
+      );
       this.callbacks.delete(messageId);
       this.callbacks.get(messageId).rejecter("errorConnecting");
     }
 
     setTimeout(() => {
       if (this.callbacks.has(messageId)) {
+        this.logService.info("[Native Messaging IPC] Message timed out and received no response");
         this.callbacks.get(messageId).rejecter({
           message: "timeout",
         });
         this.callbacks.delete(messageId);
       }
-    }, 60000);
+    }, MessageNoResponseTimeout);
 
     return callback;
   }
@@ -285,7 +299,9 @@ export class NativeMessagingBackground {
       }
       this.port.postMessage(msg);
     } catch (e) {
-      this.logService.error("NativeMessaging port disconnected, disconnecting.");
+      this.logService.info(
+        "[Native Messaging IPC] Disconnected from Bitwarden Desktop app because of the native port disconnecting.",
+      );
 
       this.sharedSecret = null;
       this.privateKey = null;
@@ -306,117 +322,11 @@ export class NativeMessagingBackground {
     }
 
     if (Math.abs(message.timestamp - Date.now()) > MessageValidTimeout) {
-      this.logService.error("NativeMessage is to old, ignoring.");
+      this.logService.info("[Native Messaging IPC] Received an old native message, ignoring...");
       return;
     }
 
     const messageId = message.messageId;
-    switch (message.command) {
-      case "biometricUnlock": {
-        if (!this.callbacks.has(messageId)) {
-          this.logService.error("Biometric unlock promise not set");
-          return;
-        }
-
-        this.logService.info("MESSAGE COMMAND", message);
-        if (
-          ["not available", "not enabled", "not supported", "not unlocked", "canceled"].includes(
-            message.response,
-          )
-        ) {
-          this.logService.info("Biometric unlock failed", message.response);
-          this.callbacks.get(messageId).rejecter(message.response);
-          return;
-        }
-
-        // Check for initial setup of biometric unlock
-        const enabled = await firstValueFrom(this.biometricStateService.biometricUnlockEnabled$);
-        if (enabled === null || enabled === false) {
-          if (message.response === "unlocked") {
-            await this.biometricStateService.setBiometricUnlockEnabled(true);
-          }
-          this.logService.info("Ignoring biometric unlock, not enabled");
-          break;
-        }
-
-        // // Ignore unlock if already unlocked
-        // if ((await this.authService.getAuthStatus()) === AuthenticationStatus.Unlocked) {
-        //   this.logService.info("Ignoring biometric unlock, already unlocked");
-        //   break;
-        // }
-
-        if (message.response === "unlocked") {
-          try {
-            this.logService.info("setting userkey");
-            if (message.userKeyB64) {
-              const userKey = new SymmetricCryptoKey(
-                Utils.fromB64ToArray(message.userKeyB64),
-              ) as UserKey;
-              const activeUserId = await firstValueFrom(
-                this.accountService.activeAccount$.pipe(map((a) => a?.id)),
-              );
-              this.logService.info("active userid", activeUserId);
-              const isUserKeyValid = await this.cryptoService.validateUserKey(
-                userKey,
-                activeUserId,
-              );
-              if (isUserKeyValid) {
-                this.logService.info("valit setting userkey");
-                await this.cryptoService.setUserKey(userKey, activeUserId);
-                this.callbacks.get(messageId).resolver("unlocked");
-              } else {
-                this.logService.error("Unable to verify biometric unlocked userkey");
-                await this.cryptoService.clearKeys(activeUserId);
-                this.callbacks.get(messageId).rejecter("userkey wrong");
-                return;
-              }
-            } else {
-              this.logService.info("no userkey");
-              throw new Error("No key received");
-            }
-          } catch (e) {
-            this.logService.error("Unable to set key: " + e);
-            this.callbacks.get(messageId).rejecter("userkey wrong");
-            return;
-          }
-
-          // Verify key is correct by attempting to decrypt a secret
-          try {
-            const userId = (await firstValueFrom(this.accountService.activeAccount$))?.id;
-            await this.cryptoService.getFingerprint(userId);
-          } catch (e) {
-            this.logService.error("Unable to verify key: " + e);
-            await this.cryptoService.clearKeys();
-            this.callbacks.get(messageId).rejecter("userkey wrong");
-            return;
-          }
-
-          // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-          // eslint-disable-next-line @typescript-eslint/no-floating-promises
-          this.runtimeBackground.processMessage({ command: "unlocked" });
-        }
-        break;
-      }
-      case "biometricStatus": {
-        if (!this.callbacks.has(messageId)) {
-          this.logService.error("Biometric status promise not set");
-          return;
-        }
-        this.callbacks.get(messageId).resolver(message);
-        break;
-      }
-      case "biometricStatusForUser": {
-        if (!this.callbacks.has(messageId)) {
-          this.logService.error("Biometric status promise not set");
-          return;
-        }
-        this.callbacks.get(messageId).resolver(message);
-        break;
-      }
-      default:
-        this.logService.error("NativeMessage, got unknown command: " + message.command);
-        break;
-    }
 
     if (this.callbacks.has(messageId)) {
       this.callbacks.get(messageId).resolver(message);

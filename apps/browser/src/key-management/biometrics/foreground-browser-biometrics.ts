@@ -1,16 +1,16 @@
+import { BiometricsService } from "@bitwarden/common/key-management/biometrics/biometric.service";
 import { BiometricsStatus } from "@bitwarden/common/key-management/biometrics/biometrics-status";
 import { UserId } from "@bitwarden/common/types/guid";
+import { UserKey } from "@bitwarden/common/types/key";
 
 import { BrowserApi } from "../../platform/browser/browser-api";
 
-import { BrowserBiometricsService } from "./browser-biometrics.service";
-
-export class ForegroundBrowserBiometricsService extends BrowserBiometricsService {
-  async authenticateBiometric(): Promise<boolean> {
+export class ForegroundBrowserBiometricsService extends BiometricsService {
+  async authenticateWithBiometrics(): Promise<boolean> {
     const response = await BrowserApi.sendMessageWithResponse<{
       result: boolean;
       error: string;
-    }>("biometricUnlock");
+    }>("authenticateWithBiometrics");
     if (!response.result) {
       throw response.error;
     }
@@ -21,7 +21,18 @@ export class ForegroundBrowserBiometricsService extends BrowserBiometricsService
     const response = await BrowserApi.sendMessageWithResponse<{
       result: BiometricsStatus;
       error: string;
-    }>("biometricStatus");
+    }>("getBiometricsStatus");
+    return response.result;
+  }
+
+  async unlockWithBiometricsForUser(userId: UserId): Promise<UserKey> {
+    const response = await BrowserApi.sendMessageWithResponse<{
+      result: UserKey;
+      error: string;
+    }>("unlockWithBiometricsForUser", { userId });
+    if (!response.result) {
+      throw response.error;
+    }
     return response.result;
   }
 
@@ -29,7 +40,7 @@ export class ForegroundBrowserBiometricsService extends BrowserBiometricsService
     const response = await BrowserApi.sendMessageWithResponse<{
       result: BiometricsStatus;
       error: string;
-    }>("biometricStatusForUser", { userId: id });
+    }>("getBiometricsStatusForUser", { userId: id });
     return response.result;
   }
 }

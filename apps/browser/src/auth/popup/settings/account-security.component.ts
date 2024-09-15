@@ -28,6 +28,7 @@ import { UserVerificationService } from "@bitwarden/common/auth/abstractions/use
 import { VaultTimeoutAction } from "@bitwarden/common/enums/vault-timeout-action.enum";
 import { BiometricStateService } from "@bitwarden/common/key-management/biometrics/biometric-state.service";
 import { BiometricsService } from "@bitwarden/common/key-management/biometrics/biometric.service";
+import { BiometricsStatus } from "@bitwarden/common/key-management/biometrics/biometrics-status";
 import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -48,7 +49,6 @@ import BrowserPopupUtils from "../../../platform/popup/browser-popup-utils";
 import { SetPinComponent } from "../components/set-pin.component";
 
 import { AwaitDesktopDialogComponent } from "./await-desktop-dialog.component";
-import { BiometricsStatus } from "@bitwarden/common/key-management/biometrics/biometrics-status";
 
 @Component({
   selector: "auth-account-security",
@@ -410,7 +410,7 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
 
       const biometricsPromise = async () => {
         try {
-          const result = await this.biometricsService.authenticateBiometric();
+          const result = await this.biometricsService.authenticateWithBiometrics();
 
           // prevent duplicate dialog
           biometricsResponseReceived = true;
