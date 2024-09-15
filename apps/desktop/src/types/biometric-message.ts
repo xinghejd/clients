@@ -1,14 +1,19 @@
 export enum BiometricAction {
-  EnabledForUser = "enabled",
   Authenticate = "authenticate",
-  Setup = "setup",
   GetStatus = "status",
+
+  UnlockForUser = "unlockForUser",
   GetStatusForUser = "statusForUser",
+  SetKeyForUser = "setKeyForUser",
+  RemoveKeyForUser = "removeKeyForUser",
+
+  SetClientKeyHalf = "setClientKeyHalf",
+
+  Setup = "setup",
 }
 
 export type BiometricMessage = {
   action: BiometricAction;
-  keySuffix?: string;
   key?: string;
   userId?: string;
 };

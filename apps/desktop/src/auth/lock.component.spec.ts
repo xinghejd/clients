@@ -36,7 +36,7 @@ import { UserId } from "@bitwarden/common/types/guid";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { DialogService, ToastService } from "@bitwarden/components";
 
-import { BiometricsService } from "../key-management/biometrics/biometrics.service";
+import { MainBiometricsService } from "../key-management/biometrics/main-biometrics.service";
 
 import { LockComponent } from "./lock.component";
 
@@ -58,7 +58,7 @@ describe("LockComponent", () => {
   let fixture: ComponentFixture<LockComponent>;
   let stateServiceMock: MockProxy<StateService>;
   let biometricStateService: MockProxy<BiometricStateService>;
-  let biometricsService: MockProxy<BiometricsService>;
+  let biometricsService: MockProxy<MainBiometricsService>;
   let messagingServiceMock: MockProxy<MessagingService>;
   let broadcasterServiceMock: MockProxy<BroadcasterService>;
   let platformUtilsServiceMock: MockProxy<PlatformUtilsService>;
@@ -455,15 +455,6 @@ describe("LockComponent", () => {
       expect(component["unlockBiometric"]).toHaveBeenCalledTimes(0);
     }));
   });
-
-  // describe("canUseBiometric", () => {
-  //   it("should call getUserId() on stateService", async () => {
-  //     stateServiceMock.getUserId.mockResolvedValue("userId");
-  //     await component["canUseBiometric"]();
-
-  //     expect(ipc.keyManagement.biometric.enabled).toHaveBeenCalledWith("userId");
-  //   });
-  // });
 
   it('onWindowHidden() should set "showPassword" to false', () => {
     component["showPassword"] = true;

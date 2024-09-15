@@ -26,7 +26,8 @@ import { MemoryStorageService as MemoryStorageServiceForStateProviders } from "@
 
 import { DesktopAutofillSettingsService } from "./autofill/services/desktop-autofill-settings.service";
 import { BiometricsRendererIPCListener } from "./key-management/biometrics/biometric.renderer-ipc.listener";
-import { BiometricsService, DesktopBiometricsService } from "./key-management/biometrics/index";
+import { DesktopBiometricsService } from "./key-management/biometrics/desktop.biometrics.service";
+import { MainBiometricsService } from "./key-management/biometrics/main-biometrics.service";
 import { MenuMain } from "./main/menu/menu.main";
 import { MessagingMain } from "./main/messaging.main";
 import { NativeMessagingMain } from "./main/native-messaging.main";
@@ -202,7 +203,7 @@ export class Main {
       this.desktopSettingsService,
     );
 
-    this.biometricsService = new BiometricsService(
+    this.biometricsService = new MainBiometricsService(
       this.i18nService,
       this.windowMain,
       this.logService,
@@ -213,11 +214,9 @@ export class Main {
 
     this.desktopCredentialStorageListener = new DesktopCredentialStorageListener(
       "Bitwarden",
-      this.biometricsService,
       this.logService,
     );
     this.biometricsRendererIPCListener = new BiometricsRendererIPCListener(
-      "Bitwarden",
       this.biometricsService,
       this.logService,
     );

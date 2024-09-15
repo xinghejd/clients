@@ -1,6 +1,5 @@
 import { ipcMain } from "electron";
 
-import { BiometricsStatus } from "@bitwarden/common/key-management/biometrics/biometrics-status";
 import { ConsoleLogService } from "@bitwarden/common/platform/services/console-log.service";
 import { UserId } from "@bitwarden/common/types/guid";
 
@@ -10,7 +9,6 @@ import { DesktopBiometricsService } from "./desktop.biometrics.service";
 
 export class BiometricsRendererIPCListener {
   constructor(
-    private serviceName: string,
     private biometricService: DesktopBiometricsService,
     private logService: ConsoleLogService,
   ) {}
@@ -18,42 +16,40 @@ export class BiometricsRendererIPCListener {
   init() {
     ipcMain.handle("biometric", async (event: any, message: BiometricMessage) => {
       try {
-        let serviceName = this.serviceName;
-        message.keySuffix = "_" + (message.keySuffix ?? "");
-        if (message.keySuffix !== "_") {
-          serviceName += message.keySuffix;
-        }
-
-        let val: string | boolean | BiometricsStatus = null;
-
         if (!message.action) {
-          return val;
+          return;
         }
 
         switch (message.action) {
-          case BiometricAction.EnabledForUser:
-            if (!message.key || !message.userId) {
-              break;
-            }
-            val = await this.biometricService.canAuthBiometric({
-              service: serviceName,
-              key: message.key,
-              userId: message.userId,
-            });
-            break;
+          case BiometricAction.Authenticate:
+            return await this.biometricService.authenticateWithBiometrics();
           case BiometricAction.GetStatus:
-            val = await this.biometricService.getBiometricsStatus();
-            break;
+            return await this.biometricService.getBiometricsStatus();
+          case BiometricAction.UnlockForUser:
+            return await this.biometricService.unlockWithBiometricsForUser(
+              message.userId as UserId,
+            );
           case BiometricAction.GetStatusForUser:
-            val = await this.biometricService.getBiometricsStatusForUser(message.userId as UserId);
-            break;
+            return await this.biometricService.getBiometricsStatusForUser(message.userId as UserId);
+          case BiometricAction.SetKeyForUser:
+            return await this.biometricService.setBiometricProtectedUnlockKeyForUser(
+              message.userId as UserId,
+              message.key,
+            );
+          case BiometricAction.RemoveKeyForUser:
+            return await this.biometricService.deleteBiometricUnlockKeyForUser(
+              message.userId as UserId,
+            );
+          case BiometricAction.SetClientKeyHalf:
+            return await this.biometricService.setClientKeyHalfForUser(
+              message.userId as UserId,
+              message.key,
+            );
           case BiometricAction.Setup:
-            await this.biometricService.biometricsSetup();
-            break;
+            return await this.biometricService.setupBiometrics();
           default:
+            return;
         }
-
-        return val;
       } catch (e) {
         this.logService.info(e);
       }

@@ -21,6 +21,7 @@ import {
   FakeAccountService,
   mockAccountServiceWith,
 } from "../../../../../libs/common/spec/fake-account-service";
+import { DesktopBiometricsService } from "../../key-management/biometrics/desktop.biometrics.service";
 
 import { ElectronCryptoService } from "./electron-crypto.service";
 
@@ -38,6 +39,7 @@ describe("electronCryptoService", () => {
   let accountService: FakeAccountService;
   let stateProvider: FakeStateProvider;
   const biometricStateService = mock<BiometricStateService>();
+  const biometricsService = mock<DesktopBiometricsService>();
   const kdfConfigService = mock<KdfConfigService>();
 
   const mockUserId = "mock user id" as UserId;
@@ -60,6 +62,7 @@ describe("electronCryptoService", () => {
       stateProvider,
       biometricStateService,
       kdfConfigService,
+      biometricsService,
     );
   });
 

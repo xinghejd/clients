@@ -11,7 +11,6 @@ import { CryptoFunctionService } from "@bitwarden/common/platform/abstractions/c
 import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
-import { KeySuffixOptions } from "@bitwarden/common/platform/enums";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
@@ -166,11 +165,7 @@ export class BiometricMessageHandlerService {
         }
 
         try {
-          const userKey = await this.cryptoService.getUserKeyFromStorage(
-            KeySuffixOptions.Biometric,
-            message.userId,
-          );
-
+          const userKey = await this.biometricsService.unlockWithBiometricsForUser(userId);
           if (userKey != null) {
             this.logService.info("sending biometricUnlock response", messageId);
             await this.send(

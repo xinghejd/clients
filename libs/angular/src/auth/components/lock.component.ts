@@ -32,7 +32,6 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
-import { KeySuffixOptions } from "@bitwarden/common/platform/enums";
 import { PasswordStrengthServiceAbstraction } from "@bitwarden/common/tools/password-strength";
 import { UserId } from "@bitwarden/common/types/guid";
 import { UserKey } from "@bitwarden/common/types/key";
@@ -154,10 +153,7 @@ export class LockComponent implements OnInit, OnDestroy {
 
   async unlockBiometric(): Promise<boolean> {
     await this.biometricStateService.setUserPromptCancelled();
-    const userKey = await this.cryptoService.getUserKeyFromStorage(
-      KeySuffixOptions.Biometric,
-      this.activeUserId,
-    );
+    const userKey = await this.biometricsService.unlockWithBiometricsForUser(this.activeUserId);
 
     if (userKey) {
       await this.setUserKeyAndContinue(userKey, this.activeUserId, false);
