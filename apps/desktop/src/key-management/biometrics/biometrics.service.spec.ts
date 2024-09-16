@@ -1,4 +1,4 @@
-import { mock, MockProxy } from "jest-mock-extended";
+import { mock } from "jest-mock-extended";
 
 import { BiometricStateService } from "@bitwarden/common/key-management/biometrics/biometric-state.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -8,6 +8,7 @@ import { MessagingService } from "@bitwarden/common/platform/abstractions/messag
 import { WindowMain } from "../../main/window.main";
 
 import { MainBiometricsService } from "./main-biometrics.service";
+import OsBiometricsServiceLinux from "./os-biometrics-linux.service";
 import OsBiometricsServiceMac from "./os-biometrics-mac.service";
 import OsBiometricsServiceWindows from "./os-biometrics-windows.service";
 import { OsBiometricService } from "./os-biometrics.service";
@@ -37,12 +38,11 @@ describe("biometrics tests", function () {
     );
 
     const mockService = mock<OsBiometricService>();
-    (sut as any).platformSpecificService = mockService;
-    //await sut.setEncryptionKeyHalf({ service: "test", key: "test", value: "test" });
+    (sut as any).osBiometricsService = mockService;
 
     // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    sut.authenticateBiometric();
+    await sut.authenticateBiometric();
     expect(mockService.authenticateBiometric).toBeCalled();
   });
 
@@ -57,7 +57,7 @@ describe("biometrics tests", function () {
         biometricStateService,
       );
 
-      const internalService = (sut as any).platformSpecificService;
+      const internalService = (sut as any).osBiometricsService;
       expect(internalService).not.toBeNull();
       expect(internalService).toBeInstanceOf(OsBiometricsServiceWindows);
     });
@@ -71,28 +71,24 @@ describe("biometrics tests", function () {
         "darwin",
         biometricStateService,
       );
-      const internalService = (sut as any).platformSpecificService;
+      const internalService = (sut as any).osBiometricsService;
       expect(internalService).not.toBeNull();
       expect(internalService).toBeInstanceOf(OsBiometricsServiceMac);
     });
-  });
 
-  describe("can auth biometric", () => {
-    let sut: MainBiometricsService;
-    let innerService: MockProxy<OsBiometricService>;
-
-    beforeEach(() => {
-      sut = new MainBiometricsService(
+    it("Should create a biometrics service specific for Linux", () => {
+      const sut = new MainBiometricsService(
         i18nService,
         windowMain,
         logService,
         messagingService,
-        process.platform,
+        "linux",
         biometricStateService,
       );
 
-      innerService = mock();
-      (sut as any).platformSpecificService = innerService;
+      const internalService = (sut as any).osBiometricsService;
+      expect(internalService).not.toBeNull();
+      expect(internalService).toBeInstanceOf(OsBiometricsServiceLinux);
     });
   });
 });

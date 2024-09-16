@@ -101,19 +101,7 @@ export class MainBiometricsService extends DesktopBiometricsService {
   }
 
   async authenticateBiometric(): Promise<boolean> {
-    let result = false;
-    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    this.interruptProcessReload(
-      () => {
-        return this.osBiometricsService.authenticateBiometric();
-      },
-      (response) => {
-        result = response;
-        return !response;
-      },
-    );
-    return result;
+    return await this.osBiometricsService.authenticateBiometric();
   }
 
   async setupBiometrics(): Promise<void> {
@@ -158,26 +146,5 @@ export class MainBiometricsService extends DesktopBiometricsService {
       "Bitwarden_biometric",
       `${userId}_user_biometric`,
     );
-  }
-
-  private async interruptProcessReload<T>(
-    callback: () => Promise<T>,
-    restartReloadCallback: (arg: T) => boolean = () => false,
-  ): Promise<T> {
-    this.messagingService.send("cancelProcessReload");
-    let restartReload = false;
-    let response: T;
-    try {
-      response = await callback();
-      restartReload ||= restartReloadCallback(response);
-    } catch {
-      restartReload = true;
-    }
-
-    if (restartReload) {
-      this.messagingService.send("startProcessReload");
-    }
-
-    return response;
   }
 }
