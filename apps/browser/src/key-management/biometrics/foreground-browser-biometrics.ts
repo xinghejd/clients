@@ -1,4 +1,5 @@
 import { BiometricsService } from "@bitwarden/common/key-management/biometrics/biometric.service";
+import { BiometricsCommands } from "@bitwarden/common/key-management/biometrics/biometrics-commands";
 import { BiometricsStatus } from "@bitwarden/common/key-management/biometrics/biometrics-status";
 import { UserId } from "@bitwarden/common/types/guid";
 import { UserKey } from "@bitwarden/common/types/key";
@@ -10,7 +11,7 @@ export class ForegroundBrowserBiometricsService extends BiometricsService {
     const response = await BrowserApi.sendMessageWithResponse<{
       result: boolean;
       error: string;
-    }>("authenticateWithBiometrics");
+    }>(BiometricsCommands.AuthenticateWithBiometrics);
     if (!response.result) {
       throw response.error;
     }
@@ -21,7 +22,7 @@ export class ForegroundBrowserBiometricsService extends BiometricsService {
     const response = await BrowserApi.sendMessageWithResponse<{
       result: BiometricsStatus;
       error: string;
-    }>("getBiometricsStatus");
+    }>(BiometricsCommands.GetBiometricsStatus);
     return response.result;
   }
 
@@ -29,7 +30,7 @@ export class ForegroundBrowserBiometricsService extends BiometricsService {
     const response = await BrowserApi.sendMessageWithResponse<{
       result: UserKey;
       error: string;
-    }>("unlockWithBiometricsForUser", { userId });
+    }>(BiometricsCommands.UnlockWithBiometricsForUser, { userId });
     if (!response.result) {
       throw response.error;
     }
@@ -40,7 +41,7 @@ export class ForegroundBrowserBiometricsService extends BiometricsService {
     const response = await BrowserApi.sendMessageWithResponse<{
       result: BiometricsStatus;
       error: string;
-    }>("getBiometricsStatusForUser", { userId: id });
+    }>(BiometricsCommands.GetBiometricsStatusForUser, { userId: id });
     return response.result;
   }
 }

@@ -141,6 +141,7 @@ export class LockComponent extends BaseLockComponent implements OnInit {
   }
 
   override async unlockBiometric(automaticPrompt: boolean = false): Promise<boolean> {
+    this.logService.info("Unlocking with biometrics");
     if (this.biometricStatus != BiometricsStatus.Available) {
       if (!automaticPrompt) {
         await this.dialogService.openSimpleDialog({
@@ -157,9 +158,12 @@ export class LockComponent extends BaseLockComponent implements OnInit {
     let success;
     try {
       this.pendingBiometric = true;
+      this.logService.info("Unlocking with biometrics super");
       success = await super.unlockBiometric();
+      this.logService.info("Unlocking with biometrics super success");
     } catch (e) {
       const error = BiometricErrors[e?.message as BiometricErrorTypes];
+      this.logService.info("Unlocking with biometrics error: " + e);
 
       if (error == null) {
         this.logService.error("Unknown error: " + e);

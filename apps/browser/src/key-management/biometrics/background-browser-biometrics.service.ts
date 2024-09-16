@@ -1,7 +1,9 @@
 import { Injectable } from "@angular/core";
 
 import { BiometricsService } from "@bitwarden/common/key-management/biometrics/biometric.service";
+import { BiometricsCommands } from "@bitwarden/common/key-management/biometrics/biometrics-commands";
 import { BiometricsStatus } from "@bitwarden/common/key-management/biometrics/biometrics-status";
+import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { UserId } from "@bitwarden/common/types/guid";
 import { UserKey } from "@bitwarden/common/types/key";
 
@@ -16,9 +18,9 @@ export class BackgroundBrowserBiometricsService extends BiometricsService {
   async authenticateWithBiometrics(): Promise<boolean> {
     try {
       const response = await this.nativeMessagingBackground().callCommand({
-        command: "authenticateWithBiometrics",
+        command: BiometricsCommands.AuthenticateWithBiometrics,
       });
-      return response == "unlocked";
+      return response;
     } catch (e) {
       return false;
     }
@@ -27,7 +29,7 @@ export class BackgroundBrowserBiometricsService extends BiometricsService {
   async getBiometricsStatus(): Promise<BiometricsStatus> {
     try {
       const response = await this.nativeMessagingBackground().callCommand({
-        command: "getBiometricsStatus",
+        command: BiometricsCommands.GetBiometricsStatus,
       });
       return response.response;
     } catch (e) {
@@ -37,12 +39,15 @@ export class BackgroundBrowserBiometricsService extends BiometricsService {
 
   async unlockWithBiometricsForUser(userId: UserId): Promise<UserKey> {
     try {
-      return (
-        await this.nativeMessagingBackground().callCommand({
-          command: "unlockWithBiometricsForUser",
-          userId: userId,
-        })
-      ).response;
+      const response = await this.nativeMessagingBackground().callCommand({
+        command: BiometricsCommands.UnlockWithBiometricsForUser,
+        userId: userId,
+      });
+      if (response.response) {
+        return SymmetricCryptoKey.fromString(response.userKeyB64) as UserKey;
+      } else {
+        throw new Error("Biometric unlock failed");
+      }
     } catch (e) {
       throw new Error("Biometric unlock failed");
     }

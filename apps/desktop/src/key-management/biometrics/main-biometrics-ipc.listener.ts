@@ -7,7 +7,7 @@ import { BiometricMessage, BiometricAction } from "../../types/biometric-message
 
 import { DesktopBiometricsService } from "./desktop.biometrics.service";
 
-export class BiometricsRendererIPCListener {
+export class MainBiometricsIPCListener {
   constructor(
     private biometricService: DesktopBiometricsService,
     private logService: ConsoleLogService,

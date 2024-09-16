@@ -25,8 +25,8 @@ import { MemoryStorageService as MemoryStorageServiceForStateProviders } from "@
 /* eslint-enable import/no-restricted-paths */
 
 import { DesktopAutofillSettingsService } from "./autofill/services/desktop-autofill-settings.service";
-import { BiometricsRendererIPCListener } from "./key-management/biometrics/biometric.renderer-ipc.listener";
 import { DesktopBiometricsService } from "./key-management/biometrics/desktop.biometrics.service";
+import { MainBiometricsIPCListener } from "./key-management/biometrics/main-biometrics-ipc.listener";
 import { MainBiometricsService } from "./key-management/biometrics/main-biometrics.service";
 import { MenuMain } from "./main/menu/menu.main";
 import { MessagingMain } from "./main/messaging.main";
@@ -56,7 +56,7 @@ export class Main {
   messagingService: MessageSender;
   environmentService: DefaultEnvironmentService;
   desktopCredentialStorageListener: DesktopCredentialStorageListener;
-  biometricsRendererIPCListener: BiometricsRendererIPCListener;
+  mainBiometricsIpcListener: MainBiometricsIPCListener;
   desktopSettingsService: DesktopSettingsService;
   mainCryptoFunctionService: MainCryptoFunctionService;
   migrationRunner: MigrationRunner;
@@ -216,7 +216,7 @@ export class Main {
       "Bitwarden",
       this.logService,
     );
-    this.biometricsRendererIPCListener = new BiometricsRendererIPCListener(
+    this.mainBiometricsIpcListener = new MainBiometricsIPCListener(
       this.biometricsService,
       this.logService,
     );
@@ -239,7 +239,7 @@ export class Main {
 
   bootstrap() {
     this.desktopCredentialStorageListener.init();
-    this.biometricsRendererIPCListener.init();
+    this.mainBiometricsIpcListener.init();
     // Run migrations first, then other things
     this.migrationRunner.run().then(
       async () => {

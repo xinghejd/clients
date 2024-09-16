@@ -1,11 +1,12 @@
 import { Injectable, NgZone } from "@angular/core";
-import { firstValueFrom, map } from "rxjs";
+import { firstValueFrom } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { BiometricStateService } from "@bitwarden/common/key-management/biometrics/biometric-state.service";
 import { BiometricsService } from "@bitwarden/common/key-management/biometrics/biometric.service";
+import { BiometricsCommands } from "@bitwarden/common/key-management/biometrics/biometrics-commands";
 import { BiometricsStatus } from "@bitwarden/common/key-management/biometrics/biometrics-status";
 import { CryptoFunctionService } from "@bitwarden/common/platform/abstractions/crypto-function.service";
 import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
@@ -52,6 +53,9 @@ export class BiometricMessageHandlerService {
       const accounts = await firstValueFrom(this.accountService.accounts$);
       const userIds = Object.keys(accounts);
       if (!userIds.includes(rawMessage.userId)) {
+        this.logService.info(
+          "[Native Messaging IPC] Received message for user that is not logged into the desktop app.",
+        );
         ipc.platform.nativeMessaging.sendMessage({
           command: "wrongUserId",
           appId: appId,
@@ -60,6 +64,7 @@ export class BiometricMessageHandlerService {
       }
 
       if (await firstValueFrom(this.desktopSettingService.browserIntegrationFingerprintEnabled$)) {
+        this.logService.info("[Native Messaging IPC] Requesting fingerprint verification.");
         ipc.platform.nativeMessaging.sendMessage({
           command: "verifyFingerprint",
           appId: appId,
@@ -79,6 +84,7 @@ export class BiometricMessageHandlerService {
         const browserSyncVerified = await firstValueFrom(dialogRef.closed);
 
         if (browserSyncVerified !== true) {
+          this.logService.info("[Native Messaging IPC] Fingerprint verification failed.");
           return;
         }
       }
@@ -88,6 +94,9 @@ export class BiometricMessageHandlerService {
     }
 
     if ((await ipc.platform.ephemeralStore.getEphemeralValue(appId)) == null) {
+      this.logService.info(
+        "[Native Messaging IPC] Epheremal secret for secure channel is missing. Invalidating encryption...",
+      );
       ipc.platform.nativeMessaging.sendMessage({
         command: "invalidateEncryption",
         appId: appId,
@@ -104,6 +113,9 @@ export class BiometricMessageHandlerService {
 
     // Shared secret is invalidated, force re-authentication
     if (message == null) {
+      this.logService.info(
+        "[Native Messaging IPC] Secure channel failed to decrypt message. Invalidating encryption...",
+      );
       ipc.platform.nativeMessaging.sendMessage({
         command: "invalidateEncryption",
         appId: appId,
@@ -112,66 +124,23 @@ export class BiometricMessageHandlerService {
     }
 
     if (Math.abs(message.timestamp - Date.now()) > MessageValidTimeout) {
-      this.logService.error("NativeMessage is to old, ignoring.");
+      this.logService.info("[Native Messaging IPC] Received a too old message. Ignoring.");
       return;
     }
 
-    this.logService.debug("Received message", message);
     const messageId = message.messageId;
 
     switch (message.command) {
-      case "unlockWithBiometricsForUser": {
-        // const isTemporarilyDisabled =
-        //   (await this.biometricStateService.getBiometricUnlockEnabled(message.userId as UserId)) &&
-        //   !(await this.biometricsServicei.supportsBiometric());
-        // if (isTemporarilyDisabled) {
-        //   return this.send({ command: "biometricUnlock", response: "not available" }, appId);
-        // }
-
-        // if (!(await this.biometricsService.supportsBiometric())) {
-        //   return this.send({ command: "biometricUnlock", response: "not supported" }, appId);
-        // }
-
-        const userId =
-          (message.userId as UserId) ??
-          (await firstValueFrom(this.accountService.activeAccount$.pipe(map((a) => a?.id))));
-
-        if (userId == null) {
-          return this.send(
-            { command: "biometricUnlock", messageId, response: "not unlocked" },
-            appId,
-          );
-        }
-
-        const biometricUnlockPromise =
-          message.userId == null
-            ? firstValueFrom(this.biometricStateService.biometricUnlockEnabled$)
-            : this.biometricStateService.getBiometricUnlockEnabled(message.userId as UserId);
-        if (!(await biometricUnlockPromise)) {
-          await this.send(
-            { command: "biometricUnlock", messageId, response: "not enabled" },
-            appId,
-          );
-
-          return this.ngZone.run(() =>
-            this.dialogService.openSimpleDialog({
-              type: "warning",
-              title: { key: "biometricsNotEnabledTitle" },
-              content: { key: "biometricsNotEnabledDesc" },
-              cancelButtonText: null,
-              acceptButtonText: { key: "cancel" },
-            }),
-          );
-        }
-
+      case BiometricsCommands.UnlockWithBiometricsForUser: {
+        const userId = message.userId as UserId;
         try {
           const userKey = await this.biometricsService.unlockWithBiometricsForUser(userId);
           if (userKey != null) {
-            this.logService.info("sending biometricUnlock response", messageId);
+            this.logService.info("[Native Messaging IPC] Biometric unlock for user: " + userId);
             await this.send(
               {
-                command: "biometricUnlock",
-                response: "unlocked",
+                command: BiometricsCommands.UnlockWithBiometricsForUser,
+                response: true,
                 messageId,
                 userKeyB64: userKey.keyB64,
               },
@@ -182,36 +151,65 @@ export class BiometricMessageHandlerService {
               await firstValueFrom(this.accountService.activeAccount$)
             ).id;
             const isCurrentlyActiveAccountUnlocked =
-              (await this.authService.getAuthStatus(userId)) == AuthenticationStatus.Unlocked;
+              (await firstValueFrom(this.authService.authStatusFor$(userId))) ==
+              AuthenticationStatus.Unlocked;
 
             // prevent proc reloading an active account, when it is the same as the browser
             if (currentlyActiveAccountId != message.userId || !isCurrentlyActiveAccountUnlocked) {
-              await ipc.platform.reloadProcess();
+              if (!ipc.platform.isDev) {
+                ipc.platform.reloadProcess();
+              }
             }
           } else {
-            await this.send({ command: "biometricUnlock", messageId, response: "canceled" }, appId);
+            await this.send(
+              {
+                command: BiometricsCommands.UnlockWithBiometricsForUser,
+                messageId,
+                response: false,
+              },
+              appId,
+            );
           }
         } catch (e) {
-          await this.send({ command: "biometricUnlock", messageId, response: "canceled" }, appId);
+          await this.send(
+            { command: BiometricsCommands.UnlockWithBiometricsForUser, messageId, response: false },
+            appId,
+          );
         }
 
         break;
       }
-      case "authenticateWithBiometrics": {
+      case BiometricsCommands.AuthenticateWithBiometrics: {
+        try {
+          const unlocked = await this.biometricsService.authenticateWithBiometrics();
+          await this.send(
+            {
+              command: BiometricsCommands.AuthenticateWithBiometrics,
+              messageId,
+              response: unlocked,
+            },
+            appId,
+          );
+        } catch (e) {
+          await this.send(
+            { command: BiometricsCommands.AuthenticateWithBiometrics, messageId, response: false },
+            appId,
+          );
+        }
         break;
       }
-      case "getBiometricsStatus": {
+      case BiometricsCommands.GetBiometricsStatus: {
         const status = await this.biometricsService.getBiometricsStatus();
         return this.send(
           {
-            command: "getBiometricsStatus",
+            command: BiometricsCommands.GetBiometricsStatus,
             messageId,
             response: status,
           },
           appId,
         );
       }
-      case "getBiometricsStatusForUser": {
+      case BiometricsCommands.GetBiometricsStatusForUser: {
         let status = await this.biometricsService.getBiometricsStatusForUser(
           message.userId as UserId,
         );
@@ -220,7 +218,7 @@ export class BiometricMessageHandlerService {
         }
         return this.send(
           {
-            command: "getBiometricsStatusForUser",
+            command: BiometricsCommands.GetBiometricsStatusForUser,
             messageId,
             response: status,
           },
@@ -255,6 +253,7 @@ export class BiometricMessageHandlerService {
       new SymmetricCryptoKey(secret).keyB64,
     );
 
+    this.logService.info("[Native Messaging IPC] Setting up secure channel");
     const encryptedSecret = await this.cryptoFunctionService.rsaEncrypt(
       secret,
       remotePublicKey,
