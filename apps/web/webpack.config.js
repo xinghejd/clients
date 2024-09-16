@@ -381,7 +381,6 @@ const webpackConfig = {
   },
   experiments: {
     asyncWebAssembly: true,
-    topLevelAwait: true,
   },
   plugins: plugins,
 };
