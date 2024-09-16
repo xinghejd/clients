@@ -73,27 +73,27 @@ export class MenuTriggerForDirective implements OnDestroy {
   /**
    * Toggles the menu on right click event.
    * If the menu is already open, it updates the menu position.
-   * @param position Position of the right click event
+   * @param event The MouseEvent from the right-click interaction
    */
-  toggleMenuOnRightClick(position: { x: number; y: number }) {
-    this.isOpen ? this.updateMenuPosition(position) : this.openMenu(position);
+  toggleMenuOnRightClick(event: MouseEvent) {
+    this.isOpen ? this.updateMenuPosition(event) : this.openMenu(event);
   }
 
   ngOnDestroy() {
     this.disposeAll();
   }
 
-  private openMenu(position?: { x: number; y: number }) {
+  private openMenu(event?: MouseEvent) {
     if (this.menu == null) {
       throw new Error("Cannot find bit-menu element");
     }
 
     this.isOpen = true;
 
-    const positionStrategy = position
+    const positionStrategy = event
       ? this.overlay
           .position()
-          .flexibleConnectedTo(position)
+          .flexibleConnectedTo({ x: event.clientX, y: event.clientY })
           .withPositions([
             {
               originX: "start",
@@ -122,14 +122,14 @@ export class MenuTriggerForDirective implements OnDestroy {
     }
   }
 
-  private updateMenuPosition(position: { x: number; y: number }) {
+  private updateMenuPosition(event: MouseEvent) {
     if (this.overlayRef == null) {
       return;
     }
 
     const positionStrategy = this.overlay
       .position()
-      .flexibleConnectedTo(position)
+      .flexibleConnectedTo({ x: event.clientX, y: event.clientY })
       .withPositions([
         {
           originX: "start",
@@ -188,7 +188,7 @@ export class MenuTriggerForDirective implements OnDestroy {
       )
       .subscribe((event) => {
         event.preventDefault(); // Prevent default context menu
-        this.updateMenuPosition({ x: event.clientX, y: event.clientY });
+        this.updateMenuPosition(event);
       });
   }
 
