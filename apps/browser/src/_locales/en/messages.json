@@ -4350,5 +4350,9 @@
   },
   "noEditPermissions": {
     "message": "You don't have permission to edit this item"
+  },
+  "useGeneratedPassword": {
+    "message": "Use generated password",
+    "description": "Heading for the password generator within the inline menu"
   }
 }

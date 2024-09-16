@@ -393,3 +393,123 @@ body {
     }
   }
 }
+
+// TODO: Not a fan of how this is turning out, will refactor later to make the implementation less repetitive
+.password-generator-container {
+  display: flex;
+  align-content: flex-start;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 0.7rem 0.7rem 1rem 0.7rem;
+  margin: 0.2rem;
+  border-radius: 0.4rem;
+  width: calc(100% - 0.4rem);
+  height: calc(100% - 0.4rem);
+
+  &:focus-within:not(.remove-outline) {
+    outline-width: 0.2rem;
+    outline-style: solid;
+
+    @include themify($themes) {
+      outline-color: themed("focusOutlineColor");
+    }
+  }
+
+  .inline-menu-list-action {
+    padding: 0;
+    margin: 0;
+    border: none;
+    background-color: transparent;
+    cursor: pointer;
+
+    @include themify($themes) {
+      color: themed("textColor");
+    }
+
+    svg {
+      path {
+        @include themify($themes) {
+          fill: themed("primaryColor") !important;
+        }
+      }
+    }
+  }
+
+  .fill-generated-password-button {
+    display: flex;
+    align-items: center;
+    align-content: center;
+    justify-content: flex-start;
+    width: calc(100% - 4rem);
+    outline: none;
+    padding-right: 0.8rem;
+
+    svg {
+      flex-shrink: 0;
+      width: 3.2rem;
+      margin-right: 0.6rem;
+    }
+  }
+
+  .refresh-generated-password-button {
+    flex-shrink: 0;
+    width: 4rem;
+    height: 4rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0.4rem;
+
+    &:focus:focus-visible {
+      outline-width: 0.2rem;
+      outline-style: solid;
+
+      @include themify($themes) {
+        outline-color: themed("focusOutlineColor");
+      }
+    }
+
+    svg {
+      path {
+        @include themify($themes) {
+          fill: themed("primaryColor") !important;
+        }
+      }
+    }
+  }
+
+  .password-generator {
+    text-align: left;
+  }
+
+  .password-generator-heading {
+    font-size: 1.4rem;
+    margin-bottom: 0.2rem;
+    font-family: $font-family-sans-serif;
+  }
+
+  .colorized-password {
+    font-size: 1.2rem;
+    font-family: $font-family-source-code-pro;
+    letter-spacing: 0.05rem;
+    font-weight: 400;
+    display: flex;
+    align-content: center;
+    align-items: center;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+    width: 100%;
+
+    .password-special {
+      @include themify($themes) {
+        color: themed("passwordSpecialColor") !important;
+      }
+    }
+
+    .password-number {
+      @include themify($themes) {
+        color: themed("passwordNumberColor") !important;
+      }
+    }
+  }
+}

@@ -195,9 +195,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
   private async generatePassword(): Promise<string> {
     const options = (await this.passwordGenerationService.getOptions())?.[0] ?? {};
     const password = await this.passwordGenerationService.generatePassword(options);
-
-    // TODO: Should this be added to the history now or when the user triggers fill?
-    // await this.passwordGenerationService.addHistory(password);
+    await this.passwordGenerationService.addHistory(password);
 
     return password;
   }
@@ -1599,6 +1597,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
         passkeys: this.i18nService.translate("passkeys"),
         passwords: this.i18nService.translate("passwords"),
         logInWithPasskey: this.i18nService.translate("logInWithPasskeyAriaLabel"),
+        useGeneratedPassword: this.i18nService.translate("useGeneratedPassword"),
       };
     }
 
@@ -2306,6 +2305,15 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       this.portKeyForTab[port.sender.tab.id] = generateRandomChars(12);
     }
 
+    // TODO: Pull this into a separate method
+    let generatedPassword = null;
+    if (
+      isInlineMenuListPort &&
+      this.focusedFieldData?.inlineMenuFillType === InlineMenuFillType.PasswordGeneration
+    ) {
+      generatedPassword = await this.generatePassword();
+    }
+
     this.storeOverlayPort(port);
     port.onDisconnect.addListener(this.handlePortOnDisconnect);
     port.onMessage.addListener(this.handleOverlayElementPortMessage);
@@ -2331,6 +2339,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       inlineMenuFillType: this.focusedFieldData?.inlineMenuFillType,
       showInlineMenuAccountCreation: this.showInlineMenuAccountCreation(),
       showPasskeysLabels: this.showPasskeysLabelsWithinInlineMenu,
+      generatedPassword,
     });
     this.updateInlineMenuPosition(
       {

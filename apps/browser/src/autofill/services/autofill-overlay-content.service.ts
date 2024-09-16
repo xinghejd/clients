@@ -1021,17 +1021,22 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
       await this.getMostRecentlyFocusedFieldRects(formFieldElement);
     const autofillFieldData = this.formFieldElements.get(formFieldElement);
     let accountCreationFieldType = null;
+
+    // TODO: This should be refactored to ensure we cache the result of the qualification.
     if (
       [InlineMenuFillType.AccountCreation, CipherType.Login].includes(
         autofillFieldData?.inlineMenuFillType,
-      ) &&
-      this.inlineMenuFieldQualificationService.isUsernameField(autofillFieldData)
-    ) {
-      accountCreationFieldType = this.inlineMenuFieldQualificationService.isEmailField(
-        autofillFieldData,
       )
-        ? "email"
-        : autofillFieldData.type;
+    ) {
+      if (this.inlineMenuFieldQualificationService.isUsernameField(autofillFieldData)) {
+        accountCreationFieldType = this.inlineMenuFieldQualificationService.isEmailField(
+          autofillFieldData,
+        )
+          ? "email"
+          : autofillFieldData.type;
+      } else if (this.inlineMenuFieldQualificationService.isNewPasswordField(autofillFieldData)) {
+        autofillFieldData.inlineMenuFillType = InlineMenuFillType.PasswordGeneration;
+      }
     }
 
     this.focusedFieldData = {

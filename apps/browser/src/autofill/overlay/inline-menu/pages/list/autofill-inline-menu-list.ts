@@ -1,19 +1,24 @@
 import "@webcomponents/custom-elements";
 import "lit/polyfill-support.js";
+import { HTMLElement } from "@webcomponents/custom-elements/src/Patch/Native";
+
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { EVENTS, UPDATE_PASSKEYS_HEADINGS_ON_SCROLL } from "@bitwarden/common/autofill/constants";
 import { CipherType } from "@bitwarden/common/vault/enums";
 
 import { InlineMenuCipherData } from "../../../../background/abstractions/overlay.background";
+import { InlineMenuFillType, InlineMenuFillTypes } from "../../../../enums/autofill-overlay.enum";
 import { buildSvgDomElement, throttle } from "../../../../utils";
 import {
   creditCardIcon,
   globeIcon,
   idCardIcon,
   lockIcon,
+  passkeyIcon,
   plusIcon,
   viewCipherIcon,
-  passkeyIcon,
+  keyIcon,
+  refreshIcon,
 } from "../../../../utils/svg-icons";
 import {
   AutofillInlineMenuListWindowMessageHandlers,
@@ -30,7 +35,7 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
   private cipherListScrollIsDebounced = false;
   private cipherListScrollDebounceTimeout: number | NodeJS.Timeout;
   private currentCipherIndex = 0;
-  private inlineMenuFillType: CipherType;
+  private inlineMenuFillType: InlineMenuFillTypes;
   private showInlineMenuAccountCreation: boolean;
   private showPasskeysLabels: boolean;
   private newItemButtonElement: HTMLButtonElement;
@@ -70,6 +75,7 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
    * @param inlineMenuFillType - The type of cipher that fills the current field.
    * @param showInlineMenuAccountCreation - Whether identity ciphers are shown on login fields.
    * @param showPasskeysLabels - Whether passkeys labels are shown in the inline menu list.
+   * @param generatedPassword - The generated password to display in the inline menu list.
    */
   private async initAutofillInlineMenuList({
     translations,
@@ -81,6 +87,7 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
     inlineMenuFillType,
     showInlineMenuAccountCreation,
     showPasskeysLabels,
+    generatedPassword,
   }: InitAutofillInlineMenuListMessage) {
     const linkElement = await this.initAutofillInlineMenuPage(
       "list",
@@ -101,12 +108,17 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
 
     this.shadowDom.append(linkElement, this.inlineMenuListContainer);
 
-    if (authStatus === AuthenticationStatus.Unlocked) {
-      this.updateListItems(ciphers, showInlineMenuAccountCreation);
+    if (authStatus !== AuthenticationStatus.Unlocked) {
+      this.buildLockedInlineMenu();
       return;
     }
 
-    this.buildLockedInlineMenu();
+    if (this.inlineMenuFillType === InlineMenuFillType.PasswordGeneration && generatedPassword) {
+      this.buildPasswordGenerator(generatedPassword);
+      return;
+    }
+
+    this.updateListItems(ciphers, showInlineMenuAccountCreation);
   }
 
   /**
@@ -143,6 +155,131 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
    */
   private handleUnlockButtonClick = () => {
     this.postMessageToParent({ command: "unlockVault" });
+  };
+
+  private buildPasswordGenerator(generatedPassword: string) {
+    const passwordGeneratorContainer = globalThis.document.createElement("div");
+    passwordGeneratorContainer.classList.add("password-generator-container");
+
+    const fillGeneratedPasswordButton = globalThis.document.createElement("button");
+    fillGeneratedPasswordButton.tabIndex = -1;
+    fillGeneratedPasswordButton.classList.add(
+      "fill-generated-password-button",
+      "inline-menu-list-action",
+    );
+
+    const passwordGeneratorHeading = globalThis.document.createElement("div");
+    passwordGeneratorHeading.classList.add("password-generator-heading");
+    passwordGeneratorHeading.textContent = this.getTranslation("useGeneratedPassword");
+
+    const passwordGeneratorContent = globalThis.document.createElement("div");
+    passwordGeneratorContent.id = "password-generator";
+    passwordGeneratorContent.classList.add("password-generator");
+    passwordGeneratorContent.append(
+      passwordGeneratorHeading,
+      this.buildColorizedPasswordElement(generatedPassword),
+    );
+    fillGeneratedPasswordButton.append(buildSvgDomElement(keyIcon), passwordGeneratorContent);
+    fillGeneratedPasswordButton.addEventListener(
+      EVENTS.CLICK,
+      this.handleFillGeneratedPasswordClick,
+    );
+    fillGeneratedPasswordButton.addEventListener(
+      EVENTS.KEYUP,
+      this.handleFillGeneratedPasswordKeyUp,
+    );
+
+    const refreshGeneratedPasswordButton = globalThis.document.createElement("button");
+    refreshGeneratedPasswordButton.tabIndex = -1;
+    refreshGeneratedPasswordButton.classList.add(
+      "refresh-generated-password-button",
+      "inline-menu-list-action",
+    );
+    refreshGeneratedPasswordButton.appendChild(buildSvgDomElement(refreshIcon));
+    refreshGeneratedPasswordButton.addEventListener(
+      EVENTS.CLICK,
+      this.handleRefreshGeneratedPasswordClick,
+    );
+    refreshGeneratedPasswordButton.addEventListener(
+      EVENTS.KEYUP,
+      this.handleRefreshGeneratedPasswordKeyUp,
+    );
+
+    passwordGeneratorContainer.append(fillGeneratedPasswordButton, refreshGeneratedPasswordButton);
+    this.inlineMenuListContainer.appendChild(passwordGeneratorContainer);
+  }
+
+  // TODO - We likely want to combine this behavior with the ColorPasswordPipe used within the Angular app.
+  private buildColorizedPasswordElement(password: string) {
+    const passwordContainer = globalThis.document.createElement("div");
+    passwordContainer.classList.add("colorized-password");
+    const appendPasswordCharacter = (character: string, type: string) => {
+      const characterElement = globalThis.document.createElement("span");
+      characterElement.classList.add(`password-${type}`);
+      characterElement.textContent = character;
+      passwordContainer.appendChild(characterElement);
+    };
+
+    const passwordArray = Array.from(password);
+    for (let i = 0; i < passwordArray.length; i++) {
+      const character = passwordArray[i];
+
+      if (character.match(/\W/)) {
+        appendPasswordCharacter(character, "special");
+        continue;
+      }
+
+      if (character.match(/\d/)) {
+        appendPasswordCharacter(character, "number");
+        continue;
+      }
+
+      appendPasswordCharacter(character, "letter");
+    }
+
+    return passwordContainer;
+  }
+
+  private handleFillGeneratedPasswordClick = () => {
+    this.postMessageToParent({ command: "fillGeneratedPassword" });
+  };
+
+  private handleFillGeneratedPasswordKeyUp = (event: KeyboardEvent) => {
+    if (event.code === "Enter" || event.code === "Space") {
+      this.handleFillGeneratedPasswordClick();
+      return;
+    }
+
+    if (
+      event.code === "ArrowRight" &&
+      event.target instanceof HTMLElement &&
+      event.target.nextElementSibling
+    ) {
+      (event.target.nextElementSibling as HTMLElement).focus();
+      event.target.parentElement.classList.add("remove-outline");
+      return;
+    }
+  };
+
+  private handleRefreshGeneratedPasswordClick = () => {
+    this.postMessageToParent({ command: "refreshGeneratedPassword" });
+  };
+
+  private handleRefreshGeneratedPasswordKeyUp = (event: KeyboardEvent) => {
+    if (event.code === "Enter" || event.code === "Space") {
+      this.handleRefreshGeneratedPasswordClick();
+      return;
+    }
+
+    if (
+      event.code === "ArrowLeft" &&
+      event.target instanceof HTMLElement &&
+      event.target.previousElementSibling
+    ) {
+      (event.target.previousElementSibling as HTMLElement).focus();
+      event.target.parentElement.classList.remove("remove-outline");
+      return;
+    }
   };
 
   /**
