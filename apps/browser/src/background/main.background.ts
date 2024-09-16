@@ -721,16 +721,6 @@ export default class MainBackground {
       this.stateProvider,
     );
 
-    this.configApiService = new ConfigApiService(this.apiService, this.tokenService);
-
-    this.configService = new DefaultConfigService(
-      this.configApiService,
-      this.environmentService,
-      this.logService,
-      this.stateProvider,
-      this.authService,
-    );
-
     const sdkClientFactory = new DefaultSdkClientFactory();
     this.sdkService = new DefaultSdkService(
       sdkClientFactory,
@@ -794,6 +784,16 @@ export default class MainBackground {
     this.ssoLoginService = new SsoLoginService(this.stateProvider);
 
     this.userVerificationApiService = new UserVerificationApiService(this.apiService);
+
+    this.configApiService = new ConfigApiService(this.apiService, this.tokenService);
+
+    this.configService = new DefaultConfigService(
+      this.configApiService,
+      this.environmentService,
+      this.logService,
+      this.stateProvider,
+      this.authService,
+    );
 
     this.bulkEncryptService = new FallbackBulkEncryptService(this.encryptService);
 
