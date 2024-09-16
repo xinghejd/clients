@@ -98,8 +98,6 @@ export class LockV2Component implements OnInit, OnDestroy {
     return this._activeUnlockOptionBSubject.value;
   }
 
-  // pinEnabled = false;
-  // pin = ""; // TODO: remove this and move to formGroup
   private invalidPinAttempts = 0;
 
   biometricUnlockBtnText: string;
@@ -115,14 +113,13 @@ export class LockV2Component implements OnInit, OnDestroy {
   formPromise: Promise<MasterPasswordVerificationResponse>;
   onSuccessfulSubmit: () => Promise<void>; // TODO: remove all callbacks
 
-  // TODO: ensure hostname is shown in anon-layout footer
+  // TODO: ensure hostname is shown in anon-layout footer only
   // envHostname = "";
 
   formGroup: FormGroup;
 
   // Desktop properties:
   private deferFocus: boolean = null;
-  // biometricReady = false;
   private biometricAsked = false;
   private autoPromptBiometric = false;
 
@@ -133,6 +130,8 @@ export class LockV2Component implements OnInit, OnDestroy {
   isFido2Session: boolean = false;
 
   defaultUnlockOptionSetForUser = false;
+
+  unlockingViaBiometrics = false;
 
   constructor(
     private accountService: AccountService,
@@ -311,21 +310,31 @@ export class LockV2Component implements OnInit, OnDestroy {
   }
 
   async unlockViaBiometrics(): Promise<boolean> {
+    this.unlockingViaBiometrics = true;
+
     if (!this.unlockOptions.biometrics.enabled) {
+      this.unlockingViaBiometrics = false;
       return;
     }
 
-    await this.biometricStateService.setUserPromptCancelled();
-    const userKey = await this.cryptoService.getUserKeyFromStorage(
-      KeySuffixOptions.Biometric,
-      this.activeAccount.id,
-    );
+    try {
+      await this.biometricStateService.setUserPromptCancelled();
+      const userKey = await this.cryptoService.getUserKeyFromStorage(
+        KeySuffixOptions.Biometric,
+        this.activeAccount.id,
+      );
 
-    if (userKey) {
-      await this.setUserKeyAndContinue(userKey, false);
+      if (userKey) {
+        await this.setUserKeyAndContinue(userKey, false);
+      }
+
+      this.unlockingViaBiometrics = false;
+
+      return !!userKey;
+    } catch (e) {
+      // TODO: add error handling with dialog per Figma
+      this.unlockingViaBiometrics = false;
     }
-
-    return !!userKey;
   }
 
   togglePassword() {

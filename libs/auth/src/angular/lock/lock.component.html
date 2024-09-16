@@ -14,15 +14,14 @@
       bitButton
       buttonType="primary"
       class="tw-mb-3"
+      [disabled]="unlockingViaBiometrics"
+      [loading]="unlockingViaBiometrics"
       block
       (click)="unlockViaBiometrics()"
     >
-      <!-- TODO: ask if we want to keep biometricUnlockBtnText -->
-      <span *ngIf="biometricUnlockBtnText"> {{ biometricUnlockBtnText | i18n }}</span>
-      <span *ngIf="!biometricUnlockBtnText"> {{ "unlockWithBiometrics" | i18n }}</span>
+      <span> {{ biometricUnlockBtnText | i18n }}</span>
     </button>
 
-    <!-- TODO: wire up disable logic on unlock with biometrics -->
     <div class="tw-flex tw-flex-col tw-space-y-3">
       <p class="tw-text-center tw-mb-0">{{ "or" | i18n }}</p>
 
@@ -90,7 +89,7 @@
             block
             (click)="activeUnlockOption = UnlockOption.Biometrics"
           >
-            {{ "unlockWithBiometrics" | i18n }}
+            <span> {{ biometricUnlockBtnText | i18n }}</span>
           </button>
         </ng-container>
 
@@ -152,7 +151,7 @@
             block
             (click)="activeUnlockOption = UnlockOption.Biometrics"
           >
-            {{ "unlockWithBiometrics" | i18n }}
+            <span> {{ biometricUnlockBtnText | i18n }}</span>
           </button>
         </ng-container>
 
