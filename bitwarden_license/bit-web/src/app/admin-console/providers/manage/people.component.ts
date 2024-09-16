@@ -1,4 +1,4 @@
-import { Component, ViewChild, ViewContainerRef } from "@angular/core";
+import { Component, OnInit, ViewChild, ViewContainerRef } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
 import { lastValueFrom } from "rxjs";
 import { first } from "rxjs/operators";
@@ -15,12 +15,13 @@ import { ProviderUserBulkRequest } from "@bitwarden/common/admin-console/models/
 import { ProviderUserConfirmRequest } from "@bitwarden/common/admin-console/models/request/provider/provider-user-confirm.request";
 import { ProviderUserUserDetailsResponse } from "@bitwarden/common/admin-console/models/response/provider/provider-user.response";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
-import { DialogService } from "@bitwarden/components";
+import { DialogService, ToastService } from "@bitwarden/components";
 import { BasePeopleComponent } from "@bitwarden/web-vault/app/admin-console/common/base.people.component";
 import { openEntityEventsDialog } from "@bitwarden/web-vault/app/admin-console/organizations/manage/entity-events.component";
 import { BulkStatusComponent } from "@bitwarden/web-vault/app/admin-console/organizations/members/components/bulk/bulk-status.component";
@@ -29,12 +30,18 @@ import { BulkConfirmComponent } from "./bulk/bulk-confirm.component";
 import { BulkRemoveComponent } from "./bulk/bulk-remove.component";
 import { UserAddEditComponent } from "./user-add-edit.component";
 
+/**
+ * @deprecated Please use the {@link MembersComponent} instead.
+ */
 @Component({
   selector: "provider-people",
   templateUrl: "people.component.html",
 })
 // eslint-disable-next-line rxjs-angular/prefer-takeuntil
-export class PeopleComponent extends BasePeopleComponent<ProviderUserUserDetailsResponse> {
+export class PeopleComponent
+  extends BasePeopleComponent<ProviderUserUserDetailsResponse>
+  implements OnInit
+{
   @ViewChild("addEdit", { read: ViewContainerRef, static: true }) addEditModalRef: ViewContainerRef;
   @ViewChild("groupsTemplate", { read: ViewContainerRef, static: true })
   groupsModalRef: ViewContainerRef;
@@ -67,6 +74,8 @@ export class PeopleComponent extends BasePeopleComponent<ProviderUserUserDetails
     private providerService: ProviderService,
     dialogService: DialogService,
     organizationManagementPreferencesService: OrganizationManagementPreferencesService,
+    private configService: ConfigService,
+    protected toastService: ToastService,
   ) {
     super(
       apiService,
@@ -81,6 +90,7 @@ export class PeopleComponent extends BasePeopleComponent<ProviderUserUserDetails
       userNamePipe,
       dialogService,
       organizationManagementPreferencesService,
+      toastService,
     );
   }
 
@@ -154,11 +164,11 @@ export class PeopleComponent extends BasePeopleComponent<ProviderUserUserDetails
         comp.name = this.userNamePipe.transform(user);
         comp.providerId = this.providerId;
         comp.providerUserId = user != null ? user.id : null;
-        comp.onSavedUser.subscribe(() => {
+        comp.savedUser.subscribe(() => {
           modal.close();
           this.load();
         });
-        comp.onDeletedUser.subscribe(() => {
+        comp.deletedUser.subscribe(() => {
           modal.close();
           this.removeUser(user);
         });
@@ -205,11 +215,11 @@ export class PeopleComponent extends BasePeopleComponent<ProviderUserUserDetails
     const filteredUsers = users.filter((u) => u.status === ProviderUserStatusType.Invited);
 
     if (filteredUsers.length <= 0) {
-      this.platformUtilsService.showToast(
-        "error",
-        this.i18nService.t("errorOccurred"),
-        this.i18nService.t("noSelectedUsersApplicable"),
-      );
+      this.toastService.showToast({
+        variant: "error",
+        title: this.i18nService.t("errorOccurred"),
+        message: this.i18nService.t("noSelectedUsersApplicable"),
+      });
       return;
     }
 
@@ -225,7 +235,7 @@ export class PeopleComponent extends BasePeopleComponent<ProviderUserUserDetails
           users: users,
           filteredUsers: filteredUsers,
           request: response,
-          successfullMessage: this.i18nService.t("bulkReinviteMessage"),
+          successfulMessage: this.i18nService.t("bulkReinviteMessage"),
         },
       });
       await lastValueFrom(dialogRef.closed);
