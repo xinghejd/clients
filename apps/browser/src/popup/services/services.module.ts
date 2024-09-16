@@ -57,6 +57,7 @@ import { KeyGenerationService } from "@bitwarden/common/platform/abstractions/ke
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService as MessagingServiceAbstraction } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { SdkClientFactory } from "@bitwarden/common/platform/abstractions/sdk/sdk-client-factory";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import {
   AbstractStorageService,
@@ -70,6 +71,7 @@ import { SubjectMessageSender } from "@bitwarden/common/platform/messaging/inter
 import { TaskSchedulerService } from "@bitwarden/common/platform/scheduling";
 import { ConsoleLogService } from "@bitwarden/common/platform/services/console-log.service";
 import { ContainerService } from "@bitwarden/common/platform/services/container.service";
+import { DefaultSdkClientFactory } from "@bitwarden/common/platform/services/sdk/default-sdk-client-factory";
 import { StorageServiceProvider } from "@bitwarden/common/platform/services/storage-service.provider";
 import { WebCryptoFunctionService } from "@bitwarden/common/platform/services/web-crypto-function.service";
 import {
@@ -558,6 +560,11 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: AnonLayoutWrapperDataService,
     useClass: ExtensionAnonLayoutWrapperDataService,
+    deps: [],
+  }),
+  safeProvider({
+    provide: SdkClientFactory,
+    useClass: DefaultSdkClientFactory,
     deps: [],
   }),
 ];

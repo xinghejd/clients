@@ -88,6 +88,7 @@ import { I18nService as I18nServiceAbstraction } from "@bitwarden/common/platfor
 import { KeyGenerationService as KeyGenerationServiceAbstraction } from "@bitwarden/common/platform/abstractions/key-generation.service";
 import { LogService as LogServiceAbstraction } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService as PlatformUtilsServiceAbstraction } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { StateService as StateServiceAbstraction } from "@bitwarden/common/platform/abstractions/state.service";
 import {
   AbstractStorageService,
@@ -125,6 +126,8 @@ import { FileUploadService } from "@bitwarden/common/platform/services/file-uplo
 import { KeyGenerationService } from "@bitwarden/common/platform/services/key-generation.service";
 import { MigrationBuilderService } from "@bitwarden/common/platform/services/migration-builder.service";
 import { MigrationRunner } from "@bitwarden/common/platform/services/migration-runner";
+import { DefaultSdkClientFactory } from "@bitwarden/common/platform/services/sdk/default-sdk-client-factory";
+import { DefaultSdkService } from "@bitwarden/common/platform/services/sdk/default-sdk.service";
 import { StateService } from "@bitwarden/common/platform/services/state.service";
 import { SystemService } from "@bitwarden/common/platform/services/system.service";
 import { UserAutoUnlockKeyService } from "@bitwarden/common/platform/services/user-auto-unlock-key.service";
@@ -362,6 +365,7 @@ export default class MainBackground {
   syncServiceListener: SyncServiceListener;
   themeStateService: DefaultThemeStateService;
   autoSubmitLoginBackground: AutoSubmitLoginBackground;
+  sdkService: SdkService;
 
   onUpdatedRan: boolean;
   onReplacedRan: boolean;
@@ -717,6 +721,23 @@ export default class MainBackground {
       this.stateProvider,
     );
 
+    this.configApiService = new ConfigApiService(this.apiService, this.tokenService);
+
+    this.configService = new DefaultConfigService(
+      this.configApiService,
+      this.environmentService,
+      this.logService,
+      this.stateProvider,
+      this.authService,
+    );
+
+    const sdkClientFactory = new DefaultSdkClientFactory();
+    this.sdkService = new DefaultSdkService(
+      sdkClientFactory,
+      this.environmentService,
+      this.platformUtilsService,
+    );
+
     this.passwordStrengthService = new PasswordStrengthService();
 
     this.passwordGenerationService = legacyPasswordGenerationServiceFactory(
@@ -773,16 +794,6 @@ export default class MainBackground {
     this.ssoLoginService = new SsoLoginService(this.stateProvider);
 
     this.userVerificationApiService = new UserVerificationApiService(this.apiService);
-
-    this.configApiService = new ConfigApiService(this.apiService, this.tokenService);
-
-    this.configService = new DefaultConfigService(
-      this.configApiService,
-      this.environmentService,
-      this.logService,
-      this.stateProvider,
-      this.authService,
-    );
 
     this.bulkEncryptService = new FallbackBulkEncryptService(this.encryptService);
 

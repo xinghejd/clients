@@ -148,7 +148,8 @@ import { KeyGenerationService as KeyGenerationServiceAbstraction } from "@bitwar
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService as MessagingServiceAbstraction } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService as PlatformUtilsServiceAbstraction } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { SdkService } from "@bitwarden/common/platform/abstractions/sdk.service";
+import { SdkClientFactory } from "@bitwarden/common/platform/abstractions/sdk/sdk-client-factory";
+import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { StateService as StateServiceAbstraction } from "@bitwarden/common/platform/abstractions/state.service";
 import { AbstractStorageService } from "@bitwarden/common/platform/abstractions/storage.service";
 import { ValidationService as ValidationServiceAbstraction } from "@bitwarden/common/platform/abstractions/validation.service";
@@ -176,12 +177,12 @@ import { BulkEncryptServiceImplementation } from "@bitwarden/common/platform/ser
 import { MultithreadEncryptServiceImplementation } from "@bitwarden/common/platform/services/cryptography/multithread-encrypt.service.implementation";
 import { DefaultBroadcasterService } from "@bitwarden/common/platform/services/default-broadcaster.service";
 import { DefaultEnvironmentService } from "@bitwarden/common/platform/services/default-environment.service";
-import { DefaultSdkService } from "@bitwarden/common/platform/services/default-sdk.service";
 import { FileUploadService } from "@bitwarden/common/platform/services/file-upload/file-upload.service";
 import { KeyGenerationService } from "@bitwarden/common/platform/services/key-generation.service";
 import { MigrationBuilderService } from "@bitwarden/common/platform/services/migration-builder.service";
 import { MigrationRunner } from "@bitwarden/common/platform/services/migration-runner";
 import { NoopNotificationsService } from "@bitwarden/common/platform/services/noop-notifications.service";
+import { DefaultSdkService } from "@bitwarden/common/platform/services/sdk/default-sdk.service";
 import { StateService } from "@bitwarden/common/platform/services/state.service";
 import { StorageServiceProvider } from "@bitwarden/common/platform/services/storage-service.provider";
 import { UserAutoUnlockKeyService } from "@bitwarden/common/platform/services/user-auto-unlock-key.service";
@@ -1313,7 +1314,7 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: SdkService,
     useClass: DefaultSdkService,
-    deps: [EnvironmentService, PlatformUtilsServiceAbstraction],
+    deps: [SdkClientFactory, EnvironmentService, PlatformUtilsServiceAbstraction],
   }),
 ];
 

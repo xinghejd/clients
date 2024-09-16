@@ -1,27 +1,30 @@
-import { combineLatest, from, map } from "rxjs";
+import { concatMap, of } from "rxjs";
 
 import { BitwardenClient, Convert, DeviceType as SdkDeviceType } from "@bitwarden/sdk-client";
+import * as sdkModule from "@bitwarden/sdk-wasm";
 
-import { DeviceType } from "../../enums/device-type.enum";
-import { EnvironmentService } from "../abstractions/environment.service";
-import { PlatformUtilsService } from "../abstractions/platform-utils.service";
+import { DeviceType } from "../../../enums/device-type.enum";
+import { EnvironmentService } from "../../abstractions/environment.service";
+import { PlatformUtilsService } from "../../abstractions/platform-utils.service";
+import { SdkClientFactory } from "../../abstractions/sdk/sdk-client-factory";
 
 export class DefaultSdkService {
-  private sdkModule = from(import("@bitwarden/sdk-wasm"));
+  private sdkModule = of(sdkModule);
 
-  client$ = combineLatest([this.sdkModule, this.environmentService.environment$]).pipe(
-    map(([module, env]) => {
+  client$ = this.environmentService.environment$.pipe(
+    concatMap(async (env) => {
       const settings_json = Convert.clientSettingsToJson({
         apiUrl: env.getApiUrl(),
         identityUrl: env.getIdentityUrl(),
         deviceType: this.toDevice(this.platformUtilsService.getDevice()),
         userAgent: this.userAgent ?? navigator.userAgent,
       });
-      return new BitwardenClient(new module.BitwardenClient(settings_json, 2));
+      return new BitwardenClient(await this.sdkClientFactory.createSdkClient(settings_json, 2));
     }),
   );
 
   constructor(
+    private sdkClientFactory: SdkClientFactory,
     private environmentService: EnvironmentService,
     private platformUtilsService: PlatformUtilsService,
     private userAgent: string = null,

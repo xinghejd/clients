@@ -39,6 +39,7 @@ import { FileDownloadService } from "@bitwarden/common/platform/abstractions/fil
 import { I18nService as I18nServiceAbstraction } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService as PlatformUtilsServiceAbstraction } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { SdkClientFactory } from "@bitwarden/common/platform/abstractions/sdk/sdk-client-factory";
 import { AbstractStorageService } from "@bitwarden/common/platform/abstractions/storage.service";
 import { BiometricsService } from "@bitwarden/common/platform/biometrics/biometric.service";
 import { ThemeType } from "@bitwarden/common/platform/enums";
@@ -67,6 +68,7 @@ import { I18nService } from "../core/i18n.service";
 import { WebBiometricsService } from "../platform/web-biometric.service";
 import { WebEnvironmentService } from "../platform/web-environment.service";
 import { WebMigrationRunner } from "../platform/web-migration-runner";
+import { WebSdkClientFactory } from "../platform/web-sdk-client-factory";
 import { WebStorageServiceProvider } from "../platform/web-storage-service.provider";
 import { CollectionAdminService } from "../vault/core/collection-admin.service";
 
@@ -213,6 +215,11 @@ const safeProviders: SafeProvider[] = [
     provide: AppIdService,
     useClass: DefaultAppIdService,
     deps: [OBSERVABLE_DISK_LOCAL_STORAGE, LogService],
+  }),
+  safeProvider({
+    provide: SdkClientFactory,
+    useClass: WebSdkClientFactory,
+    deps: [],
   }),
 ];
 
