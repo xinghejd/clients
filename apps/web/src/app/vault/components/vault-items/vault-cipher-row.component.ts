@@ -94,26 +94,55 @@ export class VaultCipherRowComponent implements OnInit {
     return this.useEvents && this.cipher.organizationId;
   }
 
-  protected get isNotDeletedLoginCipher() {
+  protected get isLoginCipher() {
     return this.cipher.type === this.CipherType.Login && !this.cipher.isDeleted;
   }
 
   protected get showCopyPassword(): boolean {
-    return this.isNotDeletedLoginCipher && this.cipher.viewPassword;
+    return this.isLoginCipher && this.cipher.viewPassword;
   }
 
   protected get showCopyTotp(): boolean {
-    return this.isNotDeletedLoginCipher && this.showTotpCopyButton;
+    return this.isLoginCipher && this.showTotpCopyButton;
   }
 
   protected get showLaunchUri(): boolean {
-    return this.isNotDeletedLoginCipher && this.cipher.login.canLaunch;
+    return this.isLoginCipher && this.cipher.login.canLaunch;
+  }
+
+  protected get isCardCipher(): boolean {
+    return this.cipher.type === this.CipherType.Card && !this.cipher.isDeleted;
+  }
+
+  protected get hasCardValues(): boolean {
+    return !!this.cipher.card.number || !!this.cipher.card.code;
+  }
+
+  protected get isIdentityCipher() {
+    return this.cipher.type === this.CipherType.Identity && !this.cipher.isDeleted;
+  }
+
+  protected get hasIdentityValues(): boolean {
+    return (
+      !!this.cipher.identity.fullAddressForCopy ||
+      !!this.cipher.identity.email ||
+      !!this.cipher.identity.username ||
+      !!this.cipher.identity.phone
+    );
+  }
+
+  protected get isSecureNoteCipher() {
+    return this.cipher.type === this.CipherType.SecureNote && !this.cipher.isDeleted;
+  }
+
+  protected get hasSecureNoteValue(): boolean {
+    return !!this.cipher.notes;
   }
 
   protected get disableMenu() {
     return (
       !(
-        this.isNotDeletedLoginCipher ||
+        this.isLoginCipher ||
         this.showCopyPassword ||
         this.showCopyTotp ||
         this.showLaunchUri ||
@@ -161,10 +190,22 @@ export class VaultCipherRowComponent implements OnInit {
     this.onEvent.emit({ type: "assignToCollections", items: [this.cipher] });
   }
 
+  protected toggleFavorite() {
+    this.cipher.favorite = !this.cipher.favorite;
+    this.onEvent.emit({
+      type: "toggleFavorite",
+      item: this.cipher,
+    });
+  }
+
+  protected editCipher() {
+    this.onEvent.emit({ type: "editCipher", item: this.cipher });
+  }
+
   @HostListener("contextmenu", ["$event"])
   protected onRightClick(event: MouseEvent) {
     if (!this.disabled || !this.disableMenu) {
-      this.menuTrigger.toggleMenuOnRightClick({ x: event.clientX, y: event.clientY });
+      this.menuTrigger.toggleMenuOnRightClick(event);
     }
   }
 }
