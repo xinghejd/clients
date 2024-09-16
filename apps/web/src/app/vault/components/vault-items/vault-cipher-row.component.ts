@@ -22,7 +22,6 @@ export class VaultCipherRowComponent implements OnInit {
    * Flag to determine if the extension refresh feature flag is enabled.
    */
   protected extensionRefreshEnabled = false;
-  protected restrictProviderAccess = false;
 
   @Input() disabled: boolean;
   @Input() cipher: CipherView;
@@ -56,9 +55,6 @@ export class VaultCipherRowComponent implements OnInit {
   async ngOnInit(): Promise<void> {
     this.extensionRefreshEnabled = await firstValueFrom(
       this.configService.getFeatureFlag$(FeatureFlag.ExtensionRefresh),
-    );
-    this.restrictProviderAccess = await this.configService.getFeatureFlag(
-      FeatureFlag.RestrictProviderAccess,
     );
     if (this.cipher.organizationId != null) {
       this.organization = this.organizations.find((o) => o.id === this.cipher.organizationId);
@@ -164,6 +160,6 @@ export class VaultCipherRowComponent implements OnInit {
       return true; // Always show checkbox in individual vault or for non-org items
     }
 
-    return this.organization.canEditAllCiphers(this.restrictProviderAccess) || this.cipher.edit;
+    return this.organization.canEditAllCiphers || this.cipher.edit;
   }
 }
