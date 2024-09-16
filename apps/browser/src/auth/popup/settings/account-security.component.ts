@@ -426,6 +426,7 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
               message: this.i18nService.t("errorEnableBiometricDesc"),
             });
           }
+          await this.biometricStateService.setBiometricUnlockEnabled(result);
         } catch (e) {
           // prevent duplicate dialog
           biometricsResponseReceived = true;

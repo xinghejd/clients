@@ -5,6 +5,7 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { AutofillOverlayVisibility, ExtensionCommand } from "@bitwarden/common/autofill/constants";
 import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { BiometricsCommands } from "@bitwarden/common/key-management/biometrics/biometrics-commands";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
@@ -67,10 +68,10 @@ export default class RuntimeBackground {
       sendResponse: (response: any) => void,
     ) => {
       const messagesWithResponse = [
-        "authenticateWithBiometrics",
-        "biometricStatus",
-        "unlockWithBiometricsForUser",
-        "getBiometricsStatusForUser",
+        BiometricsCommands.AuthenticateWithBiometrics,
+        BiometricsCommands.GetBiometricsStatus,
+        BiometricsCommands.UnlockWithBiometricsForUser,
+        BiometricsCommands.GetBiometricsStatusForUser,
         "getUseTreeWalkerApiForPageDetailsCollectionFeatureFlag",
         "getInlineMenuFieldQualificationFeatureFlag",
       ];

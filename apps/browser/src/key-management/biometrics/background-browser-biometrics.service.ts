@@ -20,7 +20,7 @@ export class BackgroundBrowserBiometricsService extends BiometricsService {
       const response = await this.nativeMessagingBackground().callCommand({
         command: BiometricsCommands.AuthenticateWithBiometrics,
       });
-      return response;
+      return response.response;
     } catch (e) {
       return false;
     }

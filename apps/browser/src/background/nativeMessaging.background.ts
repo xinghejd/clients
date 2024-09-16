@@ -314,6 +314,7 @@ export class NativeMessagingBackground {
   }
 
   private async onMessage(rawMessage: ReceiveMessage | EncString) {
+    this.logService.info("[Native Messaging IPC] Received message", rawMessage);
     let message = rawMessage as ReceiveMessage;
     if (!this.platformUtilsService.isSafari()) {
       message = JSON.parse(
@@ -326,7 +327,15 @@ export class NativeMessagingBackground {
       return;
     }
 
+    this.logService.info("[Native Messaging IPC] Received message", message);
     const messageId = message.messageId;
+    this.logService.info(
+      "[Native Messaging IPC] Received message of type " +
+        message.command +
+        " with id " +
+        messageId +
+        " from Bitwarden Desktop app...",
+    );
 
     if (this.callbacks.has(messageId)) {
       this.callbacks.get(messageId).resolver(message);
