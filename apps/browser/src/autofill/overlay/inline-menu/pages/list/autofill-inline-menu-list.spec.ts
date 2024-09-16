@@ -83,7 +83,7 @@ describe("AutofillInlineMenuList", () => {
           createInitAutofillInlineMenuListMessageMock({
             authStatus: AuthenticationStatus.Unlocked,
             ciphers: [],
-            filledByCipherType: CipherType.Card,
+            inlineMenuFillType: CipherType.Card,
             portKey,
           }),
         );
@@ -96,7 +96,7 @@ describe("AutofillInlineMenuList", () => {
           createInitAutofillInlineMenuListMessageMock({
             authStatus: AuthenticationStatus.Unlocked,
             ciphers: [],
-            filledByCipherType: CipherType.Identity,
+            inlineMenuFillType: CipherType.Identity,
             portKey,
           }),
         );
@@ -109,7 +109,7 @@ describe("AutofillInlineMenuList", () => {
           createInitAutofillInlineMenuListMessageMock({
             authStatus: AuthenticationStatus.Unlocked,
             ciphers: [],
-            filledByCipherType: undefined,
+            inlineMenuFillType: undefined,
             portKey,
           }),
         );
@@ -142,7 +142,7 @@ describe("AutofillInlineMenuList", () => {
       it("creates the views for a list of card ciphers", () => {
         postWindowMessage(
           createInitAutofillInlineMenuListMessageMock({
-            filledByCipherType: CipherType.Card,
+            inlineMenuFillType: CipherType.Card,
             ciphers: [
               createAutofillOverlayCipherDataMock(1, {
                 type: CipherType.Card,
@@ -172,7 +172,7 @@ describe("AutofillInlineMenuList", () => {
       it("creates the views for a list of identity ciphers", () => {
         postWindowMessage(
           createInitAutofillInlineMenuListMessageMock({
-            filledByCipherType: CipherType.Card,
+            inlineMenuFillType: CipherType.Card,
             ciphers: [
               createAutofillOverlayCipherDataMock(1, {
                 type: CipherType.Identity,
@@ -438,7 +438,7 @@ describe("AutofillInlineMenuList", () => {
         beforeEach(async () => {
           postWindowMessage(
             createInitAutofillInlineMenuListMessageMock({
-              filledByCipherType: CipherType.Login,
+              inlineMenuFillType: CipherType.Login,
               showInlineMenuAccountCreation: true,
               portKey,
               ciphers: [

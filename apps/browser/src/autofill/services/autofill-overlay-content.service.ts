@@ -4,10 +4,10 @@ import { FocusableElement, tabbable } from "tabbable";
 
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import {
-  EVENTS,
-  AutofillOverlayVisibility,
   AUTOFILL_OVERLAY_HANDLE_REPOSITION,
   AUTOFILL_TRIGGER_FORM_FIELD_SUBMIT,
+  AutofillOverlayVisibility,
+  EVENTS,
 } from "@bitwarden/common/autofill/constants";
 import { CipherType } from "@bitwarden/common/vault/enums";
 
@@ -22,6 +22,7 @@ import { AutofillExtensionMessage } from "../content/abstractions/autofill-init"
 import { AutofillFieldQualifier, AutofillFieldQualifierType } from "../enums/autofill-field.enums";
 import {
   AutofillOverlayElement,
+  InlineMenuFillType,
   MAX_SUB_FRAME_DEPTH,
   RedirectFocusDirection,
 } from "../enums/autofill-overlay.enum";
@@ -426,7 +427,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
   ) {
     if (
       !elementIsFillableFormField(formFieldElement) ||
-      autofillFieldData.filledByCipherType === CipherType.Card
+      autofillFieldData.inlineMenuFillType === CipherType.Card
     ) {
       return;
     }
@@ -780,7 +781,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     }
 
     if (!autofillFieldData.fieldQualifier) {
-      switch (autofillFieldData.filledByCipherType) {
+      switch (autofillFieldData.inlineMenuFillType) {
         case CipherType.Login:
           this.qualifyUserFilledLoginField(autofillFieldData);
           break;
@@ -1021,8 +1022,9 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     const autofillFieldData = this.formFieldElements.get(formFieldElement);
     let accountCreationFieldType = null;
     if (
-      (autofillFieldData?.showInlineMenuAccountCreation ||
-        autofillFieldData?.filledByCipherType === CipherType.Login) &&
+      [InlineMenuFillType.AccountCreation, CipherType.Login].includes(
+        autofillFieldData?.inlineMenuFillType,
+      ) &&
       this.inlineMenuFieldQualificationService.isUsernameField(autofillFieldData)
     ) {
       accountCreationFieldType = this.inlineMenuFieldQualificationService.isEmailField(
@@ -1035,8 +1037,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     this.focusedFieldData = {
       focusedFieldStyles: { paddingRight, paddingLeft },
       focusedFieldRects: { width, height, top, left },
-      filledByCipherType: autofillFieldData?.filledByCipherType,
-      showInlineMenuAccountCreation: autofillFieldData?.showInlineMenuAccountCreation,
+      inlineMenuFillType: autofillFieldData?.inlineMenuFillType,
       showPasskeys: !!autofillFieldData?.showPasskeys,
       accountCreationFieldType,
     };
@@ -1119,7 +1120,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     if (
       this.inlineMenuFieldQualificationService.isFieldForLoginForm(autofillFieldData, pageDetails)
     ) {
-      autofillFieldData.filledByCipherType = CipherType.Login;
+      autofillFieldData.inlineMenuFillType = CipherType.Login;
       autofillFieldData.showPasskeys = autofillFieldData.autoCompleteType.includes("webauthn");
       return false;
     }
@@ -1130,7 +1131,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
         pageDetails,
       )
     ) {
-      autofillFieldData.filledByCipherType = CipherType.Card;
+      autofillFieldData.inlineMenuFillType = CipherType.Card;
       return false;
     }
 
@@ -1140,8 +1141,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
         pageDetails,
       )
     ) {
-      autofillFieldData.filledByCipherType = CipherType.Identity;
-      autofillFieldData.showInlineMenuAccountCreation = true;
+      autofillFieldData.inlineMenuFillType = InlineMenuFillType.AccountCreation;
       return false;
     }
 
@@ -1151,7 +1151,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
         pageDetails,
       )
     ) {
-      autofillFieldData.filledByCipherType = CipherType.Identity;
+      autofillFieldData.inlineMenuFillType = CipherType.Identity;
       return false;
     }
 

@@ -605,7 +605,7 @@ describe("AutofillOverlayContentService", () => {
               elementNumber: 3,
               autoCompleteType: "cc-number",
               type: "text",
-              filledByCipherType: CipherType.Card,
+              inlineMenuFillType: CipherType.Card,
               viewable: true,
             });
             selectFieldElement = document.createElement(
@@ -617,7 +617,7 @@ describe("AutofillOverlayContentService", () => {
               elementNumber: 4,
               autoCompleteType: "cc-type",
               type: "select",
-              filledByCipherType: CipherType.Card,
+              inlineMenuFillType: CipherType.Card,
               viewable: true,
             });
             pageDetailsMock.fields = [inputFieldData, selectFieldData];
@@ -752,7 +752,7 @@ describe("AutofillOverlayContentService", () => {
               elementNumber: 3,
               autoCompleteType: "given-name",
               type: "text",
-              filledByCipherType: CipherType.Identity,
+              inlineMenuFillType: CipherType.Identity,
               viewable: true,
             });
             pageDetailsMock.fields = [inputFieldData];
@@ -1464,7 +1464,7 @@ describe("AutofillOverlayContentService", () => {
             expect.any(Function),
           );
           expect(autofillFieldElement.removeEventListener).toHaveBeenCalled();
-          expect(inputAccountFieldData.filledByCipherType).toEqual(CipherType.Identity);
+          expect(inputAccountFieldData.inlineMenuFillType).toEqual(CipherType.Identity);
           expect(inputAccountFieldData.showInlineMenuAccountCreation).toEqual(true);
         });
       });
@@ -2052,7 +2052,7 @@ describe("AutofillOverlayContentService", () => {
             autofillOverlayContentService["focusedFieldData"] = {
               focusedFieldStyles: { paddingRight: "10", paddingLeft: "10" },
               focusedFieldRects: { width: 10, height: 10, top: 10, left: 10 },
-              filledByCipherType: CipherType.Login,
+              inlineMenuFillType: CipherType.Login,
             };
           });
 

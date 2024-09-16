@@ -1,13 +1,13 @@
 import {
+  debounceTime,
   firstValueFrom,
+  map,
   merge,
+  Observable,
   ReplaySubject,
   Subject,
-  throttleTime,
   switchMap,
-  debounceTime,
-  Observable,
-  map,
+  throttleTime,
 } from "rxjs";
 import { parse } from "tldts";
 
@@ -41,6 +41,7 @@ import { Fido2CredentialView } from "@bitwarden/common/vault/models/view/fido2-c
 import { IdentityView } from "@bitwarden/common/vault/models/view/identity.view";
 import { LoginUriView } from "@bitwarden/common/vault/models/view/login-uri.view";
 import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
+import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legacy";
 
 import { openUnlockPopout } from "../../auth/popup/utils/auth-popout-window";
 import { BrowserApi } from "../../platform/browser/browser-api";
@@ -51,6 +52,7 @@ import {
 import {
   AutofillOverlayElement,
   AutofillOverlayPort,
+  InlineMenuFillType,
   MAX_SUB_FRAME_DEPTH,
 } from "../enums/autofill-overlay.enum";
 import { AutofillService } from "../services/abstractions/autofill.service";
@@ -184,9 +186,20 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     private platformUtilsService: PlatformUtilsService,
     private vaultSettingsService: VaultSettingsService,
     private fido2ActiveRequestManager: Fido2ActiveRequestManager,
+    private passwordGenerationService: PasswordGenerationServiceAbstraction,
     private themeStateService: ThemeStateService,
   ) {
     this.initOverlayEventObservables();
+  }
+
+  private async generatePassword(): Promise<string> {
+    const options = (await this.passwordGenerationService.getOptions())?.[0] ?? {};
+    const password = await this.passwordGenerationService.generatePassword(options);
+
+    // TODO: Should this be added to the history now or when the user triggers fill?
+    // await this.passwordGenerationService.addHistory(password);
+
+    return password;
   }
 
   /**
@@ -469,7 +482,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
 
     for (let cipherIndex = 0; cipherIndex < inlineMenuCiphersArray.length; cipherIndex++) {
       const [inlineMenuCipherId, cipher] = inlineMenuCiphersArray[cipherIndex];
-      if (this.focusedFieldData?.filledByCipherType !== cipher.type) {
+      if (this.focusedFieldData?.inlineMenuFillType !== cipher.type) {
         continue;
       }
 
@@ -628,11 +641,11 @@ export class OverlayBackground implements OverlayBackgroundInterface {
    * Identifies whether the inline menu is being shown on an account creation field.
    */
   private showInlineMenuAccountCreation(): boolean {
-    if (typeof this.focusedFieldData?.showInlineMenuAccountCreation !== "undefined") {
-      return this.focusedFieldData?.showInlineMenuAccountCreation;
+    if (this.focusedFieldData?.inlineMenuFillType === InlineMenuFillType.AccountCreation) {
+      return true;
     }
 
-    if (this.focusedFieldData?.filledByCipherType !== CipherType.Login) {
+    if (this.focusedFieldData?.inlineMenuFillType !== CipherType.Login) {
       return false;
     }
 
@@ -1340,8 +1353,8 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     this.isFieldCurrentlyFocused = true;
 
     const accountCreationFieldBlurred =
-      previousFocusedFieldData?.showInlineMenuAccountCreation &&
-      !this.focusedFieldData.showInlineMenuAccountCreation;
+      previousFocusedFieldData?.inlineMenuFillType === InlineMenuFillType.AccountCreation &&
+      this.focusedFieldData.inlineMenuFillType !== InlineMenuFillType.AccountCreation;
 
     if (accountCreationFieldBlurred || this.showInlineMenuAccountCreation()) {
       this.updateIdentityCiphersOnLoginField(previousFocusedFieldData).catch((error) =>
@@ -1350,8 +1363,8 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       return;
     }
 
-    if (previousFocusedFieldData?.filledByCipherType !== focusedFieldData?.filledByCipherType) {
-      const updateAllCipherTypes = focusedFieldData.filledByCipherType !== CipherType.Login;
+    if (previousFocusedFieldData?.inlineMenuFillType !== focusedFieldData?.inlineMenuFillType) {
+      const updateAllCipherTypes = focusedFieldData.inlineMenuFillType !== CipherType.Login;
       this.updateOverlayCiphers(updateAllCipherTypes).catch((error) =>
         this.logService.error(error),
       );
@@ -2315,7 +2328,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       portName: isInlineMenuListPort
         ? AutofillOverlayPort.ListMessageConnector
         : AutofillOverlayPort.ButtonMessageConnector,
-      filledByCipherType: this.focusedFieldData?.filledByCipherType,
+      inlineMenuFillType: this.focusedFieldData?.inlineMenuFillType,
       showInlineMenuAccountCreation: this.showInlineMenuAccountCreation(),
       showPasskeysLabels: this.showPasskeysLabelsWithinInlineMenu,
     });

@@ -1,3 +1,5 @@
+import { CipherType } from "@bitwarden/common/vault/enums";
+
 export const AutofillOverlayElement = {
   Button: "autofill-inline-menu-button",
   List: "autofill-inline-menu-list",
@@ -18,5 +20,11 @@ export const RedirectFocusDirection = {
   Previous: "previous",
   Next: "next",
 } as const;
+
+export enum InlineMenuFillType {
+  AccountCreation = 5,
+  PasswordGeneration = 6,
+}
+export type InlineMenuFillTypes = InlineMenuFillType | CipherType;
 
 export const MAX_SUB_FRAME_DEPTH = 8;

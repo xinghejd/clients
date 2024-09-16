@@ -215,7 +215,7 @@ export function createInitAutofillInlineMenuListMessageMock(
     theme: ThemeType.Light,
     authStatus: AuthenticationStatus.Unlocked,
     portKey: "portKey",
-    filledByCipherType: CipherType.Login,
+    inlineMenuFillType: CipherType.Login,
     ciphers: [
       createAutofillOverlayCipherDataMock(1, {
         icon: {
@@ -264,7 +264,7 @@ export function createFocusedFieldDataMock(
       paddingRight: "6px",
       paddingLeft: "6px",
     },
-    filledByCipherType: CipherType.Login,
+    inlineMenuFillType: CipherType.Login,
     tabId: 1,
     frameId: 2,
     ...customFields,

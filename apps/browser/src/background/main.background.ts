@@ -1610,6 +1610,7 @@ export default class MainBackground {
         this.platformUtilsService,
         this.vaultSettingsService,
         this.fido2ActiveRequestManager,
+        this.passwordGenerationService,
         this.themeStateService,
       );
     }
