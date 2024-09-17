@@ -1,6 +1,7 @@
 import { Observable } from "rxjs";
 
-import { CollectionId, UserId } from "../../types/guid";
+import { CollectionId, OrganizationId, UserId } from "../../types/guid";
+import { OrgKey } from "../../types/key";
 import { CollectionData } from "../models/data/collection.data";
 import { Collection } from "../models/domain/collection";
 import { TreeNode } from "../models/domain/tree-node";
@@ -15,15 +16,17 @@ export abstract class CollectionService {
   /**
    * @deprecated This method will soon be made private, use `decryptedCollectionViews$` instead.
    */
-  decryptMany: (collections: Collection[]) => Promise<CollectionView[]>;
+  decryptMany: (
+    collections: Collection[],
+    orgKeys: Record<OrganizationId, OrgKey>,
+  ) => Promise<CollectionView[]>;
   get: (id: string) => Promise<Collection>;
   getAll: () => Promise<Collection[]>;
   getAllDecrypted: () => Promise<CollectionView[]>;
   getAllNested: (collections?: CollectionView[]) => Promise<TreeNode<CollectionView>[]>;
   getNested: (id: string) => Promise<TreeNode<CollectionView>>;
-}
 
-export abstract class InternalCollectionService extends CollectionService {
+  // TODO; internal?
   upsert: (collection: CollectionData | CollectionData[]) => Promise<any>;
   replace: (collections: { [id: string]: CollectionData }, userId: UserId) => Promise<any>;
   clear: (userId?: string) => Promise<void>;

@@ -30,18 +30,14 @@ const ENCRYPTED_COLLECTION_DATA_KEY = UserKeyDefinition.record<CollectionData, C
   },
 );
 
-const DECRYPTED_COLLECTION_DATA_KEY_2 = new DeriveDefinition<
+const DECRYPTED_COLLECTION_DATA_KEY = new DeriveDefinition<
   [Record<CollectionId, CollectionData>, Record<OrganizationId, OrgKey>],
   CollectionView[],
   { collectionService: CollectionService }
 >(COLLECTION_DATA, "decryptedCollections", {
   deserializer: (obj) => obj.map((collection) => CollectionView.fromJSON(collection)),
   derive: async ([collections, orgKeys], { collectionService }) => {
-    const data: Collection[] = [];
-    for (const id in collections ?? {}) {
-      const collectionId = id as CollectionId;
-      data.push(new Collection(collections[collectionId]));
-    }
+    const data = Object.values(collections).map((c) => new Collection(c));
     return await collectionService.decryptMany(data, orgKeys);
   },
 });
@@ -68,13 +64,7 @@ export class CollectionService implements CollectionServiceAbstraction {
     this.encryptedCollectionDataState = this.stateProvider.getActive(ENCRYPTED_COLLECTION_DATA_KEY);
 
     this.encryptedCollections$ = this.encryptedCollectionDataState.state$.pipe(
-      map((collections) => {
-        const response: Collection[] = [];
-        for (const id in collections ?? {}) {
-          response.push(new Collection(collections[id as CollectionId]));
-        }
-        return response;
-      }),
+      map((collections) => Object.values(collections).map((c) => new Collection(c))),
     );
 
     const encryptedCollectionsWithKeys = this.encryptedCollectionDataState.combinedState$.pipe(
@@ -85,7 +75,7 @@ export class CollectionService implements CollectionServiceAbstraction {
 
     this.decryptedCollectionDataState = this.stateProvider.getDerived(
       encryptedCollectionsWithKeys,
-      DECRYPTED_COLLECTION_DATA_KEY_2,
+      DECRYPTED_COLLECTION_DATA_KEY,
       { collectionService: this },
     );
 
@@ -113,8 +103,7 @@ export class CollectionService implements CollectionServiceAbstraction {
     return collection;
   }
 
-  // TODO: finish making this private and refactor outside callers to use another service
-  private async decryptMany(
+  async decryptMany(
     collections: Collection[],
     orgKeys: Record<OrganizationId, OrgKey>,
   ): Promise<CollectionView[]> {
