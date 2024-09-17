@@ -89,7 +89,9 @@ export class SendAddEditComponent {
    * Handles the event when the send is saved.
    */
   onSendSaved() {
-    this.location.back();
+    if (this.config.mode !== "add") {
+      this.location.back();
+    }
   }
 
   /**

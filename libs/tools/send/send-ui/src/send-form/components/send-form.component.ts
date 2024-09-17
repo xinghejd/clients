@@ -14,6 +14,7 @@ import {
 } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, ReactiveFormsModule } from "@angular/forms";
+import { Router } from "@angular/router";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { SendType } from "@bitwarden/common/tools/send/enums/send-type";
@@ -187,6 +188,7 @@ export class SendFormComponent implements AfterViewInit, OnInit, OnChanges, Send
     private addEditFormService: SendFormService,
     private toastService: ToastService,
     private i18nService: I18nService,
+    private router: Router,
   ) {}
 
   onFileSelected(file: File): void {
@@ -201,16 +203,24 @@ export class SendFormComponent implements AfterViewInit, OnInit, OnChanges, Send
 
     await this.addEditFormService.saveSend(this.updatedSendView, this.file, this.config);
 
+    const sendView = await this.addEditFormService.saveSend(
+      this.updatedSendView,
+      null,
+      this.config,
+    );
+
+    if (this.config.mode === "add") {
+      await this.router.navigate(["/send-created"], {
+        queryParams: { sendId: sendView.id },
+      });
+      return;
+    }
+
     this.toastService.showToast({
       variant: "success",
       title: null,
-      message: this.i18nService.t(
-        this.config.mode === "edit" || this.config.mode === "partial-edit"
-          ? "editedItem"
-          : "addedItem",
-      ),
+      message: this.i18nService.t("editedItem"),
     });
-
     this.sendSaved.emit(this.updatedSendView);
   };
 }
