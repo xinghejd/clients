@@ -426,3 +426,37 @@ export function getSubmitButtonKeywordsSet(element: HTMLElement): Set<string> {
 
   return keywordsSet;
 }
+
+/**
+ * Generates the origin and subdomain match patterns for the URL.
+ *
+ * @param url - The URL of the tab
+ */
+export function generateMatchPatterns(url: string): string[] {
+  try {
+    if (!url.startsWith("http")) {
+      url = `https://${url}`;
+    }
+
+    const originMatchPattern = `${new URL(url).origin}/*`;
+
+    const parsedUrl = new URL(url);
+    const splitHost = parsedUrl.hostname.split(".");
+    const domain = splitHost.slice(-2).join(".");
+    const subDomainMatchPattern = `${parsedUrl.protocol}//*.${domain}/*`;
+
+    return [originMatchPattern, subDomainMatchPattern];
+  } catch {
+    return [];
+  }
+}
+
+/**
+ * Determines if the status code of the web response is invalid. An invalid status code is
+ * any status code that is not in the 200-299 range.
+ *
+ * @param statusCode - The status code of the web response
+ */
+export function isInvalidStatusCode(statusCode: number) {
+  return statusCode < 200 || statusCode >= 300;
+}

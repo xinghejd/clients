@@ -14,6 +14,7 @@ import {
   plusIcon,
   viewCipherIcon,
   passkeyIcon,
+  spinnerIcon,
 } from "../../../../utils/svg-icons";
 import {
   AutofillInlineMenuListWindowMessageHandlers,
@@ -159,12 +160,7 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
     this.ciphers = ciphers;
     this.currentCipherIndex = 0;
     this.showInlineMenuAccountCreation = showInlineMenuAccountCreation;
-    if (this.inlineMenuListContainer) {
-      this.inlineMenuListContainer.innerHTML = "";
-      this.inlineMenuListContainer.classList.remove(
-        "inline-menu-list-container--with-new-item-button",
-      );
-    }
+    this.resetInlineMenuContainer();
 
     if (!ciphers?.length) {
       this.buildNoResultsInlineMenuList();
@@ -189,6 +185,18 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
     this.inlineMenuListContainer.appendChild(addNewLoginButtonContainer);
     this.inlineMenuListContainer.classList.add("inline-menu-list-container--with-new-item-button");
     this.newItemButtonElement.addEventListener(EVENTS.KEYUP, this.handleNewItemButtonKeyUpEvent);
+  }
+
+  /**
+   * Clears and resets the inline menu list container.
+   */
+  private resetInlineMenuContainer() {
+    if (this.inlineMenuListContainer) {
+      this.inlineMenuListContainer.innerHTML = "";
+      this.inlineMenuListContainer.classList.remove(
+        "inline-menu-list-container--with-new-item-button",
+      );
+    }
   }
 
   /**
@@ -330,7 +338,7 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
       this.ciphersList.addEventListener(
         EVENTS.SCROLL,
         this.useEventHandlersMemo(
-          throttle(() => this.updatePasskeysHeadingsOnScroll(this.ciphersList.scrollTop), 50),
+          throttle(this.handleThrottledPasskeysHeadingsOnScroll, 50),
           UPDATE_PASSKEYS_HEADINGS_ON_SCROLL,
         ),
         options,
@@ -342,7 +350,10 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
    * Handles updating the list of ciphers when the
    * user scrolls to the bottom of the list.
    */
-  private updateCiphersListOnScroll = () => {
+  private updateCiphersListOnScroll = (event: MouseEvent) => {
+    event.preventDefault();
+    event.stopPropagation();
+
     if (this.cipherListScrollIsDebounced) {
       return;
     }
@@ -380,6 +391,13 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
     if (scrollPercentage >= 80) {
       this.loadPageOfCiphers();
     }
+  };
+
+  private handleThrottledPasskeysHeadingsOnScroll = (event: MouseEvent) => {
+    event.preventDefault();
+    event.stopPropagation();
+
+    this.updatePasskeysHeadingsOnScroll(this.ciphersList.scrollTop);
   };
 
   /**
@@ -596,14 +614,21 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
   private handleFillCipherClickEvent = (cipher: InlineMenuCipherData) => {
     const usePasskey = !!cipher.login?.passkey;
     return this.useEventHandlersMemo(
-      () =>
-        this.postMessageToParent({
-          command: "fillAutofillInlineMenuCipher",
-          inlineMenuCipherId: cipher.id,
-          usePasskey,
-        }),
+      () => this.triggerFillCipherClickEvent(cipher, usePasskey),
       `${cipher.id}-fill-cipher-button-click-handler-${usePasskey ? "passkey" : ""}`,
     );
+  };
+
+  private triggerFillCipherClickEvent = (cipher: InlineMenuCipherData, usePasskey: boolean) => {
+    if (usePasskey) {
+      this.createPasskeyAuthenticatingLoader();
+    }
+
+    this.postMessageToParent({
+      command: "fillAutofillInlineMenuCipher",
+      inlineMenuCipherId: cipher.id,
+      usePasskey,
+    });
   };
 
   /**
@@ -887,6 +912,17 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
     }
 
     return cipherDetailsElement;
+  }
+
+  private createPasskeyAuthenticatingLoader() {
+    this.resetInlineMenuContainer();
+
+    const passkeyAuthenticatingLoader = globalThis.document.createElement("div");
+    passkeyAuthenticatingLoader.classList.add("passkey-authenticating-loader");
+    passkeyAuthenticatingLoader.textContent = this.getTranslation("authenticating");
+    passkeyAuthenticatingLoader.appendChild(buildSvgDomElement(spinnerIcon));
+
+    this.inlineMenuListContainer.appendChild(passkeyAuthenticatingLoader);
   }
 
   /**
