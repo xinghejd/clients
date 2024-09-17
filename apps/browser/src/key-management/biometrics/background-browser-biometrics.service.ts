@@ -17,6 +17,8 @@ export class BackgroundBrowserBiometricsService extends BiometricsService {
 
   async authenticateWithBiometrics(): Promise<boolean> {
     try {
+      await this.ensureConnected();
+
       if (this.nativeMessagingBackground().isConnectedToOutdatedDesktopClient) {
         const response = await this.nativeMessagingBackground().callCommand({
           command: BiometricsCommands.Unlock,
@@ -35,17 +37,22 @@ export class BackgroundBrowserBiometricsService extends BiometricsService {
 
   async getBiometricsStatus(): Promise<BiometricsStatus> {
     try {
+      await this.ensureConnected();
+
       if (this.nativeMessagingBackground().isConnectedToOutdatedDesktopClient) {
         const response = await this.nativeMessagingBackground().callCommand({
           command: BiometricsCommands.IsAvailable,
         });
-        return response.response == "available"
-          ? BiometricsStatus.Available
-          : BiometricsStatus.HardwareUnavailable;
+        const resp =
+          response.response == "available"
+            ? BiometricsStatus.Available
+            : BiometricsStatus.HardwareUnavailable;
+        return resp;
       } else {
         const response = await this.nativeMessagingBackground().callCommand({
           command: BiometricsCommands.GetBiometricsStatus,
         });
+
         if (response.response) {
           return response.response;
         }
@@ -58,6 +65,8 @@ export class BackgroundBrowserBiometricsService extends BiometricsService {
 
   async unlockWithBiometricsForUser(userId: UserId): Promise<UserKey> {
     try {
+      await this.ensureConnected();
+
       if (this.nativeMessagingBackground().isConnectedToOutdatedDesktopClient) {
         const response = await this.nativeMessagingBackground().callCommand({
           command: BiometricsCommands.Unlock,
@@ -85,6 +94,8 @@ export class BackgroundBrowserBiometricsService extends BiometricsService {
 
   async getBiometricsStatusForUser(id: UserId): Promise<BiometricsStatus> {
     try {
+      await this.ensureConnected();
+
       if (this.nativeMessagingBackground().isConnectedToOutdatedDesktopClient) {
         return await this.getBiometricsStatus();
       }
@@ -97,6 +108,15 @@ export class BackgroundBrowserBiometricsService extends BiometricsService {
       ).response;
     } catch (e) {
       return BiometricsStatus.DesktopDisconnected;
+    }
+  }
+
+  // the first time we call, this might use an outdated version of the protocol, so we drop the response
+  private async ensureConnected() {
+    if (!this.nativeMessagingBackground().connected) {
+      await this.nativeMessagingBackground().callCommand({
+        command: BiometricsCommands.IsAvailable,
+      });
     }
   }
 }

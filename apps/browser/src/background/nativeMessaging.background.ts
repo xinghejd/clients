@@ -16,6 +16,7 @@ import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/sym
 import { BrowserApi } from "../platform/browser/browser-api";
 
 import RuntimeBackground from "./runtime.background";
+import { BiometricsCommands } from "@bitwarden/common/key-management/biometrics/biometrics-commands";
 
 const MessageValidTimeout = 10 * 1000;
 const MessageNoResponseTimeout = 60 * 1000;
@@ -65,7 +66,7 @@ type Callback = {
 };
 
 export class NativeMessagingBackground {
-  private connected = false;
+  connected = false;
   private connecting: boolean;
   private port: browser.runtime.Port | chrome.runtime.Port;
 
@@ -162,7 +163,7 @@ export class NativeMessagingBackground {
             this.logService.info("[Native Messaging IPC] Secure channel established");
 
             if ("messageId" in message) {
-              this.logService.info("[Native Messaging IPC] Not legacy desktop client");
+              this.logService.info("[Native Messaging IPC] Non-legacy desktop client");
               this.isConnectedToOutdatedDesktopClient = false;
             } else {
               this.logService.info("[Native Messaging IPC] Legacy desktop client");
@@ -245,22 +246,27 @@ export class NativeMessagingBackground {
   async callCommand(message: Message): Promise<any> {
     const messageId = this.messageId++;
 
-    // TODO remove after 2025.01
-    // wait until there is no other callbacks, or timeout
-    const call = await firstValueFrom(
-      race(
-        from([false]).pipe(delay(5000)),
-        timer(0, 100).pipe(
-          filter(() => this.callbacks.keys().next().done),
-          map(() => true),
+    if (
+      message.command == BiometricsCommands.Unlock ||
+      message.command == BiometricsCommands.IsAvailable
+    ) {
+      // TODO remove after 2025.01
+      // wait until there is no other callbacks, or timeout
+      const call = await firstValueFrom(
+        race(
+          from([false]).pipe(delay(5000)),
+          timer(0, 100).pipe(
+            filter(() => this.callbacks.keys().next().done),
+            map(() => true),
+          ),
         ),
-      ),
-    );
-    if (!call) {
-      this.logService.info(
-        `[Native Messaging IPC] Message of type ${message.command} was not sent because there is already a message with the same messageId in the queue.`,
       );
-      return;
+      if (!call) {
+        this.logService.info(
+          `[Native Messaging IPC] Message of type ${message.command} was not sent because there is already a message with the same messageId in the queue.`,
+        );
+        return;
+      }
     }
 
     const callback = new Promise((resolver, rejecter) => {
@@ -271,7 +277,7 @@ export class NativeMessagingBackground {
       await this.send(message);
     } catch (e) {
       this.logService.info(
-        `[Native Messaging IPC] Error sending message of type ${message.command} to Bitwarden Desktop app.`,
+        `[Native Messaging IPC] Error sending message of type ${message.command} to Bitwarden Desktop app. Error: ${e}`,
       );
       this.callbacks.delete(messageId);
       this.callbacks.get(messageId).rejecter("errorConnecting");
@@ -344,7 +350,6 @@ export class NativeMessagingBackground {
   }
 
   private async onMessage(rawMessage: ReceiveMessage | EncString) {
-    this.logService.info("[Native Messaging IPC] Received message", rawMessage);
     let message = rawMessage as ReceiveMessage;
     if (!this.platformUtilsService.isSafari()) {
       message = JSON.parse(
@@ -357,19 +362,16 @@ export class NativeMessagingBackground {
       return;
     }
 
-    this.logService.info("[Native Messaging IPC] Received message", message);
     const messageId = message.messageId;
-    this.logService.info(
-      "[Native Messaging IPC] Received message of type " +
-        message.command +
-        " with id " +
-        messageId +
-        " from Bitwarden Desktop app...",
-    );
 
-    if (this.isConnectedToOutdatedDesktopClient) {
+    if (
+      message.command == BiometricsCommands.Unlock ||
+      message.command == BiometricsCommands.IsAvailable
+    ) {
+      this.logService.info(
+        `[Native Messaging IPC] Received legacy message of type ${message.command}`,
+      );
       const messageId = this.callbacks.keys().next().value;
-      this.logService.info(messageId, this.callbacks);
       const resolver = this.callbacks.get(messageId);
       this.callbacks.delete(messageId);
       resolver.resolver(message);
