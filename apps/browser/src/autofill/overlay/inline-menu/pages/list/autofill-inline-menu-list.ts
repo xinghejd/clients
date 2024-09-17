@@ -253,7 +253,7 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
   };
 
   private handleFillGeneratedPasswordKeyUp = (event: KeyboardEvent) => {
-    if (event.code === "Enter" || event.code === "Space") {
+    if (event.code === "Space") {
       this.handleFillGeneratedPasswordClick();
       return;
     }
@@ -280,7 +280,7 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
   };
 
   private handleRefreshGeneratedPasswordKeyUp = (event: KeyboardEvent) => {
-    if (event.code === "Enter" || event.code === "Space") {
+    if (event.code === "Space") {
       this.handleRefreshGeneratedPasswordClick();
       return;
     }
