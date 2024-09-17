@@ -30,7 +30,6 @@ import {
   tap,
 } from "rxjs/operators";
 
-import { OrganizationUserApiService } from "@bitwarden/admin-console/common";
 import { SearchPipe } from "@bitwarden/angular/pipes/search.pipe";
 import { ModalService } from "@bitwarden/angular/services/modal.service";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
@@ -201,7 +200,6 @@ export class VaultComponent implements OnInit, OnDestroy {
     private totpService: TotpService,
     private apiService: ApiService,
     private collectionService: CollectionService,
-    private organizationUserApiService: OrganizationUserApiService,
     private toastService: ToastService,
     private accountService: AccountService,
   ) {}
