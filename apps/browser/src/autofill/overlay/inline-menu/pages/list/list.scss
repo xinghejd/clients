@@ -228,7 +228,7 @@ body {
     padding: 0.7rem 0.3rem 0.7rem 0.7rem;
     border-radius: 0.4rem;
 
-    &:focus-within:not(.remove-outline) {
+    &:has(:focus-visible):not(.remove-outline) {
       outline-width: 0.2rem;
       outline-style: solid;
 
@@ -407,7 +407,7 @@ body {
   padding: 0.8rem 0.7rem;
   border-radius: 0.4rem;
 
-  &:focus-within:not(.remove-outline) {
+  &:has(:focus-visible):not(.remove-outline) {
     outline-width: 0.2rem;
     outline-style: solid;
 
@@ -479,7 +479,7 @@ body {
     }
   }
 
-  .password-generator {
+  .password-generator-content {
     text-align: left;
   }
 

@@ -10,6 +10,10 @@ export type UpdateAutofillInlineMenuListCiphersMessage = AutofillInlineMenuListM
   showInlineMenuAccountCreation?: boolean;
 };
 
+export type UpdateAutofillInlineMenuGeneratedPasswordMessage = AutofillInlineMenuListMessage & {
+  generatedPassword: string;
+};
+
 export type InitAutofillInlineMenuListMessage = AutofillInlineMenuListMessage & {
   authStatus: AuthenticationStatus;
   styleSheetUrl: string;
@@ -31,6 +35,11 @@ export type AutofillInlineMenuListWindowMessageHandlers = {
     message,
   }: {
     message: UpdateAutofillInlineMenuListCiphersMessage;
+  }) => void;
+  updateAutofillInlineMenuGeneratedPassword: ({
+    message,
+  }: {
+    message: UpdateAutofillInlineMenuGeneratedPasswordMessage;
   }) => void;
   focusAutofillInlineMenuList: () => void;
 };

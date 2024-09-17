@@ -23,6 +23,7 @@ import {
 import {
   AutofillInlineMenuListWindowMessageHandlers,
   InitAutofillInlineMenuListMessage,
+  UpdateAutofillInlineMenuGeneratedPasswordMessage,
 } from "../../abstractions/autofill-inline-menu-list";
 import { AutofillInlineMenuPageElement } from "../shared/autofill-inline-menu-page-element";
 
@@ -53,6 +54,8 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
       checkAutofillInlineMenuListFocused: () => this.checkInlineMenuListFocused(),
       updateAutofillInlineMenuListCiphers: ({ message }) =>
         this.updateListItems(message.ciphers, message.showInlineMenuAccountCreation),
+      updateAutofillInlineMenuGeneratedPassword: ({ message }) =>
+        this.handleUpdateAutofillInlineMenuGeneratedPassword(message),
       focusAutofillInlineMenuList: () => this.focusInlineMenuList(),
     };
 
@@ -176,8 +179,8 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
     passwordGeneratorHeading.textContent = this.getTranslation("useGeneratedPassword");
 
     const passwordGeneratorContent = globalThis.document.createElement("div");
-    passwordGeneratorContent.id = "password-generator";
-    passwordGeneratorContent.classList.add("password-generator");
+    passwordGeneratorContent.id = "password-generator-content";
+    passwordGeneratorContent.classList.add("password-generator-content");
     passwordGeneratorContent.append(
       passwordGeneratorHeading,
       this.buildColorizedPasswordElement(generatedPassword),
@@ -266,7 +269,13 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
     }
   };
 
-  private handleRefreshGeneratedPasswordClick = () => {
+  private handleRefreshGeneratedPasswordClick = (event?: MouseEvent) => {
+    if (event) {
+      (event.target as HTMLElement)
+        .closest(".password-generator-actions")
+        ?.classList.add("remove-outline");
+    }
+
     this.postMessageToParent({ command: "refreshGeneratedPassword" });
   };
 
@@ -287,6 +296,34 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
     }
   };
 
+  private resetInlineMenuListContainer() {
+    if (this.inlineMenuListContainer) {
+      this.inlineMenuListContainer.innerHTML = "";
+      this.inlineMenuListContainer.classList.remove(
+        "inline-menu-list-container--with-new-item-button",
+      );
+    }
+  }
+
+  private handleUpdateAutofillInlineMenuGeneratedPassword(
+    message: UpdateAutofillInlineMenuGeneratedPasswordMessage,
+  ) {
+    const passwordGeneratorContentElement = this.inlineMenuListContainer.querySelector(
+      "#password-generator-content",
+    );
+    const colorizedPasswordElement =
+      passwordGeneratorContentElement?.querySelector(".colorized-password");
+    if (!colorizedPasswordElement) {
+      this.resetInlineMenuListContainer();
+      this.buildPasswordGenerator(message.generatedPassword);
+      return;
+    }
+
+    colorizedPasswordElement.replaceWith(
+      this.buildColorizedPasswordElement(message.generatedPassword),
+    );
+  }
+
   /**
    * Updates the list items with the passed ciphers.
    * If no ciphers are passed, the no results inline menu is built.
@@ -301,12 +338,7 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
     this.ciphers = ciphers;
     this.currentCipherIndex = 0;
     this.showInlineMenuAccountCreation = showInlineMenuAccountCreation;
-    if (this.inlineMenuListContainer) {
-      this.inlineMenuListContainer.innerHTML = "";
-      this.inlineMenuListContainer.classList.remove(
-        "inline-menu-list-container--with-new-item-button",
-      );
-    }
+    this.resetInlineMenuListContainer();
 
     if (!ciphers?.length) {
       this.buildNoResultsInlineMenuList();

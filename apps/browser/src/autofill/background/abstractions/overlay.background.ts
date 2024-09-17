@@ -247,6 +247,7 @@ export type InlineMenuListPortMessageHandlers = {
   viewSelectedCipher: ({ message, port }: PortOnMessageHandlerParams) => void;
   redirectAutofillInlineMenuFocusOut: ({ message, port }: PortOnMessageHandlerParams) => void;
   updateAutofillInlineMenuListHeight: ({ message, port }: PortOnMessageHandlerParams) => void;
+  refreshGeneratedPassword: () => Promise<void>;
 };
 
 export interface OverlayBackground {

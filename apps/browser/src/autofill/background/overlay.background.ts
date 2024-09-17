@@ -172,6 +172,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     redirectAutofillInlineMenuFocusOut: ({ message, port }) =>
       this.redirectInlineMenuFocusOut(message, port),
     updateAutofillInlineMenuListHeight: ({ message }) => this.updateInlineMenuListHeight(message),
+    refreshGeneratedPassword: () => this.refreshGeneratedPassword(),
   };
 
   constructor(
@@ -1355,7 +1356,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       this.focusedFieldData.inlineMenuFillType !== InlineMenuFillType.AccountCreation;
 
     if (accountCreationFieldBlurred || this.showInlineMenuAccountCreation()) {
-      this.updateIdentityCiphersOnLoginField(previousFocusedFieldData).catch((error) =>
+      this.updateInlineMenuOnAccountCreationField(previousFocusedFieldData).catch((error) =>
         this.logService.error(error),
       );
       return;
@@ -1374,7 +1375,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
    *
    * @param previousFocusedFieldData - The data set of the previously focused field
    */
-  private async updateIdentityCiphersOnLoginField(previousFocusedFieldData: FocusedFieldData) {
+  private async updateInlineMenuOnAccountCreationField(previousFocusedFieldData: FocusedFieldData) {
     if (
       !previousFocusedFieldData ||
       !this.isInlineMenuButtonVisible ||
@@ -1383,11 +1384,23 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       return;
     }
 
+    if (this.focusedFieldData.inlineMenuFillType === InlineMenuFillType.PasswordGeneration) {
+      await this.refreshGeneratedPassword();
+      return;
+    }
+
     this.inlineMenuListPort?.postMessage({
       command: "updateAutofillInlineMenuListCiphers",
       ciphers: await this.getInlineMenuCipherData(),
       showInlineMenuAccountCreation: this.showInlineMenuAccountCreation(),
       showPasskeysLabels: this.showPasskeysLabelsWithinInlineMenu,
+    });
+  }
+
+  private async refreshGeneratedPassword() {
+    this.inlineMenuListPort?.postMessage({
+      command: "updateAutofillInlineMenuGeneratedPassword",
+      generatedPassword: await this.generatePassword(),
     });
   }
 
