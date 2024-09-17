@@ -3,4 +3,8 @@ export enum BiometricsCommands {
   GetBiometricsStatus = "getBiometricsStatus",
   UnlockWithBiometricsForUser = "unlockWithBiometricsForUser",
   GetBiometricsStatusForUser = "getBiometricsStatusForUser",
+
+  // legacy
+  Unlock = "biometricUnlock",
+  IsAvailable = "biometricUnlockAvailable",
 }

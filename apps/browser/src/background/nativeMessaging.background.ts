@@ -1,4 +1,4 @@
-import { firstValueFrom } from "rxjs";
+import { delay, filter, firstValueFrom, from, map, race, timer } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
@@ -79,6 +79,8 @@ export class NativeMessagingBackground {
   private messageId = 0;
   private callbacks = new Map<number, Callback>();
 
+  isConnectedToOutdatedDesktopClient = true;
+
   constructor(
     private cryptoService: CryptoService,
     private cryptoFunctionService: CryptoFunctionService,
@@ -158,6 +160,15 @@ export class NativeMessagingBackground {
             }
             this.sharedSecret = new SymmetricCryptoKey(decrypted);
             this.logService.info("[Native Messaging IPC] Secure channel established");
+
+            if ("messageId" in message) {
+              this.logService.info("[Native Messaging IPC] Not legacy desktop client");
+              this.isConnectedToOutdatedDesktopClient = false;
+            } else {
+              this.logService.info("[Native Messaging IPC] Legacy desktop client");
+              this.isConnectedToOutdatedDesktopClient = true;
+            }
+
             this.secureSetupResolve();
             break;
           }
@@ -233,6 +244,25 @@ export class NativeMessagingBackground {
 
   async callCommand(message: Message): Promise<any> {
     const messageId = this.messageId++;
+
+    // TODO remove after 2025.01
+    // wait until there is no other callbacks, or timeout
+    const call = await firstValueFrom(
+      race(
+        from([false]).pipe(delay(5000)),
+        timer(0, 100).pipe(
+          filter(() => this.callbacks.keys().next().done),
+          map(() => true),
+        ),
+      ),
+    );
+    if (!call) {
+      this.logService.info(
+        `[Native Messaging IPC] Message of type ${message.command} was not sent because there is already a message with the same messageId in the queue.`,
+      );
+      return;
+    }
+
     const callback = new Promise((resolver, rejecter) => {
       this.callbacks.set(messageId, { resolver, rejecter });
     });
@@ -337,8 +367,19 @@ export class NativeMessagingBackground {
         " from Bitwarden Desktop app...",
     );
 
+    if (this.isConnectedToOutdatedDesktopClient) {
+      const messageId = this.callbacks.keys().next().value;
+      this.logService.info(messageId, this.callbacks);
+      const resolver = this.callbacks.get(messageId);
+      this.callbacks.delete(messageId);
+      resolver.resolver(message);
+      return;
+    }
+
     if (this.callbacks.has(messageId)) {
       this.callbacks.get(messageId).resolver(message);
+    } else {
+      this.logService.info("[Native Messaging IPC] Received message without a callback", message);
     }
   }
 

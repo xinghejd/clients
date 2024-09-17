@@ -17,10 +17,17 @@ export class BackgroundBrowserBiometricsService extends BiometricsService {
 
   async authenticateWithBiometrics(): Promise<boolean> {
     try {
-      const response = await this.nativeMessagingBackground().callCommand({
-        command: BiometricsCommands.AuthenticateWithBiometrics,
-      });
-      return response.response;
+      if (this.nativeMessagingBackground().isConnectedToOutdatedDesktopClient) {
+        const response = await this.nativeMessagingBackground().callCommand({
+          command: BiometricsCommands.Unlock,
+        });
+        return response.response == "unlocked";
+      } else {
+        const response = await this.nativeMessagingBackground().callCommand({
+          command: BiometricsCommands.AuthenticateWithBiometrics,
+        });
+        return response.response;
+      }
     } catch (e) {
       return false;
     }
@@ -28,10 +35,22 @@ export class BackgroundBrowserBiometricsService extends BiometricsService {
 
   async getBiometricsStatus(): Promise<BiometricsStatus> {
     try {
-      const response = await this.nativeMessagingBackground().callCommand({
-        command: BiometricsCommands.GetBiometricsStatus,
-      });
-      return response.response;
+      if (this.nativeMessagingBackground().isConnectedToOutdatedDesktopClient) {
+        const response = await this.nativeMessagingBackground().callCommand({
+          command: BiometricsCommands.IsAvailable,
+        });
+        return response.response == "available"
+          ? BiometricsStatus.Available
+          : BiometricsStatus.HardwareUnavailable;
+      } else {
+        const response = await this.nativeMessagingBackground().callCommand({
+          command: BiometricsCommands.GetBiometricsStatus,
+        });
+        if (response.response) {
+          return response.response;
+        }
+      }
+      return BiometricsStatus.Available;
     } catch (e) {
       return BiometricsStatus.DesktopDisconnected;
     }
@@ -39,14 +58,25 @@ export class BackgroundBrowserBiometricsService extends BiometricsService {
 
   async unlockWithBiometricsForUser(userId: UserId): Promise<UserKey> {
     try {
-      const response = await this.nativeMessagingBackground().callCommand({
-        command: BiometricsCommands.UnlockWithBiometricsForUser,
-        userId: userId,
-      });
-      if (response.response) {
-        return SymmetricCryptoKey.fromString(response.userKeyB64) as UserKey;
+      if (this.nativeMessagingBackground().isConnectedToOutdatedDesktopClient) {
+        const response = await this.nativeMessagingBackground().callCommand({
+          command: BiometricsCommands.Unlock,
+        });
+        if (response.response == "unlocked") {
+          return SymmetricCryptoKey.fromString(response.userKeyB64) as UserKey;
+        } else {
+          throw new Error("Biometric unlock failed");
+        }
       } else {
-        throw new Error("Biometric unlock failed");
+        const response = await this.nativeMessagingBackground().callCommand({
+          command: BiometricsCommands.UnlockWithBiometricsForUser,
+          userId: userId,
+        });
+        if (response.response) {
+          return SymmetricCryptoKey.fromString(response.userKeyB64) as UserKey;
+        } else {
+          throw new Error("Biometric unlock failed");
+        }
       }
     } catch (e) {
       throw new Error("Biometric unlock failed");
@@ -55,6 +85,10 @@ export class BackgroundBrowserBiometricsService extends BiometricsService {
 
   async getBiometricsStatusForUser(id: UserId): Promise<BiometricsStatus> {
     try {
+      if (this.nativeMessagingBackground().isConnectedToOutdatedDesktopClient) {
+        return await this.getBiometricsStatus();
+      }
+
       return (
         await this.nativeMessagingBackground().callCommand({
           command: "getBiometricsStatusForUser",

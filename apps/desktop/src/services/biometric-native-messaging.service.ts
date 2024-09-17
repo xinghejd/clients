@@ -1,5 +1,5 @@
 import { Injectable, NgZone } from "@angular/core";
-import { firstValueFrom } from "rxjs";
+import { firstValueFrom, map } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
@@ -225,6 +225,88 @@ export class BiometricMessageHandlerService {
           appId,
         );
       }
+      // TODO: legacy, remove after 2025.01
+      case BiometricsCommands.IsAvailable: {
+        const available =
+          (await this.biometricsService.getBiometricsStatus()) == BiometricsStatus.Available;
+        return this.send(
+          {
+            command: BiometricsCommands.IsAvailable,
+            response: available ? "available" : "not available",
+          },
+          appId,
+        );
+      }
+      // TODO: legacy, remove after 2025.01
+      case BiometricsCommands.Unlock: {
+        const isTemporarilyDisabled =
+          (await this.biometricStateService.getBiometricUnlockEnabled(message.userId as UserId)) &&
+          !((await this.biometricsService.getBiometricsStatus()) == BiometricsStatus.Available);
+        if (isTemporarilyDisabled) {
+          return this.send({ command: "biometricUnlock", response: "not available" }, appId);
+        }
+
+        if (!((await this.biometricsService.getBiometricsStatus()) == BiometricsStatus.Available)) {
+          return this.send({ command: "biometricUnlock", response: "not supported" }, appId);
+        }
+
+        const userId =
+          (message.userId as UserId) ??
+          (await firstValueFrom(this.accountService.activeAccount$.pipe(map((a) => a?.id))));
+
+        if (userId == null) {
+          return this.send({ command: "biometricUnlock", response: "not unlocked" }, appId);
+        }
+
+        const biometricUnlockPromise =
+          message.userId == null
+            ? firstValueFrom(this.biometricStateService.biometricUnlockEnabled$)
+            : this.biometricStateService.getBiometricUnlockEnabled(message.userId as UserId);
+        if (!(await biometricUnlockPromise)) {
+          await this.send({ command: "biometricUnlock", response: "not enabled" }, appId);
+
+          return this.ngZone.run(() =>
+            this.dialogService.openSimpleDialog({
+              type: "warning",
+              title: { key: "biometricsNotEnabledTitle" },
+              content: { key: "biometricsNotEnabledDesc" },
+              cancelButtonText: null,
+              acceptButtonText: { key: "cancel" },
+            }),
+          );
+        }
+
+        try {
+          const userKey = await this.biometricsService.unlockWithBiometricsForUser(userId);
+
+          if (userKey != null) {
+            await this.send(
+              {
+                command: "biometricUnlock",
+                response: "unlocked",
+                userKeyB64: userKey.keyB64,
+              },
+              appId,
+            );
+
+            const currentlyActiveAccountId = (
+              await firstValueFrom(this.accountService.activeAccount$)
+            ).id;
+            const isCurrentlyActiveAccountUnlocked =
+              (await this.authService.getAuthStatus(userId)) == AuthenticationStatus.Unlocked;
+
+            // prevent proc reloading an active account, when it is the same as the browser
+            if (currentlyActiveAccountId != message.userId || !isCurrentlyActiveAccountUnlocked) {
+              await ipc.platform.reloadProcess();
+            }
+          } else {
+            await this.send({ command: "biometricUnlock", response: "canceled" }, appId);
+          }
+        } catch (e) {
+          await this.send({ command: "biometricUnlock", response: "canceled" }, appId);
+        }
+        break;
+      }
       default:
         this.logService.error("NativeMessage, got unknown command: " + message.command);
         break;
@@ -262,6 +344,7 @@ export class BiometricMessageHandlerService {
     ipc.platform.nativeMessaging.sendMessage({
       appId: appId,
       command: "setupEncryption",
+      messageId: -1, // to indicate to the other side that this is a new desktop client. refactor later to use proper versioning
       sharedSecret: Utils.fromBufferToB64(encryptedSecret),
     });
   }
