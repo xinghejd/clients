@@ -74,9 +74,8 @@ import { CipherService as CipherServiceAbstraction } from "@bitwarden/common/vau
 import { DialogService } from "@bitwarden/components";
 import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legacy";
 
-import { devFlagEnabled } from "src/platform/flags";
-
 import { DesktopAutofillSettingsService } from "../../autofill/services/desktop-autofill-settings.service";
+import { devFlagEnabled } from "../../platform/flags";
 import { DesktopSettingsService } from "../../platform/services/desktop-settings.service";
 import { ElectronBiometricsService } from "../../platform/services/electron-biometrics.service";
 import { ElectronCryptoService } from "../../platform/services/electron-crypto.service";
