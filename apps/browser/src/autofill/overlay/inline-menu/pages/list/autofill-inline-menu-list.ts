@@ -161,6 +161,9 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
     const passwordGeneratorContainer = globalThis.document.createElement("div");
     passwordGeneratorContainer.classList.add("password-generator-container");
 
+    const passwordGeneratorActions = globalThis.document.createElement("div");
+    passwordGeneratorActions.classList.add("password-generator-actions");
+
     const fillGeneratedPasswordButton = globalThis.document.createElement("button");
     fillGeneratedPasswordButton.tabIndex = -1;
     fillGeneratedPasswordButton.classList.add(
@@ -205,7 +208,9 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
       this.handleRefreshGeneratedPasswordKeyUp,
     );
 
-    passwordGeneratorContainer.append(fillGeneratedPasswordButton, refreshGeneratedPasswordButton);
+    passwordGeneratorActions.append(fillGeneratedPasswordButton, refreshGeneratedPasswordButton);
+
+    passwordGeneratorContainer.appendChild(passwordGeneratorActions);
     this.inlineMenuListContainer.appendChild(passwordGeneratorContainer);
   }
 
