@@ -157,8 +157,6 @@ export class LockV2Component implements OnInit, OnDestroy {
   async ngOnInit() {
     this.listenForActiveUnlockOptionChanges();
 
-    // TODO: determine if this is necessary or not.
-
     // Listen for active account changes
     this.listenForActiveAccountChanges();
 
@@ -236,6 +234,35 @@ export class LockV2Component implements OnInit, OnDestroy {
     }
   }
 
+  private resetDataOnActiveAccountChange() {
+    this.defaultUnlockOptionSetForUser = false;
+    this.unlockOptions = null;
+    this.activeUnlockOption = null;
+    this.formGroup = null; // new form group will be created based on new active unlock option
+
+    this.biometricAsked = false; // TODO: evaluate if this is property is necessary or not
+  }
+
+  private setEmailAsPageSubtitle(email: string) {
+    this.anonLayoutWrapperDataService.setAnonLayoutWrapperData({
+      pageSubtitle: {
+        subtitle: email,
+        translate: false,
+      },
+    });
+  }
+
+  private setDefaultActiveUnlockOption(unlockOptions: UnlockOptions) {
+    // Priorities should be Biometrics > Pin > Master Password for speed
+    if (unlockOptions.biometrics.enabled) {
+      this.activeUnlockOption = UnlockOption.Biometrics;
+    } else if (unlockOptions.pin.enabled) {
+      this.activeUnlockOption = UnlockOption.Pin;
+    } else if (unlockOptions.masterPassword.enabled) {
+      this.activeUnlockOption = UnlockOption.MasterPassword;
+    }
+  }
+
   private async handleBiometricsUnlockEnabled() {
     this.biometricUnlockBtnText = this.lockComponentService.getBiometricsUnlockBtnText();
 
@@ -252,35 +279,6 @@ export class LockV2Component implements OnInit, OnDestroy {
         await this.autoPromptBiometrics();
       }
     }
-  }
-
-  private resetDataOnActiveAccountChange() {
-    this.defaultUnlockOptionSetForUser = false;
-    this.unlockOptions = null;
-    this.activeUnlockOption = null;
-    this.formGroup = null; // new form group will be created based on new active unlock option
-
-    this.biometricAsked = false; // TODO: evaluate if this is property is necessary or not
-  }
-
-  private setDefaultActiveUnlockOption(unlockOptions: UnlockOptions) {
-    // Priorities should be Biometrics > Pin > Master Password for speed
-    if (unlockOptions.biometrics.enabled) {
-      this.activeUnlockOption = UnlockOption.Biometrics;
-    } else if (unlockOptions.pin.enabled) {
-      this.activeUnlockOption = UnlockOption.Pin;
-    } else if (unlockOptions.masterPassword.enabled) {
-      this.activeUnlockOption = UnlockOption.MasterPassword;
-    }
-  }
-
-  private setEmailAsPageSubtitle(email: string) {
-    this.anonLayoutWrapperDataService.setAnonLayoutWrapperData({
-      pageSubtitle: {
-        subtitle: email,
-        translate: false,
-      },
-    });
   }
 
   // Note: this submit method is only used for unlock methods that require a form and user input.
