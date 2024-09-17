@@ -1384,7 +1384,11 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       return;
     }
 
-    if (this.focusedFieldData.inlineMenuFillType === InlineMenuFillType.PasswordGeneration) {
+    if (
+      this.focusedFieldData.inlineMenuFillType === InlineMenuFillType.PasswordGeneration ||
+      (this.focusedFieldData.inlineMenuFillType === CipherType.Login &&
+        this.focusedFieldData.accountCreationFieldType === "password")
+    ) {
       await this.refreshGeneratedPassword();
       return;
     }
@@ -2319,10 +2323,13 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     }
 
     // TODO: Pull this into a separate method
+    const showInlineMenuAccountCreation = this.showInlineMenuAccountCreation();
     let generatedPassword = null;
     if (
       isInlineMenuListPort &&
-      this.focusedFieldData?.inlineMenuFillType === InlineMenuFillType.PasswordGeneration
+      (this.focusedFieldData?.inlineMenuFillType === InlineMenuFillType.PasswordGeneration ||
+        (showInlineMenuAccountCreation &&
+          this.focusedFieldData?.accountCreationFieldType === "password"))
     ) {
       generatedPassword = await this.generatePassword();
     }
@@ -2350,7 +2357,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
         ? AutofillOverlayPort.ListMessageConnector
         : AutofillOverlayPort.ButtonMessageConnector,
       inlineMenuFillType: this.focusedFieldData?.inlineMenuFillType,
-      showInlineMenuAccountCreation: this.showInlineMenuAccountCreation(),
+      showInlineMenuAccountCreation,
       showPasskeysLabels: this.showPasskeysLabelsWithinInlineMenu,
       generatedPassword,
     });

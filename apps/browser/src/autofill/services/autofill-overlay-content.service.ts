@@ -1036,6 +1036,8 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
           : autofillFieldData.type;
       } else if (this.inlineMenuFieldQualificationService.isNewPasswordField(autofillFieldData)) {
         autofillFieldData.inlineMenuFillType = InlineMenuFillType.PasswordGeneration;
+      } else {
+        accountCreationFieldType = "password";
       }
     }
 

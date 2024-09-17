@@ -7,7 +7,7 @@ import { EVENTS, UPDATE_PASSKEYS_HEADINGS_ON_SCROLL } from "@bitwarden/common/au
 import { CipherType } from "@bitwarden/common/vault/enums";
 
 import { InlineMenuCipherData } from "../../../../background/abstractions/overlay.background";
-import { InlineMenuFillType, InlineMenuFillTypes } from "../../../../enums/autofill-overlay.enum";
+import { InlineMenuFillTypes } from "../../../../enums/autofill-overlay.enum";
 import { buildSvgDomElement, throttle } from "../../../../utils";
 import {
   creditCardIcon,
@@ -116,7 +116,7 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
       return;
     }
 
-    if (this.inlineMenuFillType === InlineMenuFillType.PasswordGeneration && generatedPassword) {
+    if (generatedPassword) {
       this.buildPasswordGenerator(generatedPassword);
       return;
     }
