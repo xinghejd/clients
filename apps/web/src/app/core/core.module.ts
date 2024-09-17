@@ -48,6 +48,7 @@ import { MemoryStorageService } from "@bitwarden/common/platform/services/memory
 // eslint-disable-next-line import/no-restricted-paths -- Implementation for memory storage
 import { MigrationBuilderService } from "@bitwarden/common/platform/services/migration-builder.service";
 import { MigrationRunner } from "@bitwarden/common/platform/services/migration-runner";
+import { NoopSdkClientFactory } from "@bitwarden/common/platform/services/sdk/noop-sdk-client-factory";
 import { StorageServiceProvider } from "@bitwarden/common/platform/services/storage-service.provider";
 /* eslint-disable import/no-restricted-paths -- Implementation for memory storage */
 import { GlobalStateProvider, StateProvider } from "@bitwarden/common/platform/state";
@@ -60,6 +61,7 @@ import {
 } from "@bitwarden/common/platform/theming/theme-state.service";
 import { VaultTimeout, VaultTimeoutStringType } from "@bitwarden/common/types/vault-timeout.type";
 
+import { devFlagEnabled } from "../../utils/flags";
 import { PolicyListService } from "../admin-console/core/policy-list.service";
 import { WebSetPasswordJitService, WebRegistrationFinishService } from "../auth";
 import { AcceptOrganizationInviteService } from "../auth/organization-invite/accept-organization.service";
@@ -218,7 +220,7 @@ const safeProviders: SafeProvider[] = [
   }),
   safeProvider({
     provide: SdkClientFactory,
-    useClass: WebSdkClientFactory,
+    useClass: devFlagEnabled("sdk") ? WebSdkClientFactory : NoopSdkClientFactory,
     deps: [],
   }),
 ];

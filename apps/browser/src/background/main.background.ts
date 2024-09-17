@@ -128,6 +128,7 @@ import { MigrationBuilderService } from "@bitwarden/common/platform/services/mig
 import { MigrationRunner } from "@bitwarden/common/platform/services/migration-runner";
 import { DefaultSdkClientFactory } from "@bitwarden/common/platform/services/sdk/default-sdk-client-factory";
 import { DefaultSdkService } from "@bitwarden/common/platform/services/sdk/default-sdk.service";
+import { NoopSdkClientFactory } from "@bitwarden/common/platform/services/sdk/noop-sdk-client-factory";
 import { StateService } from "@bitwarden/common/platform/services/state.service";
 import { SystemService } from "@bitwarden/common/platform/services/system.service";
 import { UserAutoUnlockKeyService } from "@bitwarden/common/platform/services/user-auto-unlock-key.service";
@@ -228,6 +229,7 @@ import { AutofillService as AutofillServiceAbstraction } from "../autofill/servi
 import AutofillService from "../autofill/services/autofill.service";
 import { SafariApp } from "../browser/safariApp";
 import { BrowserApi } from "../platform/browser/browser-api";
+import { devFlagEnabled } from "../platform/flags";
 import { UpdateBadge } from "../platform/listeners/update-badge";
 /* eslint-disable no-restricted-imports */
 import { ChromeMessageSender } from "../platform/messaging/chrome-message.sender";
@@ -721,7 +723,9 @@ export default class MainBackground {
       this.stateProvider,
     );
 
-    const sdkClientFactory = new DefaultSdkClientFactory();
+    const sdkClientFactory = devFlagEnabled("sdk")
+      ? new DefaultSdkClientFactory()
+      : new NoopSdkClientFactory();
     this.sdkService = new DefaultSdkService(
       sdkClientFactory,
       this.environmentService,

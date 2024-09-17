@@ -1,11 +1,12 @@
-import { BitwardenClient } from "@bitwarden/sdk-wasm";
+import type { BitwardenClient } from "@bitwarden/sdk-wasm";
 
 import { SdkClientFactory } from "../../abstractions/sdk/sdk-client-factory";
 
 export class DefaultSdkClientFactory implements SdkClientFactory {
-  createSdkClient(
+  async createSdkClient(
     ...args: ConstructorParameters<typeof BitwardenClient>
   ): Promise<BitwardenClient> {
-    return Promise.resolve(new BitwardenClient(...args));
+    const module = await import("@bitwarden/sdk-wasm");
+    return Promise.resolve(new module.BitwardenClient(...args));
   }
 }

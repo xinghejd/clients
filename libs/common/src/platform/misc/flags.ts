@@ -10,6 +10,7 @@ export type SharedDevFlags = {
   noopNotifications: boolean;
   skipWelcomeOnInstall: boolean;
   configRetrievalIntervalMs: number;
+  sdk: boolean;
 };
 
 function getFlags<T>(envFlags: string | T): T {

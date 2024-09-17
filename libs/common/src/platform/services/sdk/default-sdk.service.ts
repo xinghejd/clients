@@ -1,7 +1,6 @@
-import { concatMap, of } from "rxjs";
+import { concatMap } from "rxjs";
 
 import { BitwardenClient, Convert, DeviceType as SdkDeviceType } from "@bitwarden/sdk-client";
-import * as sdkModule from "@bitwarden/sdk-wasm";
 
 import { DeviceType } from "../../../enums/device-type.enum";
 import { EnvironmentService } from "../../abstractions/environment.service";
@@ -9,8 +8,6 @@ import { PlatformUtilsService } from "../../abstractions/platform-utils.service"
 import { SdkClientFactory } from "../../abstractions/sdk/sdk-client-factory";
 
 export class DefaultSdkService {
-  private sdkModule = of(sdkModule);
-
   client$ = this.environmentService.environment$.pipe(
     concatMap(async (env) => {
       const settings_json = Convert.clientSettingsToJson({

@@ -64,6 +64,7 @@ import { SubjectMessageSender } from "@bitwarden/common/platform/messaging/inter
 import { TaskSchedulerService } from "@bitwarden/common/platform/scheduling";
 import { MemoryStorageService } from "@bitwarden/common/platform/services/memory-storage.service";
 import { DefaultSdkClientFactory } from "@bitwarden/common/platform/services/sdk/default-sdk-client-factory";
+import { NoopSdkClientFactory } from "@bitwarden/common/platform/services/sdk/noop-sdk-client-factory";
 import { SystemService } from "@bitwarden/common/platform/services/system.service";
 import { GlobalStateProvider, StateProvider } from "@bitwarden/common/platform/state";
 // eslint-disable-next-line import/no-restricted-paths -- Implementation for memory storage
@@ -72,6 +73,8 @@ import { VaultTimeoutStringType } from "@bitwarden/common/types/vault-timeout.ty
 import { CipherService as CipherServiceAbstraction } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { DialogService } from "@bitwarden/components";
 import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legacy";
+
+import { devFlagEnabled } from "src/platform/flags";
 
 import { DesktopAutofillSettingsService } from "../../autofill/services/desktop-autofill-settings.service";
 import { DesktopSettingsService } from "../../platform/services/desktop-settings.service";
@@ -293,7 +296,7 @@ const safeProviders: SafeProvider[] = [
   }),
   safeProvider({
     provide: SdkClientFactory,
-    useClass: DefaultSdkClientFactory,
+    useClass: devFlagEnabled("sdk") ? DefaultSdkClientFactory : NoopSdkClientFactory,
     deps: [],
   }),
 ];

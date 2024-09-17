@@ -68,10 +68,12 @@ import { BiometricsService } from "@bitwarden/common/platform/biometrics/biometr
 import { Message, MessageListener, MessageSender } from "@bitwarden/common/platform/messaging";
 // eslint-disable-next-line no-restricted-imports -- Used for dependency injection
 import { SubjectMessageSender } from "@bitwarden/common/platform/messaging/internal";
+import { devFlagEnabled } from "@bitwarden/common/platform/misc/flags";
 import { TaskSchedulerService } from "@bitwarden/common/platform/scheduling";
 import { ConsoleLogService } from "@bitwarden/common/platform/services/console-log.service";
 import { ContainerService } from "@bitwarden/common/platform/services/container.service";
 import { DefaultSdkClientFactory } from "@bitwarden/common/platform/services/sdk/default-sdk-client-factory";
+import { NoopSdkClientFactory } from "@bitwarden/common/platform/services/sdk/noop-sdk-client-factory";
 import { StorageServiceProvider } from "@bitwarden/common/platform/services/storage-service.provider";
 import { WebCryptoFunctionService } from "@bitwarden/common/platform/services/web-crypto-function.service";
 import {
@@ -564,7 +566,7 @@ const safeProviders: SafeProvider[] = [
   }),
   safeProvider({
     provide: SdkClientFactory,
-    useClass: DefaultSdkClientFactory,
+    useClass: devFlagEnabled("sdk") ? DefaultSdkClientFactory : NoopSdkClientFactory,
     deps: [],
   }),
 ];

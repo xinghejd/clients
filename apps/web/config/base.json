@@ -12,5 +12,8 @@
   },
   "flags": {
     "showPasswordless": false
+  },
+  "devFlags": {
+    "sdk": false
   }
 }

@@ -90,6 +90,7 @@ import { MigrationBuilderService } from "@bitwarden/common/platform/services/mig
 import { MigrationRunner } from "@bitwarden/common/platform/services/migration-runner";
 import { DefaultSdkClientFactory } from "@bitwarden/common/platform/services/sdk/default-sdk-client-factory";
 import { DefaultSdkService } from "@bitwarden/common/platform/services/sdk/default-sdk.service";
+import { NoopSdkClientFactory } from "@bitwarden/common/platform/services/sdk/noop-sdk-client-factory";
 import { StateService } from "@bitwarden/common/platform/services/state.service";
 import { StorageServiceProvider } from "@bitwarden/common/platform/services/storage-service.provider";
 import { UserAutoUnlockKeyService } from "@bitwarden/common/platform/services/user-auto-unlock-key.service";
@@ -154,6 +155,8 @@ import {
   VaultExportService,
   VaultExportServiceAbstraction,
 } from "@bitwarden/vault-export-core";
+
+import { devFlagEnabled } from "src/platform/flags";
 
 import { CliPlatformUtilsService } from "../platform/services/cli-platform-utils.service";
 import { ConsoleLogService } from "../platform/services/console-log.service";
@@ -527,7 +530,9 @@ export class ServiceContainer {
       this.globalStateProvider,
     );
 
-    const sdkClientFactory = new DefaultSdkClientFactory();
+    const sdkClientFactory = devFlagEnabled("sdk")
+      ? new DefaultSdkClientFactory()
+      : new NoopSdkClientFactory();
     this.sdkService = new DefaultSdkService(
       sdkClientFactory,
       this.environmentService,
