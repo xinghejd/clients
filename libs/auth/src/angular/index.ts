@@ -16,7 +16,9 @@ export * from "./fingerprint-dialog/fingerprint-dialog.component";
 
 // password callout
 export * from "./password-callout/password-callout.component";
-export * from "./vault-timeout-input/vault-timeout-input.component";
+
+// password hint
+export * from "./password-hint/password-hint.component";
 
 // input password
 export * from "./input-password/input-password.component";
@@ -44,3 +46,6 @@ export * from "./registration/registration-finish/default-registration-finish.se
 // lock
 export * from "./lock/lock.component";
 export * from "./lock/lock-component.service";
+
+// vault timeout
+export * from "./vault-timeout-input/vault-timeout-input.component";
