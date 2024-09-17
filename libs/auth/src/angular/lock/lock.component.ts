@@ -2,16 +2,7 @@ import { CommonModule } from "@angular/common";
 import { Component, NgZone, OnDestroy, OnInit } from "@angular/core";
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
-import {
-  BehaviorSubject,
-  firstValueFrom,
-  Observable,
-  Subject,
-  switchMap,
-  take,
-  takeUntil,
-  tap,
-} from "rxjs";
+import { BehaviorSubject, firstValueFrom, Subject, switchMap, take, takeUntil } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { InternalPolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
@@ -80,8 +71,7 @@ export class LockV2Component implements OnInit, OnDestroy {
   clientType: ClientType;
   ClientType = ClientType;
 
-  private unlockOptions: UnlockOptions = null;
-  unlockOptions$: Observable<UnlockOptions> = null;
+  unlockOptions: UnlockOptions = null;
 
   UnlockOption = UnlockOption;
 
@@ -121,7 +111,7 @@ export class LockV2Component implements OnInit, OnDestroy {
   // Desktop properties:
   private deferFocus: boolean = null;
   private biometricAsked = false;
-  private autoPromptBiometric = false;
+  // private autoPromptBiometric = false;
 
   // Browser extension properties:
   private isInitialLockScreen = (window as any).previousPopupUrl == null;
@@ -167,9 +157,7 @@ export class LockV2Component implements OnInit, OnDestroy {
   async ngOnInit() {
     this.listenForActiveUnlockOptionChanges();
 
-    // Get active account and handle it
-    const activeAccount = await firstValueFrom(this.accountService.activeAccount$);
-    await this.handleActiveAccountChange(activeAccount);
+    // TODO: determine if this is necessary or not.
 
     // Listen for active account changes
     this.listenForActiveAccountChanges();
@@ -233,37 +221,46 @@ export class LockV2Component implements OnInit, OnDestroy {
   private async handleActiveAccountChange(activeAccount: { id: UserId | undefined } & AccountInfo) {
     this.activeAccount = activeAccount;
 
-    this.resetDataDueToActiveAccountChange();
+    this.resetDataOnActiveAccountChange();
 
     this.setEmailAsPageSubtitle(activeAccount.email);
 
-    // This observable is managed via async pipe in the template
-    this.unlockOptions$ = this.lockComponentService
-      .getAvailableUnlockOptions$(activeAccount.id)
-      .pipe(
-        tap((unlockOptions) => {
-          this.unlockOptions = unlockOptions;
+    this.unlockOptions = await firstValueFrom(
+      this.lockComponentService.getAvailableUnlockOptions$(activeAccount.id),
+    );
 
-          // Unlock options can emit multiple times, but we only want to set the default unlock option once
-          // so that, if the user chooses a different unlock option, it won't be overridden upon subsequent emissions
-          if (!this.defaultUnlockOptionSetForUser) {
-            this.setDefaultActiveUnlockOption(unlockOptions);
-            this.defaultUnlockOptionSetForUser = true;
-          }
+    this.setDefaultActiveUnlockOption(this.unlockOptions);
 
-          if (unlockOptions.biometrics.enabled) {
-            this.biometricUnlockBtnText = this.lockComponentService.getBiometricsUnlockBtnText();
-          }
-        }),
-      );
+    if (this.unlockOptions.biometrics.enabled) {
+      await this.handleBiometricsUnlockEnabled();
+    }
   }
 
-  private resetDataDueToActiveAccountChange() {
+  private async handleBiometricsUnlockEnabled() {
+    this.biometricUnlockBtnText = this.lockComponentService.getBiometricsUnlockBtnText();
+
+    if (this.clientType === "desktop") {
+      if (this.platformUtilsService.getDevice() === DeviceType.WindowsDesktop) {
+        await this.displayWindowsBiometricUpdateWarning();
+      }
+
+      const autoPromptBiometrics = await firstValueFrom(
+        this.biometricStateService.promptAutomatically$,
+      );
+
+      if (autoPromptBiometrics) {
+        await this.autoPromptBiometrics();
+      }
+    }
+  }
+
+  private resetDataOnActiveAccountChange() {
     this.defaultUnlockOptionSetForUser = false;
     this.unlockOptions = null;
-    this.unlockOptions$ = null;
     this.activeUnlockOption = null;
     this.formGroup = null; // new form group will be created based on new active unlock option
+
+    this.biometricAsked = false; // TODO: evaluate if this is property is necessary or not
   }
 
   private setDefaultActiveUnlockOption(unlockOptions: UnlockOptions) {
@@ -549,20 +546,6 @@ export class LockV2Component implements OnInit, OnDestroy {
   // -----------------------------------------------------------------------------------------------
 
   async desktopOnInit() {
-    this.autoPromptBiometric = await firstValueFrom(
-      this.biometricStateService.promptAutomatically$,
-    );
-    // this.biometricReady = await this.canUseBiometric();
-
-    await this.displayBiometricUpdateWarning();
-
-    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    this.delayedAskForBiometric(500);
-    this.activatedRoute.queryParams.pipe(
-      switchMap((params) => this.delayedAskForBiometric(500, params)),
-    );
-
     this.broadcasterService.subscribe(BroadcasterSubscriptionId, async (message: any) => {
       this.ngZone.run(() => {
         switch (message.command) {
@@ -587,12 +570,10 @@ export class LockV2Component implements OnInit, OnDestroy {
     this.messagingService.send("getWindowIsFocused");
   }
 
-  private async displayBiometricUpdateWarning(): Promise<void> {
+  // TODO: ask Matt if this was meant to be a perm thing or temp.
+  private async displayWindowsBiometricUpdateWarning(): Promise<void> {
+    // If user has dismissed the callout, do not show it again
     if (await firstValueFrom(this.biometricStateService.dismissedRequirePasswordOnStartCallout$)) {
-      return;
-    }
-
-    if (this.platformUtilsService.getDevice() !== DeviceType.WindowsDesktop) {
       return;
     }
 
@@ -607,37 +588,33 @@ export class LockV2Component implements OnInit, OnDestroy {
       if (response) {
         await this.biometricStateService.setPromptAutomatically(false);
       }
-      // this.supportsBiometric = await this.canUseBiometric();
+
       await this.biometricStateService.setDismissedRequirePasswordOnStartCallout();
     }
   }
 
-  private async delayedAskForBiometric(delay: number, params?: any) {
-    await new Promise((resolve) => setTimeout(resolve, delay));
-
-    if (params && !params.promptBiometric) {
+  private async autoPromptBiometrics() {
+    if (!this.unlockOptions?.biometrics?.enabled || this.biometricAsked) {
       return;
     }
 
-    if (
-      !this.unlockOptions?.biometrics?.enabled ||
-      !this.autoPromptBiometric ||
-      this.biometricAsked
-    ) {
-      return;
-    }
-
+    // TODO: update this if we merge Bernd's changes which prevent a proc reload on biometric prompt cancel
+    // This is required to prevent the biometric prompt from showing if the user has already cancelled it
+    // since the app process reloads when the user cancels the prompt currently.
     if (await firstValueFrom(this.biometricStateService.promptCancelled$)) {
       return;
     }
 
-    this.biometricAsked = true;
-    if (await this.lockComponentService.isWindowVisible()) {
+    const windowVisible = await this.lockComponentService.isWindowVisible();
+
+    if (windowVisible) {
+      this.biometricAsked = true;
       await this.unlockViaBiometrics();
     }
   }
 
   onWindowHidden() {
+    // TODO: investigate wiring up showPassword to the [bitPasswordInputToggle] directive
     this.showPassword = false;
   }
 
@@ -701,5 +678,9 @@ export class LockV2Component implements OnInit, OnDestroy {
   ngOnDestroy() {
     this.destroy$.next();
     this.destroy$.complete();
+
+    if (this.clientType === "desktop") {
+      this.broadcasterService.unsubscribe(BroadcasterSubscriptionId);
+    }
   }
 }

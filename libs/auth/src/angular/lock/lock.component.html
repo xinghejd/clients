@@ -4,7 +4,7 @@
   </div>
 </ng-template>
 
-<ng-container *ngIf="unlockOptions$ | async as unlockOptions; else loading">
+<ng-container *ngIf="unlockOptions; else loading">
   <!-- Biometrics Unlock -->
   <ng-container
     *ngIf="unlockOptions.biometrics.enabled && activeUnlockOption === UnlockOption.Biometrics"
