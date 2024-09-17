@@ -1355,6 +1355,11 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       previousFocusedFieldData?.inlineMenuFillType === InlineMenuFillType.AccountCreation &&
       this.focusedFieldData.inlineMenuFillType !== InlineMenuFillType.AccountCreation;
 
+    if (this.focusedFieldData.inlineMenuFillType === InlineMenuFillType.PasswordGeneration) {
+      this.refreshGeneratedPassword().catch((error) => this.logService.error(error));
+      return;
+    }
+
     if (accountCreationFieldBlurred || this.showInlineMenuAccountCreation()) {
       this.updateInlineMenuOnAccountCreationField(previousFocusedFieldData).catch((error) =>
         this.logService.error(error),
@@ -1385,9 +1390,8 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     }
 
     if (
-      this.focusedFieldData.inlineMenuFillType === InlineMenuFillType.PasswordGeneration ||
-      (this.focusedFieldData.inlineMenuFillType === CipherType.Login &&
-        this.focusedFieldData.accountCreationFieldType === "password")
+      this.focusedFieldData.inlineMenuFillType === CipherType.Login &&
+      this.focusedFieldData.accountCreationFieldType === "password"
     ) {
       await this.refreshGeneratedPassword();
       return;
