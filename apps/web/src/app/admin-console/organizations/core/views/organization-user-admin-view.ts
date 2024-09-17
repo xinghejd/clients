@@ -4,7 +4,7 @@ import {
 } from "@bitwarden/common/admin-console/enums";
 import { PermissionsApi } from "@bitwarden/common/admin-console/models/api/permissions.api";
 
-import { CollectionAccessSelectionView } from "./collection-access-selection.view";
+import { CollectionAccessSelectionView } from "../../../../../../../../libs/admin-console/src/common/collections/models/collection-access-selection.view";
 
 export class OrganizationUserAdminView {
   id: string;

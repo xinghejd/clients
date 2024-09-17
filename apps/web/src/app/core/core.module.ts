@@ -69,7 +69,6 @@ import { WebBiometricsService } from "../platform/web-biometric.service";
 import { WebEnvironmentService } from "../platform/web-environment.service";
 import { WebMigrationRunner } from "../platform/web-migration-runner";
 import { WebStorageServiceProvider } from "../platform/web-storage-service.provider";
-import { CollectionAdminService } from "../vault/core/collection-admin.service";
 
 import { EventService } from "./event.service";
 import { InitService } from "./init.service";
@@ -143,7 +142,6 @@ const safeProviders: SafeProvider[] = [
     useClass: WebFileDownloadService,
     useAngularDecorators: true,
   }),
-  safeProvider(CollectionAdminService),
   safeProvider({
     provide: WindowStorageService,
     useFactory: () => new WindowStorageService(window.localStorage),

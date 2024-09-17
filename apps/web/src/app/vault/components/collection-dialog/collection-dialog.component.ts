@@ -14,6 +14,8 @@ import {
 import { first } from "rxjs/operators";
 
 import {
+  CollectionAdminService,
+  CollectionAdminView,
   OrganizationUserApiService,
   OrganizationUserUserDetailsResponse,
 } from "@bitwarden/admin-console/common";
@@ -40,8 +42,6 @@ import {
   convertToPermission,
   convertToSelectionView,
 } from "../../../admin-console/organizations/shared/components/access-selector/access-selector.models";
-import { CollectionAdminService } from "../../core/collection-admin.service";
-import { CollectionAdminView } from "../../core/views/collection-admin.view";
 
 export enum CollectionDialogTabType {
   Info = 0,

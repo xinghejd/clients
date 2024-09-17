@@ -4,6 +4,8 @@ import { Subject } from "rxjs";
 import {
   OrganizationUserApiService,
   DefaultOrganizationUserApiService,
+  CollectionAdminService,
+  DefaultCollectionAdminService,
 } from "@bitwarden/admin-console/common";
 import {
   SetPasswordJitService,
@@ -1315,6 +1317,11 @@ const safeProviders: SafeProvider[] = [
     provide: ViewCacheService,
     useExisting: NoopViewCacheService,
     deps: [],
+  }),
+  safeProvider({
+    provide: CollectionAdminService,
+    useClass: DefaultCollectionAdminService,
+    deps: [ApiService, CryptoService, CollectionService],
   }),
 ];
 
