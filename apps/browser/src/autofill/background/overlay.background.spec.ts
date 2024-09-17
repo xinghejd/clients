@@ -47,6 +47,7 @@ import {
   RedirectFocusDirection,
 } from "../enums/autofill-overlay.enum";
 import { AutofillService } from "../services/abstractions/autofill.service";
+import { InlineMenuFieldQualificationService } from "../services/abstractions/inline-menu-field-qualifications.service";
 import {
   createAutofillPageDetailsMock,
   createChromeTabMock,
@@ -96,6 +97,7 @@ describe("OverlayBackground", () => {
   let fido2ActiveRequestManager: Fido2ActiveRequestManager;
   let selectedThemeMock$: BehaviorSubject<ThemeType>;
   let passwordGenerationService: MockProxy<PasswordGenerationServiceAbstraction>;
+  let inlineMenuFieldQualificationService: MockProxy<InlineMenuFieldQualificationService>;
   let themeStateService: MockProxy<ThemeStateService>;
   let overlayBackground: OverlayBackground;
   let portKeyForTabSpy: Record<number, string>;
@@ -168,6 +170,7 @@ describe("OverlayBackground", () => {
     vaultSettingsServiceMock.enablePasskeys$ = enablePasskeysMock$;
     fido2ActiveRequestManager = new Fido2ActiveRequestManager();
     selectedThemeMock$ = new BehaviorSubject(ThemeType.Light);
+    inlineMenuFieldQualificationService = mock<InlineMenuFieldQualificationService>();
     themeStateService = mock<ThemeStateService>();
     passwordGenerationService = mock<PasswordGenerationServiceAbstraction>();
     themeStateService.selectedTheme$ = selectedThemeMock$;
@@ -184,6 +187,7 @@ describe("OverlayBackground", () => {
       vaultSettingsServiceMock,
       fido2ActiveRequestManager,
       passwordGenerationService,
+      inlineMenuFieldQualificationService,
       themeStateService,
     );
     portKeyForTabSpy = overlayBackground["portKeyForTab"];

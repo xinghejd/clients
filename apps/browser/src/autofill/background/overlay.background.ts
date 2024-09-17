@@ -55,7 +55,8 @@ import {
   InlineMenuFillType,
   MAX_SUB_FRAME_DEPTH,
 } from "../enums/autofill-overlay.enum";
-import { AutofillService } from "../services/abstractions/autofill.service";
+import { AutofillService, PageDetail } from "../services/abstractions/autofill.service";
+import { InlineMenuFieldQualificationService } from "../services/abstractions/inline-menu-field-qualifications.service";
 import { generateRandomChars } from "../utils";
 
 import { LockedVaultPendingNotificationsData } from "./abstractions/notification.background";
@@ -115,6 +116,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
   private isInlineMenuListVisible: boolean = false;
   private showPasskeysLabelsWithinInlineMenu: boolean = false;
   private iconsServerUrl: string;
+  private mostRecentlyGeneratedPassword: string;
   private readonly extensionMessageHandlers: OverlayBackgroundExtensionMessageHandlers = {
     autofillOverlayElementClosed: ({ message, sender }) =>
       this.overlayElementClosed(message, sender),
@@ -173,6 +175,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       this.redirectInlineMenuFocusOut(message, port),
     updateAutofillInlineMenuListHeight: ({ message }) => this.updateInlineMenuListHeight(message),
     refreshGeneratedPassword: () => this.refreshGeneratedPassword(),
+    fillGeneratedPassword: ({ port }) => this.fillGeneratedPassword(port),
   };
 
   constructor(
@@ -188,6 +191,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     private vaultSettingsService: VaultSettingsService,
     private fido2ActiveRequestManager: Fido2ActiveRequestManager,
     private passwordGenerationService: PasswordGenerationServiceAbstraction,
+    private inlineMenuFieldQualificationService: InlineMenuFieldQualificationService,
     private themeStateService: ThemeStateService,
   ) {
     this.initOverlayEventObservables();
@@ -197,6 +201,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     const options = (await this.passwordGenerationService.getOptions())?.[0] ?? {};
     const password = await this.passwordGenerationService.generatePassword(options);
     await this.passwordGenerationService.addHistory(password);
+    this.mostRecentlyGeneratedPassword = password;
 
     return password;
   }
@@ -271,6 +276,8 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     if (this.portKeyForTab[tabId]) {
       delete this.portKeyForTab[tabId];
     }
+
+    this.mostRecentlyGeneratedPassword = null;
   }
 
   /**
@@ -1412,6 +1419,60 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     });
   }
 
+  // TODO: Most of the logic here likely should exist within the autofill service instead of here.
+  private async fillGeneratedPassword(port: chrome.runtime.Port) {
+    if (!this.mostRecentlyGeneratedPassword) {
+      return;
+    }
+
+    const pageDetails = this.pageDetailsForTab[port.sender.tab.id];
+    if (!pageDetails) {
+      return;
+    }
+
+    let filteredPageDetails: PageDetail[] = structuredClone(Array.from(pageDetails.values()));
+    if (!filteredPageDetails.length) {
+      return;
+    }
+
+    // TODO: This is incredibly inefficient. Need to think through a better way to approach this.
+    filteredPageDetails = filteredPageDetails.map((pageDetail) => {
+      pageDetail.details.fields = pageDetail.details.fields.filter((field) => {
+        const isNewPasswordField =
+          this.inlineMenuFieldQualificationService.isNewPasswordField(field);
+        if (
+          this.focusedFieldData.inlineMenuFillType === InlineMenuFillType.PasswordGeneration ||
+          this.focusedFieldData.inlineMenuFillType === InlineMenuFillType.AccountCreation
+        ) {
+          return isNewPasswordField;
+        }
+
+        return (
+          isNewPasswordField ||
+          (this.showInlineMenuAccountCreation() &&
+            this.inlineMenuFieldQualificationService.isCurrentPasswordField(field))
+        );
+      });
+
+      return pageDetail;
+    });
+
+    const cipher = this.buildLoginCipherView({
+      username: "",
+      password: this.mostRecentlyGeneratedPassword,
+      hostname: "",
+      uri: "",
+    });
+
+    await this.autofillService.doAutoFill({
+      tab: port.sender.tab,
+      cipher,
+      pageDetails: filteredPageDetails,
+      fillNewPassword: true,
+      allowTotpAutofill: false,
+    });
+  }
+
   /**
    * Updates the inline menu's visibility based on the display property passed in the extension message.
    *
@@ -2327,9 +2388,11 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     }
 
     // TODO: Pull this into a separate method
+    const authStatus = await this.getAuthStatus();
     const showInlineMenuAccountCreation = this.showInlineMenuAccountCreation();
     let generatedPassword = null;
     if (
+      authStatus === AuthenticationStatus.Unlocked &&
       isInlineMenuListPort &&
       (this.focusedFieldData?.inlineMenuFillType === InlineMenuFillType.PasswordGeneration ||
         (showInlineMenuAccountCreation &&
@@ -2349,7 +2412,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       pageTitle: chrome.i18n.getMessage(
         isInlineMenuListPort ? "bitwardenVault" : "bitwardenOverlayButton",
       ),
-      authStatus: await this.getAuthStatus(),
+      authStatus,
       styleSheetUrl: chrome.runtime.getURL(
         `overlay/menu-${isInlineMenuListPort ? "list" : "button"}.css`,
       ),

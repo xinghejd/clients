@@ -224,6 +224,7 @@ import { Fido2Background } from "../autofill/fido2/background/fido2.background";
 import { BrowserFido2UserInterfaceService } from "../autofill/fido2/services/browser-fido2-user-interface.service";
 import { AutofillService as AutofillServiceAbstraction } from "../autofill/services/abstractions/autofill.service";
 import AutofillService from "../autofill/services/autofill.service";
+import { InlineMenuFieldQualificationService } from "../autofill/services/inline-menu-field-qualification.service";
 import { SafariApp } from "../browser/safariApp";
 import { BrowserApi } from "../platform/browser/browser-api";
 import { UpdateBadge } from "../platform/listeners/update-badge";
@@ -1603,6 +1604,7 @@ export default class MainBackground {
         this.themeStateService,
       );
     } else {
+      const inlineMenuFieldQualificationService = new InlineMenuFieldQualificationService();
       this.overlayBackground = new OverlayBackground(
         this.logService,
         this.cipherService,
@@ -1616,6 +1618,7 @@ export default class MainBackground {
         this.vaultSettingsService,
         this.fido2ActiveRequestManager,
         this.passwordGenerationService,
+        inlineMenuFieldQualificationService,
         this.themeStateService,
       );
     }
