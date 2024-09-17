@@ -1,5 +1,5 @@
 import { inject } from "@angular/core";
-import { combineLatest, from, interval, map, Observable, switchMap } from "rxjs";
+import { combineLatest, from, map, Observable } from "rxjs";
 
 import {
   BiometricsDisableReason,
@@ -76,33 +76,19 @@ export class DesktopLockComponentService implements LockComponentService {
     return { supportsBiometric, biometricReady };
   }
 
-  private biometricsSupportedAndReady$(userId: UserId): Observable<{
-    supportsBiometric: boolean;
-    biometricReady: boolean;
-  }> {
-    return interval(this.biometricsPollingIntervalMs).pipe(
-      switchMap(() => this.isBiometricsSupportedAndReady(userId)),
-    );
-  }
-
   getAvailableUnlockOptions$(userId: UserId): Observable<UnlockOptions> {
     return combineLatest([
-      this.biometricsSupportedAndReady$(userId),
+      from(this.isBiometricsSupportedAndReady(userId)),
       from(this.isBiometricLockSet(userId)),
       this.userDecryptionOptionsService.userDecryptionOptionsById$(userId),
       from(this.pinService.isPinDecryptionAvailable(userId)),
     ]).pipe(
       map(
-        ([
-          polledBiometricsData,
-          isBiometricsLockSet,
-          userDecryptionOptions,
-          pinDecryptionAvailable,
-        ]) => {
+        ([biometricsData, isBiometricsLockSet, userDecryptionOptions, pinDecryptionAvailable]) => {
           const disableReason = this.getBiometricsDisabledReason(
-            polledBiometricsData.supportsBiometric,
+            biometricsData.supportsBiometric,
             isBiometricsLockSet,
-            polledBiometricsData.biometricReady,
+            biometricsData.biometricReady,
           );
 
           const unlockOpts: UnlockOptions = {
@@ -114,9 +100,9 @@ export class DesktopLockComponentService implements LockComponentService {
             },
             biometrics: {
               enabled:
-                polledBiometricsData.supportsBiometric &&
+                biometricsData.supportsBiometric &&
                 isBiometricsLockSet &&
-                polledBiometricsData.biometricReady,
+                biometricsData.biometricReady,
               disableReason: disableReason,
             },
           };
