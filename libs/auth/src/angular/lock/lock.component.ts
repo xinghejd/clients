@@ -540,6 +540,7 @@ export class LockV2Component implements OnInit, OnDestroy {
   // -----------------------------------------------------------------------------------------------
 
   async desktopOnInit() {
+    // TODO: move this into a WindowService and subscribe to messages via MessageListener service.
     this.broadcasterService.subscribe(BroadcasterSubscriptionId, async (message: any) => {
       this.ngZone.run(() => {
         switch (message.command) {
@@ -569,7 +570,6 @@ export class LockV2Component implements OnInit, OnDestroy {
       return;
     }
 
-    // TODO: update this if we merge Bernd's changes which prevent a proc reload on biometric prompt cancel
     // This is required to prevent the biometric prompt from showing if the user has already cancelled it
     // since the app process reloads when the user cancels the prompt currently.
     if (await firstValueFrom(this.biometricStateService.promptCancelled$)) {
