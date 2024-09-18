@@ -1,7 +1,7 @@
 use std::path::Path;
 
 use desktop_core::ipc::{MESSAGE_CHANNEL_BUFFER, NATIVE_MESSAGING_BUFFER_SIZE};
-use futures::{SinkExt, StreamExt};
+use futures::{FutureExt, SinkExt, StreamExt};
 use log::*;
 use tokio_util::codec::LengthDelimitedCodec;
 
@@ -81,9 +81,10 @@ async fn main() {
     let (in_send, in_recv) = tokio::sync::mpsc::channel(MESSAGE_CHANNEL_BUFFER);
     let (out_send, mut out_recv) = tokio::sync::mpsc::channel(MESSAGE_CHANNEL_BUFFER);
 
-    let mut handle = tokio::spawn(desktop_core::ipc::client::connect(
-        sock_path, out_send, in_recv,
-    ));
+    let mut handle = tokio::spawn(
+        desktop_core::ipc::client::connect(sock_path, out_send, in_recv)
+            .map(|r| r.map_err(|e| e.to_string())),
+    );
 
     // Create a new codec for reading and writing messages from stdin/stdout.
     let mut stdin = LengthDelimitedCodec::builder()
@@ -97,9 +98,27 @@ async fn main() {
 
     loop {
         tokio::select! {
+            // This forces tokio to poll the futures in the order that they are written.
+            // We want the spawn handle to be evaluated first so that we can get any error
+            // results before we get the channel closed message.
+            biased;
+
             // IPC client has finished, so we should exit as well.
-            _ = &mut handle => {
-                break;
+            res = &mut handle => {
+                match res {
+                    Ok(Ok(())) => {
+                        info!("IPC client finished successfully.");
+                        std::process::exit(0);
+                    }
+                    Ok(Err(e)) => {
+                        error!("IPC client connection error: {}", e);
+                        std::process::exit(1);
+                    }
+                    Err(e) => {
+                        error!("IPC client spawn error: {}", e);
+                        std::process::exit(1);
+                    }
+                }
             }
 
             // Receive messages from IPC and print to STDOUT.
@@ -111,7 +130,7 @@ async fn main() {
                     }
                     None => {
                         info!("Channel closed, exiting.");
-                        break;
+                        std::process::exit(0);
                     }
                 }
             },
@@ -126,11 +145,11 @@ async fn main() {
                     }
                     Some(Err(e)) => {
                         error!("Error parsing input: {}", e);
-                        break;
+                        std::process::exit(1);
                     }
                     None => {
                         info!("Received EOF, exiting.");
-                        break;
+                        std::process::exit(0);
                     }
                 }
             }
