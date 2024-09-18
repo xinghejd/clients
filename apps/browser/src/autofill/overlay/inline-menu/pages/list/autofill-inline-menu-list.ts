@@ -338,7 +338,7 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
       this.ciphersList.addEventListener(
         EVENTS.SCROLL,
         this.useEventHandlersMemo(
-          throttle(this.handleThrottledPasskeysHeadingsOnScroll, 50),
+          throttle(this.handleThrottledOnScrollEvent, 50),
           UPDATE_PASSKEYS_HEADINGS_ON_SCROLL,
         ),
         options,
@@ -393,7 +393,12 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
     }
   };
 
-  private handleThrottledPasskeysHeadingsOnScroll = (event: MouseEvent) => {
+  /**
+   * Throttled handler for updating the passkeys and login headings when the user scrolls the ciphers list.
+   *
+   * @param event - The scroll event.
+   */
+  private handleThrottledOnScrollEvent = (event: MouseEvent) => {
     event.preventDefault();
     event.stopPropagation();
 
@@ -619,6 +624,12 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
     );
   };
 
+  /**
+   * Triggers a fill of the currently selected cipher.
+   *
+   * @param cipher - The cipher to fill.
+   * @param usePasskey - Whether the cipher uses a passkey.
+   */
   private triggerFillCipherClickEvent = (cipher: InlineMenuCipherData, usePasskey: boolean) => {
     if (usePasskey) {
       this.createPasskeyAuthenticatingLoader();
@@ -914,6 +925,9 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
     return cipherDetailsElement;
   }
 
+  /**
+   * Creates an indicator for the user that the passkey is being authenticated.
+   */
   private createPasskeyAuthenticatingLoader() {
     this.resetInlineMenuContainer();
 

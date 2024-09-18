@@ -6,7 +6,7 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 
 import { BrowserApi } from "../../platform/browser/browser-api";
-import { generateMatchPatterns, isInvalidStatusCode } from "../utils";
+import { generateDomainMatchPatterns, isInvalidStatusCode } from "../utils";
 
 import {
   ActiveFormSubmissionRequests,
@@ -110,8 +110,8 @@ export class OverlayNotificationsBackground implements OverlayNotificationsBackg
    */
   private getSenderUrlMatchPatterns(sender: chrome.runtime.MessageSender) {
     return new Set([
-      ...generateMatchPatterns(sender.url),
-      ...generateMatchPatterns(sender.tab.url),
+      ...generateDomainMatchPatterns(sender.url),
+      ...generateDomainMatchPatterns(sender.tab.url),
     ]);
   }
 

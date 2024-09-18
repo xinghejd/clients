@@ -432,7 +432,7 @@ export function getSubmitButtonKeywordsSet(element: HTMLElement): Set<string> {
  *
  * @param url - The URL of the tab
  */
-export function generateMatchPatterns(url: string): string[] {
+export function generateDomainMatchPatterns(url: string): string[] {
   try {
     if (!url.startsWith("http")) {
       url = `https://${url}`;

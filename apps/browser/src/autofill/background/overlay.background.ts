@@ -54,7 +54,7 @@ import {
   MAX_SUB_FRAME_DEPTH,
 } from "../enums/autofill-overlay.enum";
 import { AutofillService } from "../services/abstractions/autofill.service";
-import { generateMatchPatterns, generateRandomChars, isInvalidStatusCode } from "../utils";
+import { generateDomainMatchPatterns, generateRandomChars, isInvalidStatusCode } from "../utils";
 
 import { LockedVaultPendingNotificationsData } from "./abstractions/notification.background";
 import {
@@ -979,20 +979,33 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       return;
     }
 
-    chrome.webRequest.onCompleted.addListener(this.handleWebRequestOnCompleted, {
-      urls: generateMatchPatterns(sender.tab.url),
+    chrome.webRequest.onCompleted.addListener(this.handlePasskeyAuthenticationOnCompleted, {
+      urls: generateDomainMatchPatterns(sender.tab.url),
     });
     request.subject.next({ type: Fido2ActiveRequestEvents.Continue, credentialId });
   }
 
-  private handleWebRequestOnCompleted = (details: chrome.webRequest.WebResponseCacheDetails) => {
-    chrome.webRequest.onCompleted.removeListener(this.handleWebRequestOnCompleted);
+  /**
+   * Handles the next web request that occurs after a passkey authentication has been completed.
+   * Ensures that the inline menu closes after the request, and that the FIDO2 request is aborted
+   * if the request is not successful.
+   *
+   * @param details - The web request details
+   */
+  private handlePasskeyAuthenticationOnCompleted = (
+    details: chrome.webRequest.WebResponseCacheDetails,
+  ) => {
+    chrome.webRequest.onCompleted.removeListener(this.handlePasskeyAuthenticationOnCompleted);
+
     if (isInvalidStatusCode(details.statusCode)) {
       this.closeInlineMenu({ tab: { id: details.tabId } } as chrome.runtime.MessageSender, {
         forceCloseInlineMenu: true,
       });
       this.abortFido2ActiveRequest(details.tabId).catch((error) => this.logService.error(error));
+      return;
     }
+
+    globalThis.setTimeout(() => this.triggerDelayedInlineMenuClosure(), 3000);
   };
 
   /**
