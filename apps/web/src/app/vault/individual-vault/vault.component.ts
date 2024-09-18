@@ -866,7 +866,7 @@ export class VaultComponent implements OnInit, OnDestroy {
       this.go({ cipherId: null, itemId: null, action: null });
     }
 
-    if (result?.action === ViewCipherDialogResult.edited) {
+    if (result?.action === ViewCipherDialogResult.Edited) {
       // Edit cipher and trigger MP re-prompt
       await this.editCipher(cipherView, false);
       this.go({ cipherId: null, itemId: cipherView.id, action: "edit" });
