@@ -266,14 +266,30 @@ export class LockV2Component implements OnInit, OnDestroy {
   private async handleBiometricsUnlockEnabled() {
     this.biometricUnlockBtnText = this.lockComponentService.getBiometricsUnlockBtnText();
 
-    if (this.clientType === "desktop") {
-      const autoPromptBiometrics = await firstValueFrom(
-        this.biometricStateService.promptAutomatically$,
-      );
+    const autoPromptBiometrics = await firstValueFrom(
+      this.biometricStateService.promptAutomatically$,
+    );
 
+    if (this.clientType === "desktop") {
       if (autoPromptBiometrics) {
         await this.desktopAutoPromptBiometrics();
       }
+    }
+
+    if (this.clientType === "browser") {
+      // TODO: investigate why we need to check auth status. We should always be locked at this point.
+      // TODO: investigate why we need setTimeout here.
+      window.setTimeout(async () => {
+        this.focusInput();
+        if (
+          this.unlockOptions.biometrics.enabled &&
+          autoPromptBiometrics &&
+          this.isInitialLockScreen &&
+          (await this.authService.getAuthStatus()) === AuthenticationStatus.Locked
+        ) {
+          await this.extensionUnlockBiometric();
+        }
+      }, 100);
     }
   }
 
@@ -499,6 +515,7 @@ export class LockV2Component implements OnInit, OnDestroy {
     // Vault can be de-synced since notifications get ignored while locked. Need to check whether sync is required using the sync service.
     await this.syncService.fullSync(false);
 
+    // TODO: fully remove all callbacks.
     if (this.onSuccessfulSubmit != null) {
       await this.onSuccessfulSubmit();
     } else if (this.router != null) {
@@ -520,7 +537,6 @@ export class LockV2Component implements OnInit, OnDestroy {
       return false;
     }
 
-    // TODO: test that this MP still exists here.
     const masterPassword = this.formGroup.controls.masterPassword.value;
 
     const passwordStrength = this.passwordStrengthService.getPasswordStrength(
@@ -600,22 +616,6 @@ export class LockV2Component implements OnInit, OnDestroy {
 
   async extensionOnInit() {
     this.isFido2Session = await this.lockComponentService.isFido2Session();
-
-    const autoBiometricsPrompt = await firstValueFrom(
-      this.biometricStateService.promptAutomatically$,
-    );
-
-    window.setTimeout(async () => {
-      this.focusInput();
-      if (
-        this.unlockOptions.biometrics.enabled &&
-        autoBiometricsPrompt &&
-        this.isInitialLockScreen &&
-        (await this.authService.getAuthStatus()) === AuthenticationStatus.Locked
-      ) {
-        await this.extensionUnlockBiometric();
-      }
-    }, 100);
   }
 
   private async extensionUnlockBiometric(): Promise<boolean> {
@@ -644,6 +644,8 @@ export class LockV2Component implements OnInit, OnDestroy {
 
     return success;
   }
+
+  // -----------------------------------------------------------------------------------------------
 
   ngOnDestroy() {
     this.destroy$.next();
