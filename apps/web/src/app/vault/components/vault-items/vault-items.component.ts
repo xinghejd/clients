@@ -73,6 +73,16 @@ export class VaultItemsComponent {
   protected dataSource = new TableDataSource<VaultItem>();
   protected selection = new SelectionModel<VaultItem>(true, [], true);
 
+  get canEditSelected() {
+    const selectedItemsNoManagePerm = this.selection.selected.filter(
+      (item) => !item.collection.manage,
+    );
+    if (selectedItemsNoManagePerm.length > 0) {
+      return false;
+    }
+    return true;
+  }
+
   get showExtraColumn() {
     return this.showCollections || this.showGroups || this.showOwner;
   }

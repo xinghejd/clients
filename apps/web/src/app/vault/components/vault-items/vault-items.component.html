@@ -41,7 +41,7 @@
               {{ (vaultBulkManagementActionEnabled ? "addToFolder" : "moveSelected") | i18n }}
             </button>
             <button
-              *ngIf="showAdminActions && showBulkEditCollectionAccess"
+              *ngIf="showAdminActions && showBulkEditCollectionAccess && canEditSelected"
               type="button"
               bitMenuItem
               (click)="bulkEditCollectionAccess()"

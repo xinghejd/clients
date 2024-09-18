@@ -105,6 +105,9 @@ export class VaultCollectionRowComponent {
   }
 
   protected get showCheckbox() {
-    return this.collection?.id !== Unassigned;
+    return (
+      this.collection?.id !== Unassigned &&
+      (this.collection?.canEdit(this.organization) || this.collection?.canDelete(this.organization))
+    );
   }
 }
