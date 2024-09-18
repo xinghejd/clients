@@ -48,6 +48,30 @@
   "loginCredentials": {
     "message": "Login credentials"
   },
+  "personalDetails": {
+    "message": "Personiskā informācija"
+  },
+  "identification": {
+    "message": "Identifikācija"
+  },
+  "contactInfo": {
+    "message": "Saziņas informācija"
+  },
+  "cardDetails": {
+    "message": "Kartes dati"
+  },
+  "cardBrandDetails": {
+    "message": "$BRAND$ dati",
+    "placeholders": {
+      "brand": {
+        "content": "$1",
+        "example": "Visa"
+      }
+    }
+  },
+  "itemHistory": {
+    "message": "Vienuma vēsture"
+  },
   "authenticatorKey": {
     "message": "Authenticator key"
   },
@@ -118,6 +142,9 @@
   },
   "securityCode": {
     "message": "Drošības kods (CVV)"
+  },
+  "securityCodeSlashCVV": {
+    "message": "Drošības kods / CVV"
   },
   "identityName": {
     "message": "Identitātes nosaukums"
@@ -439,6 +466,9 @@
   "fullName": {
     "message": "Pilnais vārds"
   },
+  "address": {
+    "message": "Adrese"
+  },
   "address1": {
     "message": "Adrese 1"
   },
@@ -534,6 +564,9 @@
         "example": "Password"
       }
     }
+  },
+  "copySuccessful": {
+    "message": "Ievietošana starpliktuvē veiksmīga"
   },
   "copyValue": {
     "message": "Ievietot vērtību starpliktuvē",
@@ -723,16 +756,16 @@
     "message": "Pieteikšanās sesija ir beigusies."
   },
   "restartRegistration": {
-    "message": "Restart registration"
+    "message": "Sākt reģistrēšanos no jauna"
   },
   "expiredLink": {
-    "message": "Expired link"
+    "message": "Saitei beidzies derīgums"
   },
   "pleaseRestartRegistrationOrTryLoggingIn": {
-    "message": "Please restart registration or try logging in."
+    "message": "Lūgums sākt reģistrēšanos no jauna vai mēģināt pieteikties."
   },
   "youMayAlreadyHaveAnAccount": {
-    "message": "You may already have an account"
+    "message": "Tev jau varētu būt konts"
   },
   "logOutConfirmation": {
     "message": "Vai tiešām atteikties?"
@@ -3867,6 +3900,12 @@
       }
     }
   },
+  "encryptionKeyUpdateCannotProceed": {
+    "message": "Šifrēšanas atslēgas atjaunināšana nav iespējama"
+  },
+  "keyUpdateFoldersFailed": {
+    "message": "Šifrēšanas atslēgas atjaunināšanas laikā mapes nevarēja atšifrēt. Lai turpinātu atjaunināšanu, mapes ir jāizdzēš. Glabātavas vienumi netiks izdzēsti, ja turpināsi."
+  },
   "keyUpdated": {
     "message": "Atslēga atjaunināta"
   },
@@ -3910,7 +3949,7 @@
     "message": "Nekas nav atlasīts."
   },
   "receiveMarketingEmailsV2": {
-    "message": "Get advice, announcements, and research opportunities from Bitwarden in your inbox."
+    "message": "Iegūt savā iesūtnē padomus, paziņojumus un izpētes iespējas no Bitwarden."
   },
   "unsubscribe": {
     "message": "Atteikt abonēšanu"
@@ -4007,6 +4046,9 @@
   },
   "selected": {
     "message": "Atlasīts"
+  },
+  "recommended": {
+    "message": "Ieteicams"
   },
   "ownership": {
     "message": "Īpašumtiesības"
@@ -8729,6 +8771,27 @@
   "memberAccessReportPageDesc": {
     "message": "Pārskatīt apvienības dalībnieku piekļuvi dažādām kopām, krājumiem un krājumu vienumiem. CSV izgūšana sniedz izvērstu pārskatu par katru dalībnieku, tajā skaitā informāciju par krājumu atļaujām un konta konfigurāciju."
   },
+  "memberAccessReportNoCollection": {
+    "message": "(Nav krājuma)"
+  },
+  "memberAccessReportNoCollectionPermission": {
+    "message": "(Nav krājuma atļaujas)"
+  },
+  "memberAccessReportNoGroup": {
+    "message": "(Nav kopas)"
+  },
+  "memberAccessReportTwoFactorEnabledTrue": {
+    "message": "Ieslēgts"
+  },
+  "memberAccessReportTwoFactorEnabledFalse": {
+    "message": "Izslēgts"
+  },
+  "memberAccessReportAuthenticationEnabledTrue": {
+    "message": "Ieslēgts"
+  },
+  "memberAccessReportAuthenticationEnabledFalse": {
+    "message": "Izslēgts"
+  },
   "higherKDFIterations": {
     "message": "Lielāks KDF atkārtojumu skaits var palīdzēt aizsargāt galveno paroli pārlases uzbrukuma gadījumā."
   },
@@ -8932,8 +8995,8 @@
       }
     }
   },
-  "upgradePlan": {
-    "message": "Uzlabo savu plānu, lai uzaicinātu vairāk dalībnieku un iegūtu piekļuvi papildu Bitwarden iespējām"
+  "upgradePlans": {
+    "message": "Jāuzlabo savs plāns, lai uzaicinātu dalībniekus un iegūtu spēcīgas drošības iespējas."
   },
   "upgradeDiscount": {
     "message": "Ietaupi $AMOUNT$%",
@@ -8944,11 +9007,11 @@
       }
     }
   },
-  "upgradeEnterpriseMessage": {
-    "message": "Izvērstas spējas lielākiem uzņēmumiem"
+  "enterprisePlanUpgradeMessage": {
+    "message": "Papildu spējas lielākām apvienībām"
   },
-  "upgradeTeamsMessage": {
-    "message": "Uzņēmumiem, kuri meklē spēcīgu drošibu"
+  "teamsPlanUpgradeMessage": {
+    "message": "Elastīga aizsardzība augošām komandām"
   },
   "teamsInviteMessage": {
     "message": "Neierobežota dalībnieku skaita uzaicināšana"
@@ -8959,8 +9022,8 @@
   "syncGroupsAndUsersFromDirectory": {
     "message": "Kopu un lietotāju sinhronizēšana no direktorija"
   },
-  "upgradeFamilyMessage": {
-    "message": "Kopīgošana ar ģimeni un draugiem"
+  "familyPlanUpgradeMessage": {
+    "message": "Nodrošini savas ģimenes pieteikšanās vienumus"
   },
   "accessToPremiumFeatures": {
     "message": "Piekļuve Premium iespējām"
@@ -9016,14 +9079,23 @@
   "bitwardenPasswordManager": {
     "message": "Bitwarden paroļu pārvaldnieks"
   },
-  "secretsManagerWithFreePasswordManagerInfo": {
+  "secretsManagerComplimentaryPasswordManager": {
     "message": "Bezmaksas viena gada Paroļu pārvaldnieka abonements tiks uzlabots uz izvēlēto plānu. Maksa netiks ieturēta līdz bezmaksas izmantošanas laika beigām."
+  },
+  "fileSavedToDevice": {
+    "message": "Datne saglabāta ierīcē. Tā ir atrodama ierīces lejupielāžu mapē."
   },
   "publicApi": {
     "message": "Publiskais API",
     "description": "The text, 'API', is an acronymn and should not be translated."
   },
-  "additionalContentAvailable": {
-    "message": "Ir pieejams papildu saturs"
+  "showCharacterCount": {
+    "message": "Rādīt rakstzīmju skaitu"
+  },
+  "hideCharacterCount": {
+    "message": "Paslēpt rakstzīmju skaitu"
+  },
+  "editAccess": {
+    "message": "Labot piekļuvi"
   }
 }

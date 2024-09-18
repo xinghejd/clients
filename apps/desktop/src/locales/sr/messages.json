@@ -604,10 +604,10 @@
     "message": "Ваш налог је креиран! Сада се можете пријавити."
   },
   "newAccountCreated2": {
-    "message": "Your new account has been created!"
+    "message": "Ваш нови налог је направљен!"
   },
   "youHaveBeenLoggedIn": {
-    "message": "You have been logged in!"
+    "message": "Пријављени сте!"
   },
   "masterPassSent": {
     "message": "Послали смо Вам поруку са саветом главне лозинке."
@@ -1284,6 +1284,9 @@
         "example": "Password"
       }
     }
+  },
+  "copySuccessful": {
+    "message": "Copy Successful"
   },
   "errorRefreshingAccessToken": {
     "message": "Грешка при освежавању токена приступа"
@@ -3061,5 +3064,8 @@
   },
   "ssoError": {
     "message": "No free ports could be found for the sso login."
+  },
+  "fileSavedToDevice": {
+    "message": "File saved to device. Manage from your device downloads."
   }
 }

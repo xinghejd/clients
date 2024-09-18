@@ -48,6 +48,30 @@
   "loginCredentials": {
     "message": "Vjerodajnice za prijavu"
   },
+  "personalDetails": {
+    "message": "Osobni podaci"
+  },
+  "identification": {
+    "message": "Identifikacija"
+  },
+  "contactInfo": {
+    "message": "Kontakt podaci"
+  },
+  "cardDetails": {
+    "message": "Detalji kartice"
+  },
+  "cardBrandDetails": {
+    "message": "$BRAND$ detalji",
+    "placeholders": {
+      "brand": {
+        "content": "$1",
+        "example": "Visa"
+      }
+    }
+  },
+  "itemHistory": {
+    "message": "Povijest stavke"
+  },
   "authenticatorKey": {
     "message": "Kôd za provjeru"
   },
@@ -118,6 +142,9 @@
   },
   "securityCode": {
     "message": "Kontrolni broj"
+  },
+  "securityCodeSlashCVV": {
+    "message": "Security code / CVV"
   },
   "identityName": {
     "message": "Ime identiteta"
@@ -439,6 +466,9 @@
   "fullName": {
     "message": "Ime i prezime"
   },
+  "address": {
+    "message": "Adresa"
+  },
   "address1": {
     "message": "Adresa 1"
   },
@@ -534,6 +564,9 @@
         "example": "Password"
       }
     }
+  },
+  "copySuccessful": {
+    "message": "Copy Successful"
   },
   "copyValue": {
     "message": "Kopiraj vrijednost",
@@ -965,10 +998,10 @@
     "message": "Tvoj novi račun je stvoren! Sada se možeš prijaviti."
   },
   "newAccountCreated2": {
-    "message": "Your new account has been created!"
+    "message": "Tvoj novi račun je stvoren!"
   },
   "youHaveBeenLoggedIn": {
-    "message": "You have been logged in!"
+    "message": "Prijava uspješna!"
   },
   "trialAccountCreated": {
     "message": "Račun je uspješno stvoren."
@@ -1689,7 +1722,7 @@
     "message": "Izuzmi"
   },
   "include": {
-    "message": "Obuhvati"
+    "message": "Uključi"
   },
   "customize": {
     "message": "Prilagodi"
@@ -3867,6 +3900,12 @@
       }
     }
   },
+  "encryptionKeyUpdateCannotProceed": {
+    "message": "Encryption key update cannot proceed"
+  },
+  "keyUpdateFoldersFailed": {
+    "message": "When updating your encryption key, your folders could not be decrypted. To continue with the update, your folders must be deleted. No vault items will be deleted if you proceed."
+  },
   "keyUpdated": {
     "message": "Ključ ažuriran"
   },
@@ -4007,6 +4046,9 @@
   },
   "selected": {
     "message": "Odabrano"
+  },
+  "recommended": {
+    "message": "Recommended"
   },
   "ownership": {
     "message": "Vlasništvo"
@@ -4990,7 +5032,7 @@
     }
   },
   "viewSend": {
-    "message": "View Send",
+    "message": "Pogledaj Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "viewSendHiddenEmailWarning": {
@@ -8729,6 +8771,27 @@
   "memberAccessReportPageDesc": {
     "message": "Provjeri pristup članova organizacije u grupama, zbirkama i stavkama zbirke. CSV izvoz pruža detaljnu raščlambu po članu, uključujući informacije o dozvolama za prikupljanje i konfiguracijama računa."
   },
+  "memberAccessReportNoCollection": {
+    "message": "(No Collection)"
+  },
+  "memberAccessReportNoCollectionPermission": {
+    "message": "(No Collection Permission)"
+  },
+  "memberAccessReportNoGroup": {
+    "message": "(No Group)"
+  },
+  "memberAccessReportTwoFactorEnabledTrue": {
+    "message": "On"
+  },
+  "memberAccessReportTwoFactorEnabledFalse": {
+    "message": "Off"
+  },
+  "memberAccessReportAuthenticationEnabledTrue": {
+    "message": "On"
+  },
+  "memberAccessReportAuthenticationEnabledFalse": {
+    "message": "Off"
+  },
   "higherKDFIterations": {
     "message": "Veće KDF iteracije mogu pomoći u zaštiti tvoje glavne lozinke od napadača."
   },
@@ -8932,8 +8995,8 @@
       }
     }
   },
-  "upgradePlan": {
-    "message": "Nadogradi svoj plan za pozivanje više članova i pristup dodatnim Bitwarden značajkama"
+  "upgradePlans": {
+    "message": "Upgrade your plan to invite members and experience powerful security features."
   },
   "upgradeDiscount": {
     "message": "Uštedi $AMOUNT$ %",
@@ -8944,11 +9007,11 @@
       }
     }
   },
-  "upgradeEnterpriseMessage": {
-    "message": "Napredne mogućnosti za veće tvrtke"
+  "enterprisePlanUpgradeMessage": {
+    "message": "Advanced capabilities for larger organizations"
   },
-  "upgradeTeamsMessage": {
-    "message": "Tvrtke koje traže veću razinu sigurnosti"
+  "teamsPlanUpgradeMessage": {
+    "message": "Resilient protection for growing teams"
   },
   "teamsInviteMessage": {
     "message": "Pozovi neograničen broj članova"
@@ -8959,8 +9022,8 @@
   "syncGroupsAndUsersFromDirectory": {
     "message": "Sinkroniziraj grupe i korisnike iz imenika"
   },
-  "upgradeFamilyMessage": {
-    "message": "Dijeli s obitelji i prijateljima"
+  "familyPlanUpgradeMessage": {
+    "message": "Secure your family logins"
   },
   "accessToPremiumFeatures": {
     "message": "Pristup Premium značajkama"
@@ -9016,14 +9079,23 @@
   "bitwardenPasswordManager": {
     "message": "Bitwarden upravitelj lozinki"
   },
-  "secretsManagerWithFreePasswordManagerInfo": {
-    "message": "Tvoja jednogodišnja poklon pretplata na Upravitelj tajni će se nadograditi na odabrani plan. Neće biti naplate dok ne završi besplatno razdoblje."
+  "secretsManagerComplimentaryPasswordManager": {
+    "message": "Your complimentary one year Password Manager subscription will upgrade to the selected plan. You will not be charged until the complimentary period is over."
+  },
+  "fileSavedToDevice": {
+    "message": "File saved to device. Manage from your device downloads."
   },
   "publicApi": {
-    "message": "Public API",
+    "message": "Javni API",
     "description": "The text, 'API', is an acronymn and should not be translated."
   },
-  "additionalContentAvailable": {
-    "message": "Additional content is available"
+  "showCharacterCount": {
+    "message": "Show character count"
+  },
+  "hideCharacterCount": {
+    "message": "Hide character count"
+  },
+  "editAccess": {
+    "message": "Uredi pristup"
   }
 }

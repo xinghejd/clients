@@ -127,6 +127,12 @@ export class AppComponent implements OnInit, OnDestroy {
             this.showNativeMessagingFingerprintDialog(msg);
           } else if (msg.command === "showToast") {
             this.toastService._showToast(msg);
+          } else if (msg.command === "reloadProcess") {
+            if (this.platformUtilsService.isSafari()) {
+              window.setTimeout(() => {
+                window.location.reload();
+              }, 2000);
+            }
           } else if (msg.command === "reloadPopup") {
             // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
             // eslint-disable-next-line @typescript-eslint/no-floating-promises
@@ -247,7 +253,7 @@ export class AppComponent implements OnInit, OnDestroy {
   // Displaying toasts isn't super useful on the popup due to the reloads we do.
   // However, it is visible for a moment on the FF sidebar logout.
   private async displayLogoutReason(logoutReason: LogoutReason) {
-    let toastOptions: ToastOptions;
+    let toastOptions: ToastOptions | null = null;
     switch (logoutReason) {
       case "invalidSecurityStamp":
       case "sessionExpired": {
@@ -258,6 +264,11 @@ export class AppComponent implements OnInit, OnDestroy {
         };
         break;
       }
+    }
+
+    if (toastOptions == null) {
+      // We don't have anything to show for this particular reason
+      return;
     }
 
     this.toastService.showToast(toastOptions);
