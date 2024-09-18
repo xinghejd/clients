@@ -109,4 +109,20 @@ export class OrgDomainApiService implements OrgDomainApiServiceAbstraction {
 
     return response;
   }
+
+  async getClaimedOrgDomainListByEmail(
+    email: string,
+  ): Promise<Array<OrganizationDomainSsoDetailsResponse>> {
+    const listResponse: ListResponse<any> = await this.apiService.send(
+      "POST",
+      `/organizations/domain/sso/many-details`,
+      new OrganizationDomainSsoDetailsRequest(email),
+      false, // anonymous
+      true,
+    );
+    const ssoDetails = listResponse.data.map(
+      (details: any) => new OrganizationDomainSsoDetailsResponse(details),
+    );
+    return ssoDetails;
+  }
 }

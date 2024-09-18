@@ -77,9 +77,15 @@ const mockedOrganizationDomainSsoDetailsServerResponse = {
   verifiedDate: "2022-12-16T21:36:28.68Z",
 };
 
+const mockedOrganizationDomainListSsoDetailsServerResponse = [
+  mockedOrganizationDomainSsoDetailsServerResponse,
+];
+
 const mockedOrganizationDomainSsoDetailsResponse = new OrganizationDomainSsoDetailsResponse(
   mockedOrganizationDomainSsoDetailsServerResponse,
 );
+
+const mockedOrganizationDomainListSsoDetailsResponse = [mockedOrganizationDomainSsoDetailsResponse];
 
 describe("Org Domain API Service", () => {
   let orgDomainApiService: OrgDomainApiService;
@@ -228,5 +234,22 @@ describe("Org Domain API Service", () => {
     );
 
     expect(result).toEqual(mockedOrganizationDomainSsoDetailsResponse);
+  });
+
+  it("getClaimedOrgDomainListByEmail should call ApiService.send with correct parameters and return response", async () => {
+    const email = "test@example.com";
+    apiService.send.mockResolvedValue(mockedOrganizationDomainListSsoDetailsServerResponse);
+
+    const result = await orgDomainApiService.getClaimedOrgDomainListByEmail(email);
+
+    expect(apiService.send).toHaveBeenCalledWith(
+      "POST",
+      "/organizations/domain/sso/many-details",
+      new OrganizationDomainSsoDetailsRequest(email),
+      false, //anonymous
+      true,
+    );
+
+    expect(result).toEqual(mockedOrganizationDomainListSsoDetailsResponse);
   });
 });

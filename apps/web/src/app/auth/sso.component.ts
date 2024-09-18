@@ -107,11 +107,18 @@ export class SsoComponent extends BaseSsoComponent implements OnInit {
           // show loading spinner
           this.loggingIn = true;
           try {
-            const response: OrganizationDomainSsoDetailsResponse =
-              await this.orgDomainApiService.getClaimedOrgDomainByEmail(qParams.email);
-
-            if (response?.ssoAvailable) {
-              this.identifierFormControl.setValue(response.organizationIdentifier);
+            const response: OrganizationDomainSsoDetailsResponse[] =
+              await this.orgDomainApiService.getClaimedOrgDomainListByEmail(qParams.email);
+            const availableDomains = response.filter((d) => d.ssoAvailable);
+            let selectedDomain: OrganizationDomainSsoDetailsResponse = null;
+            if (availableDomains.length === 1) {
+              selectedDomain = availableDomains[0];
+            } else if (availableDomains.length > 1) {
+              // TODO: Show UI of availableDomains for user to select from
+              selectedDomain = availableDomains[1];
+            }
+            if (selectedDomain != null) {
+              this.identifierFormControl.setValue(selectedDomain.organizationIdentifier);
               await this.submit();
               return;
             }

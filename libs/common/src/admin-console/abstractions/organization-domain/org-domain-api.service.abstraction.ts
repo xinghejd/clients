@@ -16,4 +16,7 @@ export abstract class OrgDomainApiServiceAbstraction {
   verify: (orgId: string, orgDomainId: string) => Promise<OrganizationDomainResponse>;
   delete: (orgId: string, orgDomainId: string) => Promise<any>;
   getClaimedOrgDomainByEmail: (email: string) => Promise<OrganizationDomainSsoDetailsResponse>;
+  getClaimedOrgDomainListByEmail: (
+    email: string,
+  ) => Promise<Array<OrganizationDomainSsoDetailsResponse>>;
 }
