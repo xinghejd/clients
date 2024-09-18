@@ -1,4 +1,4 @@
-import { firstValueFrom, map, Observable, skipWhile, switchMap } from "rxjs";
+import { firstValueFrom, map, merge, Observable, share, skipWhile, switchMap } from "rxjs";
 import { SemVer } from "semver";
 
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
@@ -84,10 +84,7 @@ export class CipherService implements CipherServiceAbstraction {
 
   localData$: Observable<Record<CipherId, LocalData>>;
   ciphers$: Observable<Record<CipherId, CipherData>>;
-  cipherViews$: Observable<Record<CipherId, CipherView>>;
-  viewFor$(id: CipherId) {
-    return this.cipherViews$.pipe(map((views) => views[id]));
-  }
+  cipherViews$: Observable<CipherView[]>;
   addEditCipherInfo$: Observable<AddEditCipherInfo>;
 
   private localDataState: ActiveUserState<Record<CipherId, LocalData>>;
@@ -129,7 +126,12 @@ export class CipherService implements CipherServiceAbstraction {
       switchMap(() => this.encryptedCiphersState.state$),
       map((ciphers) => ciphers ?? {}),
     );
-    this.cipherViews$ = this.decryptedCiphersState.state$.pipe(map((views) => views ?? {}));
+
+    // Decrypted ciphers depend on both ciphers and local data and need to be updated when either changes
+    this.cipherViews$ = merge(this.ciphers$, this.localData$).pipe(
+      switchMap(() => this.getAllDecrypted()),
+      share(),
+    );
     this.addEditCipherInfo$ = this.addEditCipherInfoState.state$;
   }
 
