@@ -585,7 +585,6 @@ export class LockV2Component implements OnInit, OnDestroy {
   }
 
   onWindowHidden() {
-    // TODO: investigate wiring up showPassword to the [bitPasswordInputToggle] directive
     this.showPassword = false;
   }
 
