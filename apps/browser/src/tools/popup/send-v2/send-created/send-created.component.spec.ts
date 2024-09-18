@@ -109,9 +109,9 @@ describe("SendCreatedComponent", () => {
     expect(component["daysAvailable"]).toBe(7);
   });
 
-  it("should navigate back on close", () => {
+  it("should navigate back on close", async () => {
     fixture.detectChanges();
-    component.close();
+    await component.close();
     expect(location.back).toHaveBeenCalled();
   });
 
