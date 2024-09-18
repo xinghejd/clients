@@ -359,6 +359,11 @@ export class CipherService implements CipherServiceAbstraction {
     return response;
   }
 
+  /**
+   * Decrypts all ciphers for the active user and caches them in memory. If the ciphers have already been decrypted and
+   * cached, the cached ciphers are returned.
+   * @deprecated Use `cipherViews$` observable instead
+   */
   @sequentialize(() => "getAllDecrypted")
   async getAllDecrypted(): Promise<CipherView[]> {
     let decCiphers = await this.getDecryptedCiphers();
