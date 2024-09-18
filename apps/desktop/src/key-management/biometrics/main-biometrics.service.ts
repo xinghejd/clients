@@ -117,7 +117,7 @@ export class MainBiometricsService extends DesktopBiometricsService {
     return await this.osBiometricsService.authenticateBiometric();
   }
 
-  async unlockWithBiometricsForUser(userId: UserId): Promise<UserKey> {
+  async unlockWithBiometricsForUser(userId: UserId): Promise<UserKey | null> {
     return SymmetricCryptoKey.fromString(
       await this.osBiometricsService.getBiometricKey(
         "Bitwarden_biometric",

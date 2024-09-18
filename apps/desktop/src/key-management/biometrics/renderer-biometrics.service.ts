@@ -20,7 +20,7 @@ export class RendererBiometricsService extends DesktopBiometricsService {
     return await ipc.keyManagement.biometric.getBiometricsStatus();
   }
 
-  async unlockWithBiometricsForUser(userId: UserId): Promise<UserKey> {
+  async unlockWithBiometricsForUser(userId: UserId): Promise<UserKey | null> {
     return await ipc.keyManagement.biometric.unlockWithBiometricsForUser(userId);
   }
 

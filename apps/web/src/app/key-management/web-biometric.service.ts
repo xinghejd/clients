@@ -11,7 +11,7 @@ export class WebBiometricsService extends BiometricsService {
     return BiometricsStatus.PlatformUnsupported;
   }
 
-  async unlockWithBiometricsForUser(userId: UserId): Promise<UserKey> {
+  async unlockWithBiometricsForUser(userId: UserId): Promise<UserKey | null> {
     return null;
   }
 

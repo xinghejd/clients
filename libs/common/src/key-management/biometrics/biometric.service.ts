@@ -25,7 +25,7 @@ export abstract class BiometricsService {
    * @param userId the user to unlock
    * @returns the user key
    */
-  abstract unlockWithBiometricsForUser(userId: UserId): Promise<UserKey>;
+  abstract unlockWithBiometricsForUser(userId: UserId): Promise<UserKey | null>;
 
   /**
    * Gets the status of biometrics for a current user. This includes system states (hardware unavailable) but also user specific states (needs unlock with master-password).

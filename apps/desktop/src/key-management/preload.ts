@@ -14,7 +14,7 @@ const biometric = {
     ipcRenderer.invoke("biometric", {
       action: BiometricAction.GetStatus,
     } satisfies BiometricMessage),
-  unlockWithBiometricsForUser: (userId: string): Promise<UserKey> =>
+  unlockWithBiometricsForUser: (userId: string): Promise<UserKey | null> =>
     ipcRenderer.invoke("biometric", {
       action: BiometricAction.UnlockForUser,
       userId: userId,

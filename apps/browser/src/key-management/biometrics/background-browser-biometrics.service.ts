@@ -63,7 +63,7 @@ export class BackgroundBrowserBiometricsService extends BiometricsService {
     }
   }
 
-  async unlockWithBiometricsForUser(userId: UserId): Promise<UserKey> {
+  async unlockWithBiometricsForUser(userId: UserId): Promise<UserKey | null> {
     try {
       await this.ensureConnected();
 
