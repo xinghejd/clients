@@ -272,7 +272,7 @@ export class LockV2Component implements OnInit, OnDestroy {
       );
 
       if (autoPromptBiometrics) {
-        await this.autoPromptBiometrics();
+        await this.desktopAutoPromptBiometrics();
       }
     }
   }
@@ -565,7 +565,7 @@ export class LockV2Component implements OnInit, OnDestroy {
     this.messagingService.send("getWindowIsFocused");
   }
 
-  private async autoPromptBiometrics() {
+  private async desktopAutoPromptBiometrics() {
     if (!this.unlockOptions?.biometrics?.enabled || this.biometricAsked) {
       return;
     }
