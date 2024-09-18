@@ -19,7 +19,7 @@ import {
   MasterPasswordVerification,
   MasterPasswordVerificationResponse,
 } from "@bitwarden/common/auth/types/verification";
-import { ClientType, DeviceType } from "@bitwarden/common/enums";
+import { ClientType } from "@bitwarden/common/enums";
 import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
 import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
@@ -267,10 +267,6 @@ export class LockV2Component implements OnInit, OnDestroy {
     this.biometricUnlockBtnText = this.lockComponentService.getBiometricsUnlockBtnText();
 
     if (this.clientType === "desktop") {
-      if (this.platformUtilsService.getDevice() === DeviceType.WindowsDesktop) {
-        await this.displayWindowsBiometricUpdateWarning();
-      }
-
       const autoPromptBiometrics = await firstValueFrom(
         this.biometricStateService.promptAutomatically$,
       );
@@ -566,29 +562,6 @@ export class LockV2Component implements OnInit, OnDestroy {
       });
     });
     this.messagingService.send("getWindowIsFocused");
-  }
-
-  // TODO: ask Matt if this was meant to be a perm thing or temp.
-  private async displayWindowsBiometricUpdateWarning(): Promise<void> {
-    // If user has dismissed the callout, do not show it again
-    if (await firstValueFrom(this.biometricStateService.dismissedRequirePasswordOnStartCallout$)) {
-      return;
-    }
-
-    if (await firstValueFrom(this.biometricStateService.biometricUnlockEnabled$)) {
-      const response = await this.dialogService.openSimpleDialog({
-        title: { key: "windowsBiometricUpdateWarningTitle" },
-        content: { key: "windowsBiometricUpdateWarning" },
-        type: "warning",
-      });
-
-      await this.biometricStateService.setRequirePasswordOnStart(response);
-      if (response) {
-        await this.biometricStateService.setPromptAutomatically(false);
-      }
-
-      await this.biometricStateService.setDismissedRequirePasswordOnStartCallout();
-    }
   }
 
   private async autoPromptBiometrics() {
