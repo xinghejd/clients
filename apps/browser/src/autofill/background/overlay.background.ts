@@ -54,7 +54,11 @@ import {
   MAX_SUB_FRAME_DEPTH,
 } from "../enums/autofill-overlay.enum";
 import { AutofillService } from "../services/abstractions/autofill.service";
-import { generateDomainMatchPatterns, generateRandomChars, isInvalidStatusCode } from "../utils";
+import {
+  generateDomainMatchPatterns,
+  generateRandomChars,
+  isInvalidResponseStatusCode,
+} from "../utils";
 
 import { LockedVaultPendingNotificationsData } from "./abstractions/notification.background";
 import {
@@ -997,7 +1001,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
   ) => {
     chrome.webRequest.onCompleted.removeListener(this.handlePasskeyAuthenticationOnCompleted);
 
-    if (isInvalidStatusCode(details.statusCode)) {
+    if (isInvalidResponseStatusCode(details.statusCode)) {
       this.closeInlineMenu({ tab: { id: details.tabId } } as chrome.runtime.MessageSender, {
         forceCloseInlineMenu: true,
       });

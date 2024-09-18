@@ -457,6 +457,6 @@ export function generateDomainMatchPatterns(url: string): string[] {
  *
  * @param statusCode - The status code of the web response
  */
-export function isInvalidStatusCode(statusCode: number) {
+export function isInvalidResponseStatusCode(statusCode: number) {
   return statusCode < 200 || statusCode >= 300;
 }

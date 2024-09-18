@@ -6,7 +6,7 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 
 import { BrowserApi } from "../../platform/browser/browser-api";
-import { generateDomainMatchPatterns, isInvalidStatusCode } from "../utils";
+import { generateDomainMatchPatterns, isInvalidResponseStatusCode } from "../utils";
 
 import {
   ActiveFormSubmissionRequests,
@@ -306,7 +306,7 @@ export class OverlayNotificationsBackground implements OverlayNotificationsBackg
   private handleOnCompletedRequestEvent = async (details: chrome.webRequest.WebResponseDetails) => {
     if (
       this.requestHostIsInvalid(details) ||
-      isInvalidStatusCode(details.statusCode) ||
+      isInvalidResponseStatusCode(details.statusCode) ||
       !this.activeFormSubmissionRequests.has(details.requestId)
     ) {
       return;
