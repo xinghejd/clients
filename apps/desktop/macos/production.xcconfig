@@ -8,4 +8,4 @@
 // Configuration settings file format documentation can be found at:
 // https://help.apple.com/xcode/#/dev745c5c974
 CODE_SIGN_IDENTITY[sdk=macosx*] = 3rd Party Mac Developer Application
-PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*] = Bitwarden Desktop App Store 2021
+PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*] = Bitwarden Desktop App Store 2024 w autofill
