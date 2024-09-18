@@ -1269,7 +1269,7 @@ export class CipherService implements CipherServiceAbstraction {
 
     let encryptedCiphers: CipherWithIdRequest[] = [];
 
-    const ciphers = await this.getAllDecrypted();
+    const ciphers = await firstValueFrom(this.cipherViews$);
     if (!ciphers) {
       return encryptedCiphers;
     }
