@@ -47,6 +47,11 @@ export class MainBiometricsIPCListener {
             );
           case BiometricAction.Setup:
             return await this.biometricService.setupBiometrics();
+
+          case BiometricAction.SetShouldAutoprompt:
+            return await this.biometricService.setShouldAutopromptNow(message.data as boolean);
+          case BiometricAction.GetShouldAutoprompt:
+            return await this.biometricService.getShouldAutopromptNow();
           default:
             return;
         }

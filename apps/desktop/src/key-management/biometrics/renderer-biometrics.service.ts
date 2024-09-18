@@ -43,4 +43,12 @@ export class RendererBiometricsService extends DesktopBiometricsService {
   async setClientKeyHalfForUser(userId: UserId, value: string): Promise<void> {
     return await ipc.keyManagement.biometric.setClientKeyHalf(userId, value);
   }
+
+  async getShouldAutopromptNow(): Promise<boolean> {
+    return await ipc.keyManagement.biometric.getShouldAutoprompt();
+  }
+
+  async setShouldAutopromptNow(value: boolean): Promise<void> {
+    return await ipc.keyManagement.biometric.setShouldAutoprompt(value);
+  }
 }

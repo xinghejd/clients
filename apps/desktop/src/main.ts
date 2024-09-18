@@ -165,6 +165,15 @@ export class Main {
     this.desktopSettingsService = new DesktopSettingsService(stateProvider);
     const biometricStateService = new DefaultBiometricStateService(stateProvider);
 
+    this.biometricsService = new MainBiometricsService(
+      this.i18nService,
+      this.windowMain,
+      this.logService,
+      this.messagingService,
+      process.platform,
+      biometricStateService,
+    );
+
     this.windowMain = new WindowMain(
       biometricStateService,
       this.logService,
@@ -175,7 +184,6 @@ export class Main {
     );
     this.messagingMain = new MessagingMain(this, this.desktopSettingsService);
     this.updaterMain = new UpdaterMain(this.i18nService, this.windowMain);
-    this.trayMain = new TrayMain(this.windowMain, this.i18nService, this.desktopSettingsService);
 
     const messageSubject = new Subject<Message<Record<string, unknown>>>();
     this.messagingService = MessageSender.combine(
@@ -203,13 +211,12 @@ export class Main {
       this.desktopSettingsService,
     );
 
-    this.biometricsService = new MainBiometricsService(
-      this.i18nService,
+    this.trayMain = new TrayMain(
       this.windowMain,
-      this.logService,
-      this.messagingService,
-      process.platform,
+      this.i18nService,
+      this.desktopSettingsService,
       biometricStateService,
+      this.biometricsService,
     );
 
     this.desktopCredentialStorageListener = new DesktopCredentialStorageListener(

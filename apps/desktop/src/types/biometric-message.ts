@@ -10,10 +10,14 @@ export enum BiometricAction {
   SetClientKeyHalf = "setClientKeyHalf",
 
   Setup = "setup",
+
+  GetShouldAutoprompt = "getShouldAutoprompt",
+  SetShouldAutoprompt = "setShouldAutoprompt",
 }
 
 export type BiometricMessage = {
   action: BiometricAction;
   key?: string;
   userId?: string;
+  data?: any;
 };

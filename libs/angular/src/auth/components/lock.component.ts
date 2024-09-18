@@ -60,7 +60,7 @@ export class LockComponent implements OnInit, OnDestroy {
 
   private enforcedMasterPasswordOptions: MasterPasswordPolicyOptions = undefined;
 
-  private destroy$ = new Subject<void>();
+  protected destroy$ = new Subject<void>();
 
   constructor(
     protected masterPasswordService: InternalMasterPasswordServiceAbstraction,

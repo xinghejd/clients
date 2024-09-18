@@ -15,6 +15,7 @@ import { OsBiometricService } from "./os-biometrics.service";
 export class MainBiometricsService extends DesktopBiometricsService {
   private osBiometricsService: OsBiometricService;
   private clientKeyHalves = new Map<string, string>();
+  private shouldAutoPrompt = true;
 
   constructor(
     private i18nService: I18nService,
@@ -146,5 +147,13 @@ export class MainBiometricsService extends DesktopBiometricsService {
       "Bitwarden_biometric",
       `${userId}_user_biometric`,
     );
+  }
+
+  async setShouldAutopromptNow(value: boolean): Promise<void> {
+    this.shouldAutoPrompt = value;
+  }
+
+  async getShouldAutopromptNow(): Promise<boolean> {
+    return this.shouldAutoPrompt;
   }
 }

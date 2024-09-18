@@ -45,6 +45,15 @@ const biometric = {
       userId: userId,
       key: value,
     } satisfies BiometricMessage),
+  getShouldAutoprompt: (): Promise<boolean> =>
+    ipcRenderer.invoke("biometric", {
+      action: BiometricAction.GetShouldAutoprompt,
+    } satisfies BiometricMessage),
+  setShouldAutoprompt: (should: boolean): Promise<void> =>
+    ipcRenderer.invoke("biometric", {
+      action: BiometricAction.SetShouldAutoprompt,
+      data: should,
+    } satisfies BiometricMessage),
 };
 
 export default {

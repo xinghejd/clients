@@ -33,4 +33,7 @@ export abstract class BiometricsService {
    * @returns the status of biometrics for the user
    */
   abstract getBiometricsStatusForUser(userId: UserId): Promise<BiometricsStatus>;
+
+  abstract getShouldAutopromptNow(): Promise<boolean>;
+  abstract setShouldAutopromptNow(value: boolean): Promise<void>;
 }

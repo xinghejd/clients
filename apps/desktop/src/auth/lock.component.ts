@@ -1,6 +1,6 @@
 import { Component, NgZone, OnDestroy, OnInit } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
-import { firstValueFrom, switchMap } from "rxjs";
+import { concatMap, delay, filter, firstValueFrom, takeUntil, throttleTime, timer } from "rxjs";
 
 import { LockComponent as BaseLockComponent } from "@bitwarden/angular/auth/components/lock.component";
 import { PinServiceAbstraction } from "@bitwarden/auth/common";
@@ -110,12 +110,23 @@ export class LockComponent extends BaseLockComponent implements OnInit, OnDestro
       this.biometricStateService.promptAutomatically$,
     );
 
-    await this.displayBiometricUpdateWarning();
+    timer(0, 100)
+      .pipe(
+        concatMap(async () => {
+          return await this.biometricsService.getShouldAutopromptNow();
+        }),
+        filter((shouldPrompt) => shouldPrompt),
+        delay(250),
+        throttleTime(5000),
+        concatMap(async () => {
+          await this.biometricsService.setShouldAutopromptNow(false);
+          await this.delayedAskForBiometric(0);
+        }),
+        takeUntil(this.destroy$),
+      )
+      .subscribe();
 
-    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    this.delayedAskForBiometric(500);
-    this.route.queryParams.pipe(switchMap((params) => this.delayedAskForBiometric(500, params)));
+    await this.displayBiometricUpdateWarning();
 
     this.broadcasterService.subscribe(BroadcasterSubscriptionId, async (message: any) => {
       this.ngZone.run(() => {
