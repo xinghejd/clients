@@ -1,6 +1,7 @@
 import { DIALOG_DATA, DialogConfig, DialogRef } from "@angular/cdk/dialog";
 import { CommonModule } from "@angular/common";
 import { Component, Inject, OnInit, EventEmitter, OnDestroy } from "@angular/core";
+import { Router } from "@angular/router";
 import { Subject } from "rxjs";
 
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
@@ -26,8 +27,8 @@ export interface ViewCipherDialogParams {
 }
 
 export enum ViewCipherDialogResult {
-  edited = "edited",
-  deleted = "deleted",
+  Edited = "edited",
+  Deleted = "deleted",
 }
 
 export interface ViewCipherDialogCloseResult {
@@ -61,6 +62,7 @@ export class ViewComponent implements OnInit, OnDestroy {
     private cipherService: CipherService,
     private toastService: ToastService,
     private organizationService: OrganizationService,
+    private router: Router,
   ) {}
 
   /**
@@ -115,7 +117,8 @@ export class ViewComponent implements OnInit, OnDestroy {
       this.logService.error(e);
     }
 
-    this.dialogRef.close({ action: ViewCipherDialogResult.deleted });
+    this.dialogRef.close({ action: ViewCipherDialogResult.Deleted });
+    await this.router.navigate(["/vault"]);
   };
 
   /**
@@ -134,7 +137,14 @@ export class ViewComponent implements OnInit, OnDestroy {
    * Method to handle cipher editing. Called when a user clicks the edit button.
    */
   async edit(): Promise<void> {
-    this.dialogRef.close({ action: ViewCipherDialogResult.edited });
+    this.dialogRef.close({ action: ViewCipherDialogResult.Edited });
+    await this.router.navigate([], {
+      queryParams: {
+        itemId: this.cipher.id,
+        action: "edit",
+        organizationId: this.cipher.organizationId,
+      },
+    });
   }
 
   /**
