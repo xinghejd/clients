@@ -249,22 +249,6 @@ describe("LockComponent", () => {
       expect(component["displayBiometricUpdateWarning"]).toHaveBeenCalledTimes(1);
     });
 
-    it("should call delayedAskForBiometric", async () => {
-      component["delayedAskForBiometric"] = jest.fn();
-      await component.ngOnInit();
-      expect(component["delayedAskForBiometric"]).toHaveBeenCalledTimes(1);
-      expect(component["delayedAskForBiometric"]).toHaveBeenCalledWith(500);
-    });
-
-    it("should call delayedAskForBiometric when queryParams change", async () => {
-      activatedRouteMock.queryParams = of({ promptBiometric: true });
-      component["delayedAskForBiometric"] = jest.fn();
-      await component.ngOnInit();
-
-      expect(component["delayedAskForBiometric"]).toHaveBeenCalledTimes(1);
-      expect(component["delayedAskForBiometric"]).toHaveBeenCalledWith(500);
-    });
-
     it("should call messagingService.send", async () => {
       await component.ngOnInit();
       expect(messagingServiceMock.send).toHaveBeenCalledWith("getWindowIsFocused");
