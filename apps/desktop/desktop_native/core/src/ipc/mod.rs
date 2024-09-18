@@ -46,9 +46,11 @@ pub fn path(name: &str) -> std::path::PathBuf {
             home.pop();
         }
 
-        home.join(format!(
-            "Library/Group Containers/LTZ2PFU5D6.com.bitwarden.desktop/tmp/app.{name}"
-        ))
+        let tmp = home.join("Library/Group Containers/LTZ2PFU5D6.com.bitwarden.desktop/tmp");
+
+        // The tmp directory might not exist, so create it
+        let _ = std::fs::create_dir_all(&tmp);
+        tmp.join(format!("app.{name}"))
     }
 
     #[cfg(target_os = "linux")]
