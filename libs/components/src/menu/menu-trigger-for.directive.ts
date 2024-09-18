@@ -32,7 +32,7 @@ export class MenuTriggerForDirective implements OnDestroy {
   private overlayRef: OverlayRef;
   private defaultMenuConfig: OverlayConfig = {
     panelClass: "bit-menu-panel",
-    hasBackdrop: true,
+    hasBackdrop: false,
     backdropClass: "cdk-overlay-transparent-backdrop",
     scrollStrategy: this.overlay.scrollStrategies.reposition(),
     positionStrategy: this.overlay
