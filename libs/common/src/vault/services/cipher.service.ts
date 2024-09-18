@@ -378,7 +378,9 @@ export class CipherService implements CipherServiceAbstraction {
   }
 
   private async getDecryptedCiphers() {
-    return Object.values(await firstValueFrom(this.cipherViews$));
+    return Object.values(
+      await firstValueFrom(this.decryptedCiphersState.state$.pipe(map((c) => c ?? {}))),
+    );
   }
 
   private async decryptCiphers(ciphers: Cipher[], userId: UserId) {
