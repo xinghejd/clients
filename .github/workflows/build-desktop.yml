@@ -1224,6 +1224,11 @@ jobs:
           APP_STORE_CONNECT_AUTH_KEY_PATH: ~/private_keys/AuthKey_6TV9MKN3GP.p8
         run: npm run pack:mac:masdev
 
+      - name: Resign
+        run: |
+          security find-identity -v -p codesigning
+          codesign --preserve-metadata=entitlements --force --sign "Developer ID Application: 8bit Solutions LLC (LTZ2PFU5D6)" dist/mas-dev-universal/Bitwarden.app
+
       - name: Zip masdev asset
         run: |
           cd dist/mas-dev-universal
