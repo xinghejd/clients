@@ -1089,24 +1089,24 @@ jobs:
         run: |
           mkdir -p $HOME/secrets
 
-          # az storage blob download --account-name $ACCOUNT_NAME --container-name $CONTAINER_NAME \
-          #   --name bitwarden_desktop_appstore.provisionprofile \
-          #   --file $HOME/secrets/bitwarden_desktop_appstore.provisionprofile \
-          #   --output none
+          az storage blob download --account-name $ACCOUNT_NAME --container-name $CONTAINER_NAME \
+            --name bitwarden_desktop_appstore.provisionprofile \
+            --file $HOME/secrets/bitwarden_desktop_appstore.provisionprofile \
+            --output none
 
           # az storage blob download --account-name $ACCOUNT_NAME --container-name $CONTAINER_NAME \
           #   --name bitwarden_desktop_autofill_app_store_2024.provisionprofile \
           #   --file $HOME/secrets/bitwarden_desktop_autofill_app_store_2024.provisionprofile \
           #   --output none
 
-          az storage blob download --account-name $ACCOUNT_NAME --container-name $CONTAINER_NAME \
-            --name Bitwarden_Desktop_App_Store_2024_w_autofill.provisionprofile \
-            --file $HOME/secrets/bitwarden_desktop_appstore.provisionprofile \
-            --output none
+          # az storage blob download --account-name $ACCOUNT_NAME --container-name $CONTAINER_NAME \
+          #   --name Bitwarden_Desktop_App_Store_2024_w_autofill.provisionprofile \
+          #   --file $HOME/secrets/bitwarden_desktop_appstore.provisionprofile \
+          #   --output none
 
       - name: Set up provisioning profiles
         run: |
-          AUTOFILL_PROFILE_PATH=$HOME/secrets/Bitwarden_Desktop_App_Store_2024_w_autofill.provisionprofile
+          AUTOFILL_PROFILE_PATH=$HOME/secrets/bitwarden_desktop_appstore.provisionprofile
           PROFILES_DIR_PATH=$HOME/Library/MobileDevice/Provisioning\ Profiles
 
           mkdir -p "$PROFILES_DIR_PATH"
@@ -1116,7 +1116,7 @@ jobs:
 
       - name: Set up provisioning profiles
         run: |
-          cp $HOME/secrets/Bitwarden_Desktop_App_Store_2024_w_autofill.provisionprofile \
+          cp $HOME/secrets/bitwarden_desktop_appstore.provisionprofile \
             $GITHUB_WORKSPACE/apps/desktop/bitwarden_desktop_appstore.provisionprofile
 
       - name: Get certificates
