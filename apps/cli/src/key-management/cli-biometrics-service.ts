@@ -19,4 +19,10 @@ export class CliBiometricsService extends BiometricsService {
   async getBiometricsStatusForUser(userId: UserId): Promise<BiometricsStatus> {
     return BiometricsStatus.PlatformUnsupported;
   }
+
+  async getShouldAutopromptNow(): Promise<boolean> {
+    return false;
+  }
+
+  async setShouldAutopromptNow(value: boolean): Promise<void> {}
 }

@@ -129,6 +129,8 @@ export class LockComponent extends BaseLockComponent implements OnInit {
 
     window.setTimeout(async () => {
       document.getElementById(this.pinEnabled ? "pin" : "masterPassword")?.focus();
+
+      await new Promise((resolve) => setTimeout(resolve, 1000));
       if (
         this.biometricStatus == BiometricsStatus.Available &&
         autoBiometricsPrompt &&

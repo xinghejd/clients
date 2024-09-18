@@ -119,4 +119,10 @@ export class BackgroundBrowserBiometricsService extends BiometricsService {
       });
     }
   }
+
+  async getShouldAutopromptNow(): Promise<boolean> {
+    return false;
+  }
+
+  async setShouldAutopromptNow(value: boolean): Promise<void> {}
 }

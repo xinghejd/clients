@@ -44,4 +44,9 @@ export class ForegroundBrowserBiometricsService extends BiometricsService {
     }>(BiometricsCommands.GetBiometricsStatusForUser, { userId: id });
     return response.result;
   }
+
+  async getShouldAutopromptNow(): Promise<boolean> {
+    return true;
+  }
+  async setShouldAutopromptNow(value: boolean): Promise<void> {}
 }
