@@ -230,7 +230,7 @@ describe("AutofillInlineMenuList", () => {
           postWindowMessage(createInitAutofillInlineMenuListMessageMock({ portKey }));
         });
 
-        describe("filling a login cipher", () => {
+        describe("filling a cipher", () => {
           it("allows the user to fill a cipher on click", () => {
             const fillCipherButton =
               autofillInlineMenuList["inlineMenuListContainer"].querySelector(
