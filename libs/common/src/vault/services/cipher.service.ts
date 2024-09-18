@@ -1,4 +1,4 @@
-import { firstValueFrom, map, merge, Observable, share, skipWhile, switchMap } from "rxjs";
+import { firstValueFrom, map, merge, Observable, share, skipWhile, Subject, switchMap } from "rxjs";
 import { SemVer } from "semver";
 
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
@@ -81,6 +81,12 @@ export class CipherService implements CipherServiceAbstraction {
     this.sortCiphersByLastUsed,
   );
   private ciphersExpectingUpdate: DerivedState<boolean>;
+  /**
+   * Observable that forces the `cipherViews$` observable to re-emit with the provided value.
+   * Used to let subscribers of `cipherViews$` know that the decrypted ciphers have been cleared for the active user.
+   * @private
+   */
+  private forceCipherViews$: Subject<CipherView[]> = new Subject<CipherView[]>();
 
   localData$: Observable<Record<CipherId, LocalData>>;
   ciphers$: Observable<Record<CipherId, CipherData>>;
@@ -129,7 +135,7 @@ export class CipherService implements CipherServiceAbstraction {
 
     // Decrypted ciphers depend on both ciphers and local data and need to be updated when either changes
     this.cipherViews$ = merge(this.ciphers$, this.localData$).pipe(
-      switchMap(() => this.getAllDecrypted()),
+      switchMap(() => merge(this.forceCipherViews$, this.getAllDecrypted())),
       share(),
     );
     this.addEditCipherInfo$ = this.addEditCipherInfoState.state$;
@@ -160,8 +166,14 @@ export class CipherService implements CipherServiceAbstraction {
   }
 
   async clearCache(userId?: UserId): Promise<void> {
-    userId ??= await firstValueFrom(this.stateProvider.activeUserId$);
+    const activeUserId = await firstValueFrom(this.stateProvider.activeUserId$);
+    userId ??= activeUserId;
     await this.clearDecryptedCiphersState(userId);
+
+    // Force the cipherView$ observable (which always tracks the active user) to re-emit
+    if (userId == activeUserId) {
+      this.forceCipherViews$.next([]);
+    }
   }
 
   async encrypt(
