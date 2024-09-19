@@ -18,11 +18,6 @@ import { KeySuffixOptions } from "@bitwarden/common/platform/enums";
 import { UserId } from "@bitwarden/common/types/guid";
 
 import { BiometricErrors, BiometricErrorTypes } from "../models/biometricErrors";
-import {
-  fido2PopoutSessionData$,
-  Fido2SessionData,
-} from "../vault/popup/utils/fido2-popout-session-data";
-
 export class ExtensionLockComponentService implements LockComponentService {
   private readonly userDecryptionOptionsService = inject(UserDecryptionOptionsServiceAbstraction);
   private readonly platformUtilsService = inject(PlatformUtilsService);
@@ -30,10 +25,6 @@ export class ExtensionLockComponentService implements LockComponentService {
   private readonly pinService = inject(PinServiceAbstraction);
   private readonly vaultTimeoutSettingsService = inject(VaultTimeoutSettingsService);
   private readonly cryptoService = inject(CryptoService);
-
-  isFido2Session$(): Observable<boolean> {
-    return fido2PopoutSessionData$().pipe(map((data: Fido2SessionData) => data.isFido2Session));
-  }
 
   getBiometricsError(error: any): string | null {
     const biometricsError = BiometricErrors[error?.message as BiometricErrorTypes];

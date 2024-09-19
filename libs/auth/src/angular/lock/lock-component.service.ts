@@ -34,7 +34,6 @@ export type UnlockOptions = {
  */
 export abstract class LockComponentService {
   // Extension
-  abstract isFido2Session$(): Observable<boolean>;
   abstract getBiometricsError(error: any): string | null;
 
   // Desktop only

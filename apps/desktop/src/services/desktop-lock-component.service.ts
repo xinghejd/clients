@@ -1,5 +1,5 @@
 import { inject } from "@angular/core";
-import { combineLatest, from, map, Observable, of } from "rxjs";
+import { combineLatest, from, map, Observable } from "rxjs";
 
 import {
   BiometricsDisableReason,
@@ -26,16 +26,10 @@ export class DesktopLockComponentService implements LockComponentService {
   private readonly vaultTimeoutSettingsService = inject(VaultTimeoutSettingsService);
   private readonly cryptoService = inject(CryptoService);
 
-  private readonly biometricsPollingIntervalMs = 1000;
-
   constructor() {}
 
   getBiometricsError(error: any): string | null {
     return null;
-  }
-
-  isFido2Session$(): Observable<boolean> {
-    return of(false);
   }
 
   async isWindowVisible(): Promise<boolean> {

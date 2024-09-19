@@ -1,5 +1,5 @@
 import { inject } from "@angular/core";
-import { map, Observable, of } from "rxjs";
+import { map, Observable } from "rxjs";
 
 import { LockComponentService, UnlockOptions } from "@bitwarden/auth/angular";
 import {
@@ -17,10 +17,6 @@ export class WebLockComponentService implements LockComponentService {
     throw new Error(
       "Biometric unlock is not supported in the web app. See getAvailableUnlockOptions$",
     );
-  }
-
-  isFido2Session$(): Observable<boolean> {
-    return of(false);
   }
 
   async isWindowVisible(): Promise<boolean> {
