@@ -459,22 +459,21 @@ export class LockV2Component implements OnInit, OnDestroy {
     } as MasterPasswordVerification;
 
     let passwordValid = false;
-    let response: MasterPasswordVerificationResponse;
+    let masterPasswordVerificationResponse: MasterPasswordVerificationResponse;
     try {
-      this.formPromise = this.userVerificationService.verifyUserByMasterPassword(
-        verification,
-        this.activeAccount.id,
-        this.activeAccount.email,
-      );
-      response = await this.formPromise;
+      masterPasswordVerificationResponse =
+        await this.userVerificationService.verifyUserByMasterPassword(
+          verification,
+          this.activeAccount.id,
+          this.activeAccount.email,
+        );
+
       this.enforcedMasterPasswordOptions = MasterPasswordPolicyOptions.fromResponse(
-        response.policyOptions,
+        masterPasswordVerificationResponse.policyOptions,
       );
       passwordValid = true;
     } catch (e) {
       this.logService.error(e);
-    } finally {
-      this.formPromise = null;
     }
 
     if (!passwordValid) {
@@ -487,7 +486,7 @@ export class LockV2Component implements OnInit, OnDestroy {
     }
 
     const userKey = await this.masterPasswordService.decryptUserKeyWithMasterKey(
-      response.masterKey,
+      masterPasswordVerificationResponse.masterKey,
     );
     await this.setUserKeyAndContinue(userKey, true);
   }
