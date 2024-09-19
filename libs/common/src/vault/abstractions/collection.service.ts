@@ -26,8 +26,6 @@ export abstract class CollectionService {
   getAllDecrypted: () => Promise<CollectionView[]>;
   getAllNested: (collections?: CollectionView[]) => Promise<TreeNode<CollectionView>[]>;
   getNested: (id: string) => Promise<TreeNode<CollectionView>>;
-
-  // TODO; internal?
   upsert: (collection: CollectionData | CollectionData[]) => Promise<any>;
   replace: (collections: { [id: string]: CollectionData }, userId: UserId) => Promise<any>;
   clear: (userId?: string) => Promise<void>;
