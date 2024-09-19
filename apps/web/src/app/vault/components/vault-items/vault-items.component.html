@@ -27,13 +27,14 @@
         </th>
         <th bitCell class="tw-w-12 tw-text-right">
           <button
-            [disabled]="disabled || isEmpty || disableMenu"
+            [disabled]="disabled || isEmpty || disableMenu || selection.selected.length < 1"
             [bitMenuTriggerFor]="headerMenu"
-            [attr.title]="disableMenu ? ('missingPermissions' | i18n) : ''"
             bitIconButton="bwi-ellipsis-v"
             size="small"
             type="button"
-            appA11yTitle="{{ 'options' | i18n }}"
+            appA11yTitle="{{
+              (selection.selected.length < 1 ? 'nothingSelected' : 'options') | i18n
+            }}"
           ></button>
           <bit-menu #headerMenu>
             <button *ngIf="bulkMoveAllowed" type="button" bitMenuItem (click)="bulkMoveToFolder()">
@@ -41,7 +42,7 @@
               {{ (vaultBulkManagementActionEnabled ? "addToFolder" : "moveSelected") | i18n }}
             </button>
             <button
-              *ngIf="showAdminActions && showBulkEditCollectionAccess && canEditSelected"
+              *ngIf="canEditSelected && showAdminActions && showBulkEditCollectionAccess"
               type="button"
               bitMenuItem
               (click)="bulkEditCollectionAccess()"
@@ -74,7 +75,7 @@
               {{ "restoreSelected" | i18n }}
             </button>
             <button
-              *ngIf="deleteAllowed || showBulkTrashOptions"
+              *ngIf="(canDeleteSelected && deleteAllowed) || showBulkTrashOptions"
               type="button"
               bitMenuItem
               (click)="bulkDelete()"

@@ -105,6 +105,8 @@ export class VaultCollectionRowComponent {
   }
 
   protected get showCheckbox() {
+    // if Admin/Owner only show checkbox for collections they have Can Manage
+    // if Custom user with Delete all permissions, show checkbox for all collections
     return (
       this.collection?.id !== Unassigned &&
       (this.collection?.canEdit(this.organization) || this.collection?.canDelete(this.organization))

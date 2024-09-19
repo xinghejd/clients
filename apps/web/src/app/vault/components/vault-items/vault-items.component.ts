@@ -73,11 +73,32 @@ export class VaultItemsComponent {
   protected dataSource = new TableDataSource<VaultItem>();
   protected selection = new SelectionModel<VaultItem>(true, [], true);
 
+  // Only show Edit Access from Bulk Menu if all selected collections can be managed
+  // Or Custom User with Edit All permissions
   get canEditSelected() {
-    const selectedItemsNoManagePerm = this.selection.selected.filter(
-      (item) => !item.collection.manage,
-    );
-    if (selectedItemsNoManagePerm.length > 0) {
+    const filteredSelectedItems = this.selection.selected.filter((item) => {
+      const organization = this.allOrganizations.find(
+        (o) => o.id === item.collection.organizationId,
+      );
+      return !item.collection.canEdit(organization);
+    });
+    if (filteredSelectedItems.length > 0) {
+      return false;
+    }
+    return true;
+  }
+
+  // Only show Delete from Bulk Menu if all selected collections can be managed
+  // Or Custom User with Delete All permissions
+  get canDeleteSelected() {
+    const filteredSelectedItems = this.selection.selected.filter((item) => {
+      const organization = this.allOrganizations.find(
+        (o) => o.id === item.collection.organizationId,
+      );
+      return item.collection.canEdit(organization) && !item.collection.canDelete(organization);
+    });
+
+    if (filteredSelectedItems.length > 0) {
       return false;
     }
     return true;
