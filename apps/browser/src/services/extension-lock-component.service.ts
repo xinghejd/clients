@@ -18,6 +18,7 @@ import { KeySuffixOptions } from "@bitwarden/common/platform/enums";
 import { UserId } from "@bitwarden/common/types/guid";
 
 import { BiometricErrors, BiometricErrorTypes } from "../models/biometricErrors";
+import { BrowserRouterService } from "../platform/popup/services/browser-router.service";
 export class ExtensionLockComponentService implements LockComponentService {
   private readonly userDecryptionOptionsService = inject(UserDecryptionOptionsServiceAbstraction);
   private readonly platformUtilsService = inject(PlatformUtilsService);
@@ -25,6 +26,11 @@ export class ExtensionLockComponentService implements LockComponentService {
   private readonly pinService = inject(PinServiceAbstraction);
   private readonly vaultTimeoutSettingsService = inject(VaultTimeoutSettingsService);
   private readonly cryptoService = inject(CryptoService);
+  private readonly routerService = inject(BrowserRouterService);
+
+  getPreviousUrl(): string | null {
+    return this.routerService.getPreviousUrl();
+  }
 
   getBiometricsError(error: any): string | null {
     const biometricsError = BiometricErrors[error?.message as BiometricErrorTypes];

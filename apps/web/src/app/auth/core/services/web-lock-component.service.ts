@@ -19,6 +19,10 @@ export class WebLockComponentService implements LockComponentService {
     );
   }
 
+  getPreviousUrl(): string | null {
+    return null;
+  }
+
   async isWindowVisible(): Promise<boolean> {
     throw new Error("Method not implemented.");
   }

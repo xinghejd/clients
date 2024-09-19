@@ -32,6 +32,10 @@ export class DesktopLockComponentService implements LockComponentService {
     return null;
   }
 
+  getPreviousUrl(): string | null {
+    return null;
+  }
+
   async isWindowVisible(): Promise<boolean> {
     return ipc.platform.isWindowVisible();
   }

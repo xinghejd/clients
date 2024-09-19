@@ -35,6 +35,7 @@ export type UnlockOptions = {
 export abstract class LockComponentService {
   // Extension
   abstract getBiometricsError(error: any): string | null;
+  abstract getPreviousUrl(): string | null;
 
   // Desktop only
   abstract isWindowVisible(): Promise<boolean>;
