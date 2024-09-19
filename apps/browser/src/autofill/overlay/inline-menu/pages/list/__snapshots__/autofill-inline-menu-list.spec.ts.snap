@@ -2131,7 +2131,7 @@ exports[`AutofillInlineMenuList initAutofillInlineMenuList the list of ciphers f
 </div>
 `;
 
-exports[`AutofillInlineMenuList initAutofillInlineMenuList the list of ciphers for an authenticated user fill cipher button event listeners filling a login cipher displays an \`Authenticating\` loader when a passkey cipher is filled 1`] = `
+exports[`AutofillInlineMenuList initAutofillInlineMenuList the list of ciphers for an authenticated user fill cipher button event listeners filling a cipher displays an \`Authenticating\` loader when a passkey cipher is filled 1`] = `
 <div
   class="inline-menu-list-container theme_light"
 >
