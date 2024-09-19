@@ -434,16 +434,23 @@ export function getSubmitButtonKeywordsSet(element: HTMLElement): Set<string> {
  */
 export function generateDomainMatchPatterns(url: string): string[] {
   try {
-    if (!url.startsWith("http")) {
+    // Add protocol to URL if it is missing to allow for parsing the hostname correctly
+    const urlPattern = /^(https?|file):\/\/\/?/;
+    if (!urlPattern.test(url)) {
       url = `https://${url}`;
     }
 
-    const originMatchPattern = `${new URL(url).origin}/*`;
+    let protocolGlob = "*://";
+    if (url.startsWith("file:///")) {
+      protocolGlob = "*:///"; // File URLs require three slashes to be a valid match pattern
+    }
 
     const parsedUrl = new URL(url);
+    const originMatchPattern = `${protocolGlob}${parsedUrl.hostname}/*`;
+
     const splitHost = parsedUrl.hostname.split(".");
     const domain = splitHost.slice(-2).join(".");
-    const subDomainMatchPattern = `${parsedUrl.protocol}//*.${domain}/*`;
+    const subDomainMatchPattern = `${protocolGlob}*.${domain}/*`;
 
     return [originMatchPattern, subDomainMatchPattern];
   } catch {
