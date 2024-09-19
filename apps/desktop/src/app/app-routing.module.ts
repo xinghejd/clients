@@ -194,7 +194,7 @@ const routes: Routes = [
       },
       {
         path: "lockV2",
-        canActivate: [canAccessFeature(FeatureFlag.EmailVerification), lockGuard()],
+        canActivate: [canAccessFeature(FeatureFlag.ExtensionRefresh), lockGuard()],
         data: {
           pageIcon: LockIcon,
           pageTitle: "yourVaultIsLockedV2",
@@ -207,7 +207,6 @@ const routes: Routes = [
           },
         ],
       },
-
       {
         path: "set-password-jit",
         canActivate: [canAccessFeature(FeatureFlag.EmailVerification)],
