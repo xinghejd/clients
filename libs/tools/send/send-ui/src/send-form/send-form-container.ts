@@ -1,11 +1,18 @@
 import { SendView } from "@bitwarden/common/tools/send/models/view/send.view";
 
 import { SendFormConfig } from "./abstractions/send-form-config.service";
+import { SendDetailsComponent } from "./components/send-details/send-details.component";
+import { SendFileDetailsForm } from "./components/send-details/send-file-details.component";
+import { SendTextDetailsForm } from "./components/send-details/send-text-details.component";
 /**
  * The complete form for a send. Includes all the sub-forms from their respective section components.
  * TODO: Add additional form sections as they are implemented.
  */
-export type SendForm = object;
+export type SendForm = {
+  sendDetailsForm?: SendDetailsComponent["sendDetailsForm"];
+  sendTextDetailsForm?: SendTextDetailsForm;
+  sendFileDetailsForm?: SendFileDetailsForm;
+};
 
 /**
  * A container for the {@link SendForm} that allows for registration of child form groups and patching of the send
@@ -32,5 +39,7 @@ export abstract class SendFormContainer {
     group: Exclude<SendForm[K], undefined>,
   ): void;
 
-  abstract patchSend(send: Partial<SendView>): void;
+  abstract onFileSelected(file: File): void;
+
+  abstract patchSend(updateFn: (current: SendView) => SendView): void;
 }
