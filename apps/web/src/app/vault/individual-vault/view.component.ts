@@ -1,6 +1,6 @@
 import { DIALOG_DATA, DialogConfig, DialogRef } from "@angular/cdk/dialog";
 import { CommonModule } from "@angular/common";
-import { Component, EventEmitter, Inject, OnDestroy, OnInit } from "@angular/core";
+import { Component, Inject, OnInit, EventEmitter, OnDestroy } from "@angular/core";
 import { Router } from "@angular/router";
 import { Subject } from "rxjs";
 
@@ -19,16 +19,19 @@ import {
   ToastService,
 } from "@bitwarden/components";
 
+import { PremiumUpgradePromptService } from "../../../../../../libs/common/src/vault/abstractions/premium-upgrade-prompt.service";
 import { CipherViewComponent } from "../../../../../../libs/vault/src/cipher-view/cipher-view.component";
 import { SharedModule } from "../../shared/shared.module";
+import { WebVaultPremiumUpgradePromptService } from "../services/web-premium-upgrade-prompt.service";
 
 export interface ViewCipherDialogParams {
   cipher: CipherView;
 }
 
 export enum ViewCipherDialogResult {
-  edited = "edited",
-  deleted = "deleted",
+  Edited = "edited",
+  Deleted = "deleted",
+  PremiumUpgrade = "premiumUpgrade",
 }
 
 export interface ViewCipherDialogCloseResult {
@@ -43,6 +46,9 @@ export interface ViewCipherDialogCloseResult {
   templateUrl: "view.component.html",
   standalone: true,
   imports: [CipherViewComponent, CommonModule, AsyncActionsModule, DialogModule, SharedModule],
+  providers: [
+    { provide: PremiumUpgradePromptService, useClass: WebVaultPremiumUpgradePromptService },
+  ],
 })
 export class ViewComponent implements OnInit, OnDestroy {
   cipher: CipherView;
@@ -117,7 +123,7 @@ export class ViewComponent implements OnInit, OnDestroy {
       this.logService.error(e);
     }
 
-    this.dialogRef.close({ action: ViewCipherDialogResult.deleted });
+    this.dialogRef.close({ action: ViewCipherDialogResult.Deleted });
     await this.router.navigate(["/vault"]);
   };
 
@@ -137,7 +143,7 @@ export class ViewComponent implements OnInit, OnDestroy {
    * Method to handle cipher editing. Called when a user clicks the edit button.
    */
   async edit(): Promise<void> {
-    this.dialogRef.close({ action: ViewCipherDialogResult.edited });
+    this.dialogRef.close({ action: ViewCipherDialogResult.Edited });
     await this.router.navigate([], {
       queryParams: {
         itemId: this.cipher.id,
