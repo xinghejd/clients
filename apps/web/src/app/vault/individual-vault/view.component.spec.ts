@@ -36,6 +36,7 @@ describe("ViewComponent", () => {
 
   const mockParams: ViewCipherDialogParams = {
     cipher: mockCipher,
+    canDeleteCipher: true,
   };
 
   beforeEach(async () => {

@@ -50,7 +50,7 @@ import { MessagingService } from "@bitwarden/common/platform/abstractions/messag
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { SyncService } from "@bitwarden/common/platform/sync";
-import { OrganizationId } from "@bitwarden/common/types/guid";
+import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CollectionService } from "@bitwarden/common/vault/abstractions/collection.service";
 import { TotpService } from "@bitwarden/common/vault/abstractions/totp.service";
@@ -174,6 +174,7 @@ export class VaultComponent implements OnInit, OnDestroy {
     return this.organization?.isProviderUser && !this.organization?.isMember;
   }
 
+  private activeUserId: UserId;
   private searchText$ = new Subject<string>();
   private refresh$ = new BehaviorSubject<void>(null);
   private destroy$ = new Subject<void>();
@@ -216,6 +217,10 @@ export class VaultComponent implements OnInit, OnDestroy {
       this.platformUtilsService.isSelfHost()
         ? "trashCleanupWarningSelfHosted"
         : "trashCleanupWarning",
+    );
+
+    this.activeUserId = await firstValueFrom(
+      this.accountService.activeAccount$.pipe(map((a) => a?.id)),
     );
 
     const filter$ = this.routedVaultFilterService.filter$;
@@ -802,10 +807,16 @@ export class VaultComponent implements OnInit, OnDestroy {
       return;
     }
 
+    // Decrypt the cipher.
+    const cipherView = await cipher.decrypt(
+      await this.cipherService.getKeyForCipherKeyDecryption(cipher, this.activeUserId),
+    );
+
     const defaultComponentParameters = (comp: AddEditComponent) => {
       comp.organization = this.organization;
       comp.organizationId = this.organization.id;
       comp.cipherId = cipherId;
+      comp.canDeleteCipher = this.canDeleteCipher(cipherView);
       comp.onSavedCipher.pipe(takeUntil(this.destroy$)).subscribe(() => {
         modal.close();
         this.refresh();
@@ -862,6 +873,7 @@ export class VaultComponent implements OnInit, OnDestroy {
         cipher: cipher,
         collections: collections,
         disableEdit: !cipher.edit && !this.organization.canEditAllCiphers,
+        disableDelete: !this.canDeleteCipher(cipher),
       },
     });
 
@@ -1315,6 +1327,26 @@ export class VaultComponent implements OnInit, OnDestroy {
     const notProtected = !ciphers.find((cipher) => cipher.reprompt !== CipherRepromptType.None);
 
     return notProtected || (await this.passwordRepromptService.showPasswordPrompt());
+  }
+
+  private canDeleteCipher(cipher: CipherView) {
+    if (this.organization?.permissions.editAnyCollection) {
+      return true;
+    }
+
+    if (this.organization?.allowAdminAccessToAllCollectionItems && this.organization.isAdmin) {
+      return true;
+    }
+
+    const activeCollection = this.selectedCollection?.node;
+
+    if (activeCollection) {
+      return activeCollection.manage === true;
+    }
+
+    return this.allCollections
+      .filter((c) => cipher.collectionIds.includes(c.id))
+      .some((collection) => collection.manage);
   }
 
   private refresh() {

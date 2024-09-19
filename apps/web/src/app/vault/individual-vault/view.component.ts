@@ -36,6 +36,11 @@ export interface ViewCipherDialogParams {
    * If true, the edit button will be disabled in the dialog.
    */
   disableEdit?: boolean;
+
+  /**
+   * If true, the delete button will be disabled in the dialog.
+   */
+  disableDelete?: boolean;
 }
 
 export enum ViewCipherDialogResult {
