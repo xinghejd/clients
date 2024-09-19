@@ -5,10 +5,14 @@
 * {
   box-sizing: border-box;
 }
+html,
+body {
+  overflow: hidden;
+  pointer-events: none;
+}
 
 html {
   font-size: 10px;
-  overflow: hidden;
 }
 
 body {
@@ -20,6 +24,10 @@ body {
     color: themed("textColor");
     background-color: themed("backgroundColor");
   }
+}
+
+body * {
+  pointer-events: auto;
 }
 
 .inline-menu-list-message {

@@ -42,6 +42,7 @@ export class AutofillInlineMenuIframeService implements AutofillInlineMenuIframe
     title: "",
     allowtransparency: "true",
     tabIndex: "-1",
+    scrolling: "no",
   };
   private foreignMutationsCount = 0;
   private mutationObserverIterations = 0;

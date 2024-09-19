@@ -1,4 +1,5 @@
 import {
+  BehaviorSubject,
   debounceTime,
   firstValueFrom,
   map,
@@ -87,6 +88,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
   private readonly openUnlockPopout = openUnlockPopout;
   private readonly openViewVaultItemPopout = openViewVaultItemPopout;
   private readonly openAddEditVaultItemPopout = openAddEditVaultItemPopout;
+  private readonly updateOverlayCiphersSubject = new BehaviorSubject<boolean>(true);
   private readonly storeInlineMenuFido2CredentialsSubject = new ReplaySubject<number>(1);
   private pageDetailsForTab: PageDetailsForTab = {};
   private subFrameOffsetsForTab: SubFrameOffsetsForTab = {};
@@ -220,6 +222,12 @@ export class OverlayBackground implements OverlayBackgroundInterface {
    * Initializes event observables that handle events which affect the overlay's behavior.
    */
   private initOverlayEventObservables() {
+    this.updateOverlayCiphersSubject
+      .pipe(
+        throttleTime(50),
+        switchMap((updateAllCipherTypes) => this.handleOverlayCiphersUpdate(updateAllCipherTypes)),
+      )
+      .subscribe();
     this.storeInlineMenuFido2CredentialsSubject
       .pipe(switchMap((tabId) => this.availablePasskeyAuthCredentials$(tabId)))
       .subscribe((credentials) => this.storeInlineMenuFido2Credentials(credentials));
@@ -288,13 +296,18 @@ export class OverlayBackground implements OverlayBackgroundInterface {
    */
   async updateOverlayCiphers(updateAllCipherTypes = true) {
     const authStatus = await firstValueFrom(this.authService.activeAccountStatus$);
-    if (authStatus !== AuthenticationStatus.Unlocked) {
-      if (this.focusedFieldData) {
-        this.closeInlineMenuAfterCiphersUpdate().catch((error) => this.logService.error(error));
-      }
+    if (authStatus === AuthenticationStatus.Unlocked) {
+      this.updateOverlayCiphersSubject.next(updateAllCipherTypes);
+
       return;
     }
 
+    if (this.focusedFieldData) {
+      this.closeInlineMenuAfterCiphersUpdate().catch((error) => this.logService.error(error));
+    }
+  }
+
+  async handleOverlayCiphersUpdate(updateAllCipherTypes: boolean) {
     const currentTab = await BrowserApi.getTabFromCurrentWindowId();
     if (this.focusedFieldData && currentTab?.id !== this.focusedFieldData.tabId) {
       this.closeInlineMenuAfterCiphersUpdate().catch((error) => this.logService.error(error));
