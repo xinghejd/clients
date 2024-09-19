@@ -14,11 +14,12 @@ export abstract class CollectionService {
   encrypt: (model: CollectionView) => Promise<Collection>;
   decryptedCollectionViews$: (ids: CollectionId[]) => Observable<CollectionView[]>;
   /**
-   * @deprecated This method will soon be made private, use `decryptedCollectionViews$` instead.
+   * @deprecated This method will soon be made private
+   * See PM-12375
    */
   decryptMany: (
     collections: Collection[],
-    orgKeys: Record<OrganizationId, OrgKey>,
+    orgKeys?: Record<OrganizationId, OrgKey>,
   ) => Promise<CollectionView[]>;
   get: (id: string) => Promise<Collection>;
   getAll: () => Promise<Collection[]>;

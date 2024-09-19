@@ -103,14 +103,18 @@ export class CollectionService implements CollectionServiceAbstraction {
     return collection;
   }
 
+  // TODO: this should be private and orgKeys should be required.
+  // See https://bitwarden.atlassian.net/browse/PM-12375
   async decryptMany(
     collections: Collection[],
-    orgKeys: Record<OrganizationId, OrgKey>,
+    orgKeys?: Record<OrganizationId, OrgKey>,
   ): Promise<CollectionView[]> {
     if (collections == null) {
       return [];
     }
     const decCollections: CollectionView[] = [];
+
+    orgKeys ??= await firstValueFrom(this.cryptoService.activeUserOrgKeys$);
 
     const promises: Promise<any>[] = [];
     collections.forEach((collection) => {
