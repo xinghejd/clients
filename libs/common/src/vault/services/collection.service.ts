@@ -21,7 +21,7 @@ import { TreeNode } from "../models/domain/tree-node";
 import { CollectionView } from "../models/view/collection.view";
 import { ServiceUtils } from "../service-utils";
 
-const ENCRYPTED_COLLECTION_DATA_KEY = UserKeyDefinition.record<CollectionData, CollectionId>(
+export const ENCRYPTED_COLLECTION_DATA_KEY = UserKeyDefinition.record<CollectionData, CollectionId>(
   COLLECTION_DATA,
   "collections",
   {
@@ -37,6 +37,10 @@ const DECRYPTED_COLLECTION_DATA_KEY = new DeriveDefinition<
 >(COLLECTION_DATA, "decryptedCollections", {
   deserializer: (obj) => obj.map((collection) => CollectionView.fromJSON(collection)),
   derive: async ([collections, orgKeys], { collectionService }) => {
+    if (collections == null) {
+      return [];
+    }
+
     const data = Object.values(collections).map((c) => new Collection(c));
     return await collectionService.decryptMany(data, orgKeys);
   },
@@ -64,7 +68,13 @@ export class CollectionService implements CollectionServiceAbstraction {
     this.encryptedCollectionDataState = this.stateProvider.getActive(ENCRYPTED_COLLECTION_DATA_KEY);
 
     this.encryptedCollections$ = this.encryptedCollectionDataState.state$.pipe(
-      map((collections) => Object.values(collections).map((c) => new Collection(c))),
+      map((collections) => {
+        if (collections == null) {
+          return [];
+        }
+
+        return Object.values(collections).map((c) => new Collection(c));
+      }),
     );
 
     const encryptedCollectionsWithKeys = this.encryptedCollectionDataState.combinedState$.pipe(
@@ -109,7 +119,7 @@ export class CollectionService implements CollectionServiceAbstraction {
     collections: Collection[],
     orgKeys?: Record<OrganizationId, OrgKey>,
   ): Promise<CollectionView[]> {
-    if (collections == null) {
+    if (collections == null || collections.length === 0) {
       return [];
     }
     const decCollections: CollectionView[] = [];
