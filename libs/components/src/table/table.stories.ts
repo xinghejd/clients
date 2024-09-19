@@ -147,10 +147,8 @@ export const Filterable: Story = {
       <input type="search" placeholder="Search" (input)="dataSource.filter = $event.target.value" />
       <bit-table-scroll [dataSource]="dataSource" [rowSize]="43">
         <ng-container header>
-          <tr>
-            <th bitCell bitSortable="name" default>Name</th>
-            <th bitCell bitSortable="value" width="120px">Value</th>
-          </tr>
+          <th bitCell bitSortable="name" default>Name</th>
+          <th bitCell bitSortable="value" width="120px">Value</th>
         </ng-container>
         <ng-template bitRowDef let-row>
           <td bitCell>{{ row.name }}</td>
