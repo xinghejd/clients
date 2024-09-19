@@ -324,6 +324,12 @@ export class LockV2Component implements OnInit, OnDestroy {
 
       this.unlockingViaBiometrics = false;
     } catch (e) {
+      // Cancelling is a valid action.
+      if (e?.message === "canceled") {
+        this.unlockingViaBiometrics = false;
+        return;
+      }
+
       let biometricTranslatedErrorDesc;
 
       if (this.clientType === "browser") {
