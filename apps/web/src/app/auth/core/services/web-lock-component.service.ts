@@ -1,5 +1,5 @@
 import { inject } from "@angular/core";
-import { map, Observable } from "rxjs";
+import { map, Observable, of } from "rxjs";
 
 import { LockComponentService, UnlockOptions } from "@bitwarden/auth/angular";
 import {
@@ -14,11 +14,13 @@ export class WebLockComponentService implements LockComponentService {
   constructor() {}
 
   getBiometricsError(error: any): string | null {
-    throw new Error("Method not implemented.");
+    throw new Error(
+      "Biometric unlock is not supported in the web app. See getAvailableUnlockOptions$",
+    );
   }
 
-  async isFido2Session(): Promise<boolean> {
-    throw new Error("Method not implemented.");
+  isFido2Session$(): Observable<boolean> {
+    return of(false);
   }
 
   async isWindowVisible(): Promise<boolean> {
@@ -26,7 +28,9 @@ export class WebLockComponentService implements LockComponentService {
   }
 
   getBiometricsUnlockBtnText(): string {
-    throw new Error("Method not implemented.");
+    throw new Error(
+      "Biometric unlock is not supported in the web app. See getAvailableUnlockOptions$",
+    );
   }
 
   getAvailableUnlockOptions$(userId: UserId): Observable<UnlockOptions> {

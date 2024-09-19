@@ -1,5 +1,5 @@
 import { inject } from "@angular/core";
-import { combineLatest, firstValueFrom, from, map, Observable } from "rxjs";
+import { combineLatest, from, map, Observable } from "rxjs";
 
 import {
   BiometricsDisableReason,
@@ -23,7 +23,6 @@ import {
   Fido2SessionData,
 } from "../vault/popup/utils/fido2-popout-session-data";
 
-// TODO: consider throwing not implemented exceptions for unsupported methods.
 export class ExtensionLockComponentService implements LockComponentService {
   private readonly userDecryptionOptionsService = inject(UserDecryptionOptionsServiceAbstraction);
   private readonly platformUtilsService = inject(PlatformUtilsService);
@@ -32,9 +31,8 @@ export class ExtensionLockComponentService implements LockComponentService {
   private readonly vaultTimeoutSettingsService = inject(VaultTimeoutSettingsService);
   private readonly cryptoService = inject(CryptoService);
 
-  async isFido2Session(): Promise<boolean> {
-    const fido2SessionData: Fido2SessionData = await firstValueFrom(fido2PopoutSessionData$());
-    return fido2SessionData.isFido2Session;
+  isFido2Session$(): Observable<boolean> {
+    return fido2PopoutSessionData$().pipe(map((data: Fido2SessionData) => data.isFido2Session));
   }
 
   getBiometricsError(error: any): string | null {
@@ -48,7 +46,7 @@ export class ExtensionLockComponentService implements LockComponentService {
   }
 
   async isWindowVisible(): Promise<boolean> {
-    return false;
+    throw new Error("Method not implemented.");
   }
 
   getBiometricsUnlockBtnText(): string {
