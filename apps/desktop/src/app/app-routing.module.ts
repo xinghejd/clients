@@ -198,6 +198,7 @@ const routes: Routes = [
         data: {
           pageIcon: LockIcon,
           pageTitle: "yourVaultIsLockedV2",
+          showReadonlyHostname: true,
         } satisfies AnonLayoutWrapperData,
         children: [
           {
