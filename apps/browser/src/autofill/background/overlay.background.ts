@@ -82,13 +82,16 @@ import {
   SubFrameOffsetData,
   SubFrameOffsetsForTab,
   ToggleInlineMenuHiddenMessage,
+  UpdateOverlayCiphersParams,
 } from "./abstractions/overlay.background";
 
 export class OverlayBackground implements OverlayBackgroundInterface {
   private readonly openUnlockPopout = openUnlockPopout;
   private readonly openViewVaultItemPopout = openViewVaultItemPopout;
   private readonly openAddEditVaultItemPopout = openAddEditVaultItemPopout;
-  private readonly updateOverlayCiphersSubject = new BehaviorSubject<boolean>(true);
+  private readonly updateOverlayCiphersSubject = new BehaviorSubject<UpdateOverlayCiphersParams>(
+    undefined,
+  );
   private readonly storeInlineMenuFido2CredentialsSubject = new ReplaySubject<number>(1);
   private pageDetailsForTab: PageDetailsForTab = {};
   private subFrameOffsetsForTab: SubFrameOffsetsForTab = {};
@@ -102,7 +105,8 @@ export class OverlayBackground implements OverlayBackgroundInterface {
   private inlineMenuPosition: InlineMenuPosition = {};
   private cardAndIdentityCiphers: Set<CipherView> | null = null;
   private currentInlineMenuCiphersCount: number = 0;
-  private delayedCloseTimeout: number | NodeJS.Timeout;
+  private startInlineMenuDelayedCloseSubject: Subject<void> = new Subject<void>();
+  private cancelInlineMenuDelayedCloseSubject: Subject<boolean> = new Subject<boolean>();
   private startInlineMenuFadeInSubject = new Subject<void>();
   private cancelInlineMenuFadeInSubject = new Subject<boolean>();
   private startUpdateInlineMenuPositionSubject = new Subject<chrome.runtime.MessageSender>();
@@ -159,7 +163,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     fido2AbortRequest: ({ sender }) => this.abortFido2ActiveRequest(sender),
   };
   private readonly inlineMenuButtonPortMessageHandlers: InlineMenuButtonPortMessageHandlers = {
-    triggerDelayedAutofillInlineMenuClosure: () => this.triggerDelayedInlineMenuClosure(),
+    triggerDelayedAutofillInlineMenuClosure: () => this.startInlineMenuDelayedCloseSubject.next(),
     autofillInlineMenuButtonClicked: ({ port }) => this.handleInlineMenuButtonClicked(port),
     autofillInlineMenuBlurred: () => this.checkInlineMenuListFocused(),
     redirectAutofillInlineMenuFocusOut: ({ message, port }) =>
@@ -224,8 +228,10 @@ export class OverlayBackground implements OverlayBackgroundInterface {
   private initOverlayEventObservables() {
     this.updateOverlayCiphersSubject
       .pipe(
-        throttleTime(50),
-        switchMap((updateAllCipherTypes) => this.handleOverlayCiphersUpdate(updateAllCipherTypes)),
+        throttleTime(100, null, { leading: true, trailing: true }),
+        switchMap((updateOverlayCiphersParams) =>
+          this.handleOverlayCiphersUpdate(updateOverlayCiphersParams),
+        ),
       )
       .subscribe();
     this.storeInlineMenuFido2CredentialsSubject
@@ -239,7 +245,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       .subscribe();
     this.rebuildSubFrameOffsetsSubject
       .pipe(
-        throttleTime(100),
+        throttleTime(100, null, { leading: true, trailing: true }),
         switchMap((sender) => this.rebuildSubFrameOffsets(sender)),
       )
       .subscribe();
@@ -250,6 +256,14 @@ export class OverlayBackground implements OverlayBackgroundInterface {
           this.buildCipherAndOpenAddEditVaultItemPopout(addNewItemData),
         ),
       )
+      .subscribe();
+
+    // Delayed close of the inline menu
+    merge(
+      this.startInlineMenuDelayedCloseSubject.pipe(debounceTime(100)),
+      this.cancelInlineMenuDelayedCloseSubject,
+    )
+      .pipe(switchMap((cancelSignal) => this.triggerDelayedInlineMenuClosure(!!cancelSignal)))
       .subscribe();
 
     // Debounce used to update inline menu position
@@ -294,23 +308,23 @@ export class OverlayBackground implements OverlayBackgroundInterface {
    * Queries all ciphers for the given url, and sorts them by last used. Will not update the
    * list of ciphers if the extension is not unlocked.
    */
-  async updateOverlayCiphers(updateAllCipherTypes = true) {
+  async updateOverlayCiphers(updateAllCipherTypes = true, triggerInlineMenuOpen = false) {
     const authStatus = await firstValueFrom(this.authService.activeAccountStatus$);
     if (authStatus === AuthenticationStatus.Unlocked) {
-      this.updateOverlayCiphersSubject.next(updateAllCipherTypes);
-
-      return;
-    }
-
-    if (this.focusedFieldData) {
-      this.closeInlineMenuAfterCiphersUpdate().catch((error) => this.logService.error(error));
+      this.updateOverlayCiphersSubject.next({ updateAllCipherTypes, triggerInlineMenuOpen });
     }
   }
 
-  async handleOverlayCiphersUpdate(updateAllCipherTypes: boolean) {
+  async handleOverlayCiphersUpdate(updateOverlayCiphersParams: UpdateOverlayCiphersParams) {
+    if (!updateOverlayCiphersParams) {
+      return;
+    }
+
+    const { updateAllCipherTypes, triggerInlineMenuOpen } = updateOverlayCiphersParams;
     const currentTab = await BrowserApi.getTabFromCurrentWindowId();
     if (this.focusedFieldData && currentTab?.id !== this.focusedFieldData.tabId) {
-      this.closeInlineMenuAfterCiphersUpdate().catch((error) => this.logService.error(error));
+      const focusedFieldTab = await BrowserApi.getTab(this.focusedFieldData.tabId);
+      this.closeInlineMenu({ tab: focusedFieldTab }, { forceCloseInlineMenu: true });
     }
 
     if (!currentTab || !currentTab.url?.startsWith("http")) {
@@ -335,6 +349,11 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     }
 
     const ciphers = await this.getInlineMenuCipherData();
+
+    if (triggerInlineMenuOpen) {
+      await this.openInlineMenu(true);
+    }
+
     this.inlineMenuListPort?.postMessage({
       command: "updateAutofillInlineMenuListCiphers",
       ciphers,
@@ -719,14 +738,6 @@ export class OverlayBackground implements OverlayBackgroundInterface {
   }
 
   /**
-   * Gets the currently focused field and closes the inline menu on that tab.
-   */
-  private async closeInlineMenuAfterCiphersUpdate() {
-    const focusedFieldTab = await BrowserApi.getTab(this.focusedFieldData.tabId);
-    this.closeInlineMenu({ tab: focusedFieldTab }, { forceCloseInlineMenu: true });
-  }
-
-  /**
    * Handles aggregation of page details for a tab. Stores the page details
    * in association with the tabId of the tab that sent the message.
    *
@@ -891,7 +902,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
    */
   private async rebuildSubFrameOffsets(sender: chrome.runtime.MessageSender) {
     this.cancelUpdateInlineMenuPositionSubject.next();
-    this.clearDelayedInlineMenuClosure();
+    this.cancelInlineMenuDelayedCloseSubject.next(true);
 
     const subFrameOffsetsForTab = this.subFrameOffsetsForTab[sender.tab.id];
     if (subFrameOffsetsForTab) {
@@ -1117,27 +1128,14 @@ export class OverlayBackground implements OverlayBackgroundInterface {
    * This is used to ensure that we capture click events on the inline menu in the case
    * that some on page programmatic method attempts to force focus redirection.
    */
-  private triggerDelayedInlineMenuClosure() {
-    if (this.isFieldCurrentlyFocused) {
+  private async triggerDelayedInlineMenuClosure(cancelDelayedClose: boolean = false) {
+    if (cancelDelayedClose || this.isFieldCurrentlyFocused) {
       return;
     }
 
-    this.clearDelayedInlineMenuClosure();
-    this.delayedCloseTimeout = globalThis.setTimeout(() => {
-      const message = { command: "triggerDelayedAutofillInlineMenuClosure" };
-      this.inlineMenuButtonPort?.postMessage(message);
-      this.inlineMenuListPort?.postMessage(message);
-    }, 100);
-  }
-
-  /**
-   * Clears the delayed closure timeout for the inline menu, effectively
-   * cancelling the event from occurring.
-   */
-  private clearDelayedInlineMenuClosure() {
-    if (this.delayedCloseTimeout) {
-      clearTimeout(this.delayedCloseTimeout);
-    }
+    const message = { command: "triggerDelayedAutofillInlineMenuClosure" };
+    this.inlineMenuButtonPort?.postMessage(message);
+    this.inlineMenuListPort?.postMessage(message);
   }
 
   /**
@@ -1533,7 +1531,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
    * @param isOpeningFullInlineMenu - Identifies whether the full inline menu should be forced open regardless of other states
    */
   private async openInlineMenu(isFocusingFieldElement = false, isOpeningFullInlineMenu = false) {
-    this.clearDelayedInlineMenuClosure();
+    this.cancelInlineMenuDelayedCloseSubject.next(true);
     const currentTab = await BrowserApi.getTabFromCurrentWindowId();
     if (!currentTab) {
       return;
@@ -1587,7 +1585,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
    * @param port - The port of the inline menu button
    */
   private async handleInlineMenuButtonClicked(port: chrome.runtime.Port) {
-    this.clearDelayedInlineMenuClosure();
+    this.cancelInlineMenuDelayedCloseSubject.next(true);
     this.cancelInlineMenuFadeInAndPositionUpdate();
 
     if ((await this.getAuthStatus()) !== AuthenticationStatus.Unlocked) {
@@ -1656,11 +1654,10 @@ export class OverlayBackground implements OverlayBackgroundInterface {
    */
   private async unlockCompleted(message: OverlayBackgroundExtensionMessage) {
     await this.updateInlineMenuButtonAuthStatus();
-    await this.updateOverlayCiphers();
 
-    if (message.data?.commandToRetry?.message?.command === "openAutofillInlineMenu") {
-      await this.openInlineMenu(true);
-    }
+    const openInlineMenu =
+      message.data?.commandToRetry?.message?.command === "openAutofillInlineMenu";
+    await this.updateOverlayCiphers(true, openInlineMenu);
   }
 
   /**

@@ -33,6 +33,11 @@ export type WebsiteIconData = {
   icon: string;
 };
 
+export type UpdateOverlayCiphersParams = {
+  updateAllCipherTypes: boolean;
+  triggerInlineMenuOpen: boolean;
+};
+
 export type FocusedFieldData = {
   focusedFieldStyles: Partial<CSSStyleDeclaration>;
   focusedFieldRects: Partial<DOMRect>;
