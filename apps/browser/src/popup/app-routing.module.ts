@@ -424,6 +424,27 @@ const routes: Routes = [
   ),
   {
     path: "",
+    component: ExtensionAnonLayoutWrapperComponent,
+    children: [
+      {
+        path: "lockV2",
+        canActivate: [canAccessFeature(FeatureFlag.ExtensionRefresh), lockGuard()],
+        data: {
+          pageIcon: LockIcon,
+          pageTitle: "yourVaultIsLockedV2",
+          showReadonlyHostname: true,
+        } satisfies AnonLayoutWrapperData,
+        children: [
+          {
+            path: "",
+            component: LockV2Component,
+          },
+        ],
+      },
+    ],
+  },
+  {
+    path: "",
     component: AnonLayoutWrapperComponent,
     children: [
       {
@@ -456,21 +477,6 @@ const routes: Routes = [
           {
             path: "",
             component: RegistrationFinishComponent,
-          },
-        ],
-      },
-      {
-        path: "lockV2",
-        canActivate: [canAccessFeature(FeatureFlag.ExtensionRefresh), lockGuard()],
-        data: {
-          pageIcon: LockIcon,
-          pageTitle: "yourVaultIsLockedV2",
-          showReadonlyHostname: true,
-        } satisfies AnonLayoutWrapperData,
-        children: [
-          {
-            path: "",
-            component: LockV2Component,
           },
         ],
       },
