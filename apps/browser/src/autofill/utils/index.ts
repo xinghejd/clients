@@ -434,6 +434,11 @@ export function getSubmitButtonKeywordsSet(element: HTMLElement): Set<string> {
  */
 export function generateDomainMatchPatterns(url: string): string[] {
   try {
+    const extensionUrlPattern = /^(chrome|moz-extension|safari-web-extension):\/\/\/?/;
+    if (extensionUrlPattern.test(url)) {
+      return [];
+    }
+
     // Add protocol to URL if it is missing to allow for parsing the hostname correctly
     const urlPattern = /^(https?|file):\/\/\/?/;
     if (!urlPattern.test(url)) {
