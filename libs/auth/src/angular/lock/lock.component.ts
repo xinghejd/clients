@@ -22,7 +22,6 @@ import {
 import { ClientType } from "@bitwarden/common/enums";
 import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
 import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
-import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
@@ -114,13 +113,9 @@ export class LockV2Component implements OnInit, OnDestroy {
   // Desktop properties:
   private deferFocus: boolean = null;
   private biometricAsked = false;
-  // private autoPromptBiometric = false;
 
   // Browser extension properties:
   private isInitialLockScreen = (window as any).previousPopupUrl == null;
-  biometricError: string;
-  // pendingBiometric = false;
-  isFido2Session: boolean = false;
 
   defaultUnlockOptionSetForUser = false;
 
@@ -133,7 +128,6 @@ export class LockV2Component implements OnInit, OnDestroy {
     private userVerificationService: UserVerificationService,
     private cryptoService: CryptoService,
     private platformUtilsService: PlatformUtilsService,
-    private environmentService: EnvironmentService, // TODO: evaluate if this is required or not
     private router: Router,
     private dialogService: DialogService,
     private messagingService: MessagingService,
