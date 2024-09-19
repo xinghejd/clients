@@ -1,6 +1,6 @@
 import { CommonModule } from "@angular/common";
 import { Component, Input, OnDestroy, OnInit } from "@angular/core";
-import { Observable, Subject, takeUntil } from "rxjs";
+import { firstValueFrom, Observable, Subject, takeUntil } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
@@ -8,11 +8,11 @@ import { Organization } from "@bitwarden/common/admin-console/models/domain/orga
 import { CollectionId } from "@bitwarden/common/types/guid";
 import { CollectionService } from "@bitwarden/common/vault/abstractions/collection.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
-import { CardView } from "@bitwarden/common/vault/models/view/card.view";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { CollectionView } from "@bitwarden/common/vault/models/view/collection.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
-import { SearchModule, CalloutModule } from "@bitwarden/components";
+import { isCardExpired } from "@bitwarden/common/vault/utils";
+import { CalloutModule, SearchModule } from "@bitwarden/components";
 
 import { AdditionalOptionsComponent } from "./additional-options/additional-options.component";
 import { AttachmentsV2ViewComponent } from "./attachments/attachments-v2-view.component";
@@ -45,10 +45,15 @@ import { ViewIdentitySectionsComponent } from "./view-identity-sections/view-ide
   ],
 })
 export class CipherViewComponent implements OnInit, OnDestroy {
-  @Input() cipher: CipherView;
+  @Input({ required: true }) cipher: CipherView;
+
+  /**
+   * Optional list of collections the cipher is assigned to. If none are provided, they will be fetched using the
+   * `CipherService` and the `collectionIds` property of the cipher.
+   */
+  @Input() collections: CollectionView[];
   organization$: Observable<Organization>;
   folder$: Observable<FolderView>;
-  collections$: Observable<CollectionView[]>;
   private destroyed$: Subject<void> = new Subject();
   cardIsExpired: boolean = false;
 
@@ -61,7 +66,7 @@ export class CipherViewComponent implements OnInit, OnDestroy {
   async ngOnInit() {
     await this.loadCipherData();
 
-    this.cardIsExpired = this.isCardExpiryInThePast();
+    this.cardIsExpired = isCardExpired(this.cipher.card);
   }
 
   ngOnDestroy(): void {
@@ -70,8 +75,8 @@ export class CipherViewComponent implements OnInit, OnDestroy {
   }
 
   get hasCard() {
-    const { cardholderName, code, expMonth, expYear, brand, number } = this.cipher.card;
-    return cardholderName || code || expMonth || expYear || brand || number;
+    const { cardholderName, code, expMonth, expYear, number } = this.cipher.card;
+    return cardholderName || code || expMonth || expYear || number;
   }
 
   get hasLogin() {
@@ -84,10 +89,16 @@ export class CipherViewComponent implements OnInit, OnDestroy {
   }
 
   async loadCipherData() {
-    if (this.cipher.collectionIds.length > 0) {
-      this.collections$ = this.collectionService
-        .decryptedCollectionViews$(this.cipher.collectionIds as CollectionId[])
-        .pipe(takeUntil(this.destroyed$));
+    // Load collections if not provided and the cipher has collectionIds
+    if (
+      this.cipher.collectionIds.length > 0 &&
+      (!this.collections || this.collections.length === 0)
+    ) {
+      this.collections = await firstValueFrom(
+        this.collectionService.decryptedCollectionViews$(
+          this.cipher.collectionIds as CollectionId[],
+        ),
+      );
     }
 
     if (this.cipher.organizationId) {
@@ -101,25 +112,5 @@ export class CipherViewComponent implements OnInit, OnDestroy {
         .getDecrypted$(this.cipher.folderId)
         .pipe(takeUntil(this.destroyed$));
     }
-  }
-
-  isCardExpiryInThePast() {
-    if (this.cipher.card) {
-      const { expMonth, expYear }: CardView = this.cipher.card;
-
-      if (expYear && expMonth) {
-        // `Date` months are zero-indexed
-        const parsedMonth = parseInt(expMonth) - 1;
-        const parsedYear = parseInt(expYear);
-
-        // First day of the next month minus one, to get last day of the card month
-        const cardExpiry = new Date(parsedYear, parsedMonth + 1, 0);
-        const now = new Date();
-
-        return cardExpiry < now;
-      }
-    }
-
-    return false;
   }
 }

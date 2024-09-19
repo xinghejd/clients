@@ -6,6 +6,8 @@ import { ActivatedRoute, Params, Router } from "@angular/router";
 import { firstValueFrom, map, switchMap } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
+import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
+import { EventType } from "@bitwarden/common/enums";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherId, CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
@@ -160,6 +162,7 @@ export class AddEditV2Component implements OnInit {
     private popupRouterCacheService: PopupRouterCacheService,
     private router: Router,
     private cipherService: CipherService,
+    private eventCollectionService: EventCollectionService,
   ) {
     this.subscribeToParams();
   }
@@ -275,6 +278,15 @@ export class AddEditV2Component implements OnInit {
             await this.cipherService.setAddEditCipherInfo(null);
           }
 
+          if (["edit", "partial-edit"].includes(config.mode) && config.originalCipher?.id) {
+            await this.eventCollectionService.collect(
+              EventType.Cipher_ClientViewed,
+              config.originalCipher.id,
+              false,
+              config.originalCipher.organizationId,
+            );
+          }
+
           return config;
         }),
       )
@@ -312,13 +324,13 @@ export class AddEditV2Component implements OnInit {
 
     switch (type) {
       case CipherType.Login:
-        return this.i18nService.t(partOne, this.i18nService.t("typeLogin"));
+        return this.i18nService.t(partOne, this.i18nService.t("typeLogin").toLocaleLowerCase());
       case CipherType.Card:
-        return this.i18nService.t(partOne, this.i18nService.t("typeCard"));
+        return this.i18nService.t(partOne, this.i18nService.t("typeCard").toLocaleLowerCase());
       case CipherType.Identity:
-        return this.i18nService.t(partOne, this.i18nService.t("typeIdentity"));
+        return this.i18nService.t(partOne, this.i18nService.t("typeIdentity").toLocaleLowerCase());
       case CipherType.SecureNote:
-        return this.i18nService.t(partOne, this.i18nService.t("note"));
+        return this.i18nService.t(partOne, this.i18nService.t("note").toLocaleLowerCase());
     }
   }
 }

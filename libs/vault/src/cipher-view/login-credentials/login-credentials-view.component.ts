@@ -1,10 +1,11 @@
 import { CommonModule, DatePipe } from "@angular/common";
 import { Component, inject, Input } from "@angular/core";
-import { Router } from "@angular/router";
 import { Observable, shareReplay } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
+import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
+import { EventType } from "@bitwarden/common/enums";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import {
@@ -18,7 +19,14 @@ import {
   ColorPasswordModule,
 } from "@bitwarden/components";
 
+import { PremiumUpgradePromptService } from "../../../../../libs/common/src/vault/abstractions/premium-upgrade-prompt.service";
 import { BitTotpCountdownComponent } from "../../components/totp-countdown/totp-countdown.component";
+import { ReadOnlyCipherCardComponent } from "../read-only-cipher-card/read-only-cipher-card.component";
+
+type TotpCodeValues = {
+  totpCode: string;
+  totpCodeFormatted?: string;
+};
 
 @Component({
   selector: "app-login-credentials-view",
@@ -36,6 +44,7 @@ import { BitTotpCountdownComponent } from "../../components/totp-countdown/totp-
     BadgeModule,
     ColorPasswordModule,
     BitTotpCountdownComponent,
+    ReadOnlyCipherCardComponent,
   ],
 })
 export class LoginCredentialsViewComponent {
@@ -47,13 +56,14 @@ export class LoginCredentialsViewComponent {
     );
   showPasswordCount: boolean = false;
   passwordRevealed: boolean = false;
-  totpCopyCode: string;
+  totpCodeCopyObj: TotpCodeValues;
   private datePipe = inject(DatePipe);
 
   constructor(
     private billingAccountProfileStateService: BillingAccountProfileStateService,
-    private router: Router,
     private i18nService: I18nService,
+    private premiumUpgradeService: PremiumUpgradePromptService,
+    private eventCollectionService: EventCollectionService,
   ) {}
 
   get fido2CredentialCreationDateValue(): string {
@@ -65,19 +75,37 @@ export class LoginCredentialsViewComponent {
     return `${dateCreated} ${creationDate}`;
   }
 
-  async getPremium() {
-    await this.router.navigate(["/premium"]);
+  async getPremium(organizationId?: string) {
+    await this.premiumUpgradeService.promptForPremium(organizationId);
   }
 
-  pwToggleValue(evt: boolean) {
-    this.passwordRevealed = evt;
+  async pwToggleValue(passwordVisible: boolean) {
+    this.passwordRevealed = passwordVisible;
+
+    if (passwordVisible) {
+      await this.eventCollectionService.collect(
+        EventType.Cipher_ClientToggledPasswordVisible,
+        this.cipher.id,
+        false,
+        this.cipher.organizationId,
+      );
+    }
   }
 
   togglePasswordCount() {
     this.showPasswordCount = !this.showPasswordCount;
   }
 
-  setTotpCopyCode(e: any) {
-    this.totpCopyCode = e;
+  setTotpCopyCode(e: TotpCodeValues) {
+    this.totpCodeCopyObj = e;
+  }
+
+  async logCopyEvent() {
+    await this.eventCollectionService.collect(
+      EventType.Cipher_ClientCopiedPassword,
+      this.cipher.id,
+      false,
+      this.cipher.organizationId,
+    );
   }
 }

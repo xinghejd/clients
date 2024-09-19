@@ -1,11 +1,8 @@
 import { DIALOG_DATA, DialogConfig, DialogRef } from "@angular/cdk/dialog";
 import { CommonModule } from "@angular/common";
-import { Component, Inject, OnInit, OnDestroy } from "@angular/core";
+import { Component, Inject, OnInit } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { Subject } from "rxjs";
 
-import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
-import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherId } from "@bitwarden/common/types/guid";
@@ -27,33 +24,10 @@ import { SharedModule } from "../../shared/shared.module";
 import { AttachmentsV2Component } from "./attachments-v2.component";
 
 /**
- * Parameters for the AddEditCipherDialogV2 component.
- */
-export interface AddEditCipherDialogParams {
-  /**
-   * The cipher to edit.
-   */
-  cipher: CipherView;
-  /**
-   * The type of the cipher.
-   */
-  cipherType?: CipherType;
-  /**
-   * Whether the cipher is being cloned.
-   */
-  cloneMode?: boolean;
-  /**
-   * The configuration for the cipher form.
-   */
-  cipherFormConfig: CipherFormConfig;
-}
-
-/**
  * The result of the AddEditCipherDialogV2 component.
  */
 export enum AddEditCipherDialogResult {
   Edited = "edited",
-  Deleted = "deleted",
   Added = "added",
   Canceled = "canceled",
 }
@@ -62,7 +36,14 @@ export enum AddEditCipherDialogResult {
  * The close result of the AddEditCipherDialogV2 component.
  */
 export interface AddEditCipherDialogCloseResult {
+  /**
+   * The action that was taken.
+   */
   action: AddEditCipherDialogResult;
+  /**
+   * The ID of the cipher that was edited or added.
+   */
+  id?: CipherId;
 }
 
 /**
@@ -84,15 +65,9 @@ export interface AddEditCipherDialogCloseResult {
   ],
   providers: [{ provide: CipherFormGenerationService, useClass: WebCipherFormGenerationService }],
 })
-export class AddEditComponentV2 implements OnInit, OnDestroy {
-  cipher: CipherView;
-  cipherId: CipherId;
-  organization: Organization;
+export class AddEditComponentV2 implements OnInit {
   config: CipherFormConfig;
   headerText: string;
-  cipherType: CipherType;
-  cloneMode: boolean = false;
-  protected destroy$ = new Subject<void>();
   canAccessAttachments: boolean = false;
 
   /**
@@ -101,15 +76,13 @@ export class AddEditComponentV2 implements OnInit, OnDestroy {
    * @param dialogRef The reference to the dialog.
    * @param i18nService The internationalization service.
    * @param dialogService The dialog service.
-   * @param organizationService The organization service.
    * @param billingAccountProfileStateService The billing account profile state service.
    */
   constructor(
-    @Inject(DIALOG_DATA) public params: AddEditCipherDialogParams,
+    @Inject(DIALOG_DATA) public params: CipherFormConfig,
     private dialogRef: DialogRef<AddEditCipherDialogCloseResult>,
     private i18nService: I18nService,
     private dialogService: DialogService,
-    private organizationService: OrganizationService,
     private billingAccountProfileStateService: BillingAccountProfileStateService,
   ) {
     this.billingAccountProfileStateService.hasPremiumFromAnySource$
@@ -123,25 +96,8 @@ export class AddEditComponentV2 implements OnInit, OnDestroy {
    * Lifecycle hook for component initialization.
    */
   async ngOnInit() {
-    this.cipher = this.params.cipher;
-    this.cipherId = this.cipher?.id as CipherId;
-    this.cipherType = this.params.cipherType || this.params.cipherFormConfig?.cipherType;
-    this.cloneMode = this.params.cloneMode || false;
-    this.config = this.params.cipherFormConfig;
-
-    if (this.cipher && this.cipher.organizationId) {
-      this.organization = await this.organizationService.get(this.cipher.organizationId);
-    }
-
-    this.headerText = this.setHeader(this.config?.mode, this.cipherType);
-  }
-
-  /**
-   * Lifecycle hook for component destruction.
-   */
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
+    this.config = this.params;
+    this.headerText = this.setHeader(this.config?.mode, this.config.cipherType);
   }
 
   /**
@@ -186,10 +142,24 @@ export class AddEditComponentV2 implements OnInit, OnDestroy {
       AttachmentsV2Component,
       {
         data: {
-          cipherId: this.cipherId,
+          cipherId: this.config.originalCipher?.id as CipherId,
         },
       },
     );
+  }
+
+  /**
+   * Handles the event when a cipher is saved.
+   * @param cipherView The cipher view that was saved.
+   */
+  async onCipherSaved(cipherView: CipherView) {
+    this.dialogRef.close({
+      action:
+        this.config.mode === "add"
+          ? AddEditCipherDialogResult.Added
+          : AddEditCipherDialogResult.Edited,
+      id: cipherView.id as CipherId,
+    });
   }
 }
 
@@ -201,7 +171,7 @@ export class AddEditComponentV2 implements OnInit, OnDestroy {
  */
 export function openAddEditCipherDialog(
   dialogService: DialogService,
-  config: DialogConfig<AddEditCipherDialogParams>,
+  config: DialogConfig<CipherFormConfig>,
 ): DialogRef<AddEditCipherDialogCloseResult> {
   return dialogService.open(AddEditComponentV2, config);
 }

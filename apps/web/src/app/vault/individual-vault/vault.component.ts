@@ -47,7 +47,7 @@ import { MessagingService } from "@bitwarden/common/platform/abstractions/messag
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { SyncService } from "@bitwarden/common/platform/sync";
-import { CipherId, OrganizationId, CollectionId } from "@bitwarden/common/types/guid";
+import { CipherId, CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CollectionService } from "@bitwarden/common/vault/abstractions/collection.service";
 import { TotpService } from "@bitwarden/common/vault/abstractions/totp.service";
@@ -83,7 +83,6 @@ import {
   AddEditCipherDialogCloseResult,
   AddEditCipherDialogResult,
   openAddEditCipherDialog,
-  AddEditComponentV2,
 } from "./add-edit-v2.component";
 import { AddEditComponent } from "./add-edit.component";
 import {
@@ -686,8 +685,12 @@ export class VaultComponent implements OnInit, OnDestroy {
    * @returns The dialog reference.
    */
   async addCipherV2(cipherType?: CipherType) {
-    const config = await this.cipherFormConfigService.buildConfig("add", null, cipherType);
-    config.initialValues = {
+    const cipherFormConfig = await this.cipherFormConfigService.buildConfig(
+      "add",
+      null,
+      cipherType,
+    );
+    cipherFormConfig.initialValues = {
       organizationId:
         this.activeFilter.organizationId !== "MyVault" && this.activeFilter.organizationId != null
           ? (this.activeFilter.organizationId as OrganizationId)
@@ -700,25 +703,30 @@ export class VaultComponent implements OnInit, OnDestroy {
       folderId: this.activeFilter.folderId,
     };
 
-    return openAddEditCipherDialog(this.dialogService, {
-      data: {
-        cipher: null,
-        cipherType: cipherType || this.activeFilter.cipherType,
-        cloneMode: false,
-        cipherFormConfig: config,
-      },
+    // Open the dialog.
+    const dialogRef = openAddEditCipherDialog(this.dialogService, {
+      data: cipherFormConfig,
     });
+
+    // Wait for the dialog to close.
+    const result: AddEditCipherDialogCloseResult = await lastValueFrom(dialogRef.closed);
+
+    // Refresh the vault to show the new cipher.
+    if (result?.action === AddEditCipherDialogResult.Added) {
+      this.refresh();
+      this.go({ itemId: result.id, action: "view" });
+      return;
+    }
+
+    // If the dialog was closed by any other action navigate back to the vault.
+    this.go({ cipherId: null, itemId: null, action: null });
   }
 
-  async navigateToCipher(cipher: CipherView) {
-    this.go({ itemId: cipher?.id });
+  async editCipher(cipher: CipherView, cloneMode?: boolean) {
+    return this.editCipherId(cipher?.id, cloneMode);
   }
 
-  async editCipher(cipher: CipherView, cipherType?: CipherType, cloneMode?: boolean) {
-    return this.editCipherId(cipher?.id, cipherType, cloneMode);
-  }
-
-  async editCipherId(id: string, cipherType?: CipherType, cloneMode?: boolean) {
+  async editCipherId(id: string, cloneMode?: boolean) {
     const cipher = await this.cipherService.get(id);
 
     if (
@@ -772,40 +780,37 @@ export class VaultComponent implements OnInit, OnDestroy {
    * @param cloneMode
    */
   private async editCipherIdV2(cipher: Cipher, cloneMode?: boolean) {
-    const activeUserId = await firstValueFrom(
-      this.accountService.activeAccount$.pipe(map((a) => a?.id)),
-    );
-
-    // Decrypt the cipher.
-    const cipherView = await cipher.decrypt(
-      await this.cipherService.getKeyForCipherKeyDecryption(cipher, activeUserId),
-    );
-
     const cipherFormConfig = await this.cipherFormConfigService.buildConfig(
-      "edit",
+      cloneMode ? "clone" : "edit",
       cipher.id as CipherId,
       cipher.type,
     );
 
     const dialogRef = openAddEditCipherDialog(this.dialogService, {
-      data: {
-        cipher: cipherView,
-        cloneMode: cloneMode,
-        cipherFormConfig,
-      },
+      data: cipherFormConfig,
     });
 
     const result: AddEditCipherDialogCloseResult = await firstValueFrom(dialogRef.closed);
 
-    if (
-      result.action === AddEditCipherDialogResult.Added ||
-      result.action === AddEditCipherDialogResult.Edited ||
-      result.action === AddEditCipherDialogResult.Deleted
-    ) {
+    /**
+     * Refresh the vault if the dialog was closed by adding, editing, or deleting a cipher.
+     */
+    if (result?.action === AddEditCipherDialogResult.Edited) {
       this.refresh();
     }
 
-    this.go({ cipherId: null, itemId: null });
+    /**
+     * View the cipher if the dialog was closed by editing the cipher.
+     */
+    if (result?.action === AddEditCipherDialogResult.Edited) {
+      this.go({ itemId: cipher.id, action: "view" });
+      return;
+    }
+
+    /**
+     * Navigate to the vault if the dialog was closed by any other action.
+     */
+    this.go({ cipherId: null, itemId: null, action: null });
   }
 
   /**
@@ -852,15 +857,19 @@ export class VaultComponent implements OnInit, OnDestroy {
     // Wait for the dialog to close.
     const result: ViewCipherDialogCloseResult = await lastValueFrom(dialogRef.closed);
 
+    // If the dialog was closed by clicking the edit button, navigate to open the edit dialog.
+    if (result?.action === ViewCipherDialogResult.Edited) {
+      this.go({ itemId: cipherView.id, action: "edit" });
+      return;
+    }
+
     // If the dialog was closed by deleting the cipher, refresh the vault.
-    if (result.action === ViewCipherDialogResult.deleted) {
+    if (result?.action === ViewCipherDialogResult.Deleted) {
       this.refresh();
     }
 
-    // If the dialog was closed by any other action (close button, escape key, etc), navigate back to the vault.
-    if (!result.action) {
-      this.go({ cipherId: null, itemId: null, action: null });
-    }
+    // Clear the query params when the view dialog closes
+    this.go({ cipherId: null, itemId: null, action: null });
   }
 
   async addCollection() {
@@ -1008,9 +1017,7 @@ export class VaultComponent implements OnInit, OnDestroy {
       }
     }
 
-    const component = (await this.editCipher(cipher, null, true)) as
-      | AddEditComponent
-      | AddEditComponentV2;
+    const component = await this.editCipher(cipher, true);
     component.cloneMode = true;
   }
 
@@ -1298,7 +1305,7 @@ export class VaultComponent implements OnInit, OnDestroy {
     }
 
     const organization = this.allOrganizations.find((o) => o.id === cipher.organizationId);
-    return organization.canEditAllCiphers(false);
+    return organization.canEditAllCiphers;
   }
 
   private go(queryParams: any = null) {

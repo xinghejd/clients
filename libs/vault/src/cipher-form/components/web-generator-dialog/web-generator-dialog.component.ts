@@ -1,4 +1,3 @@
-import { animate, group, style, transition, trigger } from "@angular/animations";
 import { DIALOG_DATA, DialogConfig, DialogRef } from "@angular/cdk/dialog";
 import { CommonModule } from "@angular/common";
 import { Component, Inject } from "@angular/core";
@@ -23,22 +22,11 @@ export enum WebVaultGeneratorDialogAction {
   Canceled = "canceled",
 }
 
-const slideIn = trigger("slideIn", [
-  transition(":enter", [
-    style({ opacity: 0, transform: "translateY(100vh)" }),
-    group([
-      animate("0.15s linear", style({ opacity: 1 })),
-      animate("0.3s ease-out", style({ transform: "none" })),
-    ]),
-  ]),
-]);
-
 @Component({
   selector: "web-vault-generator-dialog",
   templateUrl: "./web-generator-dialog.component.html",
   standalone: true,
   imports: [CommonModule, CipherFormGeneratorComponent, ButtonModule, DialogModule],
-  animations: [slideIn],
 })
 export class WebVaultGeneratorDialogComponent {
   protected title = this.i18nService.t(this.isPassword ? "passwordGenerator" : "usernameGenerator");
@@ -88,7 +76,7 @@ export class WebVaultGeneratorDialogComponent {
   }
 
   /**
-   * Opens the vault generator dialog in a full screen dialog.
+   * Opens the vault generator dialog.
    */
   static open(dialogService: DialogService, config: DialogConfig<WebVaultGeneratorDialogParams>) {
     return dialogService.open<WebVaultGeneratorDialogResult, WebVaultGeneratorDialogParams>(

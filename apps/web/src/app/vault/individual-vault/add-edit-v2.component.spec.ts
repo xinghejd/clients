@@ -15,12 +15,11 @@ import { MessagingService } from "@bitwarden/common/platform/abstractions/messag
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CollectionService } from "@bitwarden/common/vault/abstractions/collection.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
-import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { DialogService } from "@bitwarden/components";
 import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legacy";
 import { CipherFormConfig, DefaultCipherFormConfigService } from "@bitwarden/vault";
 
-import { AddEditCipherDialogParams, AddEditComponentV2 } from "./add-edit-v2.component";
+import { AddEditComponentV2 } from "./add-edit-v2.component";
 
 describe("AddEditComponentV2", () => {
   let component: AddEditComponentV2;
@@ -36,15 +35,7 @@ describe("AddEditComponentV2", () => {
   let folderService: MockProxy<FolderService>;
   let collectionService: MockProxy<CollectionService>;
 
-  const mockCipher: CipherView = {
-    id: "cipher-id",
-    type: 1,
-    organizationId: "org-id",
-    isDeleted: false,
-  } as CipherView;
-
-  const mockParams: AddEditCipherDialogParams = {
-    cipher: mockCipher,
+  const mockParams = {
     cloneMode: false,
     cipherFormConfig: mock<CipherFormConfig>(),
   };
@@ -111,16 +102,13 @@ describe("AddEditComponentV2", () => {
 
     fixture = TestBed.createComponent(AddEditComponentV2);
     component = fixture.componentInstance;
-    component.params = mockParams;
-    component.cipher = mockCipher;
   });
 
   describe("ngOnInit", () => {
     it("initializes the component with cipher", async () => {
       await component.ngOnInit();
 
-      expect(component.cipher).toEqual(mockCipher);
-      expect(component.cipherId).toEqual(mockCipher.id);
+      expect(component).toBeTruthy();
     });
   });
 
