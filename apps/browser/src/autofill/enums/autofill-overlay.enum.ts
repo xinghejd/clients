@@ -22,9 +22,18 @@ export const RedirectFocusDirection = {
 } as const;
 
 export enum InlineMenuFillType {
-  AccountCreation = 5,
+  AccountCreationUsername = 5,
   PasswordGeneration = 6,
 }
 export type InlineMenuFillTypes = InlineMenuFillType | CipherType;
+
+export const InlineMenuAccountCreationFieldType = {
+  Email: "email",
+  Password: "password",
+} as const;
+
+export type InlineMenuAccountCreationFieldTypes =
+  | string
+  | (typeof InlineMenuAccountCreationFieldType)[keyof typeof InlineMenuAccountCreationFieldType];
 
 export const MAX_SUB_FRAME_DEPTH = 8;

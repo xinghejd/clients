@@ -1,5 +1,8 @@
 import { AutofillFieldQualifierType } from "../enums/autofill-field.enums";
-import { InlineMenuFillTypes } from "../enums/autofill-overlay.enum";
+import {
+  InlineMenuAccountCreationFieldTypes,
+  InlineMenuFillTypes,
+} from "../enums/autofill-overlay.enum";
 
 /**
  * Represents a single field that is collected from the page source and is potentially autofilled.
@@ -112,9 +115,9 @@ export default class AutofillField {
 
   inlineMenuFillType?: InlineMenuFillTypes;
 
-  showInlineMenuAccountCreation?: boolean;
-
   showPasskeys?: boolean;
 
   fieldQualifier?: AutofillFieldQualifierType;
+
+  accountCreationFieldType?: InlineMenuAccountCreationFieldTypes;
 }

@@ -441,13 +441,11 @@ describe("AutofillOverlayContentService", () => {
           const randomElement = document.createElement(
             "input",
           ) as ElementWithOpId<FillableFormFieldElement>;
-          jest.spyOn(autofillOverlayContentService as any, "qualifyUserFilledLoginField");
+          jest.spyOn(autofillOverlayContentService as any, "qualifyUserFilledField");
 
           autofillOverlayContentService["storeModifiedFormElement"](randomElement);
 
-          expect(
-            autofillOverlayContentService["qualifyUserFilledLoginField"],
-          ).not.toHaveBeenCalled();
+          expect(autofillOverlayContentService["qualifyUserFilledField"]).not.toHaveBeenCalled();
         });
 
         it("sets the field as the most recently focused form field element", async () => {

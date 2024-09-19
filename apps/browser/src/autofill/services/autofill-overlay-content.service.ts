@@ -22,6 +22,7 @@ import { AutofillExtensionMessage } from "../content/abstractions/autofill-init"
 import { AutofillFieldQualifier, AutofillFieldQualifierType } from "../enums/autofill-field.enums";
 import {
   AutofillOverlayElement,
+  InlineMenuAccountCreationFieldType,
   InlineMenuFillType,
   MAX_SUB_FRAME_DEPTH,
   RedirectFocusDirection,
@@ -95,6 +96,11 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     [AutofillFieldQualifier.password]:
       this.inlineMenuFieldQualificationService.isCurrentPasswordField,
   };
+  private readonly accountCreationFieldQualifiers: Record<string, CallableFunction> = {
+    [AutofillFieldQualifier.username]: this.inlineMenuFieldQualificationService.isUsernameField,
+    [AutofillFieldQualifier.newPassword]:
+      this.inlineMenuFieldQualificationService.isNewPasswordField,
+  };
   private readonly cardFieldQualifiers: Record<string, CallableFunction> = {
     [AutofillFieldQualifier.cardholderName]:
       this.inlineMenuFieldQualificationService.isFieldForCardholderName,
@@ -141,8 +147,6 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
       this.inlineMenuFieldQualificationService.isFieldForIdentityEmail,
     [AutofillFieldQualifier.identityUsername]:
       this.inlineMenuFieldQualificationService.isFieldForIdentityUsername,
-    [AutofillFieldQualifier.newPassword]:
-      this.inlineMenuFieldQualificationService.isNewPasswordField,
   };
 
   constructor(
@@ -783,13 +787,17 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     if (!autofillFieldData.fieldQualifier) {
       switch (autofillFieldData.inlineMenuFillType) {
         case CipherType.Login:
-          this.qualifyUserFilledLoginField(autofillFieldData);
+          this.qualifyUserFilledField(autofillFieldData, this.loginFieldQualifiers);
+          break;
+        case InlineMenuFillType.AccountCreationUsername:
+        case InlineMenuFillType.PasswordGeneration:
+          this.qualifyUserFilledField(autofillFieldData, this.accountCreationFieldQualifiers);
           break;
         case CipherType.Card:
-          this.qualifyUserFilledCardField(autofillFieldData);
+          this.qualifyUserFilledField(autofillFieldData, this.cardFieldQualifiers);
           break;
         case CipherType.Identity:
-          this.qualifyUserFilledIdentityField(autofillFieldData);
+          this.qualifyUserFilledField(autofillFieldData, this.identityFieldQualifiers);
           break;
       }
     }
@@ -798,52 +806,22 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
   }
 
   /**
-   * Handles qualifying the user field login field to be used when adding a new vault item.
+   * Handles qualification of the user filled field based on the field qualifiers provided.
    *
    * @param autofillFieldData - Autofill field data captured from the form field element.
+   * @param qualifiers - The field qualifiers to use when qualifying the user filled field.
    */
-  private qualifyUserFilledLoginField(autofillFieldData: AutofillField) {
-    for (const [fieldQualifier, fieldQualifierFunction] of Object.entries(
-      this.loginFieldQualifiers,
-    )) {
+  private qualifyUserFilledField = (
+    autofillFieldData: AutofillField,
+    qualifiers: Record<string, CallableFunction>,
+  ) => {
+    for (const [fieldQualifier, fieldQualifierFunction] of Object.entries(qualifiers)) {
       if (fieldQualifierFunction(autofillFieldData)) {
         autofillFieldData.fieldQualifier = fieldQualifier as AutofillFieldQualifierType;
         return;
       }
     }
-  }
-
-  /**
-   * Handles qualifying the user field card field to be used when adding a new vault item.
-   *
-   * @param autofillFieldData - Autofill field data captured from the form field element.
-   */
-  private qualifyUserFilledCardField(autofillFieldData: AutofillField) {
-    for (const [fieldQualifier, fieldQualifierFunction] of Object.entries(
-      this.cardFieldQualifiers,
-    )) {
-      if (fieldQualifierFunction(autofillFieldData)) {
-        autofillFieldData.fieldQualifier = fieldQualifier as AutofillFieldQualifierType;
-        return;
-      }
-    }
-  }
-
-  /**
-   *  Handles qualifying the user field identity field to be used when adding a new vault item.
-   *
-   * @param autofillFieldData - Autofill field data captured from the form field element.
-   */
-  private qualifyUserFilledIdentityField(autofillFieldData: AutofillField) {
-    for (const [fieldQualifier, fieldQualifierFunction] of Object.entries(
-      this.identityFieldQualifiers,
-    )) {
-      if (fieldQualifierFunction(autofillFieldData)) {
-        autofillFieldData.fieldQualifier = fieldQualifier as AutofillFieldQualifierType;
-        return;
-      }
-    }
-  }
+  };
 
   /**
    * Stores the qualified user filled filed to allow for referencing its value when adding a new vault item.
@@ -1020,33 +998,13 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     const { width, height, top, left } =
       await this.getMostRecentlyFocusedFieldRects(formFieldElement);
     const autofillFieldData = this.formFieldElements.get(formFieldElement);
-    let accountCreationFieldType = null;
-
-    // TODO: This should be refactored to ensure we cache the result of the qualification.
-    if (
-      [InlineMenuFillType.AccountCreation, CipherType.Login].includes(
-        autofillFieldData?.inlineMenuFillType,
-      )
-    ) {
-      if (this.inlineMenuFieldQualificationService.isUsernameField(autofillFieldData)) {
-        accountCreationFieldType = this.inlineMenuFieldQualificationService.isEmailField(
-          autofillFieldData,
-        )
-          ? "email"
-          : autofillFieldData.type;
-      } else if (this.inlineMenuFieldQualificationService.isNewPasswordField(autofillFieldData)) {
-        autofillFieldData.inlineMenuFillType = InlineMenuFillType.PasswordGeneration;
-      } else {
-        accountCreationFieldType = "password";
-      }
-    }
 
     this.focusedFieldData = {
       focusedFieldStyles: { paddingRight, paddingLeft },
       focusedFieldRects: { width, height, top, left },
       inlineMenuFillType: autofillFieldData?.inlineMenuFillType,
       showPasskeys: !!autofillFieldData?.showPasskeys,
-      accountCreationFieldType,
+      accountCreationFieldType: autofillFieldData?.accountCreationFieldType,
     };
 
     await this.sendExtensionMessage("updateFocusedFieldData", {
@@ -1127,8 +1085,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     if (
       this.inlineMenuFieldQualificationService.isFieldForLoginForm(autofillFieldData, pageDetails)
     ) {
-      autofillFieldData.inlineMenuFillType = CipherType.Login;
-      autofillFieldData.showPasskeys = autofillFieldData.autoCompleteType.includes("webauthn");
+      void this.setQualifiedLoginFillType(autofillFieldData);
       return false;
     }
 
@@ -1148,7 +1105,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
         pageDetails,
       )
     ) {
-      autofillFieldData.inlineMenuFillType = InlineMenuFillType.AccountCreation;
+      this.setQualifiedAccountCreationFillType(autofillFieldData);
       return false;
     }
 
@@ -1163,6 +1120,36 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     }
 
     return true;
+  }
+
+  private async setQualifiedLoginFillType(autofillFieldData: AutofillField) {
+    autofillFieldData.inlineMenuFillType = CipherType.Login;
+    autofillFieldData.showPasskeys = autofillFieldData.autoCompleteType.includes("webauthn");
+    if (!(await this.isInlineMenuCiphersPopulated())) {
+      this.qualifyAccountCreationFieldType(autofillFieldData);
+    }
+  }
+
+  private setQualifiedAccountCreationFillType(autofillFieldData: AutofillField) {
+    autofillFieldData.inlineMenuFillType =
+      this.inlineMenuFieldQualificationService.isNewPasswordField(autofillFieldData)
+        ? InlineMenuFillType.PasswordGeneration
+        : InlineMenuFillType.AccountCreationUsername;
+    this.qualifyAccountCreationFieldType(autofillFieldData);
+  }
+
+  private qualifyAccountCreationFieldType(autofillFieldData: AutofillField) {
+    if (!this.inlineMenuFieldQualificationService.isUsernameField(autofillFieldData)) {
+      autofillFieldData.accountCreationFieldType = InlineMenuAccountCreationFieldType.Password;
+      return;
+    }
+
+    if (this.inlineMenuFieldQualificationService.isEmailField(autofillFieldData)) {
+      autofillFieldData.accountCreationFieldType = InlineMenuAccountCreationFieldType.Email;
+      return;
+    }
+
+    autofillFieldData.accountCreationFieldType = autofillFieldData.type;
   }
 
   /**

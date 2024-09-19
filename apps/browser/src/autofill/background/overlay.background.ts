@@ -647,7 +647,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
    * Identifies whether the inline menu is being shown on an account creation field.
    */
   private showInlineMenuAccountCreation(): boolean {
-    if (this.focusedFieldData?.inlineMenuFillType === InlineMenuFillType.AccountCreation) {
+    if (this.focusedFieldData?.inlineMenuFillType === InlineMenuFillType.AccountCreationUsername) {
       return true;
     }
 
@@ -1359,8 +1359,8 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     this.isFieldCurrentlyFocused = true;
 
     const accountCreationFieldBlurred =
-      previousFocusedFieldData?.inlineMenuFillType === InlineMenuFillType.AccountCreation &&
-      this.focusedFieldData.inlineMenuFillType !== InlineMenuFillType.AccountCreation;
+      previousFocusedFieldData?.inlineMenuFillType === InlineMenuFillType.AccountCreationUsername &&
+      this.focusedFieldData.inlineMenuFillType !== InlineMenuFillType.AccountCreationUsername;
 
     if (this.focusedFieldData.inlineMenuFillType === InlineMenuFillType.PasswordGeneration) {
       this.refreshGeneratedPassword().catch((error) => this.logService.error(error));
@@ -1442,7 +1442,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
           this.inlineMenuFieldQualificationService.isNewPasswordField(field);
         if (
           this.focusedFieldData.inlineMenuFillType === InlineMenuFillType.PasswordGeneration ||
-          this.focusedFieldData.inlineMenuFillType === InlineMenuFillType.AccountCreation
+          this.focusedFieldData.inlineMenuFillType === InlineMenuFillType.AccountCreationUsername
         ) {
           return isNewPasswordField;
         }
