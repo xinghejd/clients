@@ -19,7 +19,6 @@ import { CollectionData } from "../models/data/collection.data";
 
 import { CollectionService, ENCRYPTED_COLLECTION_DATA_KEY } from "./collection.service";
 
-
 describe("CollectionService", () => {
   afterEach(() => {
     delete (window as any).bitwardenContainerService;
