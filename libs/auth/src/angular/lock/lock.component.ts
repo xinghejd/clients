@@ -151,8 +151,6 @@ export class LockV2Component implements OnInit, OnDestroy {
     // Listen for active account changes
     this.listenForActiveAccountChanges();
 
-    // this.envHostname = (await this.environmentService.getEnvironment()).getHostname();
-
     // Identify client
     this.clientType = this.platformUtilsService.getClientType();
 
