@@ -16,7 +16,7 @@ import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folde
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { DialogService, ToastService } from "@bitwarden/components";
 
-import { ViewComponent, ViewCipherDialogParams, ViewCipherDialogResult } from "./view.component";
+import { ViewCipherDialogParams, ViewCipherDialogResult, ViewComponent } from "./view.component";
 
 describe("ViewComponent", () => {
   let component: ViewComponent;
@@ -81,7 +81,7 @@ describe("ViewComponent", () => {
   });
 
   describe("edit", () => {
-    it("navigates to the edit route and closes the dialog with the proper arguments", async () => {
+    it("closes the dialog with the proper arguments", async () => {
       const dialogRefCloseSpy = jest.spyOn(component["dialogRef"], "close");
 
       await component.edit();
