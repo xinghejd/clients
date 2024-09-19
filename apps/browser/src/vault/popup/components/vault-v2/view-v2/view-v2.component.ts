@@ -20,28 +20,29 @@ import { CollectionView } from "@bitwarden/common/vault/models/view/collection.v
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import {
   AsyncActionsModule,
-  SearchModule,
   ButtonModule,
-  IconButtonModule,
   DialogService,
+  IconButtonModule,
+  SearchModule,
   ToastService,
 } from "@bitwarden/components";
-import { TotpCaptureService } from "@bitwarden/vault";
 
+import { PremiumUpgradePromptService } from "../../../../../../../../libs/common/src/vault/abstractions/premium-upgrade-prompt.service";
 import { CipherViewComponent } from "../../../../../../../../libs/vault/src/cipher-view";
 import { PopOutComponent } from "../../../../../platform/popup/components/pop-out.component";
-import { BrowserTotpCaptureService } from "../../../services/browser-totp-capture.service";
-
-import { PopupFooterComponent } from "./../../../../../platform/popup/layout/popup-footer.component";
-import { PopupHeaderComponent } from "./../../../../../platform/popup/layout/popup-header.component";
-import { PopupPageComponent } from "./../../../../../platform/popup/layout/popup-page.component";
-import { VaultPopupAutofillService } from "./../../../services/vault-popup-autofill.service";
+import { PopupFooterComponent } from "../../../../../platform/popup/layout/popup-footer.component";
+import { PopupHeaderComponent } from "../../../../../platform/popup/layout/popup-header.component";
+import { PopupPageComponent } from "../../../../../platform/popup/layout/popup-page.component";
+import { BrowserPremiumUpgradePromptService } from "../../../services/browser-premium-upgrade-prompt.service";
+import { VaultPopupAutofillService } from "../../../services/vault-popup-autofill.service";
 
 @Component({
   selector: "app-view-v2",
   templateUrl: "view-v2.component.html",
   standalone: true,
-  providers: [{ provide: TotpCaptureService, useClass: BrowserTotpCaptureService }],
+  providers: [
+    { provide: PremiumUpgradePromptService, useClass: BrowserPremiumUpgradePromptService },
+  ],
   imports: [
     CommonModule,
     SearchModule,
