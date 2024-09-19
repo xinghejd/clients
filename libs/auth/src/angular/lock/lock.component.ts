@@ -103,8 +103,6 @@ export class LockV2Component implements OnInit, OnDestroy {
 
   forcePasswordResetRoute = "update-temp-password";
 
-  formPromise: Promise<MasterPasswordVerificationResponse>; // TODO: remove formPromise. It's not necessary.
-
   // TODO: ensure hostname is shown in anon-layout footer only
   // envHostname = "";
 
