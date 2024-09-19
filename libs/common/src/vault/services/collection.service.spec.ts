@@ -1,5 +1,5 @@
 import { mock, MockProxy } from "jest-mock-extended";
-import { firstValueFrom, of, skip } from "rxjs";
+import { firstValueFrom, of } from "rxjs";
 
 import {
   FakeStateProvider,
@@ -61,7 +61,7 @@ describe("CollectionService", () => {
         fakeStateProvider,
       );
 
-      const result = await firstValueFrom(collectionService.decryptedCollections$.pipe(skip(1)));
+      const result = await firstValueFrom(collectionService.decryptedCollections$);
       expect(result.length).toBe(2);
       expect(result[0]).toMatchObject({
         id: collection1.id,
