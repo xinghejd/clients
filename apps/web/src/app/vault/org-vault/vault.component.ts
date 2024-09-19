@@ -916,7 +916,7 @@ export class VaultComponent implements OnInit, OnDestroy {
     }
 
     // If the dialog was closed by any other action (close button, escape key, etc), navigate back to the vault.
-    if (!result.action) {
+    if (!result?.action) {
       this.go({ cipherId: null, itemId: null, action: null });
     }
   }
