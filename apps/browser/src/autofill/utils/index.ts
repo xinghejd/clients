@@ -434,7 +434,8 @@ export function getSubmitButtonKeywordsSet(element: HTMLElement): Set<string> {
  */
 export function generateDomainMatchPatterns(url: string): string[] {
   try {
-    const extensionUrlPattern = /^(chrome|moz-extension|safari-web-extension):\/\/\/?/;
+    const extensionUrlPattern =
+      /^(chrome|chrome-extension|moz-extension|safari-web-extension):\/\/\/?/;
     if (extensionUrlPattern.test(url)) {
       return [];
     }
