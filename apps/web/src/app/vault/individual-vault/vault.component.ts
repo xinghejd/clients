@@ -844,6 +844,10 @@ export class VaultComponent implements OnInit, OnDestroy {
   async viewCipherById(id: string) {
     const cipher = await this.cipherService.get(id);
 
+    if (!(await this.triggerPasswordReprompt(cipher.id as CipherId))) {
+      return;
+    }
+
     const activeUserId = await firstValueFrom(
       this.accountService.activeAccount$.pipe(map((a) => a?.id)),
     );
@@ -867,8 +871,8 @@ export class VaultComponent implements OnInit, OnDestroy {
     }
 
     if (result?.action === ViewCipherDialogResult.Edited) {
-      // Edit cipher and trigger MP re-prompt
-      await this.editCipher(cipherView, false);
+      // Edit cipher and do not trigger MP re-prompt
+      await this.editCipher(cipherView, true);
       this.go({ cipherId: null, itemId: cipherView.id, action: "edit" });
     }
 
@@ -1021,10 +1025,6 @@ export class VaultComponent implements OnInit, OnDestroy {
       if (!confirmed) {
         return false;
       }
-    }
-
-    if (!(await this.triggerPasswordReprompt(cipher.id as CipherId))) {
-      return;
     }
 
     const component = await this.editCipher(cipher, false);

@@ -934,10 +934,6 @@ export class VaultComponent implements OnInit, OnDestroy {
       }
     }
 
-    if (!(await this.triggerPasswordReprompt(cipher.id as CipherId))) {
-      return;
-    }
-
     let collections: CollectionView[] = [];
 
     // Admins limited to only adding items to collections they have access to.
