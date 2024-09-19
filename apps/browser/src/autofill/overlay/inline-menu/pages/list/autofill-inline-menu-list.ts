@@ -173,10 +173,15 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
       "fill-generated-password-button",
       "inline-menu-list-action",
     );
+    fillGeneratedPasswordButton.setAttribute(
+      "aria-label",
+      this.getTranslation("fillGeneratedPassword"),
+    );
 
     const passwordGeneratorHeading = globalThis.document.createElement("div");
     passwordGeneratorHeading.classList.add("password-generator-heading");
-    passwordGeneratorHeading.textContent = this.getTranslation("useGeneratedPassword");
+    passwordGeneratorHeading.textContent = this.getTranslation("fillGeneratedPassword");
+    passwordGeneratorHeading.setAttribute("aria-hidden", "true");
 
     const passwordGeneratorContent = globalThis.document.createElement("div");
     passwordGeneratorContent.id = "password-generator-content";
@@ -185,6 +190,8 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
       passwordGeneratorHeading,
       this.buildColorizedPasswordElement(generatedPassword),
     );
+    passwordGeneratorContent.setAttribute("aria-hidden", "true");
+
     fillGeneratedPasswordButton.append(buildSvgDomElement(keyIcon), passwordGeneratorContent);
     fillGeneratedPasswordButton.addEventListener(
       EVENTS.CLICK,
@@ -200,6 +207,10 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
     refreshGeneratedPasswordButton.classList.add(
       "refresh-generated-password-button",
       "inline-menu-list-action",
+    );
+    refreshGeneratedPasswordButton.setAttribute(
+      "aria-label",
+      this.getTranslation("regeneratePassword"),
     );
     refreshGeneratedPasswordButton.appendChild(buildSvgDomElement(refreshIcon));
     refreshGeneratedPasswordButton.addEventListener(

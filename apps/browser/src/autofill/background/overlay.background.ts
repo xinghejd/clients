@@ -90,9 +90,19 @@ export class OverlayBackground implements OverlayBackgroundInterface {
   private readonly openViewVaultItemPopout = openViewVaultItemPopout;
   private readonly openAddEditVaultItemPopout = openAddEditVaultItemPopout;
   private readonly updateOverlayCiphersSubject = new BehaviorSubject<UpdateOverlayCiphersParams>(
-    undefined,
+    null,
   );
   private readonly storeInlineMenuFido2CredentialsSubject = new ReplaySubject<number>(1);
+  private readonly startInlineMenuDelayedCloseSubject: Subject<void> = new Subject<void>();
+  private readonly cancelInlineMenuDelayedCloseSubject: Subject<boolean> = new Subject<boolean>();
+  private readonly startInlineMenuFadeInSubject = new Subject<void>();
+  private readonly cancelInlineMenuFadeInSubject = new Subject<boolean>();
+  private readonly startUpdateInlineMenuPositionSubject =
+    new Subject<chrome.runtime.MessageSender>();
+  private readonly cancelUpdateInlineMenuPositionSubject = new Subject<void>();
+  private readonly repositionInlineMenuSubject = new Subject<chrome.runtime.MessageSender>();
+  private readonly rebuildSubFrameOffsetsSubject = new Subject<chrome.runtime.MessageSender>();
+  private readonly addNewVaultItemSubject = new Subject<CurrentAddNewItemData>();
   private pageDetailsForTab: PageDetailsForTab = {};
   private subFrameOffsetsForTab: SubFrameOffsetsForTab = {};
   private portKeyForTab: Record<number, string> = {};
@@ -105,15 +115,6 @@ export class OverlayBackground implements OverlayBackgroundInterface {
   private inlineMenuPosition: InlineMenuPosition = {};
   private cardAndIdentityCiphers: Set<CipherView> | null = null;
   private currentInlineMenuCiphersCount: number = 0;
-  private startInlineMenuDelayedCloseSubject: Subject<void> = new Subject<void>();
-  private cancelInlineMenuDelayedCloseSubject: Subject<boolean> = new Subject<boolean>();
-  private startInlineMenuFadeInSubject = new Subject<void>();
-  private cancelInlineMenuFadeInSubject = new Subject<boolean>();
-  private startUpdateInlineMenuPositionSubject = new Subject<chrome.runtime.MessageSender>();
-  private cancelUpdateInlineMenuPositionSubject = new Subject<void>();
-  private repositionInlineMenuSubject = new Subject<chrome.runtime.MessageSender>();
-  private rebuildSubFrameOffsetsSubject = new Subject<chrome.runtime.MessageSender>();
-  private addNewVaultItemSubject = new Subject<CurrentAddNewItemData>();
   private currentAddNewItemData: CurrentAddNewItemData;
   private focusedFieldData: FocusedFieldData;
   private isFieldCurrentlyFocused: boolean = false;
@@ -1690,7 +1691,9 @@ export class OverlayBackground implements OverlayBackgroundInterface {
         passkeys: this.i18nService.translate("passkeys"),
         passwords: this.i18nService.translate("passwords"),
         logInWithPasskey: this.i18nService.translate("logInWithPasskeyAriaLabel"),
-        useGeneratedPassword: this.i18nService.translate("useGeneratedPassword"),
+        fillGeneratedPassword: this.i18nService.translate("fillGeneratedPassword"),
+        regeneratePassword: this.i18nService.translate("regeneratePassword"),
+        passwordRegenerated: this.i18nService.translate("passwordRegenerated"),
       };
     }
 
