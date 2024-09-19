@@ -1,7 +1,7 @@
 import { CommonModule } from "@angular/common";
 import { Component, NgZone, OnDestroy, OnInit } from "@angular/core";
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from "@angular/forms";
-import { ActivatedRoute, Router } from "@angular/router";
+import { Router } from "@angular/router";
 import { BehaviorSubject, firstValueFrom, Subject, switchMap, take, takeUntil } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
@@ -48,6 +48,12 @@ import { AnonLayoutWrapperDataService } from "../anon-layout/anon-layout-wrapper
 import { UnlockOption, LockComponentService, UnlockOptions } from "./lock-component.service";
 
 const BroadcasterSubscriptionId = "LockComponent";
+
+const clientTypeToSuccessRouteRecord: Partial<Record<ClientType, string>> = {
+  [ClientType.Web]: "vault",
+  [ClientType.Desktop]: "vault",
+  [ClientType.Browser]: "/tabs/current",
+};
 
 @Component({
   selector: "bit-lock",
@@ -96,12 +102,9 @@ export class LockV2Component implements OnInit, OnDestroy {
   showPassword = false;
   private enforcedMasterPasswordOptions: MasterPasswordPolicyOptions = undefined;
 
-  // TODO: these should change by client.
   forcePasswordResetRoute = "update-temp-password";
-  successRoute = "vault";
 
-  formPromise: Promise<MasterPasswordVerificationResponse>;
-  onSuccessfulSubmit: () => Promise<void>; // TODO: remove all callbacks
+  formPromise: Promise<MasterPasswordVerificationResponse>; // TODO: remove formPromise. It's not necessary.
 
   // TODO: ensure hostname is shown in anon-layout footer only
   // envHostname = "";
@@ -116,7 +119,7 @@ export class LockV2Component implements OnInit, OnDestroy {
   // Browser extension properties:
   private isInitialLockScreen = (window as any).previousPopupUrl == null;
   biometricError: string;
-  pendingBiometric = false;
+  // pendingBiometric = false;
   isFido2Session: boolean = false;
 
   defaultUnlockOptionSetForUser = false;
@@ -151,7 +154,6 @@ export class LockV2Component implements OnInit, OnDestroy {
 
     // desktop deps
     private broadcasterService: BroadcasterService,
-    private activatedRoute: ActivatedRoute,
   ) {}
 
   async ngOnInit() {
@@ -167,10 +169,6 @@ export class LockV2Component implements OnInit, OnDestroy {
 
     if (this.clientType === "desktop") {
       await this.desktopOnInit();
-    }
-
-    if (this.clientType === "browser") {
-      await this.extensionOnInit();
     }
   }
 
@@ -240,7 +238,8 @@ export class LockV2Component implements OnInit, OnDestroy {
     this.activeUnlockOption = null;
     this.formGroup = null; // new form group will be created based on new active unlock option
 
-    this.biometricAsked = false; // TODO: evaluate if this is property is necessary or not
+    // Desktop properties:
+    this.biometricAsked = false;
   }
 
   private setEmailAsPageSubtitle(email: string) {
@@ -287,7 +286,7 @@ export class LockV2Component implements OnInit, OnDestroy {
           this.isInitialLockScreen &&
           (await this.authService.getAuthStatus()) === AuthenticationStatus.Locked
         ) {
-          await this.extensionUnlockBiometric();
+          await this.unlockViaBiometrics();
         }
       }, 100);
     }
@@ -316,7 +315,7 @@ export class LockV2Component implements OnInit, OnDestroy {
     }
   }
 
-  async unlockViaBiometrics(): Promise<boolean> {
+  async unlockViaBiometrics(): Promise<void> {
     this.unlockingViaBiometrics = true;
 
     if (!this.unlockOptions.biometrics.enabled) {
@@ -331,15 +330,40 @@ export class LockV2Component implements OnInit, OnDestroy {
         this.activeAccount.id,
       );
 
+      // If user cancels biometric prompt, userKey is undefined.
       if (userKey) {
         await this.setUserKeyAndContinue(userKey, false);
       }
 
       this.unlockingViaBiometrics = false;
-
-      return !!userKey;
     } catch (e) {
-      // TODO: add error handling with dialog per Figma
+      let biometricTranslatedErrorDesc;
+
+      if (this.clientType === "browser") {
+        const biometricErrorDescTranslationKey = this.lockComponentService.getBiometricsError(e);
+
+        if (biometricErrorDescTranslationKey) {
+          biometricTranslatedErrorDesc = this.i18nService.t(biometricErrorDescTranslationKey);
+        }
+      }
+
+      // if no translation key found, show generic error message
+      if (!biometricTranslatedErrorDesc) {
+        biometricTranslatedErrorDesc = this.i18nService.t("unexpectedError");
+      }
+
+      const confirmed = await this.dialogService.openSimpleDialog({
+        title: { key: "error" },
+        content: biometricTranslatedErrorDesc,
+        acceptButtonText: { key: "tryAgain" },
+        type: "danger",
+      });
+
+      if (confirmed) {
+        // try again
+        await this.unlockViaBiometrics();
+      }
+
       this.unlockingViaBiometrics = false;
     }
   }
@@ -515,14 +539,16 @@ export class LockV2Component implements OnInit, OnDestroy {
     // Vault can be de-synced since notifications get ignored while locked. Need to check whether sync is required using the sync service.
     await this.syncService.fullSync(false);
 
-    // TODO: fully remove all callbacks.
-    if (this.onSuccessfulSubmit != null) {
-      await this.onSuccessfulSubmit();
-    } else if (this.router != null) {
-      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
-      this.router.navigate([this.successRoute]);
+    if (this.clientType === "browser") {
+      const previousUrl = this.lockComponentService.getPreviousUrl();
+      if (previousUrl) {
+        await this.router.navigateByUrl(previousUrl);
+      }
     }
+
+    // determine success route based on client type
+    const successRoute = clientTypeToSuccessRouteRecord[this.clientType];
+    await this.router.navigate([successRoute]);
   }
 
   /**
@@ -608,41 +634,6 @@ export class LockV2Component implements OnInit, OnDestroy {
     if (this.unlockOptions) {
       document.getElementById(this.unlockOptions.pin.enabled ? "pin" : "masterPassword")?.focus();
     }
-  }
-
-  // -----------------------------------------------------------------------------------------------
-  // Browser Extension methods:
-  // -----------------------------------------------------------------------------------------------
-
-  async extensionOnInit() {
-    this.isFido2Session = await this.lockComponentService.isFido2Session();
-  }
-
-  private async extensionUnlockBiometric(): Promise<boolean> {
-    if (!this.unlockOptions.biometrics.enabled) {
-      return;
-    }
-
-    this.pendingBiometric = true;
-    this.biometricError = null;
-
-    let success;
-    try {
-      success = await this.unlockViaBiometrics();
-    } catch (e) {
-      const biometricError = this.lockComponentService.getBiometricsError(e);
-
-      if (biometricError) {
-        this.biometricError = this.i18nService.t(biometricError);
-      }
-
-      this.logService.error("Unknown error: " + e);
-      return false;
-    } finally {
-      this.pendingBiometric = false;
-    }
-
-    return success;
   }
 
   // -----------------------------------------------------------------------------------------------
