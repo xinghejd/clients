@@ -118,11 +118,9 @@ export const Scrollable: Story = {
     template: `
       <bit-table-scroll [dataSource]="dataSource" [rowSize]="43">
         <ng-container header>
-          <tr>
-            <th bitCell bitSortable="id" default>Id</th>
-            <th bitCell bitSortable="name">Name</th>
-            <th bitCell bitSortable="other" [fn]="sortFn">Other</th>
-          </tr>
+          <th bitCell bitSortable="id" default>Id</th>
+          <th bitCell bitSortable="name">Name</th>
+          <th bitCell bitSortable="other" [fn]="sortFn">Other</th>
         </ng-container>
         <ng-template bitRowDef let-row>
           <td bitCell>{{ row.id }}</td>

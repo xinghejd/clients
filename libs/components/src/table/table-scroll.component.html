@@ -7,7 +7,9 @@
     <thead
       class="tw-border-0 tw-border-b-2 tw-border-solid tw-border-secondary-300 tw-font-bold tw-text-muted"
     >
-      <ng-content select="[header]"></ng-content>
+      <tr>
+        <ng-content select="[header]"></ng-content>
+      </tr>
     </thead>
     <tbody>
       <tr *cdkVirtualFor="let r of rows$; trackBy: trackBy" bitRow>
