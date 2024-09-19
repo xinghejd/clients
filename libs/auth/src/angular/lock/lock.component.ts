@@ -103,9 +103,6 @@ export class LockV2Component implements OnInit, OnDestroy {
 
   forcePasswordResetRoute = "update-temp-password";
 
-  // TODO: ensure hostname is shown in anon-layout footer only
-  // envHostname = "";
-
   formGroup: FormGroup;
 
   // Desktop properties:
