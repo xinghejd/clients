@@ -8,11 +8,9 @@ import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { InternalPolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/models/domain/master-password-policy-options";
 import { AccountInfo, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { DeviceTrustServiceAbstraction } from "@bitwarden/common/auth/abstractions/device-trust.service.abstraction";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/auth/abstractions/master-password.service.abstraction";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
-import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { VerificationType } from "@bitwarden/common/auth/enums/verification-type";
 import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/force-set-password-reason";
 import {
@@ -118,7 +116,6 @@ export class LockV2Component implements OnInit, OnDestroy {
 
   constructor(
     private accountService: AccountService,
-    private authService: AuthService,
     private pinService: PinServiceAbstraction,
     private userVerificationService: UserVerificationService,
     private cryptoService: CryptoService,
@@ -256,6 +253,7 @@ export class LockV2Component implements OnInit, OnDestroy {
       this.biometricStateService.promptAutomatically$,
     );
 
+    // TODO: work with product to make autoprompt experience consistent.
     if (this.clientType === "desktop") {
       if (autoPromptBiometrics) {
         await this.desktopAutoPromptBiometrics();
@@ -263,19 +261,13 @@ export class LockV2Component implements OnInit, OnDestroy {
     }
 
     if (this.clientType === "browser") {
-      // TODO: investigate why we need to check auth status. We should always be locked at this point.
-      // TODO: investigate why we need setTimeout here.
-      window.setTimeout(async () => {
-        this.focusInput();
-        if (
-          this.unlockOptions.biometrics.enabled &&
-          autoPromptBiometrics &&
-          this.isInitialLockScreen &&
-          (await this.authService.getAuthStatus()) === AuthenticationStatus.Locked
-        ) {
-          await this.unlockViaBiometrics();
-        }
-      }, 100);
+      if (
+        this.unlockOptions.biometrics.enabled &&
+        autoPromptBiometrics &&
+        this.isInitialLockScreen // only autoprompt biometrics on initial lock screen
+      ) {
+        await this.unlockViaBiometrics();
+      }
     }
   }
 
@@ -604,8 +596,7 @@ export class LockV2Component implements OnInit, OnDestroy {
       return;
     }
 
-    // This is required to prevent the biometric prompt from showing if the user has already cancelled it
-    // since the app process reloads when the user cancels the prompt currently.
+    // prevent the biometric prompt from showing if the user has already cancelled it
     if (await firstValueFrom(this.biometricStateService.promptCancelled$)) {
       return;
     }
