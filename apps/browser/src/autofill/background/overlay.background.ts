@@ -278,6 +278,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     }
 
     this.mostRecentlyGeneratedPassword = null;
+    this.focusedFieldData = null;
   }
 
   /**
