@@ -1,17 +1,24 @@
 import {
+  AfterViewInit,
   Component,
+  DestroyRef,
   HostBinding,
   HostListener,
   Input,
+  QueryList,
+  ViewChild,
+  ViewChildren,
   booleanAttribute,
+  inject,
   signal,
 } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from "@angular/forms";
 
 import { compareValues } from "../../../common/src/platform/misc/compare-values";
 import { ButtonModule } from "../button";
 import { IconButtonModule } from "../icon-button";
-import { MenuModule } from "../menu";
+import { MenuComponent, MenuItemDirective, MenuModule } from "../menu";
 import { Option } from "../select/option";
 import { SharedModule } from "../shared";
 import { TypographyModule } from "../typography";
@@ -35,7 +42,10 @@ export type ChipSelectOption<T> = Option<T> & {
     },
   ],
 })
-export class ChipSelectComponent<T = unknown> implements ControlValueAccessor {
+export class ChipSelectComponent<T = unknown> implements ControlValueAccessor, AfterViewInit {
+  @ViewChild(MenuComponent) menu: MenuComponent;
+  @ViewChildren(MenuItemDirective) menuItems: QueryList<MenuItemDirective>;
+
   /** Text to show when there is no selected option */
   @Input({ required: true }) placeholderText: string;
 
@@ -56,6 +66,9 @@ export class ChipSelectComponent<T = unknown> implements ControlValueAccessor {
   /** Disables the entire chip */
   @Input({ transform: booleanAttribute }) disabled = false;
 
+  /** Chip will stretch to full width of its container */
+  @Input({ transform: booleanAttribute }) fullWidth?: boolean;
+
   /**
    * We have `:focus-within` and `:focus-visible` but no `:focus-visible-within`
    */
@@ -71,8 +84,10 @@ export class ChipSelectComponent<T = unknown> implements ControlValueAccessor {
 
   @HostBinding("class")
   get classList() {
-    return ["tw-inline-block"];
+    return ["tw-inline-block", this.fullWidth ? "tw-w-full" : "tw-max-w-52"];
   }
+
+  private destroyRef = inject(DestroyRef);
 
   /** Tree constructed from `this.options` */
   private rootTree: ChipSelectOption<T>;
@@ -162,6 +177,16 @@ export class ChipSelectComponent<T = unknown> implements ControlValueAccessor {
     this.markParents(root);
     this.rootTree = root;
     this.renderedOptions = this.rootTree;
+  }
+
+  ngAfterViewInit() {
+    /**
+     * menuItems will change when the user navigates into or out of a submenu. when that happens, we want to
+     * direct their focus to the first item in the new menu
+     */
+    this.menuItems.changes.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
+      this.menu.keyManager.setFirstItemActive();
+    });
   }
 
   /** Control Value Accessor */

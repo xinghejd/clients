@@ -1,6 +1,6 @@
 <div
   bitTypography="body2"
-  class="tw-inline-flex tw-items-center tw-rounded-full tw-max-w-52 tw-border-solid tw-border tw-gap-1.5"
+  class="tw-inline-flex tw-items-center tw-rounded-full tw-w-full tw-border-solid tw-border tw-gap-1.5"
   [ngClass]="{
     'tw-bg-text-muted hover:tw-bg-secondary-700 tw-text-contrast hover:tw-border-secondary-700':
       selectedOption && !disabled,
@@ -13,7 +13,7 @@
   <!-- Primary button -->
   <button
     type="button"
-    class="fvw-target tw-inline-flex tw-gap-1.5 tw-items-center tw-bg-transparent hover:tw-bg-transparent tw-border-none tw-outline-none tw-max-w-full tw-py-1 tw-pl-3 last:tw-pr-3 [&:not(:last-child)]:tw-pr-0 tw-truncate tw-text-[color:inherit] tw-text-[length:inherit]"
+    class="fvw-target tw-inline-flex tw-gap-1.5 tw-items-center tw-justify-between tw-bg-transparent hover:tw-bg-transparent tw-border-none tw-outline-none tw-w-full tw-py-1 tw-pl-3 last:tw-pr-3 [&:not(:last-child)]:tw-pr-0 tw-truncate tw-text-[color:inherit] tw-text-[length:inherit]"
     [ngClass]="{
       'tw-cursor-not-allowed': disabled,
     }"
@@ -22,8 +22,10 @@
     [title]="label"
     #menuTrigger="menuTrigger"
   >
-    <i class="bwi !tw-text-[inherit]" [ngClass]="icon"></i>
-    <span class="tw-truncate">{{ label }}</span>
+    <span class="tw-inline-flex tw-items-center tw-gap-1.5 tw-truncate">
+      <i class="bwi !tw-text-[inherit]" [ngClass]="icon"></i>
+      <span class="tw-truncate">{{ label }}</span>
+    </span>
     <i
       *ngIf="!selectedOption"
       class="bwi tw-mt-0.5"
@@ -54,11 +56,11 @@
         type="button"
         bitMenuItem
         (click)="viewOption(parent, $event)"
-        [title]="parent.label ? ('backTo' | i18n: parent.label) : ('back' | i18n)"
         class="tw-text-[length:inherit]"
+        [title]="'backTo' | i18n: parent.label ?? placeholderText"
       >
         <i slot="start" class="bwi bwi-angle-left" aria-hidden="true"></i>
-        {{ parent.label ? ("backTo" | i18n: parent.label) : ("back" | i18n) }}
+        {{ "backTo" | i18n: parent.label ?? placeholderText }}
       </button>
 
       <button
@@ -81,6 +83,7 @@
       [disabled]="option.disabled"
       [title]="option.label"
       class="tw-text-[length:inherit]"
+      [attr.aria-haspopup]="option.children?.length ? 'menu' : null"
     >
       <i
         *ngIf="option.icon"
