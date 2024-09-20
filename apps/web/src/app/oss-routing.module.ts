@@ -452,6 +452,7 @@ const routes: Routes = [
         },
         data: {
           maxWidth: "3xl",
+          pageIcon: UserLockIcon,
         } satisfies AnonLayoutWrapperData,
       },
       {
@@ -463,6 +464,7 @@ const routes: Routes = [
         },
         data: {
           maxWidth: "3xl",
+          pageIcon: UserLockIcon,
         } satisfies AnonLayoutWrapperData,
       },
     ],
