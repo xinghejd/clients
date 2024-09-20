@@ -803,8 +803,12 @@ export class VaultComponent implements OnInit, OnDestroy {
     const defaultComponentParameters = (comp: AddEditComponent) => {
       comp.organization = this.organization;
       comp.organizationId = this.organization.id;
-      comp.cipherId = cipher.id;
-      comp.canDeleteCipher = this.canDeleteCipher(cipher);
+      comp.cipherId = cipher?.id;
+
+      if (cipher) {
+        comp.canDeleteCipher = this.canDeleteCipher(cipher);
+      }
+
       comp.onSavedCipher.pipe(takeUntil(this.destroy$)).subscribe(() => {
         modal.close();
         this.refresh();
