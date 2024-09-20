@@ -74,13 +74,18 @@ export class VaultItemsComponent {
   protected selection = new SelectionModel<VaultItem>(true, [], true);
 
   // Only show Edit Access from Bulk Menu if all selected collections can be managed
+  // And no items selected
   // Or Custom User with Edit All permissions
   get canEditSelected() {
     const filteredSelectedItems = this.selection.selected.filter((item) => {
-      const organization = this.allOrganizations.find(
-        (o) => o.id === item.collection.organizationId,
-      );
-      return !item.collection.canEdit(organization);
+      if (item.collection) {
+        const organization = this.allOrganizations.find(
+          (o) => o.id === item.collection.organizationId,
+        );
+        return !item.collection.canEdit(organization);
+      } else if (item.cipher) {
+        return true;
+      }
     });
     if (filteredSelectedItems.length > 0) {
       return false;
@@ -92,10 +97,32 @@ export class VaultItemsComponent {
   // Or Custom User with Delete All permissions
   get canDeleteSelected() {
     const filteredSelectedItems = this.selection.selected.filter((item) => {
-      const organization = this.allOrganizations.find(
-        (o) => o.id === item.collection.organizationId,
-      );
-      return item.collection.canEdit(organization) && !item.collection.canDelete(organization);
+      if (item.collection) {
+        const organization = this.allOrganizations.find(
+          (o) => o.id === item.collection.organizationId,
+        );
+        return item.collection?.canEdit(organization) && !item.collection?.canDelete(organization);
+      } else if (item.cipher) {
+        return !item.cipher.edit;
+      }
+    });
+
+    if (filteredSelectedItems.length > 0) {
+      return false;
+    }
+    return true;
+  }
+
+  // Only show Assign To Collections from Bulk Menu if all selected items can be managed
+  // And no collections selected
+  // Or Custom User with Delete All permissions
+  get canAssignSelected() {
+    const filteredSelectedItems = this.selection.selected.filter((item) => {
+      if (item.collection) {
+        return true;
+      } else if (item.cipher) {
+        return !item.cipher.edit;
+      }
     });
 
     if (filteredSelectedItems.length > 0) {

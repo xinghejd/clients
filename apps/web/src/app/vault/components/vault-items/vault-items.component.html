@@ -52,7 +52,9 @@
             </button>
             <button
               *ngIf="
-                (showAdminActions || showAssignToCollections()) && bulkAssignToCollectionsAllowed
+                canAssignSelected &&
+                (showAdminActions || showAssignToCollections()) &&
+                bulkAssignToCollectionsAllowed
               "
               type="button"
               bitMenuItem
