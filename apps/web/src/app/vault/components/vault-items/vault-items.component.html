@@ -33,7 +33,9 @@
             size="small"
             type="button"
             appA11yTitle="{{
-              (selection.selected.length < 1 ? 'nothingSelected' : 'options') | i18n
+              disableMenu
+                ? ('missingPermissions' | i18n)
+                : ((selection.selected.length < 1 ? 'nothingSelected' : 'options') | i18n)
             }}"
           ></button>
           <bit-menu #headerMenu>

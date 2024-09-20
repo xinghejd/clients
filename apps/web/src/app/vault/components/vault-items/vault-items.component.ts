@@ -153,10 +153,11 @@ export class VaultItemsComponent {
 
   get disableMenu() {
     return (
-      this.vaultBulkManagementActionEnabled &&
-      !this.bulkMoveAllowed &&
-      !this.showAssignToCollections() &&
-      !this.showDelete()
+      (this.vaultBulkManagementActionEnabled &&
+        !this.bulkMoveAllowed &&
+        !this.showAssignToCollections() &&
+        !this.showDelete()) ||
+      (!this.canEditSelected && !this.canAssignSelected && !this.canDeleteSelected)
     );
   }
 
