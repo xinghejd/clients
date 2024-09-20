@@ -1,5 +1,6 @@
 import { CommonModule } from "@angular/common";
 import { Component, Input, OnDestroy, OnInit } from "@angular/core";
+import { toDataURL } from "qrcode";
 import { firstValueFrom, Observable, Subject, takeUntil } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
@@ -12,7 +13,7 @@ import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { CollectionView } from "@bitwarden/common/vault/models/view/collection.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import { isCardExpired } from "@bitwarden/common/vault/utils";
-import { CalloutModule, SearchModule } from "@bitwarden/components";
+import { ButtonModule, CalloutModule, SearchModule } from "@bitwarden/components";
 
 import { AdditionalOptionsComponent } from "./additional-options/additional-options.component";
 import { AttachmentsV2ViewComponent } from "./attachments/attachments-v2-view.component";
@@ -29,6 +30,7 @@ import { ViewIdentitySectionsComponent } from "./view-identity-sections/view-ide
   templateUrl: "cipher-view.component.html",
   standalone: true,
   imports: [
+    ButtonModule,
     CalloutModule,
     CommonModule,
     SearchModule,
@@ -56,6 +58,8 @@ export class CipherViewComponent implements OnInit, OnDestroy {
   folder$: Observable<FolderView>;
   private destroyed$: Subject<void> = new Subject();
   cardIsExpired: boolean = false;
+  visualSecret: string;
+  showVisualSecret: boolean = false;
 
   constructor(
     private organizationService: OrganizationService,
@@ -66,12 +70,36 @@ export class CipherViewComponent implements OnInit, OnDestroy {
   async ngOnInit() {
     await this.loadCipherData();
 
+    let ssid: string, networkPassword: string;
+
+    this.cipher.fields.forEach(({ name, value }) => {
+      if (ssid && networkPassword) {
+        return;
+      }
+
+      if (name.toLowerCase() === "ssid") {
+        ssid = value;
+      }
+
+      if (name.toLowerCase() === "net-password") {
+        networkPassword = value;
+      }
+    });
+
+    if (ssid && networkPassword) {
+      this.visualSecret = await toDataURL(`WIFI:S:${ssid};T:<WPA|WEP|>;P:${networkPassword};;`);
+    }
+
     this.cardIsExpired = isCardExpired(this.cipher.card);
   }
 
   ngOnDestroy(): void {
     this.destroyed$.next();
     this.destroyed$.complete();
+  }
+
+  handleVisualSecretToggle() {
+    this.showVisualSecret = !this.showVisualSecret;
   }
 
   get hasCard() {

@@ -45,6 +45,25 @@
     <app-custom-fields-v2 [cipher]="cipher"> </app-custom-fields-v2>
   </ng-container>
 
+  <div *ngIf="visualSecret" class="tw-mb-4">
+    <div
+      *ngIf="showVisualSecret"
+      class="tw-my-4 tw-flex tw-justify-center tw-cursor-pointer"
+      (click)="this.handleVisualSecretToggle()"
+    >
+      <img role="none" [src]="visualSecret" />
+    </div>
+    <button
+      bitButton
+      buttonType="secondary"
+      size="small"
+      [block]="true"
+      (click)="this.handleVisualSecretToggle()"
+    >
+      {{ showVisualSecret ? "Hide visual secret" : "Show visual secret" }}
+    </button>
+  </div>
+
   <!-- ATTACHMENTS SECTION -->
   <ng-container *ngIf="cipher.attachments">
     <app-attachments-v2-view [cipher]="cipher"> </app-attachments-v2-view>
