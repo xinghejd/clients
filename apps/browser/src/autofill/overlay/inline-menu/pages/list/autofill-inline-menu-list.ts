@@ -1104,12 +1104,31 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
    * If not focused, will check if the button element is focused.
    */
   private checkInlineMenuListFocused() {
-    if (globalThis.document.hasFocus() || this.inlineMenuListContainer.matches(":hover")) {
+    if (globalThis.document.hasFocus()) {
+      return;
+    }
+
+    if (this.isListHovered()) {
+      globalThis.document.addEventListener(EVENTS.MOUSEOUT, this.handleMouseOutEvent);
       return;
     }
 
     this.postMessageToParent({ command: "checkAutofillInlineMenuButtonFocused" });
   }
+
+  private handleMouseOutEvent = () => {
+    globalThis.document.removeEventListener(EVENTS.MOUSEOUT, this.handleMouseOutEvent);
+    this.checkInlineMenuListFocused();
+  };
+
+  private isListHovered = () => {
+    const hoveredElement = this.inlineMenuListContainer.querySelector(":hover");
+    return !!(
+      hoveredElement &&
+      (hoveredElement === this.inlineMenuListContainer ||
+        this.inlineMenuListContainer.contains(hoveredElement))
+    );
+  };
 
   /**
    * Focuses the inline menu list iframe. The element that receives focus is
