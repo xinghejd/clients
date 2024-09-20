@@ -732,6 +732,7 @@ export class VaultComponent implements OnInit, OnDestroy {
   }
 
   async editCipherId(id: string, cloneMode?: boolean) {
+    let cipherView: CipherView | null = null;
     const cipher = await this.cipherService.get(id);
 
     if (
@@ -750,16 +751,22 @@ export class VaultComponent implements OnInit, OnDestroy {
     }
 
     // Decrypt the cipher.
-    const cipherView = await cipher.decrypt(
-      await this.cipherService.getKeyForCipherKeyDecryption(cipher, this.activeUserId),
-    );
+    if (cipher) {
+      cipherView = await cipher.decrypt(
+        await this.cipherService.getKeyForCipherKeyDecryption(cipher, this.activeUserId),
+      );
+    }
 
     const [modal, childComponent] = await this.modalService.openViewRef(
       AddEditComponent,
       this.cipherAddEditModalRef,
       (comp) => {
         comp.cipherId = id;
-        comp.canDeleteCipher = this.canDeleteCipher(cipherView);
+
+        if (cipherView) {
+          comp.canDeleteCipher = this.canDeleteCipher(cipherView);
+        }
+
         comp.onSavedCipher.pipe(takeUntil(this.destroy$)).subscribe(() => {
           modal.close();
           this.refresh();
