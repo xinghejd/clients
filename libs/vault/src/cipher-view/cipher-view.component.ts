@@ -1,6 +1,7 @@
 import { CommonModule } from "@angular/common";
 import { Component, Input, OnDestroy, OnInit } from "@angular/core";
 import { toDataURL } from "qrcode";
+import bwipjs from "bwip-js";
 import { firstValueFrom, Observable, Subject, takeUntil } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
@@ -70,7 +71,7 @@ export class CipherViewComponent implements OnInit, OnDestroy {
   async ngOnInit() {
     await this.loadCipherData();
 
-    let ssid: string, networkPassword: string;
+    let ssid: string, networkPassword: string, membershipId: string;
 
     this.cipher.fields.forEach(({ name, value }) => {
       if (ssid && networkPassword) {
@@ -84,10 +85,28 @@ export class CipherViewComponent implements OnInit, OnDestroy {
       if (name.toLowerCase() === "net-password") {
         networkPassword = value;
       }
+
+      if (name.toLowerCase() === "membership-id") {
+        membershipId = value;
+      }
     });
 
     if (ssid && networkPassword) {
+      // @TODO `bwipjs` can generate QR codes as well, which would allow us to drop the `qrcode` dependency
       this.visualSecret = await toDataURL(`WIFI:S:${ssid};T:<WPA|WEP|>;P:${networkPassword};;`);
+    }
+
+    if (membershipId) {
+      const imgCanvas = document.createElement("canvas");
+      const image = (bwipjs as any).toCanvas(imgCanvas, {
+        bcid: "code128",
+        text: membershipId,
+        scale: 1,
+        padding: 10,
+        backgroundcolor: "#FFFFFF",
+      });
+
+      this.visualSecret = image.toDataURL("image/png");
     }
 
     this.cardIsExpired = isCardExpired(this.cipher.card);
