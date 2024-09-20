@@ -50,7 +50,7 @@ import { MessagingService } from "@bitwarden/common/platform/abstractions/messag
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { SyncService } from "@bitwarden/common/platform/sync";
-import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
+import { OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CollectionService } from "@bitwarden/common/vault/abstractions/collection.service";
 import { TotpService } from "@bitwarden/common/vault/abstractions/totp.service";
@@ -174,7 +174,6 @@ export class VaultComponent implements OnInit, OnDestroy {
     return this.organization?.isProviderUser && !this.organization?.isMember;
   }
 
-  private activeUserId: UserId;
   private searchText$ = new Subject<string>();
   private refresh$ = new BehaviorSubject<void>(null);
   private destroy$ = new Subject<void>();
@@ -217,10 +216,6 @@ export class VaultComponent implements OnInit, OnDestroy {
       this.platformUtilsService.isSelfHost()
         ? "trashCleanupWarningSelfHosted"
         : "trashCleanupWarning",
-    );
-
-    this.activeUserId = await firstValueFrom(
-      this.accountService.activeAccount$.pipe(map((a) => a?.id)),
     );
 
     const filter$ = this.routedVaultFilterService.filter$;
@@ -517,7 +512,7 @@ export class VaultComponent implements OnInit, OnDestroy {
             if (qParams.action === "view") {
               await this.viewCipher(cipher, cipherCollections);
             } else {
-              await this.editCipherId(cipherId);
+              await this.editCipher(cipher);
             }
           } else {
             this.toastService.showToast({
@@ -783,18 +778,16 @@ export class VaultComponent implements OnInit, OnDestroy {
     });
   }
 
+  /**
+   * Takes a cipher and opens a dialog where it can be edited.
+   * @param cipher - the cipher to edit
+   * @param additionalComponentParameters - additional parameters to pass to the add/edit component
+   * @returns
+   */
   async editCipher(
     cipher: CipherView,
     additionalComponentParameters?: (comp: AddEditComponent) => void,
   ) {
-    return this.editCipherId(cipher?.id, additionalComponentParameters);
-  }
-
-  async editCipherId(
-    cipherId: string,
-    additionalComponentParameters?: (comp: AddEditComponent) => void,
-  ) {
-    const cipher = await this.cipherService.get(cipherId);
     // if cipher exists (cipher is null when new) and MP reprompt
     // is on for this cipher, then show password reprompt
     if (
@@ -807,16 +800,11 @@ export class VaultComponent implements OnInit, OnDestroy {
       return;
     }
 
-    // Decrypt the cipher.
-    const cipherView = await cipher.decrypt(
-      await this.cipherService.getKeyForCipherKeyDecryption(cipher, this.activeUserId),
-    );
-
     const defaultComponentParameters = (comp: AddEditComponent) => {
       comp.organization = this.organization;
       comp.organizationId = this.organization.id;
-      comp.cipherId = cipherId;
-      comp.canDeleteCipher = this.canDeleteCipher(cipherView);
+      comp.cipherId = cipher.id;
+      comp.canDeleteCipher = this.canDeleteCipher(cipher);
       comp.onSavedCipher.pipe(takeUntil(this.destroy$)).subscribe(() => {
         modal.close();
         this.refresh();
