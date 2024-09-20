@@ -55,6 +55,7 @@ import {
   InlineMenuAccountCreationFieldType,
   InlineMenuAccountCreationFieldTypes,
   InlineMenuFillType,
+  InlineMenuFillTypes,
   MAX_SUB_FRAME_DEPTH,
 } from "../enums/autofill-overlay.enum";
 import { AutofillService, PageDetail } from "../services/abstractions/autofill.service";
@@ -306,10 +307,10 @@ export class OverlayBackground implements OverlayBackgroundInterface {
    * Queries all ciphers for the given url, and sorts them by last used. Will not update the
    * list of ciphers if the extension is not unlocked.
    */
-  async updateOverlayCiphers(updateAllCipherTypes = true, triggerInlineMenuOpen = false) {
+  async updateOverlayCiphers(updateAllCipherTypes = true, openInlineMenu = false) {
     const authStatus = await firstValueFrom(this.authService.activeAccountStatus$);
     if (authStatus === AuthenticationStatus.Unlocked) {
-      this.updateOverlayCiphersSubject.next({ updateAllCipherTypes, triggerInlineMenuOpen });
+      this.updateOverlayCiphersSubject.next({ updateAllCipherTypes, openInlineMenu });
     }
   }
 
@@ -318,7 +319,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       return;
     }
 
-    const { updateAllCipherTypes, triggerInlineMenuOpen } = updateOverlayCiphersParams;
+    const { updateAllCipherTypes, openInlineMenu } = updateOverlayCiphersParams;
     const currentTab = await BrowserApi.getTabFromCurrentWindowId();
     if (this.focusedFieldData && currentTab?.id !== this.focusedFieldData.tabId) {
       const focusedFieldTab = await BrowserApi.getTab(this.focusedFieldData.tabId);
@@ -350,7 +351,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
 
     const ciphers = await this.getInlineMenuCipherData();
 
-    if (triggerInlineMenuOpen) {
+    if (openInlineMenu) {
       await this.openInlineMenu(true);
     }
 
@@ -521,7 +522,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
 
     for (let cipherIndex = 0; cipherIndex < inlineMenuCiphersArray.length; cipherIndex++) {
       const [inlineMenuCipherId, cipher] = inlineMenuCiphersArray[cipherIndex];
-      if (this.focusedFieldData?.inlineMenuFillType !== cipher.type) {
+      if (!this.isFocusedFieldFillType(cipher.type)) {
         continue;
       }
 
@@ -681,15 +682,26 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     return this.focusedFieldData?.accountCreationFieldType === fieldType;
   }
 
+  private isFocusedFieldFillType(
+    fillType: InlineMenuFillTypes,
+    focusedFieldData?: FocusedFieldData,
+  ) {
+    if (!focusedFieldData) {
+      return this.focusedFieldData?.inlineMenuFillType === fillType;
+    }
+
+    return focusedFieldData.inlineMenuFillType === fillType;
+  }
+
   /**
    * Identifies whether the inline menu is being shown on an account creation field.
    */
   private showInlineMenuAccountCreation(): boolean {
-    if (this.focusedFieldData?.inlineMenuFillType === InlineMenuFillType.AccountCreationUsername) {
+    if (this.isFocusedFieldFillType(InlineMenuFillType.AccountCreationUsername)) {
       return true;
     }
 
-    if (this.focusedFieldData?.inlineMenuFillType !== CipherType.Login) {
+    if (!this.isFocusedFieldFillType(CipherType.Login)) {
       return false;
     }
 
@@ -1380,12 +1392,14 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     this.isFieldCurrentlyFocused = true;
 
     const accountCreationFieldBlurred =
-      previousFocusedFieldData?.inlineMenuFillType === InlineMenuFillType.AccountCreationUsername &&
-      this.focusedFieldData.inlineMenuFillType !== InlineMenuFillType.AccountCreationUsername;
+      this.isFocusedFieldFillType(
+        InlineMenuFillType.AccountCreationUsername,
+        previousFocusedFieldData,
+      ) && !this.isFocusedFieldFillType(InlineMenuFillType.AccountCreationUsername);
 
     if (
       this.isInlineMenuButtonVisible &&
-      this.focusedFieldData.inlineMenuFillType === InlineMenuFillType.PasswordGeneration
+      this.isFocusedFieldFillType(InlineMenuFillType.PasswordGeneration)
     ) {
       this.updateGeneratedPassword().catch((error) => this.logService.error(error));
       return;
@@ -1398,8 +1412,10 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       return;
     }
 
-    if (previousFocusedFieldData?.inlineMenuFillType !== focusedFieldData?.inlineMenuFillType) {
-      const updateAllCipherTypes = focusedFieldData.inlineMenuFillType !== CipherType.Login;
+    if (
+      !this.isFocusedFieldFillType(focusedFieldData?.inlineMenuFillType, previousFocusedFieldData)
+    ) {
+      const updateAllCipherTypes = !this.isFocusedFieldFillType(CipherType.Login, focusedFieldData);
       this.updateOverlayCiphers(updateAllCipherTypes).catch((error) =>
         this.logService.error(error),
       );
@@ -1421,7 +1437,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     }
 
     if (
-      this.focusedFieldData.inlineMenuFillType === CipherType.Login &&
+      this.isFocusedFieldFillType(CipherType.Login) &&
       this.isFocusedFieldAccountCreationFieldType(InlineMenuAccountCreationFieldType.Password)
     ) {
       await this.updateGeneratedPassword();
@@ -1469,8 +1485,8 @@ export class OverlayBackground implements OverlayBackgroundInterface {
         const isNewPasswordField =
           this.inlineMenuFieldQualificationService.isNewPasswordField(field);
         if (
-          this.focusedFieldData.inlineMenuFillType === InlineMenuFillType.PasswordGeneration ||
-          this.focusedFieldData.inlineMenuFillType === InlineMenuFillType.AccountCreationUsername
+          this.isFocusedFieldFillType(InlineMenuFillType.PasswordGeneration) ||
+          this.isFocusedFieldFillType(InlineMenuFillType.AccountCreationUsername)
         ) {
           return isNewPasswordField;
         }
@@ -2499,7 +2515,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
   ) {
     return (
       isInlineMenuListPort &&
-      (this.focusedFieldData?.inlineMenuFillType === InlineMenuFillType.PasswordGeneration ||
+      (this.isFocusedFieldFillType(InlineMenuFillType.PasswordGeneration) ||
         (showInlineMenuAccountCreation &&
           this.isFocusedFieldAccountCreationFieldType(InlineMenuAccountCreationFieldType.Password)))
     );

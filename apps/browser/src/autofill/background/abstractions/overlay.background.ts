@@ -35,7 +35,7 @@ export type WebsiteIconData = {
 
 export type UpdateOverlayCiphersParams = {
   updateAllCipherTypes: boolean;
-  triggerInlineMenuOpen: boolean;
+  openInlineMenu: boolean;
 };
 
 export type FocusedFieldData = {
