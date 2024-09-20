@@ -1122,7 +1122,7 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
   };
 
   private isListHovered = () => {
-    const hoveredElement = this.inlineMenuListContainer.querySelector(":hover");
+    const hoveredElement = this.inlineMenuListContainer?.querySelector(":hover");
     return !!(
       hoveredElement &&
       (hoveredElement === this.inlineMenuListContainer ||

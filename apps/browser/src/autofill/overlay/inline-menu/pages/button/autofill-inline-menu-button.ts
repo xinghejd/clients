@@ -135,7 +135,7 @@ export class AutofillInlineMenuButton extends AutofillInlineMenuPageElement {
   };
 
   private isButtonHovered() {
-    const hoveredElement = this.buttonElement.querySelector(":hover");
+    const hoveredElement = this.buttonElement?.querySelector(":hover");
     return !!(
       hoveredElement &&
       (hoveredElement === this.buttonElement || this.buttonElement.contains(hoveredElement))

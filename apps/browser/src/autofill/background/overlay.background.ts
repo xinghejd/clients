@@ -936,18 +936,12 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       (error) => this.logService.error(error),
     );
 
-    const mostRecentlyFocusedFieldHasValue = await BrowserApi.tabSendMessage(
-      sender.tab,
-      { command: "checkMostRecentlyFocusedFieldHasValue" },
-      { frameId: this.focusedFieldData?.frameId },
-    );
-
     if ((await this.getInlineMenuVisibility()) === AutofillOverlayVisibility.OnButtonClick) {
       return;
     }
 
     if (
-      mostRecentlyFocusedFieldHasValue &&
+      (await this.checkMostRecentlyFocusedFieldHasValue(sender.tab)) &&
       (this.checkIsInlineMenuCiphersPopulated(sender) ||
         (await this.getAuthStatus()) !== AuthenticationStatus.Unlocked)
     ) {
@@ -957,6 +951,14 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     this.updateInlineMenuPosition({ overlayElement: AutofillOverlayElement.List }, sender).catch(
       (error) => this.logService.error(error),
     );
+  }
+
+  private async checkMostRecentlyFocusedFieldHasValue(tab: chrome.tabs.Tab) {
+    return !!(await BrowserApi.tabSendMessage(
+      tab,
+      { command: "checkMostRecentlyFocusedFieldHasValue" },
+      { frameId: this.focusedFieldData?.frameId || 0 },
+    ));
   }
 
   /**
