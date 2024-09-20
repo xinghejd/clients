@@ -763,6 +763,11 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
       return;
     }
 
+    if (await this.isInlineMenuButtonVisible()) {
+      this.updateInlineMenuListPosition();
+      return;
+    }
+
     this.openInlineMenu();
   }
 
@@ -1293,7 +1298,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
   private async hideInlineMenuListOnFilledField(
     formFieldElement?: FillableFormFieldElement,
   ): Promise<boolean> {
-    return (
+    return !!(
       formFieldElement?.value &&
       ((await this.isInlineMenuCiphersPopulated()) || !this.isUserAuthed())
     );

@@ -1099,16 +1099,18 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     sender: chrome.runtime.MessageSender,
     { forceCloseInlineMenu, overlayElement }: CloseInlineMenuMessage = {},
   ) {
-    this.generatedPassword = null;
-
     const command = "closeAutofillInlineMenu";
     const sendOptions = { frameId: 0 };
+    this.generatedPassword = null;
+
     if (forceCloseInlineMenu) {
-      BrowserApi.tabSendMessage(sender.tab, { command, overlayElement }, sendOptions).catch(
-        (error) => this.logService.error(error),
-      );
-      this.isInlineMenuButtonVisible = false;
-      this.isInlineMenuListVisible = false;
+      BrowserApi.tabSendMessage(
+        sender.tab,
+        { command: "closeAutofillInlineMenu", overlayElement },
+        { frameId: 0 },
+      ).catch((error) => this.logService.error(error));
+      this.updateClosedInlineMenuVisibleStatus(overlayElement);
+
       return;
     }
 
@@ -1126,6 +1128,19 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       return;
     }
 
+    this.updateClosedInlineMenuVisibleStatus(overlayElement);
+    BrowserApi.tabSendMessage(sender.tab, { command, overlayElement }, sendOptions).catch((error) =>
+      this.logService.error(error),
+    );
+  }
+
+  private updateClosedInlineMenuVisibleStatus(overlayElement: string) {
+    if (!overlayElement) {
+      this.isInlineMenuButtonVisible = false;
+      this.isInlineMenuListVisible = false;
+      return;
+    }
+
     if (overlayElement === AutofillOverlayElement.Button) {
       this.isInlineMenuButtonVisible = false;
     }
@@ -1133,15 +1148,6 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     if (overlayElement === AutofillOverlayElement.List) {
       this.isInlineMenuListVisible = false;
     }
-
-    if (!overlayElement) {
-      this.isInlineMenuButtonVisible = false;
-      this.isInlineMenuListVisible = false;
-    }
-
-    BrowserApi.tabSendMessage(sender.tab, { command, overlayElement }, sendOptions).catch((error) =>
-      this.logService.error(error),
-    );
   }
 
   /**
@@ -2330,7 +2336,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
    * Triggers a closure of the inline menu during a reposition event.
    *
    * @param sender - The sender of the message
-|   */
+   |   */
   private async closeInlineMenuAfterReposition(sender: chrome.runtime.MessageSender) {
     await this.toggleInlineMenuHidden(
       { isInlineMenuHidden: false, setTransparentInlineMenu: true },
@@ -2432,12 +2438,17 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       this.portKeyForTab[port.sender.tab.id] = generateRandomChars(12);
     }
 
+    const authStatus = await this.getAuthStatus();
     const showInlineMenuAccountCreation = this.showInlineMenuAccountCreation();
     const showInlineMenuPasswordGenerator = this.showInlineMenuPasswordGenerator(
       isInlineMenuListPort,
       showInlineMenuAccountCreation,
     );
-    if (showInlineMenuPasswordGenerator && !this.generatedPassword) {
+    if (
+      authStatus === AuthenticationStatus.Unlocked &&
+      showInlineMenuPasswordGenerator &&
+      !this.generatedPassword
+    ) {
       await this.generatePassword();
     }
 
@@ -2452,7 +2463,6 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       pageTitle: chrome.i18n.getMessage(
         isInlineMenuListPort ? "bitwardenVault" : "bitwardenOverlayButton",
       ),
-      authStatus: await this.getAuthStatus(),
       styleSheetUrl: chrome.runtime.getURL(
         `overlay/menu-${isInlineMenuListPort ? "list" : "button"}.css`,
       ),
@@ -2464,9 +2474,10 @@ export class OverlayBackground implements OverlayBackgroundInterface {
         ? AutofillOverlayPort.ListMessageConnector
         : AutofillOverlayPort.ButtonMessageConnector,
       inlineMenuFillType: this.focusedFieldData?.inlineMenuFillType,
-      showInlineMenuAccountCreation,
       showPasskeysLabels: this.showPasskeysLabelsWithinInlineMenu,
       generatedPassword: showInlineMenuPasswordGenerator ? this.generatedPassword : null,
+      showInlineMenuAccountCreation,
+      authStatus,
     });
     this.updateInlineMenuPosition(
       {
@@ -2482,7 +2493,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
    * Stores the connected overlay port and sets up any existing ports to be disconnected.
    *
    * @param port - The port to store
-|   */
+   |   */
   private storeOverlayPort(port: chrome.runtime.Port) {
     if (port.name === AutofillOverlayPort.List) {
       this.storeExpiredOverlayPort(this.inlineMenuListPort);
