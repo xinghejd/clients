@@ -36,6 +36,7 @@ export enum FeatureFlag {
   AC2476_DeprecateStripeSourcesAPI = "AC-2476-deprecate-stripe-sources-api",
   StorageReseedRefactor = "storage-reseed-refactor",
   CipherKeyEncryption = "cipher-key-encryption",
+  SDKPasswordGenerator = "sdk-password-generator",
 }
 
 export type AllowedFeatureFlagTypes = boolean | number | string;
@@ -82,6 +83,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.NotificationBarAddLoginImprovements]: FALSE,
   [FeatureFlag.AC2476_DeprecateStripeSourcesAPI]: FALSE,
   [FeatureFlag.CipherKeyEncryption]: FALSE,
+  [FeatureFlag.SDKPasswordGenerator]: true as boolean,
 } satisfies Record<FeatureFlag, AllowedFeatureFlagTypes>;
 
 export type DefaultFeatureFlagValueType = typeof DefaultFeatureFlagValue;

@@ -601,6 +601,8 @@ const safeProviders: SafeProvider[] = [
       PolicyServiceAbstraction,
       AccountServiceAbstraction,
       StateProvider,
+      ConfigService,
+      SdkService,
     ],
   }),
   safeProvider({

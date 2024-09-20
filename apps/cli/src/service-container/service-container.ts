@@ -529,41 +529,6 @@ export class ServiceContainer {
       this.globalStateProvider,
     );
 
-    const sdkClientFactory = devFlagEnabled("sdk")
-      ? new DefaultSdkClientFactory()
-      : new NoopSdkClientFactory();
-    this.sdkService = new DefaultSdkService(
-      sdkClientFactory,
-      this.environmentService,
-      this.platformUtilsService,
-      customUserAgent,
-    );
-
-    this.passwordStrengthService = new PasswordStrengthService();
-
-    this.passwordGenerationService = legacyPasswordGenerationServiceFactory(
-      this.encryptService,
-      this.cryptoService,
-      this.policyService,
-      this.accountService,
-      this.stateProvider,
-    );
-
-    this.authRequestService = new AuthRequestService(
-      this.appIdService,
-      this.accountService,
-      this.masterPasswordService,
-      this.cryptoService,
-      this.apiService,
-      this.stateProvider,
-    );
-
-    this.billingAccountProfileStateService = new DefaultBillingAccountProfileStateService(
-      this.stateProvider,
-    );
-
-    this.taskSchedulerService = new DefaultTaskSchedulerService(this.logService);
-
     this.authService = new AuthService(
       this.accountService,
       this.messagingService,
@@ -582,6 +547,43 @@ export class ServiceContainer {
       this.stateProvider,
       this.authService,
     );
+
+    const sdkClientFactory = devFlagEnabled("sdk")
+      ? new DefaultSdkClientFactory()
+      : new NoopSdkClientFactory();
+    this.sdkService = new DefaultSdkService(
+      sdkClientFactory,
+      this.environmentService,
+      this.platformUtilsService,
+      customUserAgent,
+    );
+
+    this.passwordStrengthService = new PasswordStrengthService();
+
+    this.passwordGenerationService = legacyPasswordGenerationServiceFactory(
+      this.encryptService,
+      this.cryptoService,
+      this.policyService,
+      this.accountService,
+      this.stateProvider,
+      this.configService,
+      this.sdkService,
+    );
+
+    this.authRequestService = new AuthRequestService(
+      this.appIdService,
+      this.accountService,
+      this.masterPasswordService,
+      this.cryptoService,
+      this.apiService,
+      this.stateProvider,
+    );
+
+    this.billingAccountProfileStateService = new DefaultBillingAccountProfileStateService(
+      this.stateProvider,
+    );
+
+    this.taskSchedulerService = new DefaultTaskSchedulerService(this.logService);
 
     this.devicesApiService = new DevicesApiServiceImplementation(this.apiService);
     this.deviceTrustService = new DeviceTrustService(

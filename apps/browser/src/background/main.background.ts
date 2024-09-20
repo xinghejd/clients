@@ -741,6 +741,8 @@ export default class MainBackground {
       this.policyService,
       this.accountService,
       this.stateProvider,
+      this.configService,
+      this.sdkService,
     );
 
     this.userDecryptionOptionsService = new UserDecryptionOptionsService(this.stateProvider);
