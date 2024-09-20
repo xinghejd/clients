@@ -1149,7 +1149,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
       return;
     }
 
-    autofillFieldData.accountCreationFieldType = autofillFieldData.type;
+    autofillFieldData.accountCreationFieldType = InlineMenuAccountCreationFieldType.Text;
   }
 
   /**

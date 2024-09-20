@@ -52,6 +52,8 @@ import {
 import {
   AutofillOverlayElement,
   AutofillOverlayPort,
+  InlineMenuAccountCreationFieldType,
+  InlineMenuAccountCreationFieldTypes,
   InlineMenuFillType,
   MAX_SUB_FRAME_DEPTH,
 } from "../enums/autofill-overlay.enum";
@@ -660,18 +662,23 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     if (
       !showInlineMenuAccountCreation ||
       !this.focusedFieldData?.accountCreationFieldType ||
-      this.focusedFieldData.accountCreationFieldType === "password"
+      this.isFocusedFieldAccountCreationFieldType(InlineMenuAccountCreationFieldType.Password)
     ) {
       return { fullName };
     }
 
     return {
       fullName,
-      username:
-        this.focusedFieldData.accountCreationFieldType === "email"
-          ? cipher.identity.email
-          : cipher.identity.username,
+      username: this.isFocusedFieldAccountCreationFieldType(
+        InlineMenuAccountCreationFieldType.Email,
+      )
+        ? cipher.identity.email
+        : cipher.identity.username,
     };
+  }
+
+  private isFocusedFieldAccountCreationFieldType(fieldType: InlineMenuAccountCreationFieldTypes) {
+    return this.focusedFieldData?.accountCreationFieldType === fieldType;
   }
 
   /**
@@ -1415,7 +1422,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
 
     if (
       this.focusedFieldData.inlineMenuFillType === CipherType.Login &&
-      this.focusedFieldData.accountCreationFieldType === "password"
+      this.isFocusedFieldAccountCreationFieldType(InlineMenuAccountCreationFieldType.Password)
     ) {
       await this.updateGeneratedPassword();
       return;
@@ -2494,7 +2501,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       isInlineMenuListPort &&
       (this.focusedFieldData?.inlineMenuFillType === InlineMenuFillType.PasswordGeneration ||
         (showInlineMenuAccountCreation &&
-          this.focusedFieldData?.accountCreationFieldType === "password"))
+          this.isFocusedFieldAccountCreationFieldType(InlineMenuAccountCreationFieldType.Password)))
     );
   }
 

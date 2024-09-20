@@ -28,12 +28,12 @@ export enum InlineMenuFillType {
 export type InlineMenuFillTypes = InlineMenuFillType | CipherType;
 
 export const InlineMenuAccountCreationFieldType = {
+  Text: "text",
   Email: "email",
   Password: "password",
 } as const;
 
 export type InlineMenuAccountCreationFieldTypes =
-  | string
-  | (typeof InlineMenuAccountCreationFieldType)[keyof typeof InlineMenuAccountCreationFieldType];
+  (typeof InlineMenuAccountCreationFieldType)[keyof typeof InlineMenuAccountCreationFieldType];
 
 export const MAX_SUB_FRAME_DEPTH = 8;
