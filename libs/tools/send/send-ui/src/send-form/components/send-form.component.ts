@@ -182,6 +182,8 @@ export class SendFormComponent implements AfterViewInit, OnInit, OnChanges, Send
     this.loading = false;
   }
 
+  formDisabled = false;
+
   constructor(
     private formBuilder: FormBuilder,
     private addEditFormService: SendFormService,

@@ -2,8 +2,11 @@ import { CommonModule } from "@angular/common";
 import { Component, Input, OnInit } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, Validators, ReactiveFormsModule, FormsModule } from "@angular/forms";
+import { Subject, takeUntil } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
+import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
+import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { SendType } from "@bitwarden/common/tools/send/enums/send-type";
 import { SendFileView } from "@bitwarden/common/tools/send/models/view/send-file.view";
 import { SendView } from "@bitwarden/common/tools/send/models/view/send.view";
@@ -27,6 +30,8 @@ import { SendFormContainer } from "../../send-form-container";
   ],
 })
 export class SendFileDetailsComponent implements OnInit {
+  private destroy$ = new Subject<void>();
+
   @Input() config: SendFormConfig;
   @Input() originalSendView?: SendView;
 
@@ -40,6 +45,7 @@ export class SendFileDetailsComponent implements OnInit {
   constructor(
     private formBuilder: FormBuilder,
     protected sendFormContainer: SendFormContainer,
+    private policyService: PolicyService,
   ) {
     this.sendFormContainer.registerChildForm("sendFileDetailsForm", this.sendFileDetailsForm);
 
@@ -67,5 +73,14 @@ export class SendFileDetailsComponent implements OnInit {
         file: this.originalSendView.file,
       });
     }
+
+    this.policyService
+      .policyAppliesToActiveUser$(PolicyType.DisableSend)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((policyAppliesToActiveUser) => {
+        if (policyAppliesToActiveUser) {
+          this.sendFileDetailsForm.disable();
+        }
+      });
   }
 }

@@ -1,9 +1,12 @@
 import { CommonModule } from "@angular/common";
-import { Component, Input, OnInit } from "@angular/core";
+import { Component, Input, OnDestroy, OnInit } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, FormControl, Validators, ReactiveFormsModule } from "@angular/forms";
+import { Subject, takeUntil } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
+import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
+import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { SendView } from "@bitwarden/common/tools/send/models/view/send.view";
 import { CheckboxModule, FormFieldModule, SectionComponent } from "@bitwarden/components";
 
@@ -23,7 +26,9 @@ import { SendFormContainer } from "../../send-form-container";
     SectionComponent,
   ],
 })
-export class SendTextDetailsComponent implements OnInit {
+export class SendTextDetailsComponent implements OnInit, OnDestroy {
+  private destroy$ = new Subject<void>();
+
   @Input() config: SendFormConfig;
   @Input() originalSendView?: SendView;
 
@@ -35,6 +40,7 @@ export class SendTextDetailsComponent implements OnInit {
   constructor(
     private formBuilder: FormBuilder,
     protected sendFormContainer: SendFormContainer,
+    private policyService: PolicyService,
   ) {
     this.sendFormContainer.registerChildForm("sendTextDetailsForm", this.sendTextDetailsForm);
 
@@ -57,5 +63,19 @@ export class SendTextDetailsComponent implements OnInit {
         hidden: this.originalSendView.text?.hidden || false,
       });
     }
+
+    this.policyService
+      .policyAppliesToActiveUser$(PolicyType.DisableSend)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((policyAppliesToActiveUser) => {
+        if (policyAppliesToActiveUser) {
+          this.sendTextDetailsForm.disable();
+        }
+      });
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }
