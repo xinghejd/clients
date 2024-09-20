@@ -1,5 +1,4 @@
 import {
-  BehaviorSubject,
   debounceTime,
   firstValueFrom,
   map,
@@ -89,9 +88,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
   private readonly openUnlockPopout = openUnlockPopout;
   private readonly openViewVaultItemPopout = openViewVaultItemPopout;
   private readonly openAddEditVaultItemPopout = openAddEditVaultItemPopout;
-  private readonly updateOverlayCiphersSubject = new BehaviorSubject<UpdateOverlayCiphersParams>(
-    null,
-  );
+  private readonly updateOverlayCiphersSubject = new Subject<UpdateOverlayCiphersParams>();
   private readonly storeInlineMenuFido2CredentialsSubject = new ReplaySubject<number>(1);
   private readonly startInlineMenuDelayedCloseSubject: Subject<void> = new Subject<void>();
   private readonly cancelInlineMenuDelayedCloseSubject: Subject<boolean> = new Subject<boolean>();
@@ -123,7 +120,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
   private isInlineMenuListVisible: boolean = false;
   private showPasskeysLabelsWithinInlineMenu: boolean = false;
   private iconsServerUrl: string;
-  private mostRecentlyGeneratedPassword: string;
+  private generatedPassword: string;
   private readonly extensionMessageHandlers: OverlayBackgroundExtensionMessageHandlers = {
     autofillOverlayElementClosed: ({ message, sender }) =>
       this.overlayElementClosed(message, sender),
@@ -181,7 +178,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     redirectAutofillInlineMenuFocusOut: ({ message, port }) =>
       this.redirectInlineMenuFocusOut(message, port),
     updateAutofillInlineMenuListHeight: ({ message }) => this.updateInlineMenuListHeight(message),
-    refreshGeneratedPassword: () => this.refreshGeneratedPassword(),
+    refreshGeneratedPassword: () => this.updateGeneratedPassword(true),
     fillGeneratedPassword: ({ port }) => this.fillGeneratedPassword(port),
   };
 
@@ -204,13 +201,11 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     this.initOverlayEventObservables();
   }
 
-  private async generatePassword(): Promise<string> {
+  private async generatePassword(): Promise<void> {
     const options = (await this.passwordGenerationService.getOptions())?.[0] ?? {};
     const password = await this.passwordGenerationService.generatePassword(options);
     await this.passwordGenerationService.addHistory(password);
-    this.mostRecentlyGeneratedPassword = password;
-
-    return password;
+    this.generatedPassword = password;
   }
 
   /**
@@ -300,7 +295,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       delete this.portKeyForTab[tabId];
     }
 
-    this.mostRecentlyGeneratedPassword = null;
+    this.generatedPassword = null;
     this.focusedFieldData = null;
   }
 
@@ -342,6 +337,8 @@ export class OverlayBackground implements OverlayBackgroundInterface {
 
     this.inlineMenuFido2Credentials.clear();
     this.storeInlineMenuFido2CredentialsSubject.next(currentTab.id);
+
+    await this.generatePassword();
 
     this.inlineMenuCiphers = new Map();
     const ciphersViews = await this.getCipherViews(currentTab, updateAllCipherTypes);
@@ -1081,6 +1078,8 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     sender: chrome.runtime.MessageSender,
     { forceCloseInlineMenu, overlayElement }: CloseInlineMenuMessage = {},
   ) {
+    this.generatedPassword = null;
+
     const command = "closeAutofillInlineMenu";
     const sendOptions = { frameId: 0 };
     if (forceCloseInlineMenu) {
@@ -1375,8 +1374,11 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       previousFocusedFieldData?.inlineMenuFillType === InlineMenuFillType.AccountCreationUsername &&
       this.focusedFieldData.inlineMenuFillType !== InlineMenuFillType.AccountCreationUsername;
 
-    if (this.focusedFieldData.inlineMenuFillType === InlineMenuFillType.PasswordGeneration) {
-      this.refreshGeneratedPassword().catch((error) => this.logService.error(error));
+    if (
+      this.isInlineMenuButtonVisible &&
+      this.focusedFieldData.inlineMenuFillType === InlineMenuFillType.PasswordGeneration
+    ) {
+      this.updateGeneratedPassword().catch((error) => this.logService.error(error));
       return;
     }
 
@@ -1413,7 +1415,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       this.focusedFieldData.inlineMenuFillType === CipherType.Login &&
       this.focusedFieldData.accountCreationFieldType === "password"
     ) {
-      await this.refreshGeneratedPassword();
+      await this.updateGeneratedPassword();
       return;
     }
 
@@ -1425,16 +1427,20 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     });
   }
 
-  private async refreshGeneratedPassword() {
+  private async updateGeneratedPassword(refreshPassword: boolean = false) {
+    if (!this.generatedPassword || refreshPassword) {
+      await this.generatePassword();
+    }
+
     this.inlineMenuListPort?.postMessage({
       command: "updateAutofillInlineMenuGeneratedPassword",
-      generatedPassword: await this.generatePassword(),
+      generatedPassword: this.generatedPassword,
     });
   }
 
   // TODO: Most of the logic here likely should exist within the autofill service instead of here.
   private async fillGeneratedPassword(port: chrome.runtime.Port) {
-    if (!this.mostRecentlyGeneratedPassword) {
+    if (!this.generatedPassword) {
       return;
     }
 
@@ -1472,7 +1478,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
 
     const cipher = this.buildLoginCipherView({
       username: "",
-      password: this.mostRecentlyGeneratedPassword,
+      password: this.generatedPassword,
       hostname: "",
       uri: "",
     });
@@ -2401,18 +2407,13 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       this.portKeyForTab[port.sender.tab.id] = generateRandomChars(12);
     }
 
-    // TODO: Pull this into a separate method
-    const authStatus = await this.getAuthStatus();
     const showInlineMenuAccountCreation = this.showInlineMenuAccountCreation();
-    let generatedPassword = null;
-    if (
-      authStatus === AuthenticationStatus.Unlocked &&
-      isInlineMenuListPort &&
-      (this.focusedFieldData?.inlineMenuFillType === InlineMenuFillType.PasswordGeneration ||
-        (showInlineMenuAccountCreation &&
-          this.focusedFieldData?.accountCreationFieldType === "password"))
-    ) {
-      generatedPassword = await this.generatePassword();
+    const showInlineMenuPasswordGenerator = this.showInlineMenuPasswordGenerator(
+      isInlineMenuListPort,
+      showInlineMenuAccountCreation,
+    );
+    if (showInlineMenuPasswordGenerator && !this.generatedPassword) {
+      await this.generatePassword();
     }
 
     this.storeOverlayPort(port);
@@ -2426,7 +2427,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       pageTitle: chrome.i18n.getMessage(
         isInlineMenuListPort ? "bitwardenVault" : "bitwardenOverlayButton",
       ),
-      authStatus,
+      authStatus: await this.getAuthStatus(),
       styleSheetUrl: chrome.runtime.getURL(
         `overlay/menu-${isInlineMenuListPort ? "list" : "button"}.css`,
       ),
@@ -2440,7 +2441,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       inlineMenuFillType: this.focusedFieldData?.inlineMenuFillType,
       showInlineMenuAccountCreation,
       showPasskeysLabels: this.showPasskeysLabelsWithinInlineMenu,
-      generatedPassword,
+      generatedPassword: showInlineMenuPasswordGenerator ? this.generatedPassword : null,
     });
     this.updateInlineMenuPosition(
       {
@@ -2481,6 +2482,18 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     if (port) {
       this.expiredPorts.push(port);
     }
+  }
+
+  private showInlineMenuPasswordGenerator(
+    isInlineMenuListPort: boolean,
+    showInlineMenuAccountCreation: boolean,
+  ) {
+    return (
+      isInlineMenuListPort &&
+      (this.focusedFieldData?.inlineMenuFillType === InlineMenuFillType.PasswordGeneration ||
+        (showInlineMenuAccountCreation &&
+          this.focusedFieldData?.accountCreationFieldType === "password"))
+    );
   }
 
   /**
