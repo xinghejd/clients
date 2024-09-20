@@ -146,10 +146,12 @@ export class AutofillInlineMenuIframeService implements AutofillInlineMenuIframe
       clearTimeout(this.ariaAlertTimeout);
     }
 
-    this.ariaAlertTimeout = globalThis.setTimeout(
-      () => this.shadow.appendChild(this.ariaAlertElement),
-      2000,
-    );
+    this.ariaAlertTimeout = globalThis.setTimeout(async () => {
+      const isFieldFocused = await this.sendExtensionMessage("checkIsFieldCurrentlyFocused");
+      if (isFieldFocused) {
+        this.shadow.appendChild(this.ariaAlertElement);
+      }
+    }, 2000);
   }
 
   /**
