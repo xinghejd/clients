@@ -216,8 +216,13 @@ export class VaultItemsComponent {
   }
 
   protected canManageCollection(cipher: CipherView) {
-    if (cipher.organizationId == null) {
-      return true;
+    // If the cipher is not part of an organization (personal item) or has no collections, user can manage it
+    if (
+      cipher.organizationId == null ||
+      !cipher.collectionIds ||
+      cipher.collectionIds.length === 0
+    ) {
+      return cipher.edit;
     }
 
     // Check for admin access in AC vault

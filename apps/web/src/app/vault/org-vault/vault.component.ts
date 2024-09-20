@@ -1331,9 +1331,13 @@ export class VaultComponent implements OnInit, OnDestroy {
     }
 
     const activeCollection = this.selectedCollection?.node;
-
     if (activeCollection) {
       return activeCollection.manage === true;
+    }
+
+    // If collectionIds is empty or null, it means the cipher is unassigned
+    if (!cipher.collectionIds || cipher.collectionIds.length === 0) {
+      return cipher.edit;
     }
 
     return this.allCollections
