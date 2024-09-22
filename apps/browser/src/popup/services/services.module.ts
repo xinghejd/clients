@@ -87,7 +87,7 @@ import { FolderService as FolderServiceAbstraction } from "@bitwarden/common/vau
 import { TotpService as TotpServiceAbstraction } from "@bitwarden/common/vault/abstractions/totp.service";
 import { TotpService } from "@bitwarden/common/vault/services/totp.service";
 import { DialogService, ToastService } from "@bitwarden/components";
-import { BiometricsService, BiometricStateService } from "@bitwarden/km/biometrics";
+import { BiometricsService, BiometricStateService } from "@bitwarden/key-management/biometrics";
 import { PasswordRepromptService } from "@bitwarden/vault";
 
 import { ExtensionAnonLayoutWrapperDataService } from "../../auth/popup/extension-anon-layout-wrapper/extension-anon-layout-wrapper-data.service";

@@ -35,7 +35,7 @@ import { UserId } from "@bitwarden/common/types/guid";
 import { UserKey } from "@bitwarden/common/types/key";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { DialogService, ToastService } from "@bitwarden/components";
-import { BiometricStateService, BiometricsService } from "@bitwarden/km/biometrics";
+import { BiometricStateService, BiometricsService } from "@bitwarden/key-management/biometrics";
 
 @Directive()
 export class LockComponent implements OnInit, OnDestroy {

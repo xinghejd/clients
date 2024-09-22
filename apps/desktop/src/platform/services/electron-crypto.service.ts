@@ -18,7 +18,7 @@ import { StateProvider } from "@bitwarden/common/platform/state";
 import { CsprngString } from "@bitwarden/common/types/csprng";
 import { UserId } from "@bitwarden/common/types/guid";
 import { UserKey } from "@bitwarden/common/types/key";
-import { BiometricStateService } from "@bitwarden/km/biometrics";
+import { BiometricStateService } from "@bitwarden/key-management/biometrics";
 
 export class ElectronCryptoService extends CryptoService {
   constructor(

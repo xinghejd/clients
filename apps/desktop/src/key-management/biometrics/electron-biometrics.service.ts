@@ -1,6 +1,6 @@
 import { Injectable } from "@angular/core";
 
-import { BiometricsService } from "@bitwarden/km/biometrics";
+import { BiometricsService } from "@bitwarden/key-management/biometrics";
 
 /**
  * This service implement the base biometrics service to provide desktop specific functions,

@@ -36,7 +36,7 @@ import { DialogService, ToastService } from "@bitwarden/components";
 import {
   BiometricsService as AbstractBiometricService,
   BiometricStateService,
-} from "@bitwarden/km/biometrics";
+} from "@bitwarden/key-management/biometrics";
 
 import { BiometricsService } from "../key-management/biometrics/biometrics.service";
 

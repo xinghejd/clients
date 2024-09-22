@@ -259,7 +259,10 @@ import {
   ImportService,
   ImportServiceAbstraction,
 } from "@bitwarden/importer/core";
-import { BiometricStateService, DefaultBiometricStateService } from "@bitwarden/km/biometrics";
+import {
+  BiometricStateService,
+  DefaultBiometricStateService,
+} from "@bitwarden/key-management/biometrics";
 import { PasswordRepromptService } from "@bitwarden/vault";
 import {
   VaultExportService,

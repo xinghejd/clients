@@ -1,6 +1,6 @@
 import { firstValueFrom, map, Subscription, timeout } from "rxjs";
 
-import { BiometricStateService } from "@bitwarden/km/biometrics";
+import { BiometricStateService } from "@bitwarden/key-management/biometrics";
 
 import { PinServiceAbstraction } from "../../../../auth/src/common/abstractions";
 import { VaultTimeoutSettingsService } from "../../abstractions/vault-timeout/vault-timeout-settings.service";

@@ -1,6 +1,6 @@
 import { Injectable } from "@angular/core";
 
-import { BiometricsService } from "@bitwarden/km/biometrics";
+import { BiometricsService } from "@bitwarden/key-management/biometrics";
 
 import { BrowserApi } from "../../platform/browser/browser-api";
 

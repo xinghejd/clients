@@ -2,32 +2,62 @@
   "compilerOptions": {
     "pretty": true,
     "moduleResolution": "node",
-    "target": "ES2016",
-    "module": "es6",
     "noImplicitAny": true,
-    "allowSyntheticDefaultImports": true,
-    "emitDecoratorMetadata": true,
-    "experimentalDecorators": true,
-    "allowJs": true,
+    "target": "ES2016",
+    "module": "ES2020",
+    "lib": ["es5", "es6", "es7", "dom", "ES2021"],
     "sourceMap": true,
+    "allowSyntheticDefaultImports": true,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "declaration": false,
+    "outDir": "dist",
     "baseUrl": ".",
+    "resolveJsonModule": true,
     "paths": {
-      "@bitwarden/common/spec": ["../../libs/common/spec"],
-      "@bitwarden/admin-console/common": ["../../libs/admin-console/src/common"],
-      "@bitwarden/auth/common": ["../../libs/auth/src/common"],
-      "@bitwarden/auth/angular": ["../../libs/auth/src/angular"],
-      "@bitwarden/common/*": ["../../libs/common/src/*"],
-      "@bitwarden/importer/core": ["../../libs/importer/src"],
-      "@bitwarden/generator-core": ["../../libs/tools/generator/core/src"],
-      "@bitwarden/generator-legacy": ["../../libs/tools/generator/extensions/legacy/src"],
-      "@bitwarden/generator-history": ["../../libs/tools/generator/extensions/history/src"],
-      "@bitwarden/generator-navigation": ["../../libs/tools/generator/extensions/navigation/src"],
-      "@bitwarden/km/biometrics": ["../../libs/key-management/src/biometrics"],
-      "@bitwarden/vault-export-core": [
-        "../../libs/tools/export/vault-export/vault-export-core/src"
-      ],
-      "@bitwarden/node/*": ["../../libs/node/src/*"]
-    }
+      "@bitwarden/admin-console/common": ["./libs/admin-console/src/common"],
+      "@bitwarden/angular/*": ["./libs/angular/src/*"],
+      "@bitwarden/auth/common": ["./libs/auth/src/common"],
+      "@bitwarden/auth/angular": ["./libs/auth/src/angular"],
+      "@bitwarden/billing": ["./libs/billing/src"],
+      "@bitwarden/common/*": ["./libs/common/src/*"],
+      "@bitwarden/components": ["./libs/components/src"],
+      "@bitwarden/generator-components": ["./libs/tools/generator/components/src"],
+      "@bitwarden/generator-core": ["./libs/tools/generator/core/src"],
+      "@bitwarden/generator-history": ["./libs/tools/generator/extensions/history/src"],
+      "@bitwarden/generator-legacy": ["./libs/tools/generator/extensions/legacy/src"],
+      "@bitwarden/generator-navigation": ["./libs/tools/generator/extensions/navigation/src"],
+      "@bitwarden/vault-export-core": ["./libs/tools/export/vault-export/vault-export-core/src"],
+      "@bitwarden/vault-export-ui": ["./libs/tools/export/vault-export/vault-export-ui/src"],
+      "@bitwarden/importer/core": ["./libs/importer/src"],
+      "@bitwarden/importer/ui": ["./libs/importer/src/components"],
+      "@bitwarden/key-management/*": ["./libs/key-management/src/*"],
+      "@bitwarden/platform": ["./libs/platform/src"],
+      "@bitwarden/send-ui": ["./libs/tools/send/send-ui/src"],
+      "@bitwarden/node/*": ["./libs/node/src/*"],
+      "@bitwarden/web-vault/*": ["./apps/web/src/*"],
+      "@bitwarden/vault": ["./libs/vault/src"],
+      "@bitwarden/bit-common/*": ["./bitwarden_license/bit-common/src/*"]
+    },
+    "plugins": [
+      {
+        "transform": "typescript-transform-paths"
+      }
+    ],
+    "useDefineForClassFields": false
   },
-  "include": ["src", "src/**/*.spec.ts"]
+  "include": [
+    "apps/web/src/**/*",
+    "apps/browser/src/**/*",
+    "libs/*/src/**/*",
+    "libs/tools/send/**/src/**/*",
+    "bitwarden_license/bit-web/src/**/*",
+    "bitwarden_license/bit-common/src/**/*"
+  ],
+  "exclude": [
+    "apps/web/src/**/*.spec.ts",
+    "apps/browser/src/**/*.spec.ts",
+    "libs/*/src/**/*.spec.ts",
+    "**/*.spec-util.ts"
+  ]
 }

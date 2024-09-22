@@ -32,7 +32,7 @@
       "@bitwarden/importer/ui": ["../../libs/importer/src/components"],
       "@bitwarden/platform": ["../../libs/platform/src"],
       "@bitwarden/send-ui": ["../../libs/tools/send/send-ui/src"],
-      "@bitwarden/km/biometrics": ["../../libs/key-management/src/biometrics"],
+      "@bitwarden/key-management/biometrics": ["../../libs/key-management/src/biometrics"],
       "@bitwarden/vault": ["../../libs/vault/src"]
     },
     "useDefineForClassFields": false

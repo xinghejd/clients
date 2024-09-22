@@ -38,7 +38,7 @@ import {
   VaultTimeoutStringType,
 } from "@bitwarden/common/types/vault-timeout.type";
 import { DialogService, ToastService } from "@bitwarden/components";
-import { BiometricsService, BiometricStateService } from "@bitwarden/km/biometrics";
+import { BiometricsService, BiometricStateService } from "@bitwarden/key-management/biometrics";
 
 import { BiometricErrors, BiometricErrorTypes } from "../../../models/biometricErrors";
 import { BrowserApi } from "../../../platform/browser/browser-api";

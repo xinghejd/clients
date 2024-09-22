@@ -138,7 +138,10 @@ import {
   ImportService,
   ImportServiceAbstraction,
 } from "@bitwarden/importer/core";
-import { BiometricStateService, DefaultBiometricStateService } from "@bitwarden/km/biometrics";
+import {
+  BiometricStateService,
+  DefaultBiometricStateService,
+} from "@bitwarden/key-management/biometrics";
 import { NodeCryptoFunctionService } from "@bitwarden/node/services/node-crypto-function.service";
 import {
   IndividualVaultExportService,
