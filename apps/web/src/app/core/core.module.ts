@@ -4,23 +4,23 @@ import { APP_INITIALIZER, NgModule, Optional, SkipSelf } from "@angular/core";
 import { OrganizationUserApiService } from "@bitwarden/admin-console/common";
 import { SafeProvider, safeProvider } from "@bitwarden/angular/platform/utils/safe-provider";
 import {
-  SECURE_STORAGE,
-  LOCALES_DIRECTORY,
-  SYSTEM_LANGUAGE,
-  MEMORY_STORAGE,
-  OBSERVABLE_MEMORY_STORAGE,
-  OBSERVABLE_DISK_STORAGE,
-  OBSERVABLE_DISK_LOCAL_STORAGE,
-  WINDOW,
-  SafeInjectionToken,
-  DEFAULT_VAULT_TIMEOUT,
   CLIENT_TYPE,
+  DEFAULT_VAULT_TIMEOUT,
+  LOCALES_DIRECTORY,
+  MEMORY_STORAGE,
+  OBSERVABLE_DISK_LOCAL_STORAGE,
+  OBSERVABLE_DISK_STORAGE,
+  OBSERVABLE_MEMORY_STORAGE,
+  SECURE_STORAGE,
+  SYSTEM_LANGUAGE,
+  SafeInjectionToken,
+  WINDOW,
 } from "@bitwarden/angular/services/injection-tokens";
 import { JslibServicesModule } from "@bitwarden/angular/services/jslib-services.module";
 import { ModalService as ModalServiceAbstraction } from "@bitwarden/angular/services/modal.service";
 import {
-  SetPasswordJitService,
   RegistrationFinishService as RegistrationFinishServiceAbstraction,
+  SetPasswordJitService,
 } from "@bitwarden/auth/angular";
 import { InternalUserDecryptionOptionsServiceAbstraction } from "@bitwarden/auth/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
@@ -32,7 +32,6 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { KdfConfigService } from "@bitwarden/common/auth/abstractions/kdf-config.service";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/auth/abstractions/master-password.service.abstraction";
 import { ClientType } from "@bitwarden/common/enums";
-import { BiometricsService } from "@bitwarden/common/key-management/biometrics/biometric.service";
 import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
 import { CryptoService as CryptoServiceAbstraction } from "@bitwarden/common/platform/abstractions/crypto.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
@@ -58,9 +57,10 @@ import {
   ThemeStateService,
 } from "@bitwarden/common/platform/theming/theme-state.service";
 import { VaultTimeout, VaultTimeoutStringType } from "@bitwarden/common/types/vault-timeout.type";
+import { BiometricsService } from "@bitwarden/km/biometrics";
 
 import { PolicyListService } from "../admin-console/core/policy-list.service";
-import { WebSetPasswordJitService, WebRegistrationFinishService } from "../auth";
+import { WebRegistrationFinishService, WebSetPasswordJitService } from "../auth";
 import { AcceptOrganizationInviteService } from "../auth/organization-invite/accept-organization.service";
 import { HtmlStorageService } from "../core/html-storage.service";
 import { I18nService } from "../core/i18n.service";
