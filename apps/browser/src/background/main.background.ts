@@ -195,8 +195,8 @@ import {
 import {
   BiometricStateService,
   DefaultBiometricStateService,
-} from "@bitwarden/key-management/biometrics/biometric-state.service";
-import { BiometricsService } from "@bitwarden/key-management/biometrics/biometric.service";
+  BiometricsService,
+} from "@bitwarden/key-management/biometrics";
 import {
   IndividualVaultExportService,
   IndividualVaultExportServiceAbstraction,
