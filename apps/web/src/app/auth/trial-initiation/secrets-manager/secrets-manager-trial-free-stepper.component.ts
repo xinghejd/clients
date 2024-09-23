@@ -1,7 +1,7 @@
 import { Component, OnInit, ViewChild } from "@angular/core";
 import { UntypedFormBuilder, Validators } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
-import { firstValueFrom, Subject, takeUntil } from "rxjs";
+import { Subject, takeUntil } from "rxjs";
 
 import { OrganizationBillingServiceAbstraction as OrganizationBillingService } from "@bitwarden/common/billing/abstractions/organization-billing.service";
 import { PlanType } from "@bitwarden/common/billing/enums";
@@ -55,7 +55,7 @@ export class SecretsManagerTrialFreeStepperComponent implements OnInit {
   isTrialPaymentEnabled: boolean;
   plan: PlanType;
   org = "";
-  loading = false;
+  createOrganizationLoading = false;
   trialFlowOrgs: string[] = [
     ValidOrgParams.teams,
     ValidOrgParams.teamsStarter,
@@ -67,7 +67,7 @@ export class SecretsManagerTrialFreeStepperComponent implements OnInit {
 
   private destroy$ = new Subject<void>();
   protected enableTrialPayment$ = this.configService.getFeatureFlag$(
-    FeatureFlag.TrialPaymentEnabled,
+    FeatureFlag.TrialPaymentOptional,
   );
 
   constructor(
@@ -86,9 +86,7 @@ export class SecretsManagerTrialFreeStepperComponent implements OnInit {
       if (this.trialFlowOrgs.includes(qParams.org)) {
         this.org = qParams.org;
 
-        if (this.org === ValidOrgParams.families) {
-          this.plan = PlanType.FamiliesAnnually;
-        } else if (this.org === ValidOrgParams.teamsStarter) {
+        if (this.org === ValidOrgParams.teamsStarter) {
           this.plan = PlanType.TeamsStarter;
         } else if (this.org === ValidOrgParams.teams) {
           this.plan = PlanType.TeamsAnnually;
@@ -97,7 +95,9 @@ export class SecretsManagerTrialFreeStepperComponent implements OnInit {
         }
       }
     });
-    this.isTrialPaymentEnabled = await firstValueFrom(this.enableTrialPayment$);
+    this.enableTrialPayment$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((v) => (this.isTrialPaymentEnabled = v));
   }
 
   accountCreated(email: string): void {
@@ -107,7 +107,7 @@ export class SecretsManagerTrialFreeStepperComponent implements OnInit {
   }
 
   async createOrganizationOnTrial(): Promise<void> {
-    this.loading = true;
+    this.createOrganizationLoading = true;
     const response = await this.organizationBillingService.purchaseSubscriptionNoPaymentMethod({
       organization: {
         name: this.formGroup.get("name").value,
@@ -125,7 +125,7 @@ export class SecretsManagerTrialFreeStepperComponent implements OnInit {
 
     this.organizationId = response.id;
     this.subLabels.organizationInfo = response.name;
-    this.loading = false;
+    this.createOrganizationLoading = false;
     this.verticalStepper.next();
   }
 

@@ -34,7 +34,7 @@ export enum FeatureFlag {
   AccountDeprovisioning = "pm-10308-account-deprovisioning",
   NotificationBarAddLoginImprovements = "notification-bar-add-login-improvements",
   AC2476_DeprecateStripeSourcesAPI = "AC-2476-deprecate-stripe-sources-api",
-  TrialPaymentEnabled = "PM-8163-trial-payment",
+  TrialPaymentOptional = "PM-8163-trial-payment",
 }
 
 export type AllowedFeatureFlagTypes = boolean | number | string;
@@ -79,7 +79,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.AccountDeprovisioning]: FALSE,
   [FeatureFlag.NotificationBarAddLoginImprovements]: FALSE,
   [FeatureFlag.AC2476_DeprecateStripeSourcesAPI]: FALSE,
-  [FeatureFlag.TrialPaymentEnabled]: FALSE,
+  [FeatureFlag.TrialPaymentOptional]: FALSE,
 } satisfies Record<FeatureFlag, AllowedFeatureFlagTypes>;
 
 export type DefaultFeatureFlagValueType = typeof DefaultFeatureFlagValue;

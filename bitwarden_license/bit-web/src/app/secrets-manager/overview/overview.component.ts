@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit } from "@angular/core";
+import { Component, computed, OnDestroy, OnInit, Signal, signal } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
 import {
   map,
@@ -13,8 +13,11 @@ import {
   share,
   firstValueFrom,
   concatMap,
+  from,
+  tap,
 } from "rxjs";
 
+import { I18nPipe } from "@bitwarden/angular/platform/pipes/i18n.pipe";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
@@ -88,7 +91,8 @@ export class OverviewComponent implements OnInit, OnDestroy {
   protected trialRemainingDays: number;
   protected defaultPaymentSource: BillingPaymentResponse;
   protected isOwner: boolean;
-  protected isTrailing: boolean;
+  protected isTrialing: boolean;
+  protected i18n: I18nPipe;
   protected onboardingTasks$: Observable<SMOnboardingTasks>;
 
   protected view$: Observable<{
@@ -99,6 +103,7 @@ export class OverviewComponent implements OnInit, OnDestroy {
     tasks: OrganizationTasks;
     counts: OrganizationCounts;
   }>;
+  protected freeTrialMessage: Signal<string> = signal("");
 
   constructor(
     private route: ActivatedRoute,
@@ -207,26 +212,47 @@ export class OverviewComponent implements OnInit, OnDestroy {
         next: async (view) => {
           this.showOnboarding = Object.values(view.tasks).includes(false);
           if (this.organizationId) {
-            await this.identifyOrganizationsWithUpcomingPaymentIssues();
+            await this.locateOrganizationsWithIncomingPaymentIssues();
           }
           this.loading = false;
         },
       });
   }
 
-  private async identifyOrganizationsWithUpcomingPaymentIssues() {
-    const sub = await this.organizationApiService.getSubscription(this.organizationId);
-    const billing = await this.organizationApiService.getBilling(this.organizationId);
-    const trialEndDate = sub?.subscription?.trialEndDate;
-    this.isOwner = this.organization.isOwner;
-    this.isTrailing = sub.subscription.status == "trialing";
-    this.defaultPaymentSource = billing;
-    if (trialEndDate) {
-      const today = new Date();
-      const trialEnd = new Date(trialEndDate);
-      const timeDifference = trialEnd.getTime() - today.getTime();
-      this.trialRemainingDays = Math.ceil(timeDifference / (1000 * 60 * 60 * 24));
-    }
+  private async locateOrganizationsWithIncomingPaymentIssues() {
+    combineLatest([
+      from(this.organizationApiService.getSubscription(this.organizationId)),
+      from(this.organizationApiService.getBilling(this.organizationId)),
+    ])
+      .pipe(
+        tap(([sub, billing]) => {
+          const trialEndDate = sub?.subscription?.trialEndDate;
+          this.isOwner = this.organization?.isOwner;
+          this.isTrialing = sub?.subscription?.status == "trialing";
+          this.defaultPaymentSource = billing;
+          if (trialEndDate) {
+            const today = new Date();
+            const trialEnd = new Date(trialEndDate);
+            const timeDifference = trialEnd.getTime() - today.getTime();
+            this.trialRemainingDays = Math.ceil(timeDifference / (1000 * 60 * 60 * 24));
+            this.updateFreeTrialMsg();
+          }
+        }),
+        takeUntil(this.destroy$),
+      )
+      .subscribe();
+  }
+
+  updateFreeTrialMsg() {
+    this.freeTrialMessage = computed(() => {
+      if (this.trialRemainingDays >= 2) {
+        return this.i18nService.t("freeTrialEndPrompt", this.trialRemainingDays);
+      } else if (this.trialRemainingDays == 1) {
+        return this.i18nService.t("freeTrialEndPromptForOneDayNoOrgName");
+      } else {
+        return this.i18nService.t("freeTrialEndingSoonWithoutOrgName");
+      }
+    });
   }
 
   async navigateToPaymentMethod() {

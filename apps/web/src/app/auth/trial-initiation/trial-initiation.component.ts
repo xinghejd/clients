@@ -125,7 +125,7 @@ export class TrialInitiationComponent implements OnInit, OnDestroy {
 
   private destroy$ = new Subject<void>();
   protected enableTrialPayment$ = this.configService.getFeatureFlag$(
-    FeatureFlag.TrialPaymentEnabled,
+    FeatureFlag.TrialPaymentOptional,
   );
 
   constructor(

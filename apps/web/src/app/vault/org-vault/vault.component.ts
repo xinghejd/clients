@@ -13,6 +13,7 @@ import {
   combineLatest,
   defer,
   firstValueFrom,
+  from,
   lastValueFrom,
   Observable,
   Subject,
@@ -22,6 +23,7 @@ import {
   debounceTime,
   distinctUntilChanged,
   filter,
+  finalize,
   first,
   map,
   shareReplay,
@@ -75,6 +77,7 @@ import { CollectionAssignmentResult, PasswordRepromptService } from "@bitwarden/
 
 import { GroupService, GroupView } from "../../admin-console/organizations/core";
 import { openEntityEventsDialog } from "../../admin-console/organizations/manage/entity-events.component";
+import { TrialFlowService } from "../../core/trialFlowService.service";
 import { SharedModule } from "../../shared";
 import { VaultFilterService } from "../../vault/individual-vault/vault-filter/services/abstractions/vault-filter.service";
 import { VaultFilter } from "../../vault/individual-vault/vault-filter/shared/models/vault-filter.model";
@@ -165,7 +168,7 @@ export class VaultComponent implements OnInit, OnDestroy {
   protected trialRemainingDays: number;
   protected defaultPaymentSource: BillingPaymentResponse;
   protected isOwner: boolean;
-  protected isTrailing: boolean;
+  protected isTrialing: boolean;
   protected filter: RoutedVaultFilterModel = {};
   protected organization: Organization;
   protected allCollections: CollectionAdminView[];
@@ -235,6 +238,7 @@ export class VaultComponent implements OnInit, OnDestroy {
     private toastService: ToastService,
     private accountService: AccountService,
     private organizationApiService: OrganizationApiServiceAbstraction,
+    private trialFlowService: TrialFlowService,
   ) {}
 
   async ngOnInit() {
@@ -635,7 +639,7 @@ export class VaultComponent implements OnInit, OnDestroy {
           // TODO: Remove when implementing new VVR menu
           this.vaultFilterService.reloadCollections(allCollections);
           if (this.organization.id) {
-            await this.identifyOrganizationsWithUpcomingPaymentIssues();
+            await this.flagOrgsWithPaymentIssues();
           }
           this.refreshing = false;
           this.performingInitialLoad = false;
@@ -643,24 +647,25 @@ export class VaultComponent implements OnInit, OnDestroy {
       });
   }
 
-  private async identifyOrganizationsWithUpcomingPaymentIssues() {
-    this.refreshing = true;
-    const sub = await this.organizationApiService.getSubscription(this.organization.id);
-    const billing = await this.organizationApiService.getBilling(this.organization.id);
-    this.isTrailing = sub.subscription.status == "trialing";
-    const trialEndDate = sub?.subscription?.trialEndDate;
-    this.isOwner = this.organization.isOwner;
-    this.defaultPaymentSource = billing;
-    if (trialEndDate) {
-      const today = new Date();
-      const trialEnd = new Date(trialEndDate);
-      const timeDifference = trialEnd.getTime() - today.getTime();
-      this.trialRemainingDays = Math.ceil(timeDifference / (1000 * 60 * 60 * 24));
-    }
-    this.refreshing = false;
+  private async flagOrgsWithPaymentIssues() {
+    combineLatest([
+      from(this.organizationApiService.getSubscription(this.organization.id)),
+      from(this.organizationApiService.getBilling(this.organization.id)),
+    ])
+      .pipe(
+        tap(([sub, billing]) => {
+          this.defaultPaymentSource = billing;
+          const { isOwner, isTrialing, trialRemainingDays } =
+            this.trialFlowService.checkForOrgsWithUpcomingPaymentIssues(sub, this.organization);
+          this.isOwner = isOwner;
+          this.isTrialing = isTrialing;
+          this.trialRemainingDays = trialRemainingDays;
+        }),
+        finalize(() => (this.refreshing = false)),
+        takeUntil(this.destroy$),
+      )
+      .subscribe();
   }
-
-  handleClose() {}
 
   async navigateToPaymentMethod() {
     await this.router.navigate(

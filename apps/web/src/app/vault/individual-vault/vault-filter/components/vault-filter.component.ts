@@ -118,7 +118,7 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
         this.i18nService.t("disabledOrganizationFilterError"),
       );
       const sub = await this.organizationApiService.getSubscription(orgNode.node.id);
-      if (sub?.subscription.status === "unpaid") {
+      if (sub && sub?.subscription?.status === "unpaid") {
         const confirmed = await this.promptForPaymentNavigation(orgNode.node);
         if (confirmed) {
           await this.navigateToPaymentMethod(orgNode.node.id);

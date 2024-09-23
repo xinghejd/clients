@@ -18,6 +18,8 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { DialogService, ToastService } from "@bitwarden/components";
 
+import { TrialFlowService } from "../../core/trialFlowService.service";
+
 import { AddCreditDialogResult, openAddCreditDialog } from "./add-credit-dialog.component";
 import {
   AdjustPaymentDialogResult,
@@ -41,7 +43,7 @@ export class PaymentMethodComponent implements OnInit, OnDestroy {
   organizationId: string;
   isUnpaid = false;
   isOwner: boolean = false;
-  isTrailing: boolean;
+  isTrialing: boolean;
   defaultPaymentSource: BillingPaymentResponse;
   trialRemainingDays: number;
   organization: Organization;
@@ -74,6 +76,7 @@ export class PaymentMethodComponent implements OnInit, OnDestroy {
     private formBuilder: FormBuilder,
     private dialogService: DialogService,
     private toastService: ToastService,
+    private trialFlowService: TrialFlowService,
     private organizationService: OrganizationService,
   ) {
     const state = this.router.getCurrentNavigation()?.extras?.state;
@@ -125,13 +128,13 @@ export class PaymentMethodComponent implements OnInit, OnDestroy {
         organizationSubscriptionPromise,
         organizationPromise,
       ]);
-      this.identifyOrganizationsWithUpcomingPaymentIssues();
+      this.determineOrgsWithUpcomingPaymentIssues();
     } else {
       const billingPromise = this.apiService.getUserBillingPayment();
       const subPromise = this.apiService.getUserSubscription();
 
       [this.billing, this.sub] = await Promise.all([billingPromise, subPromise]);
-      this.identifyOrganizationsWithUpcomingPaymentIssues();
+      this.determineOrgsWithUpcomingPaymentIssues();
     }
     this.isUnpaid = this.subscription?.status === "unpaid" ?? false;
     this.loading = false;
@@ -200,17 +203,13 @@ export class PaymentMethodComponent implements OnInit, OnDestroy {
     });
   };
 
-  identifyOrganizationsWithUpcomingPaymentIssues() {
-    const trialEndDate = this.org?.subscription?.trialEndDate;
-    this.isOwner = this.organization?.isOwner;
-    this.isTrailing = this.org.subscription.status == "trialing";
+  determineOrgsWithUpcomingPaymentIssues() {
     this.defaultPaymentSource = this.billing;
-    if (trialEndDate) {
-      const today = new Date();
-      const trialEnd = new Date(trialEndDate);
-      const timeDifference = trialEnd.getTime() - today.getTime();
-      this.trialRemainingDays = Math.ceil(timeDifference / (1000 * 60 * 60 * 24));
-    }
+    const { isOwner, isTrialing, trialRemainingDays } =
+      this.trialFlowService.checkForOrgsWithUpcomingPaymentIssues(this.org, this.organization);
+    this.isOwner = isOwner;
+    this.isTrialing = isTrialing;
+    this.trialRemainingDays = trialRemainingDays;
   }
 
   async navigateToPaymentMethod() {

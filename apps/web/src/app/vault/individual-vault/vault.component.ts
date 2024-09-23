@@ -120,7 +120,7 @@ import {
 const BroadcasterSubscriptionId = "VaultComponent";
 const SearchTextDebounceInterval = 200;
 
-type PaymentCheckOfOrganization = {
+export type PaymentCheckOfOrganization = {
   isTrialing: boolean;
   isOwner: boolean;
   trialRemainingDays: number;
@@ -183,7 +183,7 @@ export class VaultComponent implements OnInit, OnDestroy {
   private refresh$ = new BehaviorSubject<void>(null);
   private destroy$ = new Subject<void>();
   protected organization: Organization;
-  protected bannersToDisplay: PaymentCheckOfOrganization[] = [];
+  protected organizations: PaymentCheckOfOrganization[] = [];
 
   constructor(
     private syncService: SyncService,
@@ -429,7 +429,7 @@ export class VaultComponent implements OnInit, OnDestroy {
           this.isEmpty = collections?.length === 0 && ciphers?.length === 0;
           if (this.allOrganizations.length > 0) {
             this.refreshing = true;
-            await this.identifyOrganizationsWithUpcomingPaymentIssues();
+            await this.detectUpcomingPaymentProblemsInOrgs();
             this.refreshing = false;
           }
           this.performingInitialLoad = false;
@@ -449,7 +449,7 @@ export class VaultComponent implements OnInit, OnDestroy {
     );
   }
 
-  async identifyOrganizationsWithUpcomingPaymentIssues(): Promise<void> {
+  async detectUpcomingPaymentProblemsInOrgs(): Promise<void> {
     const checks = this.allOrganizations.map(async (org) => {
       const result: PaymentCheckOfOrganization = await this.evaluateOrganizationPaymentConditions(
         org.id,
@@ -463,9 +463,21 @@ export class VaultComponent implements OnInit, OnDestroy {
     });
 
     const results = await Promise.all(checks);
-    this.bannersToDisplay = results.filter(
+    this.organizations = results.filter(
       (result) => result !== null,
     ) as PaymentCheckOfOrganization[];
+  }
+
+  getBannerMessage(organization: PaymentCheckOfOrganization) {
+    return organization?.trialRemainingDays >= 2
+      ? this.i18nService.t(
+          "freeTrialEndPromptAboveTwoDays",
+          organization?.orgName,
+          organization?.trialRemainingDays,
+        )
+      : organization?.trialRemainingDays == 1
+        ? this.i18nService.t("freeTrialEndPromptForOneDay", organization?.orgName)
+        : this.i18nService.t("freeTrialEndPromptForLessThanADay", organization?.orgName);
   }
 
   async evaluateOrganizationPaymentConditions(

@@ -1,4 +1,31 @@
 <bit-banner
+  id="free-trial-expiry"
+  class="-tw-m-6 tw-flex tw-flex-col tw-pb-6"
+  bannerType="premium"
+  icon="bwi-billing"
+  [showClose]="false"
+  *ngFor="let organization of organizations"
+>
+  {{
+    organization?.trialRemainingDays >= 2
+      ? ("freeTrialEndPromptAboveTwoDays"
+        | i18n: organization?.orgName : organization?.trialRemainingDays)
+      : organization?.trialRemainingDays == 1
+        ? ("freeTrialEndPromptForOneDay" | i18n: organization?.orgName)
+        : ("freeTrialEndPromptForLessThanADay" | i18n: organization?.orgName)
+  }}
+  <a
+    bitLink
+    linkType="contrast"
+    (click)="navigateToPaymentMethod(organization?.orgId)"
+    rel="noreferrer noopener"
+    class="tw-cursor-pointer"
+  >
+    {{ "routeToPaymentPageTrigger" | i18n }}
+  </a>
+</bit-banner>
+
+<bit-banner
   id="update-browser-banner"
   class="-tw-m-6 tw-flex tw-flex-col tw-pb-6"
   bannerType="warning"

@@ -3611,7 +3611,7 @@
         "example": "organization name"
       }
     },
-    "freeTrialEndPromptForLessThanADayNoOrgName": {
+    "freeTrialEndingSoonWithoutOrgName": {
       "message": "Your free trial ends today. To maintain your subscription,"
    },
   "routeToPaymentPageTrigger": {

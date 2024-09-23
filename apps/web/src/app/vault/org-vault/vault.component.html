@@ -4,17 +4,22 @@
   icon="bwi-billing"
   bannerType="premium"
   [showClose]="false"
-  *ngIf="!refreshing && !defaultPaymentSource?.paymentSource && isOwner && isTrailing"
-  (onClose)="handleClose()"
+  *ngIf="!refreshing && !defaultPaymentSource?.paymentSource && isOwner && isTrialing"
 >
   {{
     trialRemainingDays >= 2
       ? ("freeTrialEndPrompt" | i18n: trialRemainingDays)
       : trialRemainingDays == 1
         ? ("freeTrialEndPromptForOneDayNoOrgName" | i18n)
-        : ("freeTrialEndPromptForLessThanADayNoOrgName" | i18n)
+        : ("freeTrialEndingSoonWithoutOrgName" | i18n)
   }}
-  <a bitLink linkType="contrast" (click)="navigateToPaymentMethod()" rel="noreferrer noopener">
+  <a
+    bitLink
+    linkType="contrast"
+    (click)="navigateToPaymentMethod()"
+    class="tw-cursor-pointer"
+    rel="noreferrer noopener"
+  >
     {{ "routeToPaymentPageTrigger" | i18n }}
   </a>
 </bit-banner>

@@ -1,10 +1,12 @@
-import { Component, OnInit } from "@angular/core";
+import { Component, Input, OnInit } from "@angular/core";
+import { Router } from "@angular/router";
 import { Observable } from "rxjs";
 
 import { BannerModule } from "@bitwarden/components";
 
 import { VerifyEmailComponent } from "../../../auth/settings/verify-email.component";
 import { SharedModule } from "../../../shared";
+import { PaymentCheckOfOrganization } from "../vault.component";
 
 import { VaultBannersService, VisibleVaultBanner } from "./services/vault-banners.service";
 
@@ -19,8 +21,12 @@ export class VaultBannersComponent implements OnInit {
   visibleBanners: VisibleVaultBanner[] = [];
   premiumBannerVisible$: Observable<boolean>;
   VisibleVaultBanner = VisibleVaultBanner;
+  @Input() organizations: PaymentCheckOfOrganization[] = [];
 
-  constructor(private vaultBannerService: VaultBannersService) {
+  constructor(
+    private vaultBannerService: VaultBannersService,
+    private router: Router,
+  ) {
     this.premiumBannerVisible$ = this.vaultBannerService.shouldShowPremiumBanner$;
   }
 
@@ -32,6 +38,17 @@ export class VaultBannersComponent implements OnInit {
     await this.vaultBannerService.dismissBanner(banner);
 
     await this.determineVisibleBanners();
+  }
+
+  async navigateToPaymentMethod(organizationId: string): Promise<void> {
+    const navigationExtras = {
+      state: { launchPaymentModalAutomatically: true },
+    };
+
+    await this.router.navigate(
+      ["organizations", organizationId, "billing", "payment-method"],
+      navigationExtras,
+    );
   }
 
   /** Determine which banners should be present */
