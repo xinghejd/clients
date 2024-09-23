@@ -1,5 +1,5 @@
 {
-  "name": "@bitwarden/km",
+  "name": "@bitwarden/key-management",
   "version": "0.0.0",
   "description": "Common code used across Bitwarden JavaScript projects.",
   "keywords": [
