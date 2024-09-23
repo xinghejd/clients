@@ -122,9 +122,11 @@ export class VaultCipherRowComponent implements OnInit {
     }
 
     if (this.cipher.collectionIds.length === 1) {
-      const filteredCollection = this.collections.filter((collection) => {
-        return collection.id === this.cipher.collectionIds[0];
-      })[0];
+      const filteredCollection = this.collections.find((collection) => {
+        if (collection.id === this.cipher.collectionIds[0]) {
+          return collection;
+        }
+      });
       return this.i18nService.t(
         this.permissionList.find((p) => p.perm === convertToPermission(filteredCollection))
           ?.labelId,
