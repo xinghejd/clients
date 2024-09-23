@@ -43,9 +43,7 @@ import { OrganizationService } from "@bitwarden/common/admin-console/abstraction
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { EventType } from "@bitwarden/common/enums";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
@@ -172,17 +170,8 @@ export class VaultComponent implements OnInit, OnDestroy {
 
   protected orgRevokedUsers: OrganizationUserUserDetailsResponse[];
 
-  private _restrictProviderAccessFlagEnabled: boolean;
-  protected get restrictProviderAccessEnabled(): boolean {
-    return this._restrictProviderAccessFlagEnabled;
-  }
-
   protected get hideVaultFilters(): boolean {
-    return (
-      this.restrictProviderAccessEnabled &&
-      this.organization?.isProviderUser &&
-      !this.organization?.isMember
-    );
+    return this.organization?.isProviderUser && !this.organization?.isMember;
   }
 
   private searchText$ = new Subject<string>();
@@ -218,7 +207,6 @@ export class VaultComponent implements OnInit, OnDestroy {
     private apiService: ApiService,
     private collectionService: CollectionService,
     private organizationUserApiService: OrganizationUserApiService,
-    protected configService: ConfigService,
     private toastService: ToastService,
     private accountService: AccountService,
   ) {}
@@ -228,10 +216,6 @@ export class VaultComponent implements OnInit, OnDestroy {
       this.platformUtilsService.isSelfHost()
         ? "trashCleanupWarningSelfHosted"
         : "trashCleanupWarning",
-    );
-
-    this._restrictProviderAccessFlagEnabled = await this.configService.getFeatureFlag(
-      FeatureFlag.RestrictProviderAccess,
     );
 
     const filter$ = this.routedVaultFilterService.filter$;
@@ -325,7 +309,7 @@ export class VaultComponent implements OnInit, OnDestroy {
     this.editableCollections$ = this.allCollectionsWithoutUnassigned$.pipe(
       map((collections) => {
         // Users that can edit all ciphers can implicitly add to / edit within any collection
-        if (this.organization.canEditAllCiphers(this.restrictProviderAccessEnabled)) {
+        if (this.organization.canEditAllCiphers) {
           return collections;
         }
         // The user is only allowed to add/edit items to assigned collections that are not readonly
@@ -362,16 +346,12 @@ export class VaultComponent implements OnInit, OnDestroy {
 
         // Restricted providers (who are not members) do not have access org cipher endpoint below
         // Return early to avoid 404 response
-        if (
-          this.restrictProviderAccessEnabled &&
-          !organization.isMember &&
-          organization.isProviderUser
-        ) {
+        if (!organization.isMember && organization.isProviderUser) {
           return [];
         }
 
         // If the user can edit all ciphers for the organization then fetch them ALL.
-        if (organization.canEditAllCiphers(this.restrictProviderAccessEnabled)) {
+        if (organization.canEditAllCiphers) {
           ciphers = await this.cipherService.getAllFromApiForOrganization(organization.id);
         } else {
           // Otherwise, only fetch ciphers they have access to (includes unassigned for admins).
@@ -476,11 +456,8 @@ export class VaultComponent implements OnInit, OnDestroy {
     ]).pipe(
       map(([filter, collection, organization]) => {
         return (
-          (filter.collectionId === Unassigned &&
-            !organization.canEditUnassignedCiphers(this.restrictProviderAccessEnabled)) ||
-          (!organization.canEditAllCiphers(this.restrictProviderAccessEnabled) &&
-            collection != undefined &&
-            !collection.node.assigned)
+          (filter.collectionId === Unassigned && !organization.canEditUnassignedCiphers) ||
+          (!organization.canEditAllCiphers && collection != undefined && !collection.node.assigned)
         );
       }),
       shareReplay({ refCount: true, bufferSize: 1 }),
@@ -517,20 +494,23 @@ export class VaultComponent implements OnInit, OnDestroy {
 
     firstSetup$
       .pipe(
-        switchMap(() => combineLatest([this.route.queryParams, organization$])),
-        switchMap(async ([qParams, organization]) => {
+        switchMap(() =>
+          combineLatest([this.route.queryParams, allCipherMap$, allCollections$, organization$]),
+        ),
+        switchMap(async ([qParams, allCiphersMap, allCollections]) => {
           const cipherId = getCipherIdFromParams(qParams);
           if (!cipherId) {
             return;
           }
 
-          const canEditCipher =
-            organization.canEditAllCiphers(this.restrictProviderAccessEnabled) ||
-            (await firstValueFrom(allCipherMap$))[cipherId] != undefined;
+          const cipher = allCiphersMap[cipherId];
+          const cipherCollections = allCollections.filter((c) =>
+            cipher.collectionIds.includes(c.id),
+          );
 
-          if (canEditCipher) {
+          if (cipher) {
             if (qParams.action === "view") {
-              await this.viewCipherById(cipherId);
+              await this.viewCipher(cipher, cipherCollections);
             } else {
               await this.editCipherId(cipherId);
             }
@@ -758,15 +738,9 @@ export class VaultComponent implements OnInit, OnDestroy {
       this.allCollectionsWithoutUnassigned$.pipe(
         map((c) => {
           return c.sort((a, b) => {
-            if (
-              a.canEditItems(this.organization, this.restrictProviderAccessEnabled) &&
-              !b.canEditItems(this.organization, this.restrictProviderAccessEnabled)
-            ) {
+            if (a.canEditItems(this.organization) && !b.canEditItems(this.organization)) {
               return -1;
-            } else if (
-              !a.canEditItems(this.organization, this.restrictProviderAccessEnabled) &&
-              b.canEditItems(this.organization, this.restrictProviderAccessEnabled)
-            ) {
+            } else if (!a.canEditItems(this.organization) && b.canEditItems(this.organization)) {
               return 1;
             } else {
               return a.name.localeCompare(b.name);
@@ -802,10 +776,6 @@ export class VaultComponent implements OnInit, OnDestroy {
         comp.collectionIds = [this.activeFilter.collectionId];
       }
     });
-  }
-
-  async navigateToCipher(cipher: CipherView) {
-    this.go({ itemId: cipher?.id });
   }
 
   async editCipher(
@@ -871,58 +841,46 @@ export class VaultComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Takes a CipherView and opens a dialog where it can be viewed (wraps viewCipherById).
-   * @param cipher - CipherView
-   * @returns Promise<void>
+   * Takes a cipher and its assigned collections to opens dialog where it can be viewed.
+   * @param cipher - the cipher to view
+   * @param collections - the collections the cipher is assigned to
    */
-  viewCipher(cipher: CipherView) {
-    return this.viewCipherById(cipher.id);
-  }
-
-  /**
-   * Takes a cipher id and opens a dialog where it can be viewed.
-   * @param id - string
-   * @returns Promise<void>
-   */
-  async viewCipherById(id: string) {
-    const cipher = await this.cipherService.get(id);
-    // if cipher exists (cipher is null when new) and MP reprompt
-    // is on for this cipher, then show password reprompt.
-    if (
-      cipher &&
-      cipher.reprompt !== 0 &&
-      !(await this.passwordRepromptService.showPasswordPrompt())
-    ) {
-      // didn't pass password prompt, so don't open add / edit modal.
+  async viewCipher(cipher: CipherView, collections: CollectionView[] = []) {
+    if (!cipher) {
       this.go({ cipherId: null, itemId: null });
       return;
     }
 
-    const activeUserId = await firstValueFrom(
-      this.accountService.activeAccount$.pipe(map((a) => a?.id)),
-    );
-    // Decrypt the cipher.
-    const cipherView = await cipher.decrypt(
-      await this.cipherService.getKeyForCipherKeyDecryption(cipher, activeUserId),
-    );
+    if (cipher.reprompt !== 0 && !(await this.passwordRepromptService.showPasswordPrompt())) {
+      // didn't pass password prompt, so don't open the dialog
+      this.go({ cipherId: null, itemId: null });
+      return;
+    }
 
-    // Open the dialog.
     const dialogRef = openViewCipherDialog(this.dialogService, {
-      data: { cipher: cipherView },
+      data: {
+        cipher: cipher,
+        collections: collections,
+        disableEdit: !cipher.edit && !this.organization.canEditAllCiphers,
+      },
     });
 
     // Wait for the dialog to close.
     const result: ViewCipherDialogCloseResult = await lastValueFrom(dialogRef.closed);
 
+    // If the dialog was closed by clicking the edit button, navigate to open the edit dialog.
+    if (result?.action === ViewCipherDialogResult.Edited) {
+      this.go({ itemId: cipher.id, action: "edit" });
+      return;
+    }
+
     // If the dialog was closed by deleting the cipher, refresh the vault.
-    if (result.action === ViewCipherDialogResult.deleted) {
+    if (result?.action === ViewCipherDialogResult.Deleted) {
       this.refresh();
     }
 
-    // If the dialog was closed by any other action (close button, escape key, etc), navigate back to the vault.
-    if (!result.action) {
-      this.go({ cipherId: null, itemId: null, action: null });
-    }
+    // Clear the query params when the view dialog closes
+    this.go({ cipherId: null, itemId: null, action: null });
   }
 
   async cloneCipher(cipher: CipherView) {
@@ -1001,9 +959,7 @@ export class VaultComponent implements OnInit, OnDestroy {
     const unassignedCiphers: string[] = [];
 
     // If user has edit all Access no need to check for unassigned ciphers
-    const canEditAll = this.organization.canEditAllCiphers(this.restrictProviderAccessEnabled);
-
-    if (canEditAll) {
+    if (this.organization.canEditAllCiphers) {
       ciphers.map((cipher) => {
         editAccessCiphers.push(cipher.id);
       });
@@ -1042,7 +998,7 @@ export class VaultComponent implements OnInit, OnDestroy {
   }
 
   async deleteCipher(c: CipherView): Promise<boolean> {
-    if (!c.edit && !this.organization.canEditAllCiphers(this.restrictProviderAccessEnabled)) {
+    if (!c.edit && !this.organization.canEditAllCiphers) {
       this.showMissingPermissionsError();
       return;
     }
@@ -1146,9 +1102,7 @@ export class VaultComponent implements OnInit, OnDestroy {
     const canDeleteCollections =
       collections == null || collections.every((c) => c.canDelete(organization));
     const canDeleteCiphers =
-      ciphers == null ||
-      ciphers.every((c) => c.edit) ||
-      this.organization.canEditAllCiphers(this.restrictProviderAccessEnabled);
+      ciphers == null || ciphers.every((c) => c.edit) || this.organization.canEditAllCiphers;
 
     if (!canDeleteCiphers || !canDeleteCollections) {
       this.showMissingPermissionsError();
@@ -1351,8 +1305,7 @@ export class VaultComponent implements OnInit, OnDestroy {
   }
 
   protected deleteCipherWithServer(id: string, permanent: boolean, isUnassigned: boolean) {
-    const asAdmin =
-      this.organization?.canEditAllCiphers(this.restrictProviderAccessEnabled) || isUnassigned;
+    const asAdmin = this.organization?.canEditAllCiphers || isUnassigned;
     return permanent
       ? this.cipherService.deleteWithServer(id, asAdmin)
       : this.cipherService.softDeleteWithServer(id, asAdmin);

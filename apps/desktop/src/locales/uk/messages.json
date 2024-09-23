@@ -560,6 +560,18 @@
   "settings": {
     "message": "Налаштування"
   },
+  "accountEmail": {
+    "message": "Е-пошта облікового запису"
+  },
+  "requestHint": {
+    "message": "Підказка для запиту"
+  },
+  "requestPasswordHint": {
+    "message": "Підказка для запиту пароля"
+  },
+  "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
+    "message": "Введіть адресу е-пошти свого облікового запису і вам буде надіслано підказку для пароля"
+  },
   "passwordHint": {
     "message": "Підказка для пароля"
   },
@@ -930,6 +942,9 @@
   "vaultTimeout": {
     "message": "Час очікування сховища"
   },
+  "vaultTimeout1": {
+    "message": "Час очікування"
+  },
   "vaultTimeoutDesc": {
     "message": "Оберіть дію, яка виконається після завершення часу очікування сховища."
   },
@@ -1285,6 +1300,9 @@
       }
     }
   },
+  "copySuccessful": {
+    "message": "Успішно скопійовано"
+  },
   "errorRefreshingAccessToken": {
     "message": "Помилка оновлення токена доступу"
   },
@@ -1552,7 +1570,7 @@
   "recommendedForSecurity": {
     "message": "Рекомендовано для безпеки."
   },
-  "lockWithMasterPassOnRestart": {
+  "lockWithMasterPassOnRestart1": {
     "message": "Блокувати головним паролем при перезапуску"
   },
   "deleteAccount": {
@@ -1630,7 +1648,7 @@
   },
   "lock": {
     "message": "Блокувати",
-    "description": "Verb form: to make secure or inaccesible by"
+    "description": "Verb form: to make secure or inaccessible by"
   },
   "trash": {
     "message": "Смітник",
@@ -2084,8 +2102,8 @@
   "minutes": {
     "message": "Хвилин"
   },
-  "vaultTimeoutPolicyInEffect": {
-    "message": "Політикою вашої організації встановлено максимальний дозволений час очікування сховища $HOURS$ годин, $MINUTES$ хвилин.",
+  "vaultTimeoutPolicyInEffect1": {
+    "message": "$HOURS$ год і $MINUTES$ хв максимум.",
     "placeholders": {
       "hours": {
         "content": "$1",
@@ -3059,7 +3077,16 @@
   "textSends": {
     "message": "Відправлення тексту"
   },
+  "allowScreenshots": {
+    "message": "Дозволити захоплення екрана"
+  },
+  "allowScreenshotsDesc": {
+    "message": "Дозволити захоплення екрана для комп'ютерної програми Bitwarden."
+  },
   "ssoError": {
     "message": "Не знайдено вільних портів для цього входу SSO."
+  },
+  "fileSavedToDevice": {
+    "message": "Файл збережено на пристрої. Ви можете його знайти у теці завантажень."
   }
 }
