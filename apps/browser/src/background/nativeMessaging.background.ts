@@ -3,6 +3,7 @@ import { delay, filter, firstValueFrom, from, map, race, timer } from "rxjs";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { BiometricStateService } from "@bitwarden/common/key-management/biometrics/biometric-state.service";
+import { BiometricsCommands } from "@bitwarden/common/key-management/biometrics/biometrics-commands";
 import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
 import { CryptoFunctionService } from "@bitwarden/common/platform/abstractions/crypto-function.service";
 import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
@@ -16,7 +17,6 @@ import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/sym
 import { BrowserApi } from "../platform/browser/browser-api";
 
 import RuntimeBackground from "./runtime.background";
-import { BiometricsCommands } from "@bitwarden/common/key-management/biometrics/biometrics-commands";
 
 const MessageValidTimeout = 10 * 1000;
 const MessageNoResponseTimeout = 60 * 1000;
