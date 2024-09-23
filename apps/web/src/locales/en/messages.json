@@ -6047,8 +6047,8 @@
   "billingSyncKey": {
     "message": "Billing sync token"
   },
-  "billingTokenSyncDesc": {
-    "message": "Billing sync unlocks Families sponsorships and automatic license syncing on your server. After making updates in the Bitwarden cloud server, select Sync License to apply changes."
+  "automaticBillingSyncDesc": {
+    "message": "Automatic sync unlocks Families sponsorships and automatic license syncing on your server. After making updates in the Bitwarden cloud server, select Sync License to apply changes."
   },
   "active": {
     "message": "Active"
