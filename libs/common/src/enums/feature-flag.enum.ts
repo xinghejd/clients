@@ -35,6 +35,7 @@ export enum FeatureFlag {
   NotificationBarAddLoginImprovements = "notification-bar-add-login-improvements",
   AC2476_DeprecateStripeSourcesAPI = "AC-2476-deprecate-stripe-sources-api",
   CipherKeyEncryption = "cipher-key-encryption",
+  LimitCollectionCreationDeletionSplit = "pm-10863-limit-collection-creation-deletion-split",
 }
 
 export type AllowedFeatureFlagTypes = boolean | number | string;
@@ -80,6 +81,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.NotificationBarAddLoginImprovements]: FALSE,
   [FeatureFlag.AC2476_DeprecateStripeSourcesAPI]: FALSE,
   [FeatureFlag.CipherKeyEncryption]: FALSE,
+  [FeatureFlag.LimitCollectionCreationDeletionSplit]: FALSE,
 } satisfies Record<FeatureFlag, AllowedFeatureFlagTypes>;
 
 export type DefaultFeatureFlagValueType = typeof DefaultFeatureFlagValue;
