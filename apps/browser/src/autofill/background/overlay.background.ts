@@ -315,12 +315,9 @@ export class OverlayBackground implements OverlayBackgroundInterface {
   }
 
   async handleOverlayCiphersUpdate(updateOverlayCiphersParams: UpdateOverlayCiphersParams) {
-    if (!updateOverlayCiphersParams) {
-      return;
-    }
-
     const { updateAllCipherTypes, openInlineMenu } = updateOverlayCiphersParams;
     const currentTab = await BrowserApi.getTabFromCurrentWindowId();
+
     if (this.focusedFieldData && currentTab?.id !== this.focusedFieldData.tabId) {
       const focusedFieldTab = await BrowserApi.getTab(this.focusedFieldData.tabId);
       this.closeInlineMenu({ tab: focusedFieldTab }, { forceCloseInlineMenu: true });
