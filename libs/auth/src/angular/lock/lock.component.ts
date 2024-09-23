@@ -253,7 +253,8 @@ export class LockV2Component implements OnInit, OnDestroy {
       this.biometricStateService.promptAutomatically$,
     );
 
-    // TODO: work with product to make autoprompt experience consistent.
+    // TODO: we need to make our biometric autoprompt experience consistent between the
+    // desktop and extension.
     if (this.clientType === "desktop") {
       if (autoPromptBiometrics) {
         await this.desktopAutoPromptBiometrics();
@@ -274,7 +275,7 @@ export class LockV2Component implements OnInit, OnDestroy {
   // Note: this submit method is only used for unlock methods that require a form and user input.
   // For biometrics unlock, the method is called directly.
   submit = async (): Promise<void> => {
-    if (this.unlockOptions.pin.enabled) {
+    if (this.activeUnlockOption === UnlockOption.Pin) {
       return await this.unlockViaPin();
     }
 
