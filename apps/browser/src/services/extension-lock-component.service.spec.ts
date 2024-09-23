@@ -124,7 +124,7 @@ describe("ExtensionLockComponentService", () => {
       hasMasterPassword: boolean;
       osSupportsBiometric: boolean;
       biometricLockSet: boolean;
-      hasUserKeyStored: boolean;
+      hasBiometricEncryptedUserKeyStored: boolean;
       platformSupportsSecureStorage: boolean;
       pinDecryptionAvailable: boolean;
     }
@@ -136,7 +136,7 @@ describe("ExtensionLockComponentService", () => {
           hasMasterPassword: true,
           osSupportsBiometric: true,
           biometricLockSet: true,
-          hasUserKeyStored: true,
+          hasBiometricEncryptedUserKeyStored: true,
           platformSupportsSecureStorage: true,
           pinDecryptionAvailable: true,
         },
@@ -159,7 +159,7 @@ describe("ExtensionLockComponentService", () => {
           hasMasterPassword: false,
           osSupportsBiometric: true,
           biometricLockSet: true,
-          hasUserKeyStored: true,
+          hasBiometricEncryptedUserKeyStored: true,
           platformSupportsSecureStorage: true,
           pinDecryptionAvailable: true,
         },
@@ -182,7 +182,7 @@ describe("ExtensionLockComponentService", () => {
           hasMasterPassword: false,
           osSupportsBiometric: true,
           biometricLockSet: true,
-          hasUserKeyStored: true,
+          hasBiometricEncryptedUserKeyStored: true,
           platformSupportsSecureStorage: false,
           pinDecryptionAvailable: false,
         },
@@ -205,7 +205,7 @@ describe("ExtensionLockComponentService", () => {
           hasMasterPassword: false,
           osSupportsBiometric: true,
           biometricLockSet: true,
-          hasUserKeyStored: false,
+          hasBiometricEncryptedUserKeyStored: false,
           platformSupportsSecureStorage: false,
           pinDecryptionAvailable: false,
         },
@@ -228,7 +228,7 @@ describe("ExtensionLockComponentService", () => {
           hasMasterPassword: false,
           osSupportsBiometric: true,
           biometricLockSet: false,
-          hasUserKeyStored: true,
+          hasBiometricEncryptedUserKeyStored: true,
           platformSupportsSecureStorage: true,
           pinDecryptionAvailable: false,
         },
@@ -251,7 +251,7 @@ describe("ExtensionLockComponentService", () => {
           hasMasterPassword: false,
           osSupportsBiometric: true,
           biometricLockSet: true,
-          hasUserKeyStored: false,
+          hasBiometricEncryptedUserKeyStored: false,
           platformSupportsSecureStorage: true,
           pinDecryptionAvailable: false,
         },
@@ -274,7 +274,7 @@ describe("ExtensionLockComponentService", () => {
           hasMasterPassword: false,
           osSupportsBiometric: false,
           biometricLockSet: true,
-          hasUserKeyStored: true,
+          hasBiometricEncryptedUserKeyStored: true,
           platformSupportsSecureStorage: true,
           pinDecryptionAvailable: false,
         },
@@ -307,7 +307,9 @@ describe("ExtensionLockComponentService", () => {
       // Biometrics
       biometricsService.supportsBiometric.mockResolvedValue(mockInputs.osSupportsBiometric);
       vaultTimeoutSettingsService.isBiometricLockSet.mockResolvedValue(mockInputs.biometricLockSet);
-      cryptoService.hasUserKeyStored.mockResolvedValue(mockInputs.hasUserKeyStored);
+      cryptoService.hasUserKeyStored.mockResolvedValue(
+        mockInputs.hasBiometricEncryptedUserKeyStored,
+      );
       platformUtilsService.supportsSecureStorage.mockReturnValue(
         mockInputs.platformSupportsSecureStorage,
       );
