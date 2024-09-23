@@ -77,7 +77,7 @@ import { CollectionAssignmentResult, PasswordRepromptService } from "@bitwarden/
 
 import { GroupService, GroupView } from "../../admin-console/organizations/core";
 import { openEntityEventsDialog } from "../../admin-console/organizations/manage/entity-events.component";
-import { TrialFlowService } from "../../core/trialFlowService.service";
+import { TrialFlowService } from "../../core/trial-flow.service";
 import { SharedModule } from "../../shared";
 import { VaultFilterService } from "../../vault/individual-vault/vault-filter/services/abstractions/vault-filter.service";
 import { VaultFilter } from "../../vault/individual-vault/vault-filter/shared/models/vault-filter.model";

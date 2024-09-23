@@ -18,8 +18,7 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { DialogService, ToastService } from "@bitwarden/components";
 
-import { TrialFlowService } from "../../core/trialFlowService.service";
-
+import { TrialFlowService } from "./../../core/trial-flow.service";
 import { AddCreditDialogResult, openAddCreditDialog } from "./add-credit-dialog.component";
 import {
   AdjustPaymentDialogResult,
