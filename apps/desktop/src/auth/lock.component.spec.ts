@@ -19,8 +19,6 @@ import { KdfConfigService } from "@bitwarden/common/auth/abstractions/kdf-config
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/auth/abstractions/master-password.service.abstraction";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { FakeMasterPasswordService } from "@bitwarden/common/auth/services/master-password/fake-master-password.service";
-import { BiometricStateService } from "@bitwarden/common/key-management/biometrics/biometric-state.service";
-import { BiometricsService as AbstractBiometricService } from "@bitwarden/common/key-management/biometrics/biometric.service";
 import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
 import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
@@ -35,6 +33,10 @@ import { PasswordStrengthServiceAbstraction } from "@bitwarden/common/tools/pass
 import { UserId } from "@bitwarden/common/types/guid";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { DialogService, ToastService } from "@bitwarden/components";
+import {
+  BiometricsService as AbstractBiometricService,
+  BiometricStateService,
+} from "@bitwarden/key-management";
 
 import { BiometricsService } from "../key-management/biometrics/biometrics.service";
 

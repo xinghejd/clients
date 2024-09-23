@@ -5,10 +5,10 @@ import * as url from "url";
 import { app, BrowserWindow, ipcMain, nativeTheme, screen, session } from "electron";
 import { firstValueFrom } from "rxjs";
 
-import { BiometricStateService } from "@bitwarden/common/key-management/biometrics/biometric-state.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { AbstractStorageService } from "@bitwarden/common/platform/abstractions/storage.service";
 import { processisolations } from "@bitwarden/desktop-napi";
+import { BiometricStateService } from "@bitwarden/key-management";
 
 import { WindowState } from "../platform/models/domain/window-state";
 import { DesktopSettingsService } from "../platform/services/desktop-settings.service";
@@ -67,6 +67,13 @@ export class WindowMain {
       // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.session.clearCache();
       this.logService.info("Render process reloaded");
+    });
+
+    this.desktopSettingsService.allowScreenshots$.subscribe((allowed) => {
+      if (this.win == null) {
+        return;
+      }
+      this.win.setContentProtection(!allowed);
     });
 
     return new Promise<void>((resolve, reject) => {
@@ -269,6 +276,14 @@ export class WindowMain {
         windowIsFocused: true,
       });
     });
+
+    firstValueFrom(this.desktopSettingsService.allowScreenshots$)
+      .then((allowScreenshots) => {
+        this.win.setContentProtection(!allowScreenshots);
+      })
+      .catch((e) => {
+        this.logService.error(e);
+      });
 
     if (this.createWindowCallback) {
       this.createWindowCallback(this.win);

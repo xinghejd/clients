@@ -1,8 +1,8 @@
-import { BiometricStateService } from "@bitwarden/common/key-management/biometrics/biometric-state.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { UserId } from "@bitwarden/common/types/guid";
+import { BiometricStateService } from "@bitwarden/key-management";
 
 import { WindowMain } from "../../main/window.main";
 
@@ -170,8 +170,12 @@ export class BiometricsService extends DesktopBiometricsService {
     try {
       response = await callback();
       restartReload ||= restartReloadCallback(response);
-    } catch {
-      restartReload = true;
+    } catch (error) {
+      if (error.message === "Biometric authentication failed") {
+        restartReload = false;
+      } else {
+        restartReload = true;
+      }
     }
 
     if (restartReload) {
