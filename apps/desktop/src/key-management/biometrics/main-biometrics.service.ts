@@ -101,7 +101,7 @@ export class MainBiometricsService extends DesktopBiometricsService {
     return BiometricsStatus.Available;
   }
 
-  async authenticateBiometric(): Promise<boolean> {
+  override async authenticateBiometric(): Promise<boolean> {
     return await this.osBiometricsService.authenticateBiometric();
   }
 
@@ -149,10 +149,19 @@ export class MainBiometricsService extends DesktopBiometricsService {
     );
   }
 
+  /**
+   * Set whether to auto-prompt the user for biometric unlock; this can be used to prevent auto-prompting being initiated by a process reload.
+   * Reasons for enabling auto prompt include: Starting the app, un-minimizing the app, manually account switching
+   * @param value Whether to auto-prompt the user for biometric unlock
+   */
   async setShouldAutopromptNow(value: boolean): Promise<void> {
     this.shouldAutoPrompt = value;
   }
 
+  /**
+   * Get whether to auto-prompt the user for biometric unlock; If the user is auto-prompted, setAutopromptNow should be immediately called with false in order to prevent another auto-prompt.
+   * @returns Whether to auto-prompt the user for biometric unlock
+   */
   async getShouldAutopromptNow(): Promise<boolean> {
     return this.shouldAutoPrompt;
   }
