@@ -94,7 +94,14 @@ export class Fido2AuthenticatorService implements Fido2AuthenticatorServiceAbstr
       }
 
       await userInterfaceSession.ensureUnlockedVault();
-      await this.syncService.fullSync(false);
+
+      // Avoid syncing if we did it reasonably soon as the only reason for syncing is to validate excludeCredentials
+      const lastSync = await firstValueFrom(this.syncService.activeUserLastSync$());
+      const threshold = new Date().getTime() - 1000 * 60 * 30; // 30 minutes ago
+
+      if (!lastSync || lastSync.getTime() < threshold) {
+        await this.syncService.fullSync(false);
+      }
 
       const existingCipherIds = await this.findExcludedCredentials(
         params.excludeCredentialDescriptorList,
@@ -160,6 +167,7 @@ export class Fido2AuthenticatorService implements Fido2AuthenticatorServiceAbstr
         }
         const reencrypted = await this.cipherService.encrypt(cipher, activeUserId);
         await this.cipherService.updateWithServer(reencrypted);
+        await this.cipherService.clearCache(activeUserId);
         credentialId = fido2Credential.credentialId;
       } catch (error) {
         this.logService?.error(
@@ -222,15 +230,17 @@ export class Fido2AuthenticatorService implements Fido2AuthenticatorServiceAbstr
       let cipherOptions: CipherView[];
 
       await userInterfaceSession.ensureUnlockedVault();
-      await this.syncService.fullSync(false);
 
-      if (params.allowCredentialDescriptorList?.length > 0) {
-        cipherOptions = await this.findCredentialsById(
-          params.allowCredentialDescriptorList,
-          params.rpId,
-        );
-      } else {
-        cipherOptions = await this.findCredentialsByRp(params.rpId);
+      // Try to find the passkey locally before causing a sync to speed things up
+      // only skip syncing if we found credentials AND all of them have a counter = 0
+      cipherOptions = await this.findCredential(params, cipherOptions);
+      if (
+        cipherOptions.length === 0 ||
+        cipherOptions.some((c) => c.login.fido2Credentials.some((p) => p.counter > 0))
+      ) {
+        // If no passkey is found, or any had a non-zero counter, sync to get the latest data
+        await this.syncService.fullSync(false);
+        cipherOptions = await this.findCredential(params, cipherOptions);
       }
 
       if (cipherOptions.length === 0) {
@@ -243,12 +253,18 @@ export class Fido2AuthenticatorService implements Fido2AuthenticatorServiceAbstr
       }
 
       let response = { cipherId: cipherOptions[0].id, userVerified: false };
+      const masterPasswordRepromptRequired = cipherOptions.some(
+        (cipher) => cipher.reprompt !== CipherRepromptType.None,
+      );
 
-      if (this.requiresUserVerificationPrompt(params, cipherOptions)) {
+      if (
+        this.requiresUserVerificationPrompt(params, cipherOptions, masterPasswordRepromptRequired)
+      ) {
         response = await userInterfaceSession.pickCredential({
           cipherIds: cipherOptions.map((cipher) => cipher.id),
           userVerification: params.requireUserVerification,
           assumeUserPresence: params.assumeUserPresence,
+          masterPasswordRepromptRequired,
         });
       }
 
@@ -292,6 +308,7 @@ export class Fido2AuthenticatorService implements Fido2AuthenticatorServiceAbstr
           );
           const encrypted = await this.cipherService.encrypt(selectedCipher, activeUserId);
           await this.cipherService.updateWithServer(encrypted);
+          await this.cipherService.clearCache(activeUserId);
         }
 
         const authenticatorData = await generateAuthData({
@@ -327,16 +344,32 @@ export class Fido2AuthenticatorService implements Fido2AuthenticatorServiceAbstr
     }
   }
 
+  private async findCredential(
+    params: Fido2AuthenticatorGetAssertionParams,
+    cipherOptions: CipherView[],
+  ) {
+    if (params.allowCredentialDescriptorList?.length > 0) {
+      cipherOptions = await this.findCredentialsById(
+        params.allowCredentialDescriptorList,
+        params.rpId,
+      );
+    } else {
+      cipherOptions = await this.findCredentialsByRp(params.rpId);
+    }
+    return cipherOptions;
+  }
+
   private requiresUserVerificationPrompt(
     params: Fido2AuthenticatorGetAssertionParams,
     cipherOptions: CipherView[],
+    masterPasswordRepromptRequired: boolean,
   ): boolean {
     return (
       params.requireUserVerification ||
       !params.assumeUserPresence ||
       cipherOptions.length > 1 ||
       cipherOptions.length === 0 ||
-      cipherOptions.some((cipher) => cipher.reprompt !== CipherRepromptType.None)
+      masterPasswordRepromptRequired
     );
   }
 

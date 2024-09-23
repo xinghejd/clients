@@ -143,6 +143,9 @@
   "securityCode": {
     "message": "Cryptogramme visuel (CVV)"
   },
+  "securityCodeSlashCVV": {
+    "message": "Code de sécurité / CVV"
+  },
   "identityName": {
     "message": "Identité"
   },
@@ -266,9 +269,18 @@
   "cfTypeBoolean": {
     "message": "Booléen"
   },
+  "cfTypeCheckbox": {
+    "message": "Case à cocher"
+  },
   "cfTypeLinked": {
     "message": "Lié",
     "description": "This describes a field that is 'linked' (related) to another field."
+  },
+  "fieldType": {
+    "message": "Type de champ"
+  },
+  "fieldLabel": {
+    "message": "Étiquette du champ"
   },
   "remove": {
     "message": "Supprimer"
@@ -508,6 +520,24 @@
   "viewItem": {
     "message": "Afficher l'élément"
   },
+  "newItemHeader": {
+    "message": "Nouveau $TYPE$",
+    "placeholders": {
+      "type": {
+        "content": "$1",
+        "example": "login"
+      }
+    }
+  },
+  "editItemHeader": {
+    "message": "Modifier $TYPE$",
+    "placeholders": {
+      "type": {
+        "content": "$1",
+        "example": "login"
+      }
+    }
+  },
   "viewItemType": {
     "message": "Voir $ITEMTYPE$",
     "placeholders": {
@@ -562,6 +592,9 @@
       }
     }
   },
+  "copySuccessful": {
+    "message": "Copie Réussie"
+  },
   "copyValue": {
     "message": "Copier la valeur",
     "description": "Copy value to clipboard"
@@ -585,6 +618,45 @@
   "copyUri": {
     "message": "Copier l'URI",
     "description": "Copy URI to clipboard"
+  },
+  "copyCustomField": {
+    "message": "Copier $FIELD$",
+    "placeholders": {
+      "field": {
+        "content": "$1",
+        "example": "Custom field label"
+      }
+    }
+  },
+  "copyWebsite": {
+    "message": "Copier le site web"
+  },
+  "copyNotes": {
+    "message": "Copier les notes"
+  },
+  "copyAddress": {
+    "message": "Copier l'adresse"
+  },
+  "copyPhone": {
+    "message": "Copier le téléphone"
+  },
+  "copyEmail": {
+    "message": "Copier le courriel"
+  },
+  "copyCompany": {
+    "message": "Copier l'entreprise"
+  },
+  "copySSN": {
+    "message": "Copier le numéro de Sécurité Sociale"
+  },
+  "copyPassportNumber": {
+    "message": "Copier le numéro de passeport"
+  },
+  "copyLicenseNumber": {
+    "message": "Copier le numéro de permis de conduire"
+  },
+  "copyName": {
+    "message": "Copier le nom"
   },
   "me": {
     "message": "Moi"
@@ -953,6 +1025,18 @@
   },
   "settings": {
     "message": "Paramètres"
+  },
+  "accountEmail": {
+    "message": "Courriel du compte"
+  },
+  "requestHint": {
+    "message": "Demander l'indice"
+  },
+  "requestPasswordHint": {
+    "message": "Demander l'indice du mot de passe"
+  },
+  "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
+    "message": "Entrez l'adresse courriel de votre compte et l'indice de votre mot de passe vous sera envoyé"
   },
   "passwordHint": {
     "message": "Indice de mot de passe"
@@ -3894,6 +3978,12 @@
       }
     }
   },
+  "encryptionKeyUpdateCannotProceed": {
+    "message": "La mise à jour de la clé de chiffrement ne peut pas continuer"
+  },
+  "keyUpdateFoldersFailed": {
+    "message": "Lors de la mise à jour de votre clé de chiffrement, vos dossiers n'ont pas pu être déchiffrés. Pour continuer avec la mise à jour, vos dossiers doivent être supprimés. Aucun élément du coffre ne sera supprimé si vous continuez."
+  },
   "keyUpdated": {
     "message": "Clé mise à jour"
   },
@@ -3969,6 +4059,9 @@
   "vaultTimeout": {
     "message": "Délai d'expiration du coffre"
   },
+  "vaultTimeout1": {
+    "message": "Délai d'expiration"
+  },
   "vaultTimeoutDesc": {
     "message": "Choisissez quand votre coffre entreprendra l'action après le délai d'expiration du coffre."
   },
@@ -4034,6 +4127,9 @@
   },
   "selected": {
     "message": "Sélectionné(s)"
+  },
+  "recommended": {
+    "message": "Recommandé"
   },
   "ownership": {
     "message": "Propriété"
@@ -4234,7 +4330,7 @@
   },
   "lock": {
     "message": "Verrouiller",
-    "description": "Verb form: to make secure or inaccesible by"
+    "description": "Verb form: to make secure or inaccessible by"
   },
   "trash": {
     "message": "Corbeille",
@@ -4830,12 +4926,6 @@
   },
   "deleteAnyCollection": {
     "message": "Supprimer n'importe quelle collection"
-  },
-  "editAssignedCollections": {
-    "message": "Modifier les collection assignées"
-  },
-  "deleteAssignedCollections": {
-    "message": "Supprimer les collections assignées"
   },
   "manageGroups": {
     "message": "Gérer les groupes"
@@ -5444,6 +5534,19 @@
       }
     }
   },
+  "vaultTimeoutPolicyInEffect1": {
+    "message": "$HOURS$ heure(s) et $MINUTES$ minute(s) maximum.",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
   "vaultTimeoutPolicyWithActionInEffect": {
     "message": "Les politiques de sécurité de votre organisation affectent le délai d'expiration de votre coffre. Le délai autorisé d'expiration du coffre est de $HOURS$ heure(s) et $MINUTES$ minute(s) maximum. L'action après délai d'expiration de votre coffre est fixée à $ACTION$.",
     "placeholders": {
@@ -5469,9 +5572,6 @@
         "example": "Lock"
       }
     }
-  },
-  "customVaultTimeout": {
-    "message": "Délai d'expiration du coffre personnalisé"
   },
   "vaultTimeoutToLarge": {
     "message": "Le délai d'expiration de votre coffre-fort dépasse les restrictions définies par votre organisation."
@@ -6195,7 +6295,7 @@
   },
   "lastSync": {
     "message": "Dernière Synchronisation",
-    "description": "Used as a prefix to indicate the last time a sync occured. Example \"Last sync 1968-11-16 00:00:00\""
+    "description": "Used as a prefix to indicate the last time a sync occurred. Example \"Last sync 1968-11-16 00:00:00\""
   },
   "sponsorshipsSynced": {
     "message": "Des parrainages auto-hébergés ont été synchronisés."
@@ -6354,57 +6454,57 @@
   },
   "scim": {
     "message": "Provisionnement SCIM",
-    "description": "The text, 'SCIM', is an acronymn and should not be translated."
+    "description": "The text, 'SCIM', is an acronym and should not be translated."
   },
   "scimDescription": {
     "message": "Fournit automatiquement aux utilisateurs et aux groupes votre fournisseur d'identité préféré via l'approvisionnement SCIM",
-    "description": "the text, 'SCIM', is an acronymn and should not be translated."
+    "description": "the text, 'SCIM', is an acronym and should not be translated."
   },
   "scimEnabledCheckboxDesc": {
     "message": "Activer SCIM",
-    "description": "the text, 'SCIM', is an acronymn and should not be translated."
+    "description": "the text, 'SCIM', is an acronym and should not be translated."
   },
   "scimEnabledCheckboxDescHelpText": {
     "message": "Configurez votre fournisseur d'identité préféré en configurant l'URL et la clé API SCIM",
-    "description": "the text, 'SCIM', is an acronymn and should not be translated."
+    "description": "the text, 'SCIM', is an acronym and should not be translated."
   },
   "scimApiKeyHelperText": {
     "message": "Cette clé API possède l'accès pour gérer les utilisateurs au sein de votre organisation. Elle devrait être tenue secrète."
   },
   "copyScimKey": {
     "message": "Copiez la clé API SCIM dans votre presse-papiers",
-    "description": "the text, 'SCIM' and 'API', are acronymns and should not be translated."
+    "description": "the text, 'SCIM' and 'API', are acronyms and should not be translated."
   },
   "rotateScimKey": {
     "message": "Régénérer la clé API SCIM",
-    "description": "the text, 'SCIM' and 'API', are acronymns and should not be translated."
+    "description": "the text, 'SCIM' and 'API', are acronyms and should not be translated."
   },
   "rotateScimKeyWarning": {
     "message": "Êtes-vous sûr de vouloir régénérer la clé API SCIM ? La clé actuelle ne fonctionnera plus pour aucune intégration existante.",
-    "description": "the text, 'SCIM' and 'API', are acronymns and should not be translated."
+    "description": "the text, 'SCIM' and 'API', are acronyms and should not be translated."
   },
   "rotateKey": {
     "message": "Régénérer la clé"
   },
   "scimApiKey": {
     "message": "Clé API SCIM",
-    "description": "the text, 'SCIM' and 'API', are acronymns and should not be translated."
+    "description": "the text, 'SCIM' and 'API', are acronyms and should not be translated."
   },
   "copyScimUrl": {
     "message": "Copiez l'URL du point de terminaison SCIM dans votre presse-papiers",
-    "description": "the text, 'SCIM' and 'URL', are acronymns and should not be translated."
+    "description": "the text, 'SCIM' and 'URL', are acronyms and should not be translated."
   },
   "scimUrl": {
     "message": "URL SCIM",
-    "description": "the text, 'SCIM' and 'URL', are acronymns and should not be translated."
+    "description": "the text, 'SCIM' and 'URL', are acronyms and should not be translated."
   },
   "scimApiKeyRotated": {
     "message": "Clé API SCIM régénérée avec succès",
-    "description": "the text, 'SCIM' and 'API', are acronymns and should not be translated."
+    "description": "the text, 'SCIM' and 'API', are acronyms and should not be translated."
   },
   "scimSettingsSaved": {
     "message": "Les paramètres SCIM ont été enregistrés avec succès",
-    "description": "the text, 'SCIM', is an acronymn and should not be translated."
+    "description": "the text, 'SCIM', is an acronym and should not be translated."
   },
   "inputRequired": {
     "message": "Entrée requise."
@@ -7326,6 +7426,9 @@
   "fileUpload": {
     "message": "Chargement du fichier"
   },
+  "upload": {
+    "message": "Téléverser"
+  },
   "acceptedFormats": {
     "message": "Formats acceptés :"
   },
@@ -8187,6 +8290,9 @@
   "addField": {
     "message": "Ajouter un champ"
   },
+  "editField": {
+    "message": "Modifier le champ"
+  },
   "items": {
     "message": "Éléments"
   },
@@ -8577,41 +8683,14 @@
   "manageBillingFromProviderPortalMessage": {
     "message": "Gérer la facturation depuis le Portail Fournisseur"
   },
-  "startYour7DayFreeTrialOfBitwarden": {
-    "message": "Commencez votre essai gratuit de 7 jours de Bitwarden"
+  "continueSettingUpFreeTrial": {
+    "message": "Continuer à configurer votre essai gratuit de Bitwarden"
   },
-  "startYour7DayFreeTrialOfBitwardenForTeams": {
-    "message": "Commencez votre essai gratuit de 7 jours de Bitwarden pour les Teams"
+  "continueSettingUpFreeTrialPasswordManager": {
+    "message": "Continuer à configurer votre essai gratuit du gestionnaire de mots de passe Bitwarden"
   },
-  "startYour7DayFreeTrialOfBitwardenForFamilies": {
-    "message": "Commencez votre essai gratuit de 7 jours de Bitwarden pour Familles"
-  },
-  "startYour7DayFreeTrialOfBitwardenForEnterprise": {
-    "message": "Commencez votre essai gratuit de 7 jours de Bitwarden pour Entreprise"
-  },
-  "startYour7DayFreeTrialOfBitwardenSecretsManager": {
-    "message": "Commencez votre essai gratuit de 7 jours de Bitwarden Secrets Manager"
-  },
-  "startYour7DayFreeTrialOfBitwardenSecretsManagerForTeams": {
-    "message": "Commencez votre essai gratuit de 7 jours de Bitwarden Secrets Manager pour Équipes"
-  },
-  "startYour7DayFreeTrialOfBitwardenSecretsManagerForFamilies": {
-    "message": "Commencez votre essai gratuit de 7 jours de Bitwarden Secrets Manager pour Familles"
-  },
-  "startYour7DayFreeTrialOfBitwardenSecretsManagerForEnterprise": {
-    "message": "Commencez votre essai gratuit de 7 jours de Bitwarden Secrets Manager pour Entreprise"
-  },
-  "startYour7DayFreeTrialOfBitwardenPasswordManager": {
-    "message": "Commencez votre essai gratuit de 7 jours du Gestionnaire de Mots de Passe Bitwarden"
-  },
-  "startYour7DayFreeTrialOfBitwardenPasswordManagerForTeams": {
-    "message": "Commencez votre essai gratuit de 7 jours du Gestionnaire de Mots de Passe Bitwarden pour Équipes"
-  },
-  "startYour7DayFreeTrialOfBitwardenPasswordManagerForFamilies": {
-    "message": "Commencez votre essai gratuit de 7 jours du Gestionnaire de Mots de Passe Bitwarden pour Familles"
-  },
-  "startYour7DayFreeTrialOfBitwardenPasswordManagerForEnterprise": {
-    "message": "Commencez votre essai gratuit de 7 jours du Gestionnaire de Mots de Passe Bitwarden pour Entreprise"
+  "continueSettingUpFreeTrialSecretsManager": {
+    "message": "Continuez à configurer votre essai gratuit de Bitwarden Secrets Manager"
   },
   "enterTeamsOrgInfo": {
     "message": "Entrez vos informations d'organisation pour Équipes"
@@ -8755,6 +8834,27 @@
   },
   "memberAccessReportPageDesc": {
     "message": "Audite les accès des membres de l'organisation au sein des groupes, des collections et des éléments des collections. L'exportation CSV fournit un rapport détaillé par membre comprenant des informations sur les collections autorisées et les configurations de compte."
+  },
+  "memberAccessReportNoCollection": {
+    "message": "(Aucune collection)"
+  },
+  "memberAccessReportNoCollectionPermission": {
+    "message": "(Aucune permission de collection)"
+  },
+  "memberAccessReportNoGroup": {
+    "message": "(Aucun groupe)"
+  },
+  "memberAccessReportTwoFactorEnabledTrue": {
+    "message": "Activé"
+  },
+  "memberAccessReportTwoFactorEnabledFalse": {
+    "message": "Désactivé"
+  },
+  "memberAccessReportAuthenticationEnabledTrue": {
+    "message": "Activé"
+  },
+  "memberAccessReportAuthenticationEnabledFalse": {
+    "message": "Désactivé"
   },
   "higherKDFIterations": {
     "message": "Des itérations KDF plus élevées peuvent aider à protéger votre mot de passe principal contre la force brute d'un assaillant."
@@ -8902,6 +9002,66 @@
   "purchasedSeatsRemoved": {
     "message": "licenses achetées retirées"
   },
+  "environmentVariables": {
+    "message": "Variables d'environnement"
+  },
+  "organizationId": {
+    "message": "ID d’organisation"
+  },
+  "projectIds": {
+    "message": "ID du projet"
+  },
+  "projectId": {
+    "message": "ID du projet"
+  },
+  "projectsAccessedByMachineAccount": {
+    "message": "Les projets suivants peuvent être consultés par ce compte machine."
+  },
+  "config": {
+    "message": "Configuration"
+  },
+  "learnMoreAboutEmergencyAccess": {
+    "message": "En savoir plus sur l'accès d'urgence"
+  },
+  "learnMoreAboutMatchDetection": {
+    "message": "En savoir plus sur la détection de correspondance"
+  },
+  "learnMoreAboutMasterPasswordReprompt": {
+    "message": "En savoir plus sur la demande de ressaisie du mot de passe principal"
+  },
+  "learnMoreAboutSearchingYourVault": {
+    "message": "En savoir plus sur la recherche dans votre coffre"
+  },
+  "learnMoreAboutYourAccountFingerprintPhrase": {
+    "message": "En savoir plus sur la phrase d'empreinte de votre compte"
+  },
+  "impactOfRotatingYourEncryptionKey": {
+    "message": "Impact de la rotation de votre clé de chiffrement"
+  },
+  "learnMoreAboutEncryptionAlgorithms": {
+    "message": "En savoir plus sur les algorithmes de chiffrement"
+  },
+  "learnMoreAboutKDFIterations": {
+    "message": "En savoir plus sur les itérations KDF"
+  },
+  "learnMoreAboutLocalization": {
+    "message": "En savoir plus sur la localisation"
+  },
+  "learnMoreAboutWebsiteIcons": {
+    "message": "En savoir plus sur l'utilisation des icônes de site web"
+  },
+  "learnMoreAboutUserAccess": {
+    "message": "En savoir plus sur l'accès des utilisateurs"
+  },
+  "learnMoreAboutMemberRoles": {
+    "message": "En savoir plus sur les rôles et les autorisations des membres"
+  },
+  "whatIsACvvNumber": {
+    "message": "Qu'est-ce qu'un numéro CVV ?"
+  },
+  "learnMoreAboutApi": {
+    "message": "En savoir plus sur l'API de Bitwarden"
+  },
   "fileSends": {
     "message": "Déposer des Sends"
   },
@@ -8959,8 +9119,8 @@
       }
     }
   },
-  "upgradePlan": {
-    "message": "Mettez à niveau votre plan pour inviter plus de membres et accéder à des fonctionnalités supplémentaires de Bitwarden"
+  "upgradePlans": {
+    "message": "Mettez à niveau votre plan pour inviter des membres et profiter de fonctionnalités de sécurité puissantes."
   },
   "upgradeDiscount": {
     "message": "Économisez $AMOUNT$%",
@@ -8971,11 +9131,11 @@
       }
     }
   },
-  "upgradeEnterpriseMessage": {
-    "message": "Fonctionnalités avancées pour les entreprises plus grandes"
+  "enterprisePlanUpgradeMessage": {
+    "message": "Fonctionnalités avancées pour les grandes organisations"
   },
-  "upgradeTeamsMessage": {
-    "message": "Entreprises à la recherche d'une sécurité puissante"
+  "teamsPlanUpgradeMessage": {
+    "message": "Protection résistante pour les équipes en croissance"
   },
   "teamsInviteMessage": {
     "message": "Invitez un nombre illimité de membres"
@@ -8986,8 +9146,8 @@
   "syncGroupsAndUsersFromDirectory": {
     "message": "Synchroniser les groupes et les utilisateurs à partir d'un répertoire"
   },
-  "upgradeFamilyMessage": {
-    "message": "Partager avec des membres de la famille et des amis"
+  "familyPlanUpgradeMessage": {
+    "message": "Sécurisez les identifiants de votre famille"
   },
   "accessToPremiumFeatures": {
     "message": "Accède aux fonctionnalités Premium"
@@ -9037,21 +9197,27 @@
   "current": {
     "message": "Actuel"
   },
-  "secretsManagerSubInfo": {
+  "secretsManagerSubscriptionInfo": {
     "message": "Votre abonnement au Secrets Manager sera mis à niveau selon le plan sélectionné"
   },
   "bitwardenPasswordManager": {
     "message": "Gestionnaire de Mots de Passe Bitwarden"
   },
-  "secretsManagerWithFreePasswordManagerInfo": {
-    "message": "Votre abonnement complémentaire d'un an au Gestionnaire de Mots de Passe sera mis à niveau au plan sélectionné. Vous ne serez pas chargé avant la fin de votre période gratuite."
+  "secretsManagerComplimentaryPasswordManager": {
+    "message": "Votre abonnement complémentairegratuit d'un an au Gestionnaire de Mots de Passe sera mis à niveau au plan sélectionné. Vous ne serez pas chargé avant la fin de votre période gratuite."
+  },
+  "fileSavedToDevice": {
+    "message": "Fichier enregistré sur l'appareil. Gérez à partir des téléchargements de votre appareil."
   },
   "publicApi": {
     "message": "API publique",
-    "description": "The text, 'API', is an acronymn and should not be translated."
+    "description": "The text, 'API', is an acronym and should not be translated."
   },
-  "additionalContentAvailable": {
-    "message": "Du contenu supplémentaire est disponible"
+  "showCharacterCount": {
+    "message": "Afficher le nombre de caractères"
+  },
+  "hideCharacterCount": {
+    "message": "Cacher le nombre de caractères"
   },
   "editAccess": {
     "message": "Modifier l'accès"

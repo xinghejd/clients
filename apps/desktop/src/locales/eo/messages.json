@@ -560,6 +560,18 @@
   "settings": {
     "message": "Agordoj"
   },
+  "accountEmail": {
+    "message": "Account email"
+  },
+  "requestHint": {
+    "message": "Request hint"
+  },
+  "requestPasswordHint": {
+    "message": "Request password hint"
+  },
+  "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
+    "message": "Enter your account email address and your password hint will be sent to you"
+  },
   "passwordHint": {
     "message": "Password hint"
   },
@@ -841,7 +853,7 @@
     "message": "Ŝargado..."
   },
   "lockVault": {
-    "message": "Lock vault"
+    "message": "Ŝlosi la trezorejon"
   },
   "passwordGenerator": {
     "message": "Password generator"
@@ -929,6 +941,9 @@
   },
   "vaultTimeout": {
     "message": "Vault timeout"
+  },
+  "vaultTimeout1": {
+    "message": "Timeout"
   },
   "vaultTimeoutDesc": {
     "message": "Choose when your vault will take the vault timeout action."
@@ -1285,6 +1300,9 @@
       }
     }
   },
+  "copySuccessful": {
+    "message": "Copy Successful"
+  },
   "errorRefreshingAccessToken": {
     "message": "Access Token Refresh Error"
   },
@@ -1535,7 +1553,7 @@
     "message": "Additional Touch ID settings"
   },
   "touchIdConsentMessage": {
-    "message": "unlock your vault"
+    "message": "malŝlosi vian trezorejon"
   },
   "autoPromptWindowsHello": {
     "message": "Ask for Windows Hello on app start"
@@ -1552,7 +1570,7 @@
   "recommendedForSecurity": {
     "message": "Recommended for security."
   },
-  "lockWithMasterPassOnRestart": {
+  "lockWithMasterPassOnRestart1": {
     "message": "Lock with master password on restart"
   },
   "deleteAccount": {
@@ -1630,7 +1648,7 @@
   },
   "lock": {
     "message": "Ŝlosi",
-    "description": "Verb form: to make secure or inaccesible by"
+    "description": "Verb form: to make secure or inaccessible by"
   },
   "trash": {
     "message": "Rubujo",
@@ -2084,8 +2102,8 @@
   "minutes": {
     "message": "Minutoj"
   },
-  "vaultTimeoutPolicyInEffect": {
-    "message": "Your organization policies have set your maximum allowed vault timeout to $HOURS$ hour(s) and $MINUTES$ minute(s).",
+  "vaultTimeoutPolicyInEffect1": {
+    "message": "$HOURS$ hour(s) and $MINUTES$ minute(s) maximum.",
     "placeholders": {
       "hours": {
         "content": "$1",
@@ -2172,7 +2190,7 @@
     "message": "Key connector error: make sure key connector is available and working correctly."
   },
   "lockAllVaults": {
-    "message": "Lock all vaults"
+    "message": "Ŝlosi ĉiujn trezorejojn"
   },
   "accountLimitReached": {
     "message": "No more than 5 accounts may be logged in at the same time."
@@ -2281,13 +2299,13 @@
     "message": "Servo"
   },
   "allVaults": {
-    "message": "All vaults"
+    "message": "Ĉiuj trezorejoj"
   },
   "searchOrganization": {
     "message": "Search organization"
   },
   "searchMyVault": {
-    "message": "Search my vault"
+    "message": "Traserĉi mian trezorejon"
   },
   "forwardedEmail": {
     "message": "Forwarded email alias"
@@ -2420,7 +2438,7 @@
     "message": "Are you sure you want to use the \"Never\" option? Setting your lock options to \"Never\" stores your vault's encryption key on your device. If you use this option you should ensure that you keep your device properly protected."
   },
   "vault": {
-    "message": "Vault"
+    "message": "Trezorejo"
   },
   "loginWithMasterPassword": {
     "message": "Log in with master password"
@@ -3059,7 +3077,16 @@
   "textSends": {
     "message": "Text Sends"
   },
+  "allowScreenshots": {
+    "message": "Allow screen capture"
+  },
+  "allowScreenshotsDesc": {
+    "message": "Allow screen capture of the Bitwarden desktop application."
+  },
   "ssoError": {
     "message": "No free ports could be found for the sso login."
+  },
+  "fileSavedToDevice": {
+    "message": "File saved to device. Manage from your device downloads."
   }
 }
