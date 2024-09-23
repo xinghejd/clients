@@ -6,7 +6,7 @@ import { BannerModule } from "@bitwarden/components";
 
 import { VerifyEmailComponent } from "../../../auth/settings/verify-email.component";
 import { SharedModule } from "../../../shared";
-import { PaymentCheckOfOrganization } from "../vault.component";
+import { OrganizationPaymentStatus } from "../vault.component";
 
 import { VaultBannersService, VisibleVaultBanner } from "./services/vault-banners.service";
 
@@ -21,7 +21,7 @@ export class VaultBannersComponent implements OnInit {
   visibleBanners: VisibleVaultBanner[] = [];
   premiumBannerVisible$: Observable<boolean>;
   VisibleVaultBanner = VisibleVaultBanner;
-  @Input() organizations: PaymentCheckOfOrganization[] = [];
+  @Input() organizations: OrganizationPaymentStatus[] = [];
 
   constructor(
     private vaultBannerService: VaultBannersService,

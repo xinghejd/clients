@@ -33,6 +33,7 @@ import { ModalService } from "@bitwarden/angular/services/modal.service";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
 import { SearchService } from "@bitwarden/common/abstractions/search.service";
+import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -134,7 +135,7 @@ import {
 const BroadcasterSubscriptionId = "VaultComponent";
 const SearchTextDebounceInterval = 200;
 
-export type PaymentCheckOfOrganization = {
+export type OrganizationPaymentStatus = {
   isTrialing: boolean;
   isOwner: boolean;
   trialRemainingDays: number;
@@ -196,6 +197,7 @@ export class VaultComponent implements OnInit, OnDestroy {
   protected vaultBulkManagementActionEnabled$ = this.configService.getFeatureFlag$(
     FeatureFlag.VaultBulkManagementAction,
   );
+  protected organizations: OrganizationPaymentStatus[] = [];
   private searchText$ = new Subject<string>();
   private refresh$ = new BehaviorSubject<void>(null);
   private destroy$ = new Subject<void>();
@@ -231,6 +233,7 @@ export class VaultComponent implements OnInit, OnDestroy {
     private toastService: ToastService,
     private accountService: AccountService,
     private cipherFormConfigService: DefaultCipherFormConfigService,
+    private organizationApiService: OrganizationApiServiceAbstraction,
   ) {}
 
   async ngOnInit() {
@@ -445,6 +448,7 @@ export class VaultComponent implements OnInit, OnDestroy {
           this.isEmpty = collections?.length === 0 && ciphers?.length === 0;
           if (this.allOrganizations.length > 0) {
             this.refreshing = true;
+            await this.detectUpcomingPaymentProblemsInOrgs();
             this.refreshing = false;
           }
           this.performingInitialLoad = false;
@@ -456,6 +460,57 @@ export class VaultComponent implements OnInit, OnDestroy {
     this.extensionRefreshEnabled = await this.configService.getFeatureFlag(
       FeatureFlag.ExtensionRefresh,
     );
+  }
+
+  async navigateToPaymentMethod(organizationId: string): Promise<void> {
+    const navigationExtras = {
+      state: { launchPaymentModalAutomatically: true },
+    };
+
+    await this.router.navigate(
+      ["organizations", organizationId, "billing", "payment-method"],
+      navigationExtras,
+    );
+  }
+
+  async detectUpcomingPaymentProblemsInOrgs(): Promise<void> {
+    const checks = this.allOrganizations.map(async (org) => {
+      const result: OrganizationPaymentStatus = await this.evaluateOrganizationPaymentConditions(
+        org.id,
+      );
+
+      if (result.isOwner && result.isTrialing && result.isPaymentSourceEmpty) {
+        return result;
+      }
+
+      return null;
+    });
+
+    const results = await Promise.all(checks);
+    this.organizations = results.filter((result) => result !== null) as OrganizationPaymentStatus[];
+  }
+
+  async evaluateOrganizationPaymentConditions(
+    organizationId: string,
+  ): Promise<OrganizationPaymentStatus> {
+    const org = await this.organizationService.get(organizationId);
+    const sub = await this.organizationApiService.getSubscription(organizationId);
+    const billing = await this.organizationApiService.getBilling(organizationId);
+
+    const isTrialing = sub?.subscription.status === "trialing";
+    const isOwner = org?.isOwner ?? false;
+    const isPaymentSourceEmpty = !billing?.paymentSource;
+
+    const trialRemainingDays = this.calculateTrialRemainingDays(sub?.subscription.trialEndDate);
+
+    return {
+      isTrialing,
+      isOwner,
+      trialRemainingDays,
+      isPaymentSourceEmpty,
+      orgId: organizationId,
+      orgName: org?.name ?? "Unknown Organization",
+    };
   }
 
   ngOnDestroy() {
@@ -1347,6 +1402,18 @@ export class VaultComponent implements OnInit, OnDestroy {
       title: null,
       message: this.i18nService.t("missingPermissions"),
     });
+  }
+
+  private calculateTrialRemainingDays(trialEndDate?: string): number | undefined {
+    if (!trialEndDate) {
+      return undefined;
+    }
+
+    const today = new Date();
+    const trialEnd = new Date(trialEndDate);
+    const timeDifference = trialEnd.getTime() - today.getTime();
+
+    return Math.ceil(timeDifference / (1000 * 60 * 60 * 24));
   }
 }
 
