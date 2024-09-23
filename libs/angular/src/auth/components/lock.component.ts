@@ -153,9 +153,7 @@ export class LockComponent implements OnInit, OnDestroy {
 
   async unlockBiometric(): Promise<boolean> {
     await this.biometricStateService.setUserPromptCancelled();
-    this.logService.info("Unlocking with biometrics");
     const userKey = await this.biometricsService.unlockWithBiometricsForUser(this.activeUserId);
-    this.logService.info("Biometric unlock result", userKey);
 
     if (userKey) {
       await this.setUserKeyAndContinue(userKey, this.activeUserId, false);
