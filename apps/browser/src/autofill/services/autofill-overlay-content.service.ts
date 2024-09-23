@@ -31,6 +31,7 @@ import AutofillField from "../models/autofill-field";
 import AutofillPageDetails from "../models/autofill-page-details";
 import { ElementWithOpId, FillableFormFieldElement, FormFieldElement } from "../types";
 import {
+  debounce,
   elementIsFillableFormField,
   elementIsSelectElement,
   getAttributeBoolean,
@@ -670,9 +671,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
    * is currently focused.
    */
   private handleFormFieldBlurEvent = () => {
-    void this.sendExtensionMessage("updateIsFieldCurrentlyFocused", {
-      isFieldCurrentlyFocused: false,
-    });
+    void this.updateIsFieldCurrentlyFocused(false);
     void this.sendExtensionMessage("checkAutofillInlineMenuFocused");
   };
 
@@ -733,7 +732,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
    */
   private handleFormFieldInputEvent = (formFieldElement: ElementWithOpId<FormFieldElement>) => {
     return this.useEventHandlersMemo(
-      () => this.triggerFormFieldInput(formFieldElement),
+      debounce(() => this.triggerFormFieldInput(formFieldElement), 100, true),
       this.getFormFieldHandlerMemoIndex(formFieldElement, EVENTS.INPUT),
     );
   };
@@ -755,7 +754,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
       return;
     }
 
-    if (await this.hideInlineMenuListOnFilledField(formFieldElement)) {
+    if (formFieldElement?.value) {
       void this.sendExtensionMessage("closeAutofillInlineMenu", {
         overlayElement: AutofillOverlayElement.List,
         forceCloseInlineMenu: true,
@@ -911,9 +910,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
       return;
     }
 
-    await this.sendExtensionMessage("updateIsFieldCurrentlyFocused", {
-      isFieldCurrentlyFocused: true,
-    });
+    await this.updateIsFieldCurrentlyFocused(true);
     const initiallyFocusedField = this.mostRecentlyFocusedField;
     await this.updateMostRecentlyFocusedField(formFieldElement);
 
@@ -935,8 +932,12 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
       return;
     }
 
-    void this.sendExtensionMessage("openAutofillInlineMenu");
+    await this.sendExtensionMessage("openAutofillInlineMenu");
   }
+
+  private updateIsFieldCurrentlyFocused = async (isFieldCurrentlyFocused: boolean) => {
+    await this.sendExtensionMessage("updateIsFieldCurrentlyFocused", { isFieldCurrentlyFocused });
+  };
 
   /**
    * Validates whether the user is currently authenticated.

@@ -378,12 +378,26 @@ export function throttle(callback: (_args: any) => any, limit: number) {
  *
  * @param callback - The callback function to debounce.
  * @param delay - The time in milliseconds to debounce the callback.
+ * @param immediate - Determines whether the callback should run immediately.
  */
-export function debounce(callback: (_args: any) => any, delay: number) {
+export function debounce(callback: (_args: any) => any, delay: number, immediate?: boolean) {
   let timeout: NodeJS.Timeout;
   return function (...args: unknown[]) {
-    globalThis.clearTimeout(timeout);
-    timeout = globalThis.setTimeout(() => callback.apply(this, args), delay);
+    const callImmediately = !!immediate && !timeout;
+
+    if (timeout) {
+      globalThis.clearTimeout(timeout);
+    }
+    timeout = globalThis.setTimeout(() => {
+      timeout = null;
+      if (!callImmediately) {
+        callback.apply(this, args);
+      }
+    }, delay);
+
+    if (callImmediately) {
+      callback.apply(this, args);
+    }
   };
 }
 
