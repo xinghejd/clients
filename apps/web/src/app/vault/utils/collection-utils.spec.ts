@@ -1,4 +1,4 @@
-import { CollectionView } from "@bitwarden/common/admin-console/models/view/collection.view";
+import { CollectionView } from "@bitwarden/common/vault/models/view/collection.view";
 
 import { getNestedCollectionTree } from "./collection-utils";
 
@@ -23,6 +23,17 @@ describe("CollectionUtils Service", () => {
       // Assert
       expect(result[0].node.name).toBe("Parent");
       expect(result[0].children[0].node.name).toBe("Child");
+    });
+
+    it("should return an empty array if no collections are provided", () => {
+      // Arrange
+      const collections: CollectionView[] = [];
+
+      // Act
+      const result = getNestedCollectionTree(collections);
+
+      // Assert
+      expect(result).toEqual([]);
     });
   });
 });

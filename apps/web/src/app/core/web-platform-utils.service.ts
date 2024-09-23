@@ -1,10 +1,10 @@
 import { Injectable } from "@angular/core";
 
-import { I18nService } from "@bitwarden/common/abstractions/i18n.service";
-import { LogService } from "@bitwarden/common/abstractions/log.service";
-import { MessagingService } from "@bitwarden/common/abstractions/messaging.service";
-import { PlatformUtilsService } from "@bitwarden/common/abstractions/platformUtils.service";
 import { ClientType, DeviceType } from "@bitwarden/common/enums";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
+import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 
 @Injectable()
 export class WebPlatformUtilsService implements PlatformUtilsService {
@@ -13,7 +13,7 @@ export class WebPlatformUtilsService implements PlatformUtilsService {
   constructor(
     private i18nService: I18nService,
     private messagingService: MessagingService,
-    private logService: LogService
+    private logService: LogService,
   ) {}
 
   getDevice(): DeviceType {
@@ -122,7 +122,7 @@ export class WebPlatformUtilsService implements PlatformUtilsService {
     type: "error" | "success" | "warning" | "info",
     title: string,
     text: string | string[],
-    options?: any
+    options?: any,
   ): void {
     this.messagingService.send("showToast", {
       text: text,
@@ -184,14 +184,6 @@ export class WebPlatformUtilsService implements PlatformUtilsService {
 
   readFromClipboard(options?: any): Promise<string> {
     throw new Error("Cannot read from clipboard on web.");
-  }
-
-  supportsBiometric() {
-    return Promise.resolve(false);
-  }
-
-  authenticateBiometric() {
-    return Promise.resolve(false);
   }
 
   supportsSecureStorage() {

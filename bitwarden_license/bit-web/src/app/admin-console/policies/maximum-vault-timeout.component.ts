@@ -1,10 +1,10 @@
 import { Component } from "@angular/core";
 import { FormBuilder, FormControl } from "@angular/forms";
 
-import { I18nService } from "@bitwarden/common/abstractions/i18n.service";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { PolicyRequest } from "@bitwarden/common/admin-console/models/request/policy.request";
 import { VaultTimeoutAction } from "@bitwarden/common/enums/vault-timeout-action.enum";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import {
   BasePolicy,
   BasePolicyComponent,
@@ -29,7 +29,10 @@ export class MaximumVaultTimeoutPolicyComponent extends BasePolicyComponent {
     action: new FormControl<string>(null),
   });
 
-  constructor(private formBuilder: FormBuilder, private i18nService: I18nService) {
+  constructor(
+    private formBuilder: FormBuilder,
+    private i18nService: I18nService,
+  ) {
     super();
     this.vaultTimeoutActionOptions = [
       { name: i18nService.t("userPreference"), value: null },

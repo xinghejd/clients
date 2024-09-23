@@ -1,4 +1,4 @@
-import { CipherType } from "@bitwarden/common/vault/enums/cipher-type";
+import { CipherType } from "@bitwarden/common/vault/enums";
 import { CardView } from "@bitwarden/common/vault/models/view/card.view";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
@@ -66,7 +66,7 @@ export class FSecureFskImporter extends BaseImporter implements Importer {
     cipher.card = new CardView();
     cipher.card.cardholderName = this.getValueOrDefault(entry.username);
     cipher.card.number = this.getValueOrDefault(entry.creditNumber);
-    cipher.card.brand = this.getCardBrand(cipher.card.number);
+    cipher.card.brand = CardView.getCardBrandByPatterns(cipher.card.number);
     cipher.card.code = this.getValueOrDefault(entry.creditCvv);
     if (!this.isNullOrWhitespace(entry.creditExpiry)) {
       if (!this.setCardExpiration(cipher, entry.creditExpiry)) {

@@ -1,4 +1,4 @@
-import { CipherType } from "@bitwarden/common/vault/enums/cipher-type";
+import { CipherType } from "@bitwarden/common/vault/enums";
 import { FieldView } from "@bitwarden/common/vault/models/view/field.view";
 
 import { EnpassJsonImporter } from "../src/importers";
@@ -100,7 +100,7 @@ describe("Enpass JSON Importer", () => {
     expect(cipher.card.brand).toEqual("Amex");
     expect(cipher.card.code).toEqual("1234");
     expect(cipher.card.expMonth).toEqual("3");
-    expect(cipher.card.expYear).toEqual("23");
+    expect(cipher.card.expYear).toEqual("2023");
 
     // remaining fields as custom fields
     expect(cipher.fields.length).toEqual(9);
@@ -109,7 +109,7 @@ describe("Enpass JSON Importer", () => {
     validateCustomField(
       cipher.fields,
       "Login password",
-      "nnn tug shoot selfish bon liars convent dusty minnow uncheck"
+      "nnn tug shoot selfish bon liars convent dusty minnow uncheck",
     );
     validateCustomField(cipher.fields, "Website", "http://global.americanexpress.com/");
     validateCustomField(cipher.fields, "Issuing bank", "American Express");

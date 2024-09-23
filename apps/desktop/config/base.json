@@ -1,6 +1,4 @@
 {
-  "dev_flags": {},
-  "flags": {
-    "multithreadDecryption": false
-  }
+  "devFlags": {},
+  "flags": {}
 }

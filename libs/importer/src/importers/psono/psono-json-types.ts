@@ -14,7 +14,8 @@ export interface PsonoJsonExport {
 
 export interface FoldersEntity {
   name: string;
-  items: PsonoItemTypes[] | null;
+  items?: PsonoItemTypes[] | null;
+  folders?: FoldersEntity[] | null;
 }
 
 export interface RecordBase {
@@ -38,15 +39,15 @@ export type PsonoEntryTypes =
 
 export interface WebsitePasswordEntry extends RecordBase {
   type: "website_password";
-  autosubmit: boolean;
-  urlfilter: string;
+  autosubmit?: boolean;
+  urlfilter?: string;
   website_password_title: string;
   website_password_url: string;
   website_password_username: string;
   website_password_password: string;
   website_password_notes: string;
-  website_password_auto_submit: boolean;
-  website_password_url_filter: string;
+  website_password_auto_submit?: boolean;
+  website_password_url_filter?: string;
 }
 
 export interface PsonoEntry {

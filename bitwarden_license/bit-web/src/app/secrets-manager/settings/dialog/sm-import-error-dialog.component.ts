@@ -1,7 +1,7 @@
 import { DialogRef, DIALOG_DATA } from "@angular/cdk/dialog";
 import { Component, Inject } from "@angular/core";
 
-import { I18nService } from "@bitwarden/common/abstractions/i18n.service";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
 import { SecretsManagerImportError } from "../models/error/sm-import-error";
 import { SecretsManagerImportErrorLine } from "../models/error/sm-import-error-line";
@@ -19,7 +19,7 @@ export class SecretsManagerImportErrorDialogComponent {
   constructor(
     public dialogRef: DialogRef,
     private i18nService: I18nService,
-    @Inject(DIALOG_DATA) public data: SecretsManagerImportErrorDialogOperation
+    @Inject(DIALOG_DATA) public data: SecretsManagerImportErrorDialogOperation,
   ) {
     this.errorLines = data.error.lines;
   }

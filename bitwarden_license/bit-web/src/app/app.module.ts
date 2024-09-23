@@ -14,11 +14,18 @@ import { WildcardRoutingModule } from "@bitwarden/web-vault/app/wildcard-routing
 
 import { OrganizationsModule } from "./admin-console/organizations/organizations.module";
 import { ActivateAutofillPolicyComponent } from "./admin-console/policies/activate-autofill.component";
+import { AutomaticAppLoginPolicyComponent } from "./admin-console/policies/automatic-app-login.component";
 import { DisablePersonalVaultExportPolicyComponent } from "./admin-console/policies/disable-personal-vault-export.component";
 import { MaximumVaultTimeoutPolicyComponent } from "./admin-console/policies/maximum-vault-timeout.component";
 import { AppRoutingModule } from "./app-routing.module";
 import { AppComponent } from "./app.component";
 
+/**
+ * This is the AppModule for the commercial version of Bitwarden.
+ * `apps/web/app.module.ts` contains the OSS version.
+ *
+ * You probably do not want to modify this file. Consider editing `oss.module.ts` instead.
+ */
 @NgModule({
   imports: [
     OverlayModule,
@@ -41,6 +48,7 @@ import { AppComponent } from "./app.component";
     DisablePersonalVaultExportPolicyComponent,
     MaximumVaultTimeoutPolicyComponent,
     ActivateAutofillPolicyComponent,
+    AutomaticAppLoginPolicyComponent,
   ],
   bootstrap: [AppComponent],
 })

@@ -1,8 +1,10 @@
+import {
+  OrganizationUserApiService,
+  OrganizationUserConfirmRequest,
+} from "@bitwarden/admin-console/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { CryptoService } from "@bitwarden/common/abstractions/crypto.service";
-import { OrganizationUserService } from "@bitwarden/common/abstractions/organization-user/organization-user.service";
-import { OrganizationUserConfirmRequest } from "@bitwarden/common/abstractions/organization-user/requests";
-import { Utils } from "@bitwarden/common/misc/utils";
+import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
+import { Utils } from "@bitwarden/common/platform/misc/utils";
 
 import { Response } from "../../models/response";
 
@@ -10,7 +12,7 @@ export class ConfirmCommand {
   constructor(
     private apiService: ApiService,
     private cryptoService: CryptoService,
-    private organizationUserService: OrganizationUserService
+    private organizationUserApiService: OrganizationUserApiService,
   ) {}
 
   async run(object: string, id: string, cmdOptions: Record<string, any>): Promise<Response> {
@@ -42,22 +44,22 @@ export class ConfirmCommand {
       if (orgKey == null) {
         throw new Error("No encryption key for this organization.");
       }
-      const orgUser = await this.organizationUserService.getOrganizationUser(
+      const orgUser = await this.organizationUserApiService.getOrganizationUser(
         options.organizationId,
-        id
+        id,
       );
       if (orgUser == null) {
         throw new Error("Member id does not exist for this organization.");
       }
       const publicKeyResponse = await this.apiService.getUserPublicKey(orgUser.userId);
       const publicKey = Utils.fromB64ToArray(publicKeyResponse.publicKey);
-      const key = await this.cryptoService.rsaEncrypt(orgKey.key, publicKey.buffer);
+      const key = await this.cryptoService.rsaEncrypt(orgKey.key, publicKey);
       const req = new OrganizationUserConfirmRequest();
       req.key = key.encryptedString;
-      await this.organizationUserService.postOrganizationUserConfirm(
+      await this.organizationUserApiService.postOrganizationUserConfirm(
         options.organizationId,
         id,
-        req
+        req,
       );
       return Response.success();
     } catch (e) {

@@ -1,31 +1,36 @@
+import { DatePipe } from "@angular/common";
 import {
   ChangeDetectorRef,
   Component,
   EventEmitter,
   NgZone,
   OnChanges,
+  OnDestroy,
+  OnInit,
   Output,
 } from "@angular/core";
 
-import { DialogServiceAbstraction } from "@bitwarden/angular/services/dialog";
 import { ViewComponent as BaseViewComponent } from "@bitwarden/angular/vault/components/view.component";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AuditService } from "@bitwarden/common/abstractions/audit.service";
-import { BroadcasterService } from "@bitwarden/common/abstractions/broadcaster.service";
-import { CryptoService } from "@bitwarden/common/abstractions/crypto.service";
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
-import { FileDownloadService } from "@bitwarden/common/abstractions/fileDownload/fileDownload.service";
-import { I18nService } from "@bitwarden/common/abstractions/i18n.service";
-import { LogService } from "@bitwarden/common/abstractions/log.service";
-import { MessagingService } from "@bitwarden/common/abstractions/messaging.service";
-import { PlatformUtilsService } from "@bitwarden/common/abstractions/platformUtils.service";
-import { StateService } from "@bitwarden/common/abstractions/state.service";
-import { TotpService } from "@bitwarden/common/abstractions/totp.service";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
+import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
+import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
+import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
+import { FileDownloadService } from "@bitwarden/common/platform/abstractions/file-download/file-download.service";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
+import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
-import { PasswordRepromptService } from "@bitwarden/common/vault/abstractions/password-reprompt.service";
+import { TotpService } from "@bitwarden/common/vault/abstractions/totp.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import { DialogService } from "@bitwarden/components";
+import { PasswordRepromptService } from "@bitwarden/vault";
 
 const BroadcasterSubscriptionId = "ViewComponent";
 
@@ -33,7 +38,7 @@ const BroadcasterSubscriptionId = "ViewComponent";
   selector: "app-vault-view",
   templateUrl: "view.component.html",
 })
-export class ViewComponent extends BaseViewComponent implements OnChanges {
+export class ViewComponent extends BaseViewComponent implements OnInit, OnDestroy, OnChanges {
   @Output() onViewCipherPasswordHistory = new EventEmitter<CipherView>();
 
   constructor(
@@ -55,7 +60,10 @@ export class ViewComponent extends BaseViewComponent implements OnChanges {
     logService: LogService,
     stateService: StateService,
     fileDownloadService: FileDownloadService,
-    dialogService: DialogServiceAbstraction
+    dialogService: DialogService,
+    datePipe: DatePipe,
+    billingAccountProfileStateService: BillingAccountProfileStateService,
+    accountService: AccountService,
   ) {
     super(
       cipherService,
@@ -76,7 +84,10 @@ export class ViewComponent extends BaseViewComponent implements OnChanges {
       logService,
       stateService,
       fileDownloadService,
-      dialogService
+      dialogService,
+      datePipe,
+      accountService,
+      billingAccountProfileStateService,
     );
   }
   ngOnInit() {
@@ -106,9 +117,13 @@ export class ViewComponent extends BaseViewComponent implements OnChanges {
     this.onViewCipherPasswordHistory.emit(this.cipher);
   }
 
-  async copy(value: string, typeI18nKey: string, aType: string) {
-    super.copy(value, typeI18nKey, aType);
-    this.messagingService.send("minimizeOnCopy");
+  async copy(value: string, typeI18nKey: string, aType: string): Promise<boolean> {
+    const hasCopied = await super.copy(value, typeI18nKey, aType);
+    if (hasCopied) {
+      this.messagingService.send("minimizeOnCopy");
+    }
+
+    return hasCopied;
   }
 
   onWindowHidden() {

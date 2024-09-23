@@ -1,18 +1,21 @@
-import { Component } from "@angular/core";
+import { Component, OnInit } from "@angular/core";
 
-import { DialogServiceAbstraction } from "@bitwarden/angular/services/dialog";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { CryptoService } from "@bitwarden/common/abstractions/crypto.service";
-import { FileDownloadService } from "@bitwarden/common/abstractions/fileDownload/fileDownload.service";
-import { I18nService } from "@bitwarden/common/abstractions/i18n.service";
-import { LogService } from "@bitwarden/common/abstractions/log.service";
-import { PlatformUtilsService } from "@bitwarden/common/abstractions/platformUtils.service";
-import { StateService } from "@bitwarden/common/abstractions/state.service";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
+import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
+import { FileDownloadService } from "@bitwarden/common/platform/abstractions/file-download/file-download.service";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
+import { UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherData } from "@bitwarden/common/vault/models/data/cipher.data";
 import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
 import { AttachmentView } from "@bitwarden/common/vault/models/view/attachment.view";
+import { DialogService, ToastService } from "@bitwarden/components";
 
 import { AttachmentsComponent as BaseAttachmentsComponent } from "../individual-vault/attachments.component";
 
@@ -20,7 +23,7 @@ import { AttachmentsComponent as BaseAttachmentsComponent } from "../individual-
   selector: "app-org-vault-attachments",
   templateUrl: "../individual-vault/attachments.component.html",
 })
-export class AttachmentsComponent extends BaseAttachmentsComponent {
+export class AttachmentsComponent extends BaseAttachmentsComponent implements OnInit {
   viewOnly = false;
   organization: Organization;
 
@@ -33,7 +36,10 @@ export class AttachmentsComponent extends BaseAttachmentsComponent {
     apiService: ApiService,
     logService: LogService,
     fileDownloadService: FileDownloadService,
-    dialogService: DialogServiceAbstraction
+    dialogService: DialogService,
+    billingAccountProfileStateService: BillingAccountProfileStateService,
+    accountService: AccountService,
+    toastService: ToastService,
   ) {
     super(
       cipherService,
@@ -44,40 +50,48 @@ export class AttachmentsComponent extends BaseAttachmentsComponent {
       apiService,
       logService,
       fileDownloadService,
-      dialogService
+      dialogService,
+      billingAccountProfileStateService,
+      accountService,
+      toastService,
     );
   }
 
+  async ngOnInit() {
+    await super.ngOnInit();
+  }
+
   protected async reupload(attachment: AttachmentView) {
-    if (this.organization.canEditAnyCollection && this.showFixOldAttachments(attachment)) {
+    if (this.organization.canEditAllCiphers && this.showFixOldAttachments(attachment)) {
       await super.reuploadCipherAttachment(attachment, true);
     }
   }
 
   protected async loadCipher() {
-    if (!this.organization.canEditAnyCollection) {
+    if (!this.organization.canEditAllCiphers) {
       return await super.loadCipher();
     }
     const response = await this.apiService.getCipherAdmin(this.cipherId);
     return new Cipher(new CipherData(response));
   }
 
-  protected saveCipherAttachment(file: File) {
+  protected saveCipherAttachment(file: File, userId: UserId) {
     return this.cipherService.saveAttachmentWithServer(
       this.cipherDomain,
       file,
-      this.organization.canEditAnyCollection
+      userId,
+      this.organization.canEditAllCiphers,
     );
   }
 
   protected deleteCipherAttachment(attachmentId: string) {
-    if (!this.organization.canEditAnyCollection) {
+    if (!this.organization.canEditAllCiphers) {
       return super.deleteCipherAttachment(attachmentId);
     }
     return this.apiService.deleteCipherAttachmentAdmin(this.cipherId, attachmentId);
   }
 
   protected showFixOldAttachments(attachment: AttachmentView) {
-    return attachment.key == null && this.organization.canEditAnyCollection;
+    return attachment.key == null && this.organization.canEditAllCiphers;
   }
 }

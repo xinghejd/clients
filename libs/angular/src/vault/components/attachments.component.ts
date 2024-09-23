@@ -1,31 +1,34 @@
 import { Directive, EventEmitter, Input, OnInit, Output } from "@angular/core";
+import { firstValueFrom, map } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { CryptoService } from "@bitwarden/common/abstractions/crypto.service";
-import { FileDownloadService } from "@bitwarden/common/abstractions/fileDownload/fileDownload.service";
-import { I18nService } from "@bitwarden/common/abstractions/i18n.service";
-import { LogService } from "@bitwarden/common/abstractions/log.service";
-import { PlatformUtilsService } from "@bitwarden/common/abstractions/platformUtils.service";
-import { StateService } from "@bitwarden/common/abstractions/state.service";
-import { EncArrayBuffer } from "@bitwarden/common/models/domain/enc-array-buffer";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
+import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
+import { FileDownloadService } from "@bitwarden/common/platform/abstractions/file-download/file-download.service";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
+import { EncArrayBuffer } from "@bitwarden/common/platform/models/domain/enc-array-buffer";
+import { UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
 import { AttachmentView } from "@bitwarden/common/vault/models/view/attachment.view";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
-
-import { DialogServiceAbstraction, SimpleDialogType } from "../../services/dialog";
+import { DialogService, ToastService } from "@bitwarden/components";
 
 @Directive()
 export class AttachmentsComponent implements OnInit {
   @Input() cipherId: string;
+  @Input() viewOnly: boolean;
   @Output() onUploadedAttachment = new EventEmitter();
   @Output() onDeletedAttachment = new EventEmitter();
   @Output() onReuploadedAttachment = new EventEmitter();
 
   cipher: CipherView;
   cipherDomain: Cipher;
-  hasUpdatedKey: boolean;
   canAccessAttachments: boolean;
   formPromise: Promise<any>;
   deletePromises: { [id: string]: Promise<any> } = {};
@@ -43,7 +46,10 @@ export class AttachmentsComponent implements OnInit {
     protected logService: LogService,
     protected stateService: StateService,
     protected fileDownloadService: FileDownloadService,
-    protected dialogService: DialogServiceAbstraction
+    protected dialogService: DialogService,
+    protected billingAccountProfileStateService: BillingAccountProfileStateService,
+    protected accountService: AccountService,
+    protected toastService: ToastService,
   ) {}
 
   async ngOnInit() {
@@ -51,22 +57,13 @@ export class AttachmentsComponent implements OnInit {
   }
 
   async submit() {
-    if (!this.hasUpdatedKey) {
-      this.platformUtilsService.showToast(
-        "error",
-        this.i18nService.t("errorOccurred"),
-        this.i18nService.t("updateKey")
-      );
-      return;
-    }
-
     const fileEl = document.getElementById("file") as HTMLInputElement;
     const files = fileEl.files;
     if (files == null || files.length === 0) {
       this.platformUtilsService.showToast(
         "error",
         this.i18nService.t("errorOccurred"),
-        this.i18nService.t("selectFile")
+        this.i18nService.t("selectFile"),
       );
       return;
     }
@@ -76,15 +73,20 @@ export class AttachmentsComponent implements OnInit {
       this.platformUtilsService.showToast(
         "error",
         this.i18nService.t("errorOccurred"),
-        this.i18nService.t("maxFileSize")
+        this.i18nService.t("maxFileSize"),
       );
       return;
     }
 
     try {
-      this.formPromise = this.saveCipherAttachment(files[0]);
+      const activeUserId = await firstValueFrom(
+        this.accountService.activeAccount$.pipe(map((a) => a?.id)),
+      );
+      this.formPromise = this.saveCipherAttachment(files[0], activeUserId);
       this.cipherDomain = await this.formPromise;
-      this.cipher = await this.cipherDomain.decrypt();
+      this.cipher = await this.cipherDomain.decrypt(
+        await this.cipherService.getKeyForCipherKeyDecryption(this.cipherDomain, activeUserId),
+      );
       this.platformUtilsService.showToast("success", null, this.i18nService.t("attachmentSaved"));
       this.onUploadedAttachment.emit();
     } catch (e) {
@@ -106,7 +108,7 @@ export class AttachmentsComponent implements OnInit {
     const confirmed = await this.dialogService.openSimpleDialog({
       title: { key: "deleteAttachment" },
       content: { key: "deleteAttachmentConfirmation" },
-      type: SimpleDialogType.WARNING,
+      type: "warning",
     });
 
     if (!confirmed) {
@@ -139,7 +141,7 @@ export class AttachmentsComponent implements OnInit {
       this.platformUtilsService.showToast(
         "error",
         this.i18nService.t("premiumRequired"),
-        this.i18nService.t("premiumRequiredDesc")
+        this.i18nService.t("premiumRequiredDesc"),
       );
       return;
     }
@@ -149,7 +151,7 @@ export class AttachmentsComponent implements OnInit {
       const attachmentDownloadResponse = await this.apiService.getAttachmentData(
         this.cipher.id,
         attachment.id,
-        this.emergencyAccessId
+        this.emergencyAccessId,
       );
       url = attachmentDownloadResponse.url;
     } catch (e) {
@@ -181,6 +183,11 @@ export class AttachmentsComponent implements OnInit {
         fileName: attachment.fileName,
         blobData: decBuf,
       });
+      this.toastService.showToast({
+        variant: "success",
+        title: null,
+        message: this.i18nService.t("fileSavedToDevice"),
+      });
     } catch (e) {
       this.platformUtilsService.showToast("error", null, this.i18nService.t("errorOccurred"));
     }
@@ -190,10 +197,16 @@ export class AttachmentsComponent implements OnInit {
 
   protected async init() {
     this.cipherDomain = await this.loadCipher();
-    this.cipher = await this.cipherDomain.decrypt();
+    const activeUserId = await firstValueFrom(
+      this.accountService.activeAccount$.pipe(map((a) => a?.id)),
+    );
+    this.cipher = await this.cipherDomain.decrypt(
+      await this.cipherService.getKeyForCipherKeyDecryption(this.cipherDomain, activeUserId),
+    );
 
-    this.hasUpdatedKey = await this.cryptoService.hasEncKey();
-    const canAccessPremium = await this.stateService.getCanAccessPremium();
+    const canAccessPremium = await firstValueFrom(
+      this.billingAccountProfileStateService.hasPremiumFromAnySource$,
+    );
     this.canAccessAttachments = canAccessPremium || this.cipher.organizationId != null;
 
     if (!this.canAccessAttachments) {
@@ -201,23 +214,12 @@ export class AttachmentsComponent implements OnInit {
         title: { key: "premiumRequired" },
         content: { key: "premiumRequiredDesc" },
         acceptButtonText: { key: "learnMore" },
-        type: SimpleDialogType.SUCCESS,
-      });
-
-      if (confirmed) {
-        this.platformUtilsService.launchUri("https://vault.bitwarden.com/#/?premium=purchase");
-      }
-    } else if (!this.hasUpdatedKey) {
-      const confirmed = await this.dialogService.openSimpleDialog({
-        title: { key: "featureUnavailable" },
-        content: { key: "updateKey" },
-        acceptButtonText: { key: "learnMore" },
-        type: SimpleDialogType.WARNING,
+        type: "success",
       });
 
       if (confirmed) {
         this.platformUtilsService.launchUri(
-          "https://bitwarden.com/help/account-encryption-key/#rotate-your-encryption-key"
+          "https://vault.bitwarden.com/#/settings/subscription/premium",
         );
       }
     }
@@ -248,13 +250,19 @@ export class AttachmentsComponent implements OnInit {
               ? attachment.key
               : await this.cryptoService.getOrgKey(this.cipher.organizationId);
           const decBuf = await this.cryptoService.decryptFromBytes(encBuf, key);
+          const activeUserId = await firstValueFrom(
+            this.accountService.activeAccount$.pipe(map((a) => a?.id)),
+          );
           this.cipherDomain = await this.cipherService.saveAttachmentRawWithServer(
             this.cipherDomain,
             attachment.fileName,
             decBuf,
-            admin
+            activeUserId,
+            admin,
           );
-          this.cipher = await this.cipherDomain.decrypt();
+          this.cipher = await this.cipherDomain.decrypt(
+            await this.cipherService.getKeyForCipherKeyDecryption(this.cipherDomain, activeUserId),
+          );
 
           // 3. Delete old
           this.deletePromises[attachment.id] = this.deleteCipherAttachment(attachment.id);
@@ -270,7 +278,7 @@ export class AttachmentsComponent implements OnInit {
           this.platformUtilsService.showToast(
             "success",
             null,
-            this.i18nService.t("attachmentSaved")
+            this.i18nService.t("attachmentSaved"),
           );
           this.onReuploadedAttachment.emit();
         } catch (e) {
@@ -289,8 +297,8 @@ export class AttachmentsComponent implements OnInit {
     return this.cipherService.get(this.cipherId);
   }
 
-  protected saveCipherAttachment(file: File) {
-    return this.cipherService.saveAttachmentWithServer(this.cipherDomain, file);
+  protected saveCipherAttachment(file: File, userId: UserId) {
+    return this.cipherService.saveAttachmentWithServer(this.cipherDomain, file, userId);
   }
 
   protected deleteCipherAttachment(attachmentId: string) {

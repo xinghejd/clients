@@ -1,27 +1,31 @@
+import { firstValueFrom } from "rxjs";
+
+import { OrganizationUserApiService } from "@bitwarden/admin-console/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { OrganizationUserService } from "@bitwarden/common/abstractions/organization-user/organization-user.service";
+import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
 import { SearchService } from "@bitwarden/common/abstractions/search.service";
-import { CollectionService } from "@bitwarden/common/admin-console/abstractions/collection.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
-import { CollectionData } from "@bitwarden/common/admin-console/models/data/collection.data";
-import { Collection } from "@bitwarden/common/admin-console/models/domain/collection";
+import { EventType } from "@bitwarden/common/enums";
+import { ListResponse as ApiListResponse } from "@bitwarden/common/models/response/list.response";
+import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
+import { CollectionService } from "@bitwarden/common/vault/abstractions/collection.service";
+import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
+import { CollectionData } from "@bitwarden/common/vault/models/data/collection.data";
+import { Collection } from "@bitwarden/common/vault/models/domain/collection";
 import {
   CollectionDetailsResponse as ApiCollectionDetailsResponse,
   CollectionResponse as ApiCollectionResponse,
-} from "@bitwarden/common/admin-console/models/response/collection.response";
-import { Utils } from "@bitwarden/common/misc/utils";
-import { ListResponse as ApiListResponse } from "@bitwarden/common/models/response/list.response";
-import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
-import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
+} from "@bitwarden/common/vault/models/response/collection.response";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
-import { CollectionResponse } from "../admin-console/models/response/collection.response";
 import { OrganizationUserResponse } from "../admin-console/models/response/organization-user.response";
 import { OrganizationResponse } from "../admin-console/models/response/organization.response";
 import { Response } from "../models/response";
 import { ListResponse } from "../models/response/list.response";
 import { CliUtils } from "../utils";
 import { CipherResponse } from "../vault/models/cipher.response";
+import { CollectionResponse } from "../vault/models/collection.response";
 import { FolderResponse } from "../vault/models/folder.response";
 
 export class ListCommand {
@@ -31,8 +35,9 @@ export class ListCommand {
     private collectionService: CollectionService,
     private organizationService: OrganizationService,
     private searchService: SearchService,
-    private organizationUserService: OrganizationUserService,
-    private apiService: ApiService
+    private organizationUserApiService: OrganizationUserApiService,
+    private apiService: ApiService,
+    private eventCollectionService: EventCollectionService,
   ) {}
 
   async run(object: string, cmdOptions: Record<string, any>): Promise<Response> {
@@ -123,6 +128,8 @@ export class ListCommand {
       ciphers = this.searchService.searchCiphersBasic(ciphers, options.search, options.trash);
     }
 
+    await this.eventCollectionService.collectMany(EventType.Cipher_ClientViewed, ciphers, true);
+
     const res = new ListResponse(ciphers.map((o) => new CipherResponse(o)));
     return Response.success(res);
   }
@@ -204,7 +211,7 @@ export class ListCommand {
     }
 
     try {
-      const response = await this.organizationUserService.getAllUsers(options.organizationId);
+      const response = await this.organizationUserApiService.getAllUsers(options.organizationId);
       const res = new ListResponse(
         response.data.map((r) => {
           const u = new OrganizationUserResponse();
@@ -215,7 +222,7 @@ export class ListCommand {
           u.type = r.type;
           u.twoFactorEnabled = r.twoFactorEnabled;
           return u;
-        })
+        }),
       );
       return Response.success(res);
     } catch (e) {
@@ -224,7 +231,7 @@ export class ListCommand {
   }
 
   private async listOrganizations(options: Options) {
-    let organizations = await this.organizationService.getAll();
+    let organizations = await firstValueFrom(this.organizationService.memberOrganizations$);
 
     if (options.search != null && options.search.trim() !== "") {
       organizations = CliUtils.searchOrganizations(organizations, options.search);

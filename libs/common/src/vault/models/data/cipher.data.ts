@@ -1,3 +1,5 @@
+import { Jsonify } from "type-fest";
+
 import { CipherRepromptType } from "../../enums/cipher-reprompt-type";
 import { CipherType } from "../../enums/cipher-type";
 import { CipherResponse } from "../response/cipher.response";
@@ -33,6 +35,7 @@ export class CipherData {
   creationDate: string;
   deletedDate: string;
   reprompt: CipherRepromptType;
+  key: string;
 
   constructor(response?: CipherResponse, collectionIds?: string[]) {
     if (response == null) {
@@ -54,6 +57,7 @@ export class CipherData {
     this.creationDate = response.creationDate;
     this.deletedDate = response.deletedDate;
     this.reprompt = response.reprompt;
+    this.key = response.key;
 
     switch (this.type) {
       case CipherType.Login:
@@ -81,5 +85,9 @@ export class CipherData {
     if (response.passwordHistory != null) {
       this.passwordHistory = response.passwordHistory.map((ph) => new PasswordHistoryData(ph));
     }
+  }
+
+  static fromJSON(obj: Jsonify<CipherData>) {
+    return Object.assign(new CipherData(), obj);
   }
 }

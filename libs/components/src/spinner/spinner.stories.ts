@@ -1,5 +1,5 @@
 import { CommonModule } from "@angular/common";
-import { Meta, moduleMetadata, Story } from "@storybook/angular";
+import { Meta, moduleMetadata, StoryObj } from "@storybook/angular";
 
 import { SpinnerComponent } from "./spinner.component";
 
@@ -20,11 +20,20 @@ export default {
   },
 } as Meta;
 
-const Template: Story<SpinnerComponent> = (args: SpinnerComponent) => ({
-  props: args,
-});
+type Story = StoryObj<SpinnerComponent>;
 
-export const Primary = Template.bind({});
-Primary.args = {
-  size: "large",
+export const Default: Story = {
+  args: {},
+};
+
+export const Fill: Story = {
+  args: {
+    size: "fill",
+  },
+};
+
+export const Small: Story = {
+  args: {
+    size: "small",
+  },
 };

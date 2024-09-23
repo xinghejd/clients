@@ -1,8 +1,8 @@
 import { Jsonify } from "type-fest";
 
-import { Utils } from "../../../../misc/utils";
-import Domain from "../../../../models/domain/domain-base";
-import { EncString } from "../../../../models/domain/enc-string";
+import { Utils } from "../../../../platform/misc/utils";
+import Domain from "../../../../platform/models/domain/domain-base";
+import { EncString } from "../../../../platform/models/domain/enc-string";
 import { SendType } from "../../enums/send-type";
 import { SendData } from "../data/send.data";
 import { SendView } from "../view/send.view";
@@ -44,7 +44,7 @@ export class Send extends Domain {
         notes: null,
         key: null,
       },
-      ["id", "accessId"]
+      ["id", "accessId"],
     );
 
     this.type = obj.type;
@@ -88,7 +88,7 @@ export class Send extends Domain {
         notes: null,
       },
       null,
-      model.cryptoKey
+      model.cryptoKey,
     );
 
     switch (this.type) {

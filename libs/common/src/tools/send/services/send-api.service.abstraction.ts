@@ -1,5 +1,5 @@
-import { EncArrayBuffer } from "../../../models/domain/enc-array-buffer";
 import { ListResponse } from "../../../models/response/list.response";
+import { EncArrayBuffer } from "../../../platform/models/domain/enc-array-buffer";
 import { Send } from "../models/domain/send";
 import { SendAccessRequest } from "../models/request/send-access.request";
 import { SendRequest } from "../models/request/send.request";
@@ -14,7 +14,7 @@ export abstract class SendApiService {
   postSendAccess: (
     id: string,
     request: SendAccessRequest,
-    apiUrl?: string
+    apiUrl?: string,
   ) => Promise<SendAccessResponse>;
   getSends: () => Promise<ListResponse<SendResponse>>;
   postSend: (request: SendRequest) => Promise<SendResponse>;
@@ -31,7 +31,7 @@ export abstract class SendApiService {
   getSendFileDownloadData: (
     send: SendAccessView,
     request: SendAccessRequest,
-    apiUrl?: string
+    apiUrl?: string,
   ) => Promise<SendFileDownloadDataResponse>;
   renewSendFileUploadUrl: (sendId: string, fileId: string) => Promise<SendFileUploadDataResponse>;
   removePassword: (id: string) => Promise<any>;

@@ -1,8 +1,12 @@
+import { coerceBooleanProperty } from "@angular/cdk/coercion";
 import {
   AfterContentChecked,
+  booleanAttribute,
   Component,
   ContentChild,
   ContentChildren,
+  HostBinding,
+  Input,
   QueryList,
   ViewChild,
 } from "@angular/core";
@@ -17,9 +21,6 @@ import { BitSuffixDirective } from "./suffix.directive";
 @Component({
   selector: "bit-form-field",
   templateUrl: "./form-field.component.html",
-  host: {
-    class: "tw-mb-6 tw-block",
-  },
 })
 export class BitFormFieldComponent implements AfterContentChecked {
   @ContentChild(BitFormFieldControl) input: BitFormFieldControl;
@@ -29,6 +30,26 @@ export class BitFormFieldComponent implements AfterContentChecked {
 
   @ContentChildren(BitPrefixDirective) prefixChildren: QueryList<BitPrefixDirective>;
   @ContentChildren(BitSuffixDirective) suffixChildren: QueryList<BitSuffixDirective>;
+
+  private _disableMargin = false;
+  @Input() set disableMargin(value: boolean | "") {
+    this._disableMargin = coerceBooleanProperty(value);
+  }
+  get disableMargin() {
+    return this._disableMargin;
+  }
+
+  /**
+   * NOTE: Placeholder to match the API of the form-field component in the `ps/extension` branch,
+   * no functionality is implemented as of now.
+   */
+  @Input({ transform: booleanAttribute })
+  disableReadOnlyBorder = false;
+
+  @HostBinding("class")
+  get classList() {
+    return ["tw-block"].concat(this.disableMargin ? [] : ["tw-mb-6"]);
+  }
 
   ngAfterContentChecked(): void {
     if (this.error) {

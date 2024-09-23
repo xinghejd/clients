@@ -33,7 +33,7 @@ export class SpinnerComponent {
   @HostBinding("class") get classList() {
     return ["tw-inline-block", "tw-overflow-hidden"]
       .concat(this.sizeClass)
-      .concat([this._noColor ? null : "tw-text-primary-500"]);
+      .concat([this._noColor ? null : "tw-text-primary-600"]);
   }
 
   @HostBinding("attr.aria-live") ariaLive = "assertive";

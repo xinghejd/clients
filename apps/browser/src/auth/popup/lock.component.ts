@@ -1,38 +1,51 @@
-import { Component, NgZone } from "@angular/core";
+import { Component, NgZone, OnInit } from "@angular/core";
 import { Router } from "@angular/router";
+import { firstValueFrom } from "rxjs";
 
 import { LockComponent as BaseLockComponent } from "@bitwarden/angular/auth/components/lock.component";
-import { DialogServiceAbstraction } from "@bitwarden/angular/services/dialog";
+import { PinServiceAbstraction } from "@bitwarden/auth/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { CryptoService } from "@bitwarden/common/abstractions/crypto.service";
-import { EnvironmentService } from "@bitwarden/common/abstractions/environment.service";
-import { I18nService } from "@bitwarden/common/abstractions/i18n.service";
-import { LogService } from "@bitwarden/common/abstractions/log.service";
-import { MessagingService } from "@bitwarden/common/abstractions/messaging.service";
-import { PlatformUtilsService } from "@bitwarden/common/abstractions/platformUtils.service";
-import { StateService } from "@bitwarden/common/abstractions/state.service";
-import { VaultTimeoutService } from "@bitwarden/common/abstractions/vaultTimeout/vaultTimeout.service";
-import { VaultTimeoutSettingsService } from "@bitwarden/common/abstractions/vaultTimeout/vaultTimeoutSettings.service";
+import { VaultTimeoutSettingsService } from "@bitwarden/common/abstractions/vault-timeout/vault-timeout-settings.service";
+import { VaultTimeoutService } from "@bitwarden/common/abstractions/vault-timeout/vault-timeout.service";
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
 import { InternalPolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
-import { KeyConnectorService } from "@bitwarden/common/auth/abstractions/key-connector.service";
+import { DeviceTrustServiceAbstraction } from "@bitwarden/common/auth/abstractions/device-trust.service.abstraction";
+import { KdfConfigService } from "@bitwarden/common/auth/abstractions/kdf-config.service";
+import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/auth/abstractions/master-password.service.abstraction";
+import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
-import { PasswordGenerationServiceAbstraction } from "@bitwarden/common/tools/generator/password";
+import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
+import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
+import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
+import { BiometricStateService } from "@bitwarden/common/platform/biometrics/biometric-state.service";
+import { BiometricsService } from "@bitwarden/common/platform/biometrics/biometric.service";
+import { PasswordStrengthServiceAbstraction } from "@bitwarden/common/tools/password-strength";
+import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
+import { DialogService, ToastService } from "@bitwarden/components";
 
 import { BiometricErrors, BiometricErrorTypes } from "../../models/biometricErrors";
+import { BrowserRouterService } from "../../platform/popup/services/browser-router.service";
+import { fido2PopoutSessionData$ } from "../../vault/popup/utils/fido2-popout-session-data";
 
 @Component({
   selector: "app-lock",
   templateUrl: "lock.component.html",
 })
-export class LockComponent extends BaseLockComponent {
+export class LockComponent extends BaseLockComponent implements OnInit {
   private isInitialLockScreen: boolean;
 
   biometricError: string;
   pendingBiometric = false;
+  fido2PopoutSessionData$ = fido2PopoutSessionData$();
 
   constructor(
+    masterPasswordService: InternalMasterPasswordServiceAbstraction,
     router: Router,
     i18nService: I18nService,
     platformUtilsService: PlatformUtilsService,
@@ -44,15 +57,25 @@ export class LockComponent extends BaseLockComponent {
     stateService: StateService,
     apiService: ApiService,
     logService: LogService,
-    keyConnectorService: KeyConnectorService,
     ngZone: NgZone,
     policyApiService: PolicyApiServiceAbstraction,
     policyService: InternalPolicyService,
-    passwordGenerationService: PasswordGenerationServiceAbstraction,
-    private authService: AuthService,
-    dialogService: DialogServiceAbstraction
+    passwordStrengthService: PasswordStrengthServiceAbstraction,
+    authService: AuthService,
+    dialogService: DialogService,
+    deviceTrustService: DeviceTrustServiceAbstraction,
+    userVerificationService: UserVerificationService,
+    pinService: PinServiceAbstraction,
+    private routerService: BrowserRouterService,
+    biometricStateService: BiometricStateService,
+    biometricsService: BiometricsService,
+    accountService: AccountService,
+    kdfConfigService: KdfConfigService,
+    syncService: SyncService,
+    toastService: ToastService,
   ) {
     super(
+      masterPasswordService,
       router,
       i18nService,
       platformUtilsService,
@@ -64,56 +87,94 @@ export class LockComponent extends BaseLockComponent {
       stateService,
       apiService,
       logService,
-      keyConnectorService,
       ngZone,
       policyApiService,
       policyService,
-      passwordGenerationService,
-      dialogService
+      passwordStrengthService,
+      dialogService,
+      deviceTrustService,
+      userVerificationService,
+      pinService,
+      biometricStateService,
+      biometricsService,
+      accountService,
+      authService,
+      kdfConfigService,
+      syncService,
+      toastService,
     );
     this.successRoute = "/tabs/current";
     this.isInitialLockScreen = (window as any).previousPopupUrl == null;
+
+    super.onSuccessfulSubmit = async () => {
+      const previousUrl = this.routerService.getPreviousUrl();
+      if (previousUrl) {
+        // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises
+        this.router.navigateByUrl(previousUrl);
+      } else {
+        // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises
+        this.router.navigate([this.successRoute]);
+      }
+    };
   }
 
   async ngOnInit() {
     await super.ngOnInit();
-    const disableAutoBiometricsPrompt =
-      (await this.stateService.getDisableAutoBiometricsPrompt()) ?? true;
+    const autoBiometricsPrompt = await firstValueFrom(
+      this.biometricStateService.promptAutomatically$,
+    );
 
     window.setTimeout(async () => {
-      document.getElementById(this.pinLock ? "pin" : "masterPassword").focus();
+      document.getElementById(this.pinEnabled ? "pin" : "masterPassword")?.focus();
       if (
         this.biometricLock &&
-        !disableAutoBiometricsPrompt &&
+        autoBiometricsPrompt &&
         this.isInitialLockScreen &&
         (await this.authService.getAuthStatus()) === AuthenticationStatus.Locked
       ) {
-        await this.unlockBiometric();
+        await this.unlockBiometric(true);
       }
     }, 100);
   }
 
-  async unlockBiometric(): Promise<boolean> {
+  override async unlockBiometric(automaticPrompt: boolean = false): Promise<boolean> {
     if (!this.biometricLock) {
       return;
     }
 
-    this.pendingBiometric = true;
     this.biometricError = null;
 
     let success;
     try {
-      success = await super.unlockBiometric();
+      const available = await super.isBiometricUnlockAvailable();
+      if (!available) {
+        if (!automaticPrompt) {
+          await this.dialogService.openSimpleDialog({
+            type: "warning",
+            title: { key: "biometricsNotAvailableTitle" },
+            content: { key: "biometricsNotAvailableDesc" },
+            acceptButtonText: { key: "ok" },
+            cancelButtonText: null,
+          });
+        }
+      } else {
+        this.pendingBiometric = true;
+        success = await super.unlockBiometric();
+      }
     } catch (e) {
-      const error = BiometricErrors[e as BiometricErrorTypes];
+      const error = BiometricErrors[e?.message as BiometricErrorTypes];
 
       if (error == null) {
         this.logService.error("Unknown error: " + e);
+        return false;
       }
 
       this.biometricError = this.i18nService.t(error.description);
+    } finally {
+      this.pendingBiometric = false;
     }
-    this.pendingBiometric = false;
 
     return success;
   }

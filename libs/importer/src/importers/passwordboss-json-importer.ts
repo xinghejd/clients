@@ -1,4 +1,4 @@
-import { CipherType } from "@bitwarden/common/vault/enums/cipher-type";
+import { CipherType } from "@bitwarden/common/vault/enums";
 import { CardView } from "@bitwarden/common/vault/models/view/card.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 
@@ -75,7 +75,7 @@ export class PasswordBossJsonImporter extends BaseImporter implements Importer {
         if (cipher.type === CipherType.Card) {
           if (property === "cardNumber") {
             cipher.card.number = val;
-            cipher.card.brand = this.getCardBrand(val);
+            cipher.card.brand = CardView.getCardBrandByPatterns(cipher.card.number);
             continue;
           } else if (property === "nameOnCard") {
             cipher.card.cardholderName = val;

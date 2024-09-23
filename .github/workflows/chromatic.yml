@@ -3,28 +3,48 @@ name: Chromatic
 
 on:
   push:
-    paths-ignore:
-      - '.github/workflows/**'
+    branches:
+      - "main"
+      - "rc"
+      - "hotfix-rc"
+  pull_request_target:
+    types: [opened, synchronize]
 
 jobs:
+  check-run:
+    name: Check PR run
+    uses: bitwarden/gh-actions/.github/workflows/check-run.yml@main
+
   chromatic:
     name: Chromatic
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
+    needs: check-run
+    permissions:
+      contents: read
+      pull-requests: write
 
     steps:
-      - name: Set up Node
-        uses: actions/setup-node@64ed1c7eab4cce3362f8c340dee64e5eaeef8f7c # v3.6.0
+      - name: Check out repo
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
         with:
-          node-version: "16"
-
-      - name: Checkout repo
-        uses: actions/checkout@8e5e7e5ab8b370d6c329ec480221332ada57f0ab # v3.5.2
-        with:
+          ref: ${{  github.event.pull_request.head.sha }}
           fetch-depth: 0
 
-      - name: Cache npm
+      - name: Get Node version
+        id: retrieve-node-version
+        run: |
+          NODE_NVMRC=$(cat .nvmrc)
+          NODE_VERSION=${NODE_NVMRC/v/''}
+          echo "node_version=$NODE_VERSION" >> $GITHUB_OUTPUT
+
+      - name: Set up Node
+        uses: actions/setup-node@1e60f620b9541d16bece96c5465dc8ee9832be0b # v4.0.3
+        with:
+          node-version: ${{ steps.retrieve-node-version.outputs.node_version }}
+
+      - name: Cache NPM
         id: npm-cache
-        uses: actions/cache@88522ab9f39a2ea568f7027eddc7d8d8bc9d59c8 # v3.3.1
+        uses: actions/cache@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
         with:
           path: "~/.npm"
           key: ${{ runner.os }}-npm-chromatic-${{ hashFiles('**/package-lock.json') }}
@@ -32,11 +52,16 @@ jobs:
       - name: Install Node dependencies
         run: npm ci
 
+      # Manually build the Storybook to resolve a bug related to TurboSnap
+      - name: Build Storybook
+        run: npm run build-storybook:ci
+
       - name: Publish to Chromatic
-        uses: chromaui/action@d51b84e79d164fbe8fc5bb7175695d88ddd04b72
+        uses: chromaui/action@b984808b772126a9f44b2b7737b131b68a2ede32 # v11.7.1
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           projectToken: ${{ secrets.CHROMATIC_PROJECT_TOKEN }}
+          storybookBuildDir: ./storybook-static
           exitOnceUploaded: true
           onlyChanged: true
-          externals: "[\"libs/components/**/*.scss\", \"libs/components/tailwind.config*.js\"]"
+          externals: "[\"libs/components/**/*.scss\", \"libs/components/**/*.css\", \"libs/components/tailwind.config*.js\"]"

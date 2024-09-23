@@ -1,5 +1,4 @@
-import { SecureNoteType } from "@bitwarden/common/enums";
-import { CipherType } from "@bitwarden/common/vault/enums/cipher-type";
+import { SecureNoteType, CipherType } from "@bitwarden/common/vault/enums";
 import { CardView } from "@bitwarden/common/vault/models/view/card.view";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
@@ -122,7 +121,7 @@ export class LastPassCsvImporter extends BaseImporter implements Importer {
     card.cardholderName = this.getValueOrDefault(value.ccname);
     card.number = this.getValueOrDefault(value.ccnum);
     card.code = this.getValueOrDefault(value.cccsc);
-    card.brand = this.getCardBrand(value.ccnum);
+    card.brand = CardView.getCardBrandByPatterns(card.number);
 
     if (!this.isNullOrWhitespace(value.ccexp) && value.ccexp.indexOf("-") > -1) {
       const ccexpParts = (value.ccexp as string).split("-");

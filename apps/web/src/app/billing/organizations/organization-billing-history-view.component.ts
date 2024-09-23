@@ -2,24 +2,28 @@ import { Component, OnDestroy, OnInit } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { concatMap, Subject, takeUntil } from "rxjs";
 
-import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
-import { BillingHistoryResponse } from "@bitwarden/common/billing/models/response/billing-history.response";
+import { OrganizationBillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions/organizations/organization-billing-api.service.abstraction";
+import {
+  BillingInvoiceResponse,
+  BillingTransactionResponse,
+} from "@bitwarden/common/billing/models/response/billing.response";
 
 @Component({
-  selector: "app-org-billing-history-view",
   templateUrl: "organization-billing-history-view.component.html",
 })
 export class OrgBillingHistoryViewComponent implements OnInit, OnDestroy {
   loading = false;
   firstLoaded = false;
-  billing: BillingHistoryResponse;
+  invoices: BillingInvoiceResponse[] = [];
+  transactions: BillingTransactionResponse[] = [];
   organizationId: string;
+  hasAdditionalHistory: boolean = false;
 
   private destroy$ = new Subject<void>();
 
   constructor(
-    private organizationApiService: OrganizationApiServiceAbstraction,
-    private route: ActivatedRoute
+    private organizationBillingApiService: OrganizationBillingApiServiceAbstraction,
+    private route: ActivatedRoute,
   ) {}
 
   async ngOnInit() {
@@ -30,7 +34,7 @@ export class OrgBillingHistoryViewComponent implements OnInit, OnDestroy {
           await this.load();
           this.firstLoaded = true;
         }),
-        takeUntil(this.destroy$)
+        takeUntil(this.destroy$),
       )
       .subscribe();
   }
@@ -44,8 +48,28 @@ export class OrgBillingHistoryViewComponent implements OnInit, OnDestroy {
     if (this.loading) {
       return;
     }
+
     this.loading = true;
-    this.billing = await this.organizationApiService.getBilling(this.organizationId);
+
+    const invoicesPromise = this.organizationBillingApiService.getBillingInvoices(
+      this.organizationId,
+      this.invoices.length > 0 ? this.invoices[this.invoices.length - 1].id : null,
+    );
+
+    const transactionsPromise = this.organizationBillingApiService.getBillingTransactions(
+      this.organizationId,
+      this.transactions.length > 0
+        ? this.transactions[this.transactions.length - 1].createdDate
+        : null,
+    );
+
+    const invoices = await invoicesPromise;
+    const transactions = await transactionsPromise;
+    const pageSize = 5;
+
+    this.invoices = [...this.invoices, ...invoices];
+    this.transactions = [...this.transactions, ...transactions];
+    this.hasAdditionalHistory = !(invoices.length < pageSize && transactions.length < pageSize);
     this.loading = false;
   }
 }

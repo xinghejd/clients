@@ -1,5 +1,4 @@
-import { SecureNoteType } from "@bitwarden/common/enums";
-import { CipherType } from "@bitwarden/common/vault/enums/cipher-type";
+import { SecureNoteType, CipherType } from "@bitwarden/common/vault/enums";
 import { CardView } from "@bitwarden/common/vault/models/view/card.view";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { IdentityView } from "@bitwarden/common/vault/models/view/identity.view";
@@ -136,7 +135,7 @@ export class DashlaneCsvImporter extends BaseImporter implements Importer {
       case "credit_card":
         cipher.card.cardholderName = row.account_name;
         cipher.card.number = row.cc_number;
-        cipher.card.brand = this.getCardBrand(cipher.card.number);
+        cipher.card.brand = CardView.getCardBrandByPatterns(cipher.card.number);
         cipher.card.code = row.code;
         this.setCardExpiration(cipher, `${row.expiration_month}/${row.expiration_year}`);
 
