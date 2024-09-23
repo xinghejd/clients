@@ -266,7 +266,7 @@
     "message": "Bitwarden Authenticator allows you to store authenticator keys and generate TOTP codes for 2-step verification flows. Learn more on the bitwarden.com website"
   },
   "bitwardenSecretsManager": {
-    "message": "Bitwarden Sır Yöneticisi"
+    "message": "Bitwarden Secrets Manager"
   },
   "continueToSecretsManagerPageDesc": {
     "message": "Securely store, manage, and share developer secrets with Bitwarden Secrets Manager. Learn more on the bitwarden.com website."
@@ -1795,6 +1795,15 @@
   },
   "noPasswordsInList": {
     "message": "Listelenecek parola yok."
+  },
+  "clearHistory": {
+    "message": "Geçmişi temizle"
+  },
+  "noPasswordsToShow": {
+    "message": "Gösterilecek parola yok"
+  },
+  "noRecentlyGeneratedPassword": {
+    "message": "Yakın zamanda parola üretmediniz"
   },
   "remove": {
     "message": "Kaldır"
@@ -3477,7 +3486,7 @@
   "passkeyFeatureIsNotImplementedForAccountsWithoutMasterPassword": {
     "message": "Site kimlik doğrulaması gerektiriyor. Bu özellik henüz ana parolası olmayan hesaplarda kullanılamaz."
   },
-  "logInWithPasskey": {
+  "logInWithPasskeyQuestion": {
     "message": "Geçiş anahtarı ile giriş yapılsın mı?"
   },
   "passkeyAlreadyExists": {
@@ -3489,6 +3498,9 @@
   "noMatchingPasskeyLogin": {
     "message": "Bu siteyle eşleşen hiç hesabınız yok."
   },
+  "noMatchingLoginsForSite": {
+    "message": "Bu siteyle eşleşen hesap bulunamadı"
+  },
   "confirm": {
     "message": "Onayla"
   },
@@ -3498,8 +3510,11 @@
   "savePasskeyNewLogin": {
     "message": "Geçiş anahtarını yeni hesap olarak kaydet"
   },
-  "choosePasskey": {
+  "chooseCipherForPasskeySave": {
     "message": "Bu geçiş anahtarının kaydedileceği hesabı seçin"
+  },
+  "chooseCipherForPasskeyAuth": {
+    "message": "Giriş yapılacak geçiş anahtarını seçin"
   },
   "passkeyItem": {
     "message": "Geçiş anahtarı kaydı"
@@ -4294,7 +4309,34 @@
   "enterprisePolicyRequirementsApplied": {
     "message": "Bu ayara kurumsal ilke gereksinimleri uygulandı"
   },
-  "additionalContentAvailable": {
-    "message": "Additional content is available"
+  "fileSavedToDevice": {
+    "message": "Dosya cihaza kaydedildi. Cihazınızın indirilenler klasöründen yönetebilirsiniz."
+  },
+  "showCharacterCount": {
+    "message": "Show character count"
+  },
+  "hideCharacterCount": {
+    "message": "Hide character count"
+  },
+  "itemsInTrash": {
+    "message": "Çöp kutusundaki kayıtlar"
+  },
+  "noItemsInTrash": {
+    "message": "Çöp kutusunda hiç kayıt yok"
+  },
+  "noItemsInTrashDesc": {
+    "message": "Sildiğiniz kayıtlar burada görünecek ve 30 gün sonra kalıcı olarak silinecektir"
+  },
+  "trashWarning": {
+    "message": "30 günden uzun süre çöp kutusunda duran kayıtlar otomatik olarak silinecektir"
+  },
+  "restore": {
+    "message": "Geri yükle"
+  },
+  "deleteForever": {
+    "message": "Kalıcı olarak sil"
+  },
+  "noEditPermissions": {
+    "message": "Bu kaydı düzenleme yetkisine sahip değilsiniz"
   }
 }

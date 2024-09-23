@@ -55,6 +55,7 @@ import { VerifyBankAccountComponent } from "./verify-bank-account/verify-bank-ac
     UpdateLicenseDialogComponent,
     OffboardingSurveyComponent,
     VerifyBankAccountComponent,
+    PaymentV2Component,
   ],
 })
 export class BillingSharedModule {}

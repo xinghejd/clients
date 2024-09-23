@@ -32,6 +32,8 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { KdfConfigService } from "@bitwarden/common/auth/abstractions/kdf-config.service";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/auth/abstractions/master-password.service.abstraction";
 import { ClientType } from "@bitwarden/common/enums";
+import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { CryptoService as CryptoServiceAbstraction } from "@bitwarden/common/platform/abstractions/crypto.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { FileDownloadService } from "@bitwarden/common/platform/abstractions/file-download/file-download.service";
@@ -41,6 +43,7 @@ import { PlatformUtilsService as PlatformUtilsServiceAbstraction } from "@bitwar
 import { AbstractStorageService } from "@bitwarden/common/platform/abstractions/storage.service";
 import { BiometricsService } from "@bitwarden/common/platform/biometrics/biometric.service";
 import { ThemeType } from "@bitwarden/common/platform/enums";
+import { AppIdService as DefaultAppIdService } from "@bitwarden/common/platform/services/app-id.service";
 import { MemoryStorageService } from "@bitwarden/common/platform/services/memory-storage.service";
 // eslint-disable-next-line import/no-restricted-paths -- Implementation for memory storage
 import { MigrationBuilderService } from "@bitwarden/common/platform/services/migration-builder.service";
@@ -172,10 +175,10 @@ const safeProviders: SafeProvider[] = [
   }),
   safeProvider({
     provide: ThemeStateService,
-    useFactory: (globalStateProvider: GlobalStateProvider) =>
+    useFactory: (globalStateProvider: GlobalStateProvider, configService: ConfigService) =>
       // Web chooses to have Light as the default theme
-      new DefaultThemeStateService(globalStateProvider, ThemeType.Light),
-    deps: [GlobalStateProvider],
+      new DefaultThemeStateService(globalStateProvider, configService, ThemeType.Light),
+    deps: [GlobalStateProvider, ConfigService],
   }),
   safeProvider({
     provide: CLIENT_TYPE,
@@ -206,6 +209,11 @@ const safeProviders: SafeProvider[] = [
       OrganizationUserApiService,
       InternalUserDecryptionOptionsServiceAbstraction,
     ],
+  }),
+  safeProvider({
+    provide: AppIdService,
+    useClass: DefaultAppIdService,
+    deps: [OBSERVABLE_DISK_LOCAL_STORAGE, LogService],
   }),
 ];
 

@@ -33,7 +33,6 @@ import { ModalService } from "@bitwarden/angular/services/modal.service";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
 import { SearchService } from "@bitwarden/common/abstractions/search.service";
-import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -48,20 +47,25 @@ import { MessagingService } from "@bitwarden/common/platform/abstractions/messag
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { SyncService } from "@bitwarden/common/platform/sync";
-import { OrganizationId } from "@bitwarden/common/types/guid";
+import { CipherId, CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CollectionService } from "@bitwarden/common/vault/abstractions/collection.service";
 import { TotpService } from "@bitwarden/common/vault/abstractions/totp.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherRepromptType } from "@bitwarden/common/vault/enums/cipher-reprompt-type";
 import { CollectionData } from "@bitwarden/common/vault/models/data/collection.data";
+import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
 import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
 import { CollectionDetailsResponse } from "@bitwarden/common/vault/models/response/collection.response";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { CollectionView } from "@bitwarden/common/vault/models/view/collection.view";
 import { ServiceUtils } from "@bitwarden/common/vault/service-utils";
-import { BannerModule, DialogService, Icons, ToastService } from "@bitwarden/components";
-import { CollectionAssignmentResult, PasswordRepromptService } from "@bitwarden/vault";
+import { DialogService, Icons, ToastService } from "@bitwarden/components";
+import {
+  CollectionAssignmentResult,
+  DefaultCipherFormConfigService,
+  PasswordRepromptService,
+} from "@bitwarden/vault";
 
 import { SharedModule } from "../../shared/shared.module";
 import { AssignCollectionsWebComponent } from "../components/assign-collections";
@@ -75,7 +79,17 @@ import { VaultItemEvent } from "../components/vault-items/vault-item-event";
 import { VaultItemsModule } from "../components/vault-items/vault-items.module";
 import { getNestedCollectionTree } from "../utils/collection-utils";
 
+import {
+  AddEditCipherDialogCloseResult,
+  AddEditCipherDialogResult,
+  openAddEditCipherDialog,
+} from "./add-edit-v2.component";
 import { AddEditComponent } from "./add-edit.component";
+import {
+  AttachmentDialogCloseResult,
+  AttachmentDialogResult,
+  AttachmentsV2Component,
+} from "./attachments-v2.component";
 import { AttachmentsComponent } from "./attachments.component";
 import {
   BulkDeleteDialogResult,
@@ -139,10 +153,13 @@ export type PaymentCheckOfOrganization = {
     VaultBannersComponent,
     VaultFilterModule,
     VaultItemsModule,
-    BannerModule,
     SharedModule,
   ],
-  providers: [RoutedVaultFilterService, RoutedVaultFilterBridgeService],
+  providers: [
+    RoutedVaultFilterService,
+    RoutedVaultFilterBridgeService,
+    DefaultCipherFormConfigService,
+  ],
 })
 export class VaultComponent implements OnInit, OnDestroy {
   @ViewChild("vaultFilter", { static: true }) filterComponent: VaultFilterComponent;
@@ -182,8 +199,7 @@ export class VaultComponent implements OnInit, OnDestroy {
   private searchText$ = new Subject<string>();
   private refresh$ = new BehaviorSubject<void>(null);
   private destroy$ = new Subject<void>();
-  protected organization: Organization;
-  protected organizations: PaymentCheckOfOrganization[] = [];
+  private extensionRefreshEnabled: boolean;
 
   constructor(
     private syncService: SyncService,
@@ -214,7 +230,7 @@ export class VaultComponent implements OnInit, OnDestroy {
     private billingAccountProfileStateService: BillingAccountProfileStateService,
     private toastService: ToastService,
     private accountService: AccountService,
-    private organizationApiService: OrganizationApiServiceAbstraction,
+    private cipherFormConfigService: DefaultCipherFormConfigService,
   ) {}
 
   async ngOnInit() {
@@ -429,90 +445,17 @@ export class VaultComponent implements OnInit, OnDestroy {
           this.isEmpty = collections?.length === 0 && ciphers?.length === 0;
           if (this.allOrganizations.length > 0) {
             this.refreshing = true;
-            await this.detectUpcomingPaymentProblemsInOrgs();
             this.refreshing = false;
           }
           this.performingInitialLoad = false;
           this.refreshing = false;
         },
       });
-  }
 
-  async navigateToPaymentMethod(organizationId: string): Promise<void> {
-    const navigationExtras = {
-      state: { launchPaymentModalAutomatically: true },
-    };
-
-    await this.router.navigate(
-      ["organizations", organizationId, "billing", "payment-method"],
-      navigationExtras,
+    // Check if the extension refresh feature flag is enabled
+    this.extensionRefreshEnabled = await this.configService.getFeatureFlag(
+      FeatureFlag.ExtensionRefresh,
     );
-  }
-
-  async detectUpcomingPaymentProblemsInOrgs(): Promise<void> {
-    const checks = this.allOrganizations.map(async (org) => {
-      const result: PaymentCheckOfOrganization = await this.evaluateOrganizationPaymentConditions(
-        org.id,
-      );
-
-      if (result.isOwner && result.isTrialing && result.isPaymentSourceEmpty) {
-        return result;
-      }
-
-      return null;
-    });
-
-    const results = await Promise.all(checks);
-    this.organizations = results.filter(
-      (result) => result !== null,
-    ) as PaymentCheckOfOrganization[];
-  }
-
-  getBannerMessage(organization: PaymentCheckOfOrganization) {
-    return organization?.trialRemainingDays >= 2
-      ? this.i18nService.t(
-          "freeTrialEndPromptAboveTwoDays",
-          organization?.orgName,
-          organization?.trialRemainingDays,
-        )
-      : organization?.trialRemainingDays == 1
-        ? this.i18nService.t("freeTrialEndPromptForOneDay", organization?.orgName)
-        : this.i18nService.t("freeTrialEndPromptForLessThanADay", organization?.orgName);
-  }
-
-  async evaluateOrganizationPaymentConditions(
-    organizationId: string,
-  ): Promise<PaymentCheckOfOrganization> {
-    const org = await this.organizationService.get(organizationId);
-    const sub = await this.organizationApiService.getSubscription(organizationId);
-    const billing = await this.organizationApiService.getBilling(organizationId);
-
-    const isTrialing = sub?.subscription.status === "trialing";
-    const isOwner = org?.isOwner ?? false;
-    const isPaymentSourceEmpty = !billing?.paymentSource;
-
-    const trialRemainingDays = this.calculateTrialRemainingDays(sub?.subscription.trialEndDate);
-
-    return {
-      isTrialing,
-      isOwner,
-      trialRemainingDays,
-      isPaymentSourceEmpty,
-      orgId: organizationId,
-      orgName: org?.name ?? "Unknown Organization",
-    };
-  }
-
-  private calculateTrialRemainingDays(trialEndDate?: string): number | undefined {
-    if (!trialEndDate) {
-      return undefined;
-    }
-
-    const today = new Date();
-    const trialEnd = new Date(trialEndDate);
-    const timeDifference = trialEnd.getTime() - today.getTime();
-
-    return Math.ceil(timeDifference / (1000 * 60 * 60 * 24));
   }
 
   ngOnDestroy() {
@@ -608,6 +551,15 @@ export class VaultComponent implements OnInit, OnDestroy {
     this.searchText$.next(searchText);
   }
 
+  /**
+   * Handles opening the attachments dialog for a cipher.
+   * Runs several checks to ensure that the user has the correct permissions
+   * and then opens the attachments dialog.
+   * Uses the new AttachmentsV2Component if the extensionRefresh feature flag is enabled.
+   *
+   * @param cipher
+   * @returns
+   */
   async editCipherAttachments(cipher: CipherView) {
     if (cipher?.reprompt !== 0 && !(await this.passwordRepromptService.showPasswordPrompt())) {
       this.go({ cipherId: null, itemId: null });
@@ -633,6 +585,24 @@ export class VaultComponent implements OnInit, OnDestroy {
     );
 
     let madeAttachmentChanges = false;
+
+    if (this.extensionRefreshEnabled) {
+      const dialogRef = AttachmentsV2Component.open(this.dialogService, {
+        cipherId: cipher.id as CipherId,
+      });
+
+      const result: AttachmentDialogCloseResult = await lastValueFrom(dialogRef.closed);
+
+      if (
+        result.action === AttachmentDialogResult.Uploaded ||
+        result.action === AttachmentDialogResult.Removed
+      ) {
+        this.refresh();
+      }
+
+      return;
+    }
+
     const [modal] = await this.modalService.openViewRef(
       AttachmentsComponent,
       this.attachmentsModalRef,
@@ -695,7 +665,11 @@ export class VaultComponent implements OnInit, OnDestroy {
   }
 
   async addCipher(cipherType?: CipherType) {
-    const component = await this.editCipher(null);
+    if (this.extensionRefreshEnabled) {
+      return this.addCipherV2(cipherType);
+    }
+
+    const component = (await this.editCipher(null)) as AddEditComponent;
     component.type = cipherType || this.activeFilter.cipherType;
     if (
       this.activeFilter.organizationId !== "MyVault" &&
@@ -719,18 +693,56 @@ export class VaultComponent implements OnInit, OnDestroy {
     component.folderId = this.activeFilter.folderId;
   }
 
-  async navigateToCipher(cipher: CipherView) {
-    this.go({ itemId: cipher?.id });
+  /**
+   * Opens the add cipher dialog.
+   * @param cipherType The type of cipher to add.
+   * @returns The dialog reference.
+   */
+  async addCipherV2(cipherType?: CipherType) {
+    const cipherFormConfig = await this.cipherFormConfigService.buildConfig(
+      "add",
+      null,
+      cipherType,
+    );
+    cipherFormConfig.initialValues = {
+      organizationId:
+        this.activeFilter.organizationId !== "MyVault" && this.activeFilter.organizationId != null
+          ? (this.activeFilter.organizationId as OrganizationId)
+          : null,
+      collectionIds:
+        this.activeFilter.collectionId !== "AllCollections" &&
+        this.activeFilter.collectionId != null
+          ? [this.activeFilter.collectionId as CollectionId]
+          : [],
+      folderId: this.activeFilter.folderId,
+    };
+
+    // Open the dialog.
+    const dialogRef = openAddEditCipherDialog(this.dialogService, {
+      data: cipherFormConfig,
+    });
+
+    // Wait for the dialog to close.
+    const result: AddEditCipherDialogCloseResult = await lastValueFrom(dialogRef.closed);
+
+    // Refresh the vault to show the new cipher.
+    if (result?.action === AddEditCipherDialogResult.Added) {
+      this.refresh();
+      this.go({ itemId: result.id, action: "view" });
+      return;
+    }
+
+    // If the dialog was closed by any other action navigate back to the vault.
+    this.go({ cipherId: null, itemId: null, action: null });
   }
 
-  async editCipher(cipher: CipherView) {
-    return this.editCipherId(cipher?.id);
+  async editCipher(cipher: CipherView, cloneMode?: boolean) {
+    return this.editCipherId(cipher?.id, cloneMode);
   }
 
-  async editCipherId(id: string) {
+  async editCipherId(id: string, cloneMode?: boolean) {
     const cipher = await this.cipherService.get(id);
-    // if cipher exists (cipher is null when new) and MP reprompt
-    // is on for this cipher, then show password reprompt
+
     if (
       cipher &&
       cipher.reprompt !== 0 &&
@@ -738,6 +750,11 @@ export class VaultComponent implements OnInit, OnDestroy {
     ) {
       // didn't pass password prompt, so don't open add / edit modal
       this.go({ cipherId: null, itemId: null, action: null });
+      return;
+    }
+
+    if (this.extensionRefreshEnabled) {
+      await this.editCipherIdV2(cipher, cloneMode);
       return;
     }
 
@@ -768,6 +785,46 @@ export class VaultComponent implements OnInit, OnDestroy {
     });
 
     return childComponent;
+  }
+
+  /**
+   * Edit a cipher using the new AddEditCipherDialogV2 component.
+   *
+   * @param cipher
+   * @param cloneMode
+   */
+  private async editCipherIdV2(cipher: Cipher, cloneMode?: boolean) {
+    const cipherFormConfig = await this.cipherFormConfigService.buildConfig(
+      cloneMode ? "clone" : "edit",
+      cipher.id as CipherId,
+      cipher.type,
+    );
+
+    const dialogRef = openAddEditCipherDialog(this.dialogService, {
+      data: cipherFormConfig,
+    });
+
+    const result: AddEditCipherDialogCloseResult = await firstValueFrom(dialogRef.closed);
+
+    /**
+     * Refresh the vault if the dialog was closed by adding, editing, or deleting a cipher.
+     */
+    if (result?.action === AddEditCipherDialogResult.Edited) {
+      this.refresh();
+    }
+
+    /**
+     * View the cipher if the dialog was closed by editing the cipher.
+     */
+    if (result?.action === AddEditCipherDialogResult.Edited) {
+      this.go({ itemId: cipher.id, action: "view" });
+      return;
+    }
+
+    /**
+     * Navigate to the vault if the dialog was closed by any other action.
+     */
+    this.go({ cipherId: null, itemId: null, action: null });
   }
 
   /**
@@ -814,15 +871,19 @@ export class VaultComponent implements OnInit, OnDestroy {
     // Wait for the dialog to close.
     const result: ViewCipherDialogCloseResult = await lastValueFrom(dialogRef.closed);
 
+    // If the dialog was closed by clicking the edit button, navigate to open the edit dialog.
+    if (result?.action === ViewCipherDialogResult.Edited) {
+      this.go({ itemId: cipherView.id, action: "edit" });
+      return;
+    }
+
     // If the dialog was closed by deleting the cipher, refresh the vault.
-    if (result?.action === ViewCipherDialogResult.deleted) {
+    if (result?.action === ViewCipherDialogResult.Deleted) {
       this.refresh();
     }
 
-    // If the dialog was closed by any other action (close button, escape key, etc), navigate back to the vault.
-    if (!result?.action) {
-      this.go({ cipherId: null, itemId: null, action: null });
-    }
+    // Clear the query params when the view dialog closes
+    this.go({ cipherId: null, itemId: null, action: null });
   }
 
   async addCollection() {
@@ -970,7 +1031,7 @@ export class VaultComponent implements OnInit, OnDestroy {
       }
     }
 
-    const component = await this.editCipher(cipher);
+    const component = await this.editCipher(cipher, true);
     component.cloneMode = true;
   }
 
@@ -1258,7 +1319,7 @@ export class VaultComponent implements OnInit, OnDestroy {
     }
 
     const organization = this.allOrganizations.find((o) => o.id === cipher.organizationId);
-    return organization.canEditAllCiphers(false);
+    return organization.canEditAllCiphers;
   }
 
   private go(queryParams: any = null) {

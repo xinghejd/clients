@@ -1,7 +1,7 @@
 import { TextEncoder } from "util";
 
 import { mock, MockProxy } from "jest-mock-extended";
-import { BehaviorSubject } from "rxjs";
+import { BehaviorSubject, of } from "rxjs";
 
 import { AccountInfo, AccountService } from "../../../auth/abstractions/account.service";
 import { UserId } from "../../../types/guid";
@@ -53,7 +53,9 @@ describe("FidoAuthenticatorService", () => {
     userInterface = mock<Fido2UserInterfaceService>();
     userInterfaceSession = mock<Fido2UserInterfaceSession>();
     userInterface.newSession.mockResolvedValue(userInterfaceSession);
-    syncService = mock<SyncService>();
+    syncService = mock<SyncService>({
+      activeUserLastSync$: () => of(new Date()),
+    });
     accountService = mock<AccountService>();
     authenticator = new Fido2AuthenticatorService(
       cipherService,
@@ -576,6 +578,7 @@ describe("FidoAuthenticatorService", () => {
         expect(userInterfaceSession.pickCredential).toHaveBeenCalledWith({
           cipherIds: ciphers.map((c) => c.id),
           userVerification: false,
+          masterPasswordRepromptRequired: false,
         });
       });
 
@@ -592,6 +595,7 @@ describe("FidoAuthenticatorService", () => {
         expect(userInterfaceSession.pickCredential).toHaveBeenCalledWith({
           cipherIds: [discoverableCiphers[0].id],
           userVerification: false,
+          masterPasswordRepromptRequired: false,
         });
       });
 
@@ -609,6 +613,7 @@ describe("FidoAuthenticatorService", () => {
           expect(userInterfaceSession.pickCredential).toHaveBeenCalledWith({
             cipherIds: ciphers.map((c) => c.id),
             userVerification,
+            masterPasswordRepromptRequired: false,
           });
         });
       }
