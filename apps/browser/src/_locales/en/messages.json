@@ -1399,6 +1399,12 @@
   "showInlineMenuLabel": {
     "message": "Show autofill suggestions on form fields"
   },
+  "showInlineMenuIdentitiesLabel": {
+    "message": "Display identities as suggestions"
+  },
+  "showInlineMenuCardsLabel": {
+    "message": "Display cards as suggestions"
+  },
   "showInlineMenuOnIconSelectionLabel": {
     "message": "Display suggestions when icon is selected"
   },

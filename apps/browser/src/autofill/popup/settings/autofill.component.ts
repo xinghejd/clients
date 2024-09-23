@@ -93,6 +93,8 @@ export class AutofillComponent implements OnInit {
   enableAutofillOnPageLoad: boolean = false;
   enableInlineMenu: boolean = false;
   enableInlineMenuOnIconSelect: boolean = false;
+  showInlineMenuIdentities: boolean = true;
+  showInlineMenuCards: boolean = true;
   autofillOnPageLoadDefault: boolean = false;
   autofillOnPageLoadOptions: { name: string; value: boolean }[];
   enableContextMenuItem: boolean = false;
@@ -149,6 +151,14 @@ export class AutofillComponent implements OnInit {
 
     this.inlineMenuVisibility = await firstValueFrom(
       this.autofillSettingsService.inlineMenuVisibility$,
+    );
+
+    this.showInlineMenuIdentities = await firstValueFrom(
+      this.autofillSettingsService.showInlineMenuIdentities$,
+    );
+
+    this.showInlineMenuCards = await firstValueFrom(
+      this.autofillSettingsService.showInlineMenuCards$,
     );
 
     this.enableInlineMenuOnIconSelect =
@@ -380,5 +390,13 @@ export class AutofillComponent implements OnInit {
 
   async updateShowIdentitiesCurrentTab() {
     await this.vaultSettingsService.setShowIdentitiesCurrentTab(this.showIdentitiesCurrentTab);
+  }
+
+  async updateShowInlineMenuCards() {
+    await this.autofillSettingsService.setShowInlineMenuCards(this.showInlineMenuCards);
+  }
+
+  async updateShowInlineMenuIdentities() {
+    await this.autofillSettingsService.setShowInlineMenuIdentities(this.showInlineMenuIdentities);
   }
 }
