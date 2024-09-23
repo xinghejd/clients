@@ -1,6 +1,9 @@
 import { Meta, StoryObj, moduleMetadata } from "@storybook/angular";
 
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+
 import { SpinnerComponent } from "../spinner";
+import { I18nMockService } from "../utils";
 
 import { ButtonComponent } from "./button.component";
 
@@ -10,6 +13,16 @@ export default {
   decorators: [
     moduleMetadata({
       imports: [SpinnerComponent],
+      providers: [
+        {
+          provide: I18nService,
+          useFactory: () => {
+            return new I18nMockService({
+              loading: "Loading",
+            });
+          },
+        },
+      ],
     }),
   ],
   args: {

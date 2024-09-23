@@ -28,17 +28,10 @@ export class SpinnerComponent {
     this._noColor = coerceBooleanProperty(value);
   }
 
-  private _title = this.i18nService.t("loading");
   /**
    * Accessibility title. Defaults to `Loading`.
    */
-  @Input()
-  get title(): string {
-    return this._title;
-  }
-  set title(value: string) {
-    this.title = this.i18nService.t(value);
-  }
+  @Input() title = this.i18nService.t("loading");
 
   private _sr = true;
   /**
