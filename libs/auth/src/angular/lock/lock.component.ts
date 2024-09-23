@@ -253,7 +253,7 @@ export class LockV2Component implements OnInit, OnDestroy {
       this.biometricStateService.promptAutomatically$,
     );
 
-    // TODO: we need to make our biometric autoprompt experience consistent between the
+    // TODO: PM-12546 - we need to make our biometric autoprompt experience consistent between the
     // desktop and extension.
     if (this.clientType === "desktop") {
       if (autoPromptBiometrics) {
