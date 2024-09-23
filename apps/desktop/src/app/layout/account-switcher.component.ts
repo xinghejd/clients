@@ -15,7 +15,7 @@ import { StateService } from "@bitwarden/common/platform/abstractions/state.serv
 import { CommandDefinition, MessageListener } from "@bitwarden/common/platform/messaging";
 import { UserId } from "@bitwarden/common/types/guid";
 
-import { DesktopBiometricsService } from "src/key-management/biometrics/desktop.biometrics.service";
+import { DesktopBiometricsService } from "../../key-management/biometrics/desktop.biometrics.service";
 
 type ActiveAccount = {
   id: string;
@@ -164,7 +164,7 @@ export class AccountSwitcherComponent {
 
   async switch(userId: string) {
     this.close();
-    this.biometricsService.setShouldAutopromptNow(true);
+    await this.biometricsService.setShouldAutopromptNow(true);
 
     this.disabled = true;
     const accountSwitchFinishedPromise = firstValueFrom(

@@ -101,7 +101,7 @@ export class MainBiometricsService extends DesktopBiometricsService {
     return BiometricsStatus.Available;
   }
 
-  override async authenticateBiometric(): Promise<boolean> {
+  async authenticateBiometric(): Promise<boolean> {
     return await this.osBiometricsService.authenticateBiometric();
   }
 
