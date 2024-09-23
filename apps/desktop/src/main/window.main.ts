@@ -8,7 +8,7 @@ import { firstValueFrom } from "rxjs";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { AbstractStorageService } from "@bitwarden/common/platform/abstractions/storage.service";
 import { processisolations } from "@bitwarden/desktop-napi";
-import { BiometricStateService } from "@bitwarden/key-management/biometrics";
+import { BiometricStateService } from "@bitwarden/key-management";
 
 import { WindowState } from "../platform/models/domain/window-state";
 import { DesktopSettingsService } from "../platform/services/desktop-settings.service";

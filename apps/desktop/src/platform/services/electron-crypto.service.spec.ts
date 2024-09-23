@@ -15,7 +15,7 @@ import { makeEncString } from "@bitwarden/common/spec";
 import { CsprngArray } from "@bitwarden/common/types/csprng";
 import { UserId } from "@bitwarden/common/types/guid";
 import { UserKey } from "@bitwarden/common/types/key";
-import { BiometricStateService } from "@bitwarden/key-management/biometrics";
+import { BiometricStateService } from "@bitwarden/key-management";
 
 import {
   FakeAccountService,

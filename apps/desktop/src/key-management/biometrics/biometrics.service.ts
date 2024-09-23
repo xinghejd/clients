@@ -2,7 +2,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { UserId } from "@bitwarden/common/types/guid";
-import { BiometricStateService } from "@bitwarden/key-management/biometrics";
+import { BiometricStateService } from "@bitwarden/key-management";
 
 import { WindowMain } from "../../main/window.main";
 

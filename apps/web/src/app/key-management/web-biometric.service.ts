@@ -1,4 +1,4 @@
-import { BiometricsService } from "@bitwarden/key-management/biometrics";
+import { BiometricsService } from "@bitwarden/key-management";
 
 export class WebBiometricsService extends BiometricsService {
   async supportsBiometric(): Promise<boolean> {

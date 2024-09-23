@@ -27,7 +27,7 @@ import { StateService } from "@bitwarden/common/platform/abstractions/state.serv
 import { PasswordStrengthServiceAbstraction } from "@bitwarden/common/tools/password-strength";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { DialogService, ToastService } from "@bitwarden/components";
-import { BiometricsService, BiometricStateService } from "@bitwarden/key-management/biometrics";
+import { BiometricsService, BiometricStateService } from "@bitwarden/key-management";
 
 const BroadcasterSubscriptionId = "LockComponent";
 
