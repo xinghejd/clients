@@ -560,6 +560,18 @@
   "settings": {
     "message": "Mga Preperensya"
   },
+  "accountEmail": {
+    "message": "Account email"
+  },
+  "requestHint": {
+    "message": "Request hint"
+  },
+  "requestPasswordHint": {
+    "message": "Request password hint"
+  },
+  "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
+    "message": "Enter your account email address and your password hint will be sent to you"
+  },
   "passwordHint": {
     "message": "Mungkahi sa Password"
   },
@@ -602,6 +614,12 @@
   },
   "newAccountCreated": {
     "message": "Nalikha na ang iyong bagong account! Maaari ka nang mag-log in."
+  },
+  "newAccountCreated2": {
+    "message": "Your new account has been created!"
+  },
+  "youHaveBeenLoggedIn": {
+    "message": "You have been logged in!"
   },
   "masterPassSent": {
     "message": "Pinadala na namin sa iyo ang email na may hint ng master password mo."
@@ -924,6 +942,9 @@
   "vaultTimeout": {
     "message": "Vault timeout"
   },
+  "vaultTimeout1": {
+    "message": "Timeout"
+  },
   "vaultTimeoutDesc": {
     "message": "Piliin kung kailan gagawin ng iyong vault ang vault timeout action."
   },
@@ -1174,6 +1195,9 @@
   "premiumPurchaseAlert": {
     "message": "Maaari kang bumili ng premium membership sa bitwarden.com web vault. Gusto mo bang bisitahin ang website ngayon?"
   },
+  "premiumPurchaseAlertV2": {
+    "message": "You can purchase Premium from your account settings on the Bitwarden web app."
+  },
   "premiumCurrentMember": {
     "message": "Ikaw ay isang premium na miyembro!"
   },
@@ -1275,6 +1299,9 @@
         "example": "Password"
       }
     }
+  },
+  "copySuccessful": {
+    "message": "Copy Successful"
   },
   "errorRefreshingAccessToken": {
     "message": "Access Token Refresh Error"
@@ -1543,8 +1570,8 @@
   "recommendedForSecurity": {
     "message": "Recommended for security."
   },
-  "lockWithMasterPassOnRestart": {
-    "message": "I-lock gamit ang master password sa restart"
+  "lockWithMasterPassOnRestart1": {
+    "message": "Lock with master password on restart"
   },
   "deleteAccount": {
     "message": "Tanggalin ang account"
@@ -1621,7 +1648,7 @@
   },
   "lock": {
     "message": "I-lock",
-    "description": "Verb form: to make secure or inaccesible by"
+    "description": "Verb form: to make secure or inaccessible by"
   },
   "trash": {
     "message": "Basurahan",
@@ -1814,7 +1841,7 @@
     "message": "Ang biometrics ng browser ay nangangailangan ng desktop biometrics na mai set up muna sa mga setting."
   },
   "biometricsManualSetupTitle": {
-    "message": "Autometic setup not available"
+    "message": "Automatic setup not available"
   },
   "biometricsManualSetupDesc": {
     "message": "Due to the installation method, biometrics support could not be automatically enabled. Would you like to open the documentation on how to do this manually?"
@@ -2075,8 +2102,8 @@
   "minutes": {
     "message": "Mga Minuto"
   },
-  "vaultTimeoutPolicyInEffect": {
-    "message": "Ang iyong mga patakaran sa organisasyon ay nakakaapekto sa iyong vault timeout. Ang maximum na pinapayagang timeout ng vault ay $HOURS$ oras (mga) oras at $MINUTES$ (mga) minuto",
+  "vaultTimeoutPolicyInEffect1": {
+    "message": "$HOURS$ hour(s) and $MINUTES$ minute(s) maximum.",
     "placeholders": {
       "hours": {
         "content": "$1",
@@ -3049,5 +3076,17 @@
   },
   "textSends": {
     "message": "Text Sends"
+  },
+  "allowScreenshots": {
+    "message": "Allow screen capture"
+  },
+  "allowScreenshotsDesc": {
+    "message": "Allow screen capture of the Bitwarden desktop application."
+  },
+  "ssoError": {
+    "message": "No free ports could be found for the sso login."
+  },
+  "fileSavedToDevice": {
+    "message": "File saved to device. Manage from your device downloads."
   }
 }

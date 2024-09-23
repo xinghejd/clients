@@ -112,6 +112,11 @@ const plugins = [
     chunks: ["connectors/sso"],
   }),
   new HtmlWebpackPlugin({
+    template: "./src/connectors/redirect.html",
+    filename: "redirect-connector.html",
+    chunks: ["connectors/redirect", "styles"],
+  }),
+  new HtmlWebpackPlugin({
     template: "./src/connectors/captcha.html",
     filename: "captcha-connector.html",
     chunks: ["connectors/captcha"],
@@ -130,6 +135,8 @@ const plugins = [
     template: "./src/404.html",
     filename: "404.html",
     chunks: ["styles"],
+    // 404 page is a wildcard, this ensures it uses absolute paths.
+    publicPath: "/",
   }),
   new CopyWebpackPlugin({
     patterns: [
@@ -171,7 +178,7 @@ const plugins = [
     ADDITIONAL_REGIONS: envConfig["additionalRegions"] ?? [],
   }),
   new AngularWebpackPlugin({
-    tsConfigPath: "tsconfig.json",
+    tsconfig: "tsconfig.build.json",
     entryModule: "src/app/app.module#AppModule",
     sourceMap: true,
   }),
@@ -325,6 +332,7 @@ const webpackConfig = {
     "connectors/sso": "./src/connectors/sso.ts",
     "connectors/captcha": "./src/connectors/captcha.ts",
     "connectors/duo-redirect": "./src/connectors/duo-redirect.ts",
+    "connectors/redirect": "./src/connectors/redirect.ts",
     styles: ["./src/scss/styles.scss", "./src/scss/tailwind.css"],
     theme_head: "./src/theme.ts",
   },

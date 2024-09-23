@@ -1,7 +1,8 @@
 import { Directive, EventEmitter, Input, OnInit, Output } from "@angular/core";
-import { firstValueFrom } from "rxjs";
+import { firstValueFrom, map } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
@@ -11,11 +12,12 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { EncArrayBuffer } from "@bitwarden/common/platform/models/domain/enc-array-buffer";
+import { UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
 import { AttachmentView } from "@bitwarden/common/vault/models/view/attachment.view";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
-import { DialogService } from "@bitwarden/components";
+import { DialogService, ToastService } from "@bitwarden/components";
 
 @Directive()
 export class AttachmentsComponent implements OnInit {
@@ -46,6 +48,8 @@ export class AttachmentsComponent implements OnInit {
     protected fileDownloadService: FileDownloadService,
     protected dialogService: DialogService,
     protected billingAccountProfileStateService: BillingAccountProfileStateService,
+    protected accountService: AccountService,
+    protected toastService: ToastService,
   ) {}
 
   async ngOnInit() {
@@ -75,10 +79,13 @@ export class AttachmentsComponent implements OnInit {
     }
 
     try {
-      this.formPromise = this.saveCipherAttachment(files[0]);
+      const activeUserId = await firstValueFrom(
+        this.accountService.activeAccount$.pipe(map((a) => a?.id)),
+      );
+      this.formPromise = this.saveCipherAttachment(files[0], activeUserId);
       this.cipherDomain = await this.formPromise;
       this.cipher = await this.cipherDomain.decrypt(
-        await this.cipherService.getKeyForCipherKeyDecryption(this.cipherDomain),
+        await this.cipherService.getKeyForCipherKeyDecryption(this.cipherDomain, activeUserId),
       );
       this.platformUtilsService.showToast("success", null, this.i18nService.t("attachmentSaved"));
       this.onUploadedAttachment.emit();
@@ -176,6 +183,11 @@ export class AttachmentsComponent implements OnInit {
         fileName: attachment.fileName,
         blobData: decBuf,
       });
+      this.toastService.showToast({
+        variant: "success",
+        title: null,
+        message: this.i18nService.t("fileSavedToDevice"),
+      });
     } catch (e) {
       this.platformUtilsService.showToast("error", null, this.i18nService.t("errorOccurred"));
     }
@@ -185,8 +197,11 @@ export class AttachmentsComponent implements OnInit {
 
   protected async init() {
     this.cipherDomain = await this.loadCipher();
+    const activeUserId = await firstValueFrom(
+      this.accountService.activeAccount$.pipe(map((a) => a?.id)),
+    );
     this.cipher = await this.cipherDomain.decrypt(
-      await this.cipherService.getKeyForCipherKeyDecryption(this.cipherDomain),
+      await this.cipherService.getKeyForCipherKeyDecryption(this.cipherDomain, activeUserId),
     );
 
     const canAccessPremium = await firstValueFrom(
@@ -235,14 +250,18 @@ export class AttachmentsComponent implements OnInit {
               ? attachment.key
               : await this.cryptoService.getOrgKey(this.cipher.organizationId);
           const decBuf = await this.cryptoService.decryptFromBytes(encBuf, key);
+          const activeUserId = await firstValueFrom(
+            this.accountService.activeAccount$.pipe(map((a) => a?.id)),
+          );
           this.cipherDomain = await this.cipherService.saveAttachmentRawWithServer(
             this.cipherDomain,
             attachment.fileName,
             decBuf,
+            activeUserId,
             admin,
           );
           this.cipher = await this.cipherDomain.decrypt(
-            await this.cipherService.getKeyForCipherKeyDecryption(this.cipherDomain),
+            await this.cipherService.getKeyForCipherKeyDecryption(this.cipherDomain, activeUserId),
           );
 
           // 3. Delete old
@@ -278,8 +297,8 @@ export class AttachmentsComponent implements OnInit {
     return this.cipherService.get(this.cipherId);
   }
 
-  protected saveCipherAttachment(file: File) {
-    return this.cipherService.saveAttachmentWithServer(this.cipherDomain, file);
+  protected saveCipherAttachment(file: File, userId: UserId) {
+    return this.cipherService.saveAttachmentWithServer(this.cipherDomain, file, userId);
   }
 
   protected deleteCipherAttachment(attachmentId: string) {

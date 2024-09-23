@@ -44,10 +44,8 @@ export class VaultItemsComponent {
   @Input() showBulkAddToCollections = false;
   @Input() showPermissionsColumn = false;
   @Input() viewingOrgVault: boolean;
-  @Input({ required: true }) flexibleCollectionsV1Enabled = false;
   @Input() addAccessStatus: number;
   @Input() addAccessToggle: boolean;
-  @Input() restrictProviderAccess: boolean;
   @Input() vaultBulkManagementActionEnabled = false;
 
   private _ciphers?: CipherView[] = [];
@@ -120,7 +118,7 @@ export class VaultItemsComponent {
 
     const organization = this.allOrganizations.find((o) => o.id === collection.organizationId);
 
-    return collection.canEdit(organization, this.flexibleCollectionsV1Enabled);
+    return collection.canEdit(organization);
   }
 
   protected canDeleteCollection(collection: CollectionView): boolean {
@@ -131,12 +129,12 @@ export class VaultItemsComponent {
 
     const organization = this.allOrganizations.find((o) => o.id === collection.organizationId);
 
-    return collection.canDelete(organization, this.flexibleCollectionsV1Enabled);
+    return collection.canDelete(organization);
   }
 
   protected canViewCollectionInfo(collection: CollectionView) {
     const organization = this.allOrganizations.find((o) => o.id === collection.organizationId);
-    return collection.canViewCollectionInfo(organization, this.flexibleCollectionsV1Enabled);
+    return collection.canViewCollectionInfo(organization);
   }
 
   protected toggleAll() {
@@ -213,14 +211,7 @@ export class VaultItemsComponent {
     }
 
     const organization = this.allOrganizations.find((o) => o.id === cipher.organizationId);
-    return (
-      (organization.canEditAllCiphers(
-        this.flexibleCollectionsV1Enabled,
-        this.restrictProviderAccess,
-      ) &&
-        this.viewingOrgVault) ||
-      cipher.edit
-    );
+    return (organization.canEditAllCiphers && this.viewingOrgVault) || cipher.edit;
   }
 
   private refreshItems() {
@@ -230,21 +221,12 @@ export class VaultItemsComponent {
 
     this.selection.clear();
 
-    if (this.flexibleCollectionsV1Enabled) {
-      // Every item except for the Unassigned collection is selectable, individual bulk actions check the user's permission
-      this.editableItems = items.filter(
-        (item) =>
-          item.cipher !== undefined ||
-          (item.collection !== undefined && item.collection.id !== Unassigned),
-      );
-    } else {
-      // only collections the user can delete are selectable
-      this.editableItems = items.filter(
-        (item) =>
-          item.cipher !== undefined ||
-          (item.collection !== undefined && this.canDeleteCollection(item.collection)),
-      );
-    }
+    // Every item except for the Unassigned collection is selectable, individual bulk actions check the user's permission
+    this.editableItems = items.filter(
+      (item) =>
+        item.cipher !== undefined ||
+        (item.collection !== undefined && item.collection.id !== Unassigned),
+    );
 
     this.dataSource.data = items;
   }
@@ -292,11 +274,7 @@ export class VaultItemsComponent {
     const [orgId] = uniqueCipherOrgIds;
     const organization = this.allOrganizations.find((o) => o.id === orgId);
 
-    const canEditOrManageAllCiphers =
-      organization?.canEditAllCiphers(
-        this.flexibleCollectionsV1Enabled,
-        this.restrictProviderAccess,
-      ) && this.viewingOrgVault;
+    const canEditOrManageAllCiphers = organization?.canEditAllCiphers && this.viewingOrgVault;
 
     const collectionNotSelected =
       this.selection.selected.filter((item) => item.collection).length === 0;
@@ -316,10 +294,7 @@ export class VaultItemsComponent {
     );
 
     const canEditOrManageAllCiphers =
-      organizations.length > 0 &&
-      organizations.every((org) =>
-        org?.canEditAllCiphers(this.flexibleCollectionsV1Enabled, this.restrictProviderAccess),
-      );
+      organizations.length > 0 && organizations.every((org) => org?.canEditAllCiphers);
 
     const canDeleteCollections = this.selection.selected
       .filter((item) => item.collection)
