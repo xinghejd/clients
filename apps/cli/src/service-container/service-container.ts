@@ -652,6 +652,8 @@ export class ServiceContainer {
       new CliBiometricsService(),
     );
 
+    const biometricService = new CliBiometricsService();
+
     this.vaultTimeoutService = new VaultTimeoutService(
       this.accountService,
       this.masterPasswordService,
@@ -667,6 +669,7 @@ export class ServiceContainer {
       this.stateEventRunnerService,
       this.taskSchedulerService,
       this.logService,
+      biometricService,
       lockedCallback,
       undefined,
     );
