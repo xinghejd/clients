@@ -27,8 +27,16 @@ on:
       - '!*.txt'
       - '.github/workflows/build-cli.yml'
       - 'bitwarden_license/bit-cli/**'
+  workflow_call:
+    inputs:
+      checkout_ref:
+        required: false
+        type: string
   workflow_dispatch:
-    inputs: {}
+    inputs:
+      checkout_ref:
+        required: false
+        type: string
 
 defaults:
   run:
@@ -44,6 +52,8 @@ jobs:
     steps:
       - name: Checkout repo
         uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+        with:
+          ref: ${{ inputs.checkout_ref || github.ref }}
 
       - name: Get Package Version
         id: retrieve-package-version
@@ -85,6 +95,8 @@ jobs:
     steps:
       - name: Checkout repo
         uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+        with:
+          ref: ${{ inputs.checkout_ref || github.ref }}
 
       - name: Setup Unix Vars
         run: |
@@ -163,6 +175,8 @@ jobs:
     steps:
       - name: Checkout repo
         uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+        with:
+          ref: ${{ inputs.checkout_ref || github.ref }}
 
       - name: Setup Windows builder
         run: |
@@ -289,7 +303,7 @@ jobs:
           name: bitwarden-cli.${{ env._PACKAGE_VERSION }}.nupkg
           path: apps/cli/dist/chocolatey/bitwarden-cli.${{ env._PACKAGE_VERSION }}.nupkg
           if-no-files-found: error
-      
+
       - name: Zip NPM Build Artifact
         run: Get-ChildItem -Path .\build | Compress-Archive -DestinationPath .\bitwarden-cli-${{ env._PACKAGE_VERSION }}-npm-build.zip
 
@@ -313,6 +327,8 @@ jobs:
     steps:
       - name: Checkout repo
         uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+        with:
+          ref: ${{ inputs.checkout_ref || github.ref }}
 
       - name: Print environment
         run: |
