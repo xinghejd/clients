@@ -51,7 +51,7 @@ import { MessagingService } from "@bitwarden/common/platform/abstractions/messag
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { SyncService } from "@bitwarden/common/platform/sync";
-import { CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
+import { CipherId, CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CollectionService } from "@bitwarden/common/vault/abstractions/collection.service";
 import { TotpService } from "@bitwarden/common/vault/abstractions/totp.service";
@@ -532,7 +532,7 @@ export class VaultComponent implements OnInit, OnDestroy {
             if (qParams.action === "view") {
               await this.viewCipher(cipher, cipherCollections);
             } else {
-              await this.editCipherId(cipherId);
+              await this.editCipherId(cipherId, false);
             }
           } else {
             this.toastService.showToast({
@@ -793,7 +793,7 @@ export class VaultComponent implements OnInit, OnDestroy {
     // Admins limited to only adding items to collections they have access to.
     collections = await firstValueFrom(this.editableCollections$);
 
-    await this.editCipher(null, (comp) => {
+    await this.editCipher(null, false, (comp) => {
       comp.type = cipherType || this.activeFilter.cipherType;
       comp.collections = collections;
       if (this.activeFilter.collectionId) {
@@ -836,13 +836,20 @@ export class VaultComponent implements OnInit, OnDestroy {
 
   async editCipher(
     cipher: CipherView,
+    /**
+     * True when the cipher should be cloned
+     * Used in place of the `additionalComponentParameters` above, as
+     * the `editCipherIdV2` method has a differing implementation.
+     */
+    cloneCipher: boolean,
     additionalComponentParameters?: (comp: AddEditComponent) => void,
   ) {
-    return this.editCipherId(cipher?.id, additionalComponentParameters);
+    return this.editCipherId(cipher?.id, cloneCipher, additionalComponentParameters);
   }
 
   async editCipherId(
     cipherId: string,
+    cloneCipher: boolean,
     additionalComponentParameters?: (comp: AddEditComponent) => void,
   ) {
     const cipher = await this.cipherService.get(cipherId);
@@ -855,6 +862,11 @@ export class VaultComponent implements OnInit, OnDestroy {
     ) {
       // didn't pass password prompt, so don't open add / edit modal
       this.go({ cipherId: null, itemId: null });
+      return;
+    }
+
+    if (this.extensionRefreshEnabled) {
+      await this.editCipherIdV2(cipherId as CipherId, cloneCipher);
       return;
     }
 
@@ -894,6 +906,38 @@ export class VaultComponent implements OnInit, OnDestroy {
     });
 
     return childComponent;
+  }
+
+  /**
+   * Edit a cipher using the new AddEditCipherDialogV2 component.
+   * Only to be used behind the ExtenstionRefresh feature flag.
+   */
+  private async editCipherIdV2(cipherId: CipherId, cloneCipher: boolean) {
+    const cipherFormConfig = await this.cipherFormConfigService.buildConfig(
+      cloneCipher ? "clone" : "edit",
+      cipherId,
+    );
+
+    const dialogRef = openAddEditCipherDialog(this.dialogService, {
+      data: cipherFormConfig,
+    });
+
+    const result: AddEditCipherDialogCloseResult = await firstValueFrom(dialogRef.closed);
+
+    // Refresh the vault if the dialog was closed by adding, editing, or deleting a cipher.
+    if (result?.action === AddEditCipherDialogResult.Edited) {
+      this.refresh();
+    }
+
+    // View the cipher if the dialog was closed by editing the cipher.
+    if (result?.action === AddEditCipherDialogResult.Edited) {
+      this.refresh();
+      this.go({ itemId: cipherId, action: "view" });
+      return;
+    }
+
+    // Navigate to the vault if the dialog was closed by any other action.
+    this.go({ cipherId: null, itemId: null, action: null });
   }
 
   /**
@@ -957,7 +1001,7 @@ export class VaultComponent implements OnInit, OnDestroy {
     // Admins limited to only adding items to collections they have access to.
     collections = await firstValueFrom(this.editableCollections$);
 
-    await this.editCipher(cipher, (comp) => {
+    await this.editCipher(cipher, true, (comp) => {
       comp.cloneMode = true;
       comp.collections = collections;
       comp.collectionIds = cipher.collectionIds;
