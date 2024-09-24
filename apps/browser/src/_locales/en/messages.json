@@ -4486,6 +4486,9 @@
   "noEditPermissions": {
     "message": "You don't have permission to edit this item"
   },
+  "authenticating": {
+    "message": "Authenticating"
+  },
   "fillGeneratedPassword": {
     "message": "Fill generated password",
     "description": "Heading for the password generator within the inline menu"

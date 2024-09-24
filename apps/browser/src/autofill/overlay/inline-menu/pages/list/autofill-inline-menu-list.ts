@@ -19,6 +19,7 @@ import {
   viewCipherIcon,
   keyIcon,
   refreshIcon,
+  spinnerIcon,
 } from "../../../../utils/svg-icons";
 import {
   AutofillInlineMenuListWindowMessageHandlers,
@@ -47,6 +48,7 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
   private passkeysHeadingHeight: number;
   private lastPasskeysListItemHeight: number;
   private ciphersListHeight: number;
+  private isPasskeyAuthInProgress = false;
   private readonly showCiphersPerPage = 6;
   private readonly headingBorderClass = "inline-menu-list-heading--bordered";
   private readonly inlineMenuListWindowMessageHandlers: AutofillInlineMenuListWindowMessageHandlers =
@@ -359,6 +361,10 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
     showInlineMenuAccountCreation,
     focusedFieldHasValue,
   }: UpdateAutofillInlineMenuListCiphersParams) {
+    if (this.isPasskeyAuthInProgress) {
+      return;
+    }
+
     this.ciphers = ciphers;
     this.currentCipherIndex = 0;
     this.showInlineMenuAccountCreation = showInlineMenuAccountCreation;
@@ -387,6 +393,18 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
     this.inlineMenuListContainer.appendChild(addNewLoginButtonContainer);
     this.inlineMenuListContainer.classList.add("inline-menu-list-container--with-new-item-button");
     this.newItemButtonElement.addEventListener(EVENTS.KEYUP, this.handleNewItemButtonKeyUpEvent);
+  }
+
+  /**
+   * Clears and resets the inline menu list container.
+   */
+  private resetInlineMenuContainer() {
+    if (this.inlineMenuListContainer) {
+      this.inlineMenuListContainer.innerHTML = "";
+      this.inlineMenuListContainer.classList.remove(
+        "inline-menu-list-container--with-new-item-button",
+      );
+    }
   }
 
   /**
@@ -528,7 +546,7 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
       this.ciphersList.addEventListener(
         EVENTS.SCROLL,
         this.useEventHandlersMemo(
-          throttle(() => this.updatePasskeysHeadingsOnScroll(this.ciphersList.scrollTop), 50),
+          throttle(this.handleThrottledOnScrollEvent, 50),
           UPDATE_PASSKEYS_HEADINGS_ON_SCROLL,
         ),
         options,
@@ -540,7 +558,10 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
    * Handles updating the list of ciphers when the
    * user scrolls to the bottom of the list.
    */
-  private updateCiphersListOnScroll = () => {
+  private updateCiphersListOnScroll = (event: MouseEvent) => {
+    event.preventDefault();
+    event.stopPropagation();
+
     if (this.cipherListScrollIsDebounced) {
       return;
     }
@@ -578,6 +599,18 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
     if (scrollPercentage >= 80) {
       this.loadPageOfCiphers();
     }
+  };
+
+  /**
+   * Throttled handler for updating the passkeys and login headings when the user scrolls the ciphers list.
+   *
+   * @param event - The scroll event.
+   */
+  private handleThrottledOnScrollEvent = (event: MouseEvent) => {
+    event.preventDefault();
+    event.stopPropagation();
+
+    this.updatePasskeysHeadingsOnScroll(this.ciphersList.scrollTop);
   };
 
   /**
@@ -794,14 +827,27 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
   private handleFillCipherClickEvent = (cipher: InlineMenuCipherData) => {
     const usePasskey = !!cipher.login?.passkey;
     return this.useEventHandlersMemo(
-      () =>
-        this.postMessageToParent({
-          command: "fillAutofillInlineMenuCipher",
-          inlineMenuCipherId: cipher.id,
-          usePasskey,
-        }),
+      () => this.triggerFillCipherClickEvent(cipher, usePasskey),
       `${cipher.id}-fill-cipher-button-click-handler-${usePasskey ? "passkey" : ""}`,
     );
+  };
+
+  /**
+   * Triggers a fill of the currently selected cipher.
+   *
+   * @param cipher - The cipher to fill.
+   * @param usePasskey - Whether the cipher uses a passkey.
+   */
+  private triggerFillCipherClickEvent = (cipher: InlineMenuCipherData, usePasskey: boolean) => {
+    if (usePasskey) {
+      this.createPasskeyAuthenticatingLoader();
+    }
+
+    this.postMessageToParent({
+      command: "fillAutofillInlineMenuCipher",
+      inlineMenuCipherId: cipher.id,
+      usePasskey,
+    });
   };
 
   /**
@@ -1085,6 +1131,26 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
     }
 
     return cipherDetailsElement;
+  }
+
+  /**
+   * Creates an indicator for the user that the passkey is being authenticated.
+   */
+  private createPasskeyAuthenticatingLoader() {
+    this.isPasskeyAuthInProgress = true;
+    this.resetInlineMenuContainer();
+
+    const passkeyAuthenticatingLoader = globalThis.document.createElement("div");
+    passkeyAuthenticatingLoader.classList.add("passkey-authenticating-loader");
+    passkeyAuthenticatingLoader.textContent = this.getTranslation("authenticating");
+    passkeyAuthenticatingLoader.appendChild(buildSvgDomElement(spinnerIcon));
+
+    this.inlineMenuListContainer.appendChild(passkeyAuthenticatingLoader);
+
+    globalThis.setTimeout(() => {
+      this.isPasskeyAuthInProgress = false;
+      this.postMessageToParent({ command: "checkAutofillInlineMenuButtonFocused" });
+    }, 4000);
   }
 
   /**
