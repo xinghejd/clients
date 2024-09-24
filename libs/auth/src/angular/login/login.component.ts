@@ -383,6 +383,7 @@ export class LoginComponent implements OnInit, OnDestroy {
   onEmailBlur(event: Event) {
     const emailInput = event.target as HTMLInputElement;
     this.formGroup.controls.email.setValue(emailInput.value);
+    this.loginEmailService.setLoginEmail(this.formGroup.value.email);
   }
 
   protected async goToHint(): Promise<void> {

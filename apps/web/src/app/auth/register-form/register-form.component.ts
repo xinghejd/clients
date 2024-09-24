@@ -21,10 +21,12 @@ import { DialogService, ToastService } from "@bitwarden/components";
 import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legacy";
 
 import { AcceptOrganizationInviteService } from "../organization-invite/accept-organization.service";
+import { LoginEmailService } from "../../../../../../libs/auth/src/common/services/login-email/login-email.service";
 
 @Component({
   selector: "app-register-form",
   templateUrl: "./register-form.component.html",
+  providers: [LoginEmailService],
 })
 export class RegisterFormComponent extends BaseRegisterComponent implements OnInit {
   @Input() queryParamEmail: string;
@@ -53,6 +55,7 @@ export class RegisterFormComponent extends BaseRegisterComponent implements OnIn
     dialogService: DialogService,
     acceptOrgInviteService: AcceptOrganizationInviteService,
     toastService: ToastService,
+    private loginEmailService: LoginEmailService,
   ) {
     super(
       formValidationErrorService,
@@ -95,6 +98,15 @@ export class RegisterFormComponent extends BaseRegisterComponent implements OnIn
     } else {
       this.characterMinimumMessage = this.i18nService.t("characterMinimum", this.minimumLength);
     }
+
+    /**
+     * If the user has a login email, set the email field to the login email.
+     */
+    this.loginEmailService.loginEmail$.subscribe((email) => {
+      if (email) {
+        this.formGroup.patchValue({ email });
+      }
+    });
   }
 
   async submit() {
