@@ -1412,7 +1412,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
    * @param sender - The sender of the extension message
    */
   private setFocusedFieldData(
-    { focusedFieldData }: OverlayBackgroundExtensionMessage,
+    { focusedFieldData, focusedFieldHasValue }: OverlayBackgroundExtensionMessage,
     sender: chrome.runtime.MessageSender,
   ) {
     if (this.focusedFieldData && !this.senderFrameHasFocusedField(sender)) {
@@ -1437,11 +1437,21 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       this.isInlineMenuButtonVisible &&
       this.isFocusedFieldFillType(InlineMenuFillType.PasswordGeneration)
     ) {
+      if (focusedFieldHasValue) {
+        this.inlineMenuListPort?.postMessage({ command: "showSaveLoginInlineMenuList" });
+        return;
+      }
+
       this.updateGeneratedPassword().catch((error) => this.logService.error(error));
       return;
     }
 
     if (accountCreationFieldBlurred || this.showInlineMenuAccountCreation()) {
+      if (focusedFieldHasValue) {
+        this.inlineMenuListPort?.postMessage({ command: "showSaveLoginInlineMenuList" });
+        return;
+      }
+
       this.updateInlineMenuOnAccountCreationField(previousFocusedFieldData, sender).catch((error) =>
         this.logService.error(error),
       );

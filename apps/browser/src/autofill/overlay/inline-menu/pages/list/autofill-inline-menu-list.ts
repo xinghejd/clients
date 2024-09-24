@@ -58,6 +58,7 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
       updateAutofillInlineMenuListCiphers: ({ message }) => this.updateListItems(message),
       updateAutofillInlineMenuGeneratedPassword: ({ message }) =>
         this.handleUpdateAutofillInlineMenuGeneratedPassword(message),
+      showSaveLoginInlineMenuList: () => this.showSaveLoginInlineMenuList(),
       focusAutofillInlineMenuList: () => this.focusInlineMenuList(),
     };
 
@@ -65,6 +66,11 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
     super();
 
     this.setupInlineMenuListGlobalListeners();
+  }
+
+  private showSaveLoginInlineMenuList() {
+    this.resetInlineMenuContainer();
+    this.buildSaveLoginInlineMenuList();
   }
 
   /**
@@ -161,7 +167,7 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
     saveLoginMessage.classList.add("save-login", "inline-menu-list-message");
     saveLoginMessage.textContent = this.getTranslation("saveLoginToBitwarden");
 
-    const newItemButton = this.buildNewItemButton();
+    const newItemButton = this.buildNewItemButton(true);
 
     this.inlineMenuListContainer.append(saveLoginMessage, newItemButton);
   }
@@ -321,15 +327,6 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
     }
   };
 
-  private resetInlineMenuListContainer() {
-    if (this.inlineMenuListContainer) {
-      this.inlineMenuListContainer.innerHTML = "";
-      this.inlineMenuListContainer.classList.remove(
-        "inline-menu-list-container--with-new-item-button",
-      );
-    }
-  }
-
   private handleUpdateAutofillInlineMenuGeneratedPassword(
     message: UpdateAutofillInlineMenuGeneratedPasswordMessage,
   ) {
@@ -339,7 +336,7 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
     const colorizedPasswordElement =
       passwordGeneratorContentElement?.querySelector(".colorized-password");
     if (!colorizedPasswordElement) {
-      this.resetInlineMenuListContainer();
+      this.resetInlineMenuContainer();
       this.buildPasswordGenerator(message.generatedPassword);
       return;
     }
@@ -368,7 +365,7 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
     this.ciphers = ciphers;
     this.currentCipherIndex = 0;
     this.showInlineMenuAccountCreation = showInlineMenuAccountCreation;
-    this.resetInlineMenuListContainer();
+    this.resetInlineMenuContainer();
 
     if (!ciphers?.length) {
       this.buildNoResultsInlineMenuList();
@@ -424,7 +421,7 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
   /**
    * Builds a "New Item" button and returns the container of that button.
    */
-  private buildNewItemButton() {
+  private buildNewItemButton(showLogin = false) {
     this.newItemButtonElement = globalThis.document.createElement("button");
     this.newItemButtonElement.tabIndex = -1;
     this.newItemButtonElement.id = "new-item-button";
@@ -433,8 +430,8 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
       "inline-menu-list-button",
       "inline-menu-list-action",
     );
-    this.newItemButtonElement.textContent = this.getNewItemButtonText();
-    this.newItemButtonElement.setAttribute("aria-label", this.getNewItemAriaLabel());
+    this.newItemButtonElement.textContent = this.getNewItemButtonText(showLogin);
+    this.newItemButtonElement.setAttribute("aria-label", this.getNewItemAriaLabel(showLogin));
     this.newItemButtonElement.prepend(buildSvgDomElement(plusIcon));
     this.newItemButtonElement.addEventListener(EVENTS.CLICK, this.handeNewItemButtonClick);
 
@@ -444,8 +441,8 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
   /**
    * Gets the new item text for the button based on the cipher type the focused field is filled by.
    */
-  private getNewItemButtonText() {
-    if (this.isFilledByLoginCipher() || this.showInlineMenuAccountCreation) {
+  private getNewItemButtonText(showLogin: boolean) {
+    if (this.isFilledByLoginCipher() || this.showInlineMenuAccountCreation || showLogin) {
       return this.getTranslation("newLogin");
     }
 
@@ -463,8 +460,8 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
   /**
    * Gets the aria label for the new item button based on the cipher type the focused field is filled by.
    */
-  private getNewItemAriaLabel() {
-    if (this.isFilledByLoginCipher() || this.showInlineMenuAccountCreation) {
+  private getNewItemAriaLabel(showLogin: boolean) {
+    if (this.isFilledByLoginCipher() || this.showInlineMenuAccountCreation || showLogin) {
       return this.getTranslation("addNewLoginItem");
     }
 
