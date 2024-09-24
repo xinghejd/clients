@@ -211,12 +211,17 @@ export const TextOverflow: Story = {
 };
 
 export const Disabled: Story = {
-  ...Default,
   render: (args) => ({
     props: {
       ...args,
     },
     template: /* html */ `
+      <bit-chip-select
+        placeholderText="Folder"
+        placeholderIcon="bwi-folder"
+        [options]="options"
+        disabled
+      ></bit-chip-select>
       <bit-chip-select
         placeholderText="Folder"
         placeholderIcon="bwi-folder"
