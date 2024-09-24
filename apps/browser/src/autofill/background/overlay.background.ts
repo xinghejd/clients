@@ -1566,6 +1566,9 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       fillNewPassword: true,
       allowTotpAutofill: false,
     });
+
+    // TODO - Need to find a better way to approach this, I'm not a fan of this at all.
+    globalThis.setTimeout(() => this.openInlineMenu(port.sender, true), 400);
   }
 
   /**
