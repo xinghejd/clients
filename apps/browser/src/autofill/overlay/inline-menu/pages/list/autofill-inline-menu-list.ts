@@ -168,6 +168,7 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
     saveLoginMessage.textContent = this.getTranslation("saveLoginToBitwarden");
 
     const newItemButton = this.buildNewItemButton(true);
+    this.showInlineMenuAccountCreation = true;
 
     this.inlineMenuListContainer.append(saveLoginMessage, newItemButton);
   }
