@@ -201,35 +201,21 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
   }
 
   /**
-   * Focuses the most recently focused field element.
-   */
-  focusMostRecentlyFocusedField() {
-    this.mostRecentlyFocusedField?.focus();
-  }
-
-  /**
    * Removes focus from the most recently focused field element.
    */
-  blurMostRecentlyFocusedField(isClosingInlineMenu: boolean = false) {
+  async blurMostRecentlyFocusedField(isClosingInlineMenu: boolean = false) {
     this.mostRecentlyFocusedField?.blur();
 
     if (isClosingInlineMenu) {
-      void this.sendExtensionMessage("closeAutofillInlineMenu");
+      await this.sendExtensionMessage("closeAutofillInlineMenu", { forceCloseInlineMenu: true });
     }
-  }
-
-  /**
-   * Sets the most recently focused field within the current frame to a `null` value.
-   */
-  unsetMostRecentlyFocusedField() {
-    this.mostRecentlyFocusedField = null;
   }
 
   /**
    * Formats any found user filled fields for a login cipher and sends a message
    * to the background script to add a new cipher.
    */
-  async addNewVaultItem({ addNewCipherType }: AutofillExtensionMessage) {
+  private async addNewVaultItem({ addNewCipherType }: AutofillExtensionMessage) {
     const command = "autofillOverlayAddNewVaultItem";
     const password =
       this.userFilledFields["newPassword"]?.value || this.userFilledFields["password"]?.value;
@@ -242,7 +228,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
         hostname: globalThis.document.location.hostname,
       };
 
-      void this.sendExtensionMessage(command, { addNewCipherType, login });
+      await this.sendExtensionMessage(command, { addNewCipherType, login });
 
       return;
     }
@@ -257,7 +243,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
         cvv: this.userFilledFields["cardCvv"]?.value || "",
       };
 
-      void this.sendExtensionMessage(command, { addNewCipherType, card });
+      await this.sendExtensionMessage(command, { addNewCipherType, card });
 
       return;
     }
@@ -282,8 +268,22 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
         username: this.userFilledFields["identityUsername"]?.value || "",
       };
 
-      void this.sendExtensionMessage(command, { addNewCipherType, identity });
+      await this.sendExtensionMessage(command, { addNewCipherType, identity });
     }
+  }
+
+  /**
+   * Focuses the most recently focused field element.
+   */
+  private focusMostRecentlyFocusedField() {
+    this.mostRecentlyFocusedField?.focus();
+  }
+
+  /**
+   * Sets the most recently focused field within the current frame to a `null` value.
+   */
+  private unsetMostRecentlyFocusedField() {
+    this.mostRecentlyFocusedField = null;
   }
 
   /**

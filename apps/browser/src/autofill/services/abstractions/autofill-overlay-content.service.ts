@@ -18,12 +18,12 @@ export type NotificationFormFieldData = {
 export type AutofillOverlayContentExtensionMessageHandlers = {
   [key: string]: CallableFunction;
   addNewVaultItemFromOverlay: ({ message }: AutofillExtensionMessageParam) => void;
-  blurMostRecentlyFocusedField: () => void;
+  blurMostRecentlyFocusedField: () => Promise<void>;
   focusMostRecentlyFocusedField: () => void;
   unsetMostRecentlyFocusedField: () => void;
   checkIsMostRecentlyFocusedFieldWithinViewport: () => Promise<boolean>;
-  bgUnlockPopoutOpened: () => void;
-  bgVaultItemRepromptPopoutOpened: () => void;
+  bgUnlockPopoutOpened: () => Promise<void>;
+  bgVaultItemRepromptPopoutOpened: () => Promise<void>;
   redirectAutofillInlineMenuFocusOut: ({ message }: AutofillExtensionMessageParam) => void;
   updateAutofillInlineMenuVisibility: ({ message }: AutofillExtensionMessageParam) => void;
   getSubFrameOffsets: ({ message }: AutofillExtensionMessageParam) => Promise<SubFrameOffsetData>;
