@@ -17,6 +17,7 @@ import { FormBuilder, ReactiveFormsModule } from "@angular/forms";
 import { Router } from "@angular/router";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { SendType } from "@bitwarden/common/tools/send/enums/send-type";
 import { SendView } from "@bitwarden/common/tools/send/models/view/send.view";
 import {
@@ -212,6 +213,9 @@ export class SendFormComponent implements AfterViewInit, OnInit, OnChanges, Send
         queryParams: { sendId: sendView.id },
       });
       return;
+    }
+    if (Utils.isNullOrWhitespace(this.updatedSendView.password)) {
+      this.updatedSendView.password = null;
     }
 
     this.toastService.showToast({
