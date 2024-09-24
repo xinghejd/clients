@@ -1,7 +1,7 @@
 import { Component, OnInit, ViewChild } from "@angular/core";
 import { UntypedFormBuilder, Validators } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
-import { Subject, takeUntil } from "rxjs";
+import { map, Observable, shareReplay, Subject, takeUntil } from "rxjs";
 
 import { OrganizationBillingServiceAbstraction as OrganizationBillingService } from "@bitwarden/common/billing/abstractions/organization-billing.service";
 import { PlanType } from "@bitwarden/common/billing/enums";
@@ -52,7 +52,7 @@ export class SecretsManagerTrialFreeStepperComponent implements OnInit {
   };
 
   organizationId: string;
-  isTrialPaymentEnabled: boolean;
+  isTrialPaymentEnabled$!: Observable<any>;
   plan: PlanType;
   org = "";
   createOrganizationLoading = false;
@@ -95,9 +95,10 @@ export class SecretsManagerTrialFreeStepperComponent implements OnInit {
         }
       }
     });
-    this.enableTrialPayment$
-      .pipe(takeUntil(this.destroy$))
-      .subscribe((v) => (this.isTrialPaymentEnabled = v));
+    this.isTrialPaymentEnabled$ = this.enableTrialPayment$.pipe(
+      map((e) => e),
+      shareReplay({ refCount: true, bufferSize: 1 }),
+    );
   }
 
   accountCreated(email: string): void {

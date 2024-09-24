@@ -13,13 +13,16 @@ export class TrialFlowService {
     const trialEndDate = org?.subscription?.trialEndDate;
     const isOwner = organization?.isOwner;
     const isTrialing = org.subscription.status == "trialing";
+    let today, trialEnd, timeDifference;
     if (trialEndDate) {
-      const today = new Date();
-      const trialEnd = new Date(trialEndDate);
-      const timeDifference = trialEnd.getTime() - today.getTime();
-      this.trialRemainingDays = Math.ceil(timeDifference / (1000 * 60 * 60 * 24));
+      today = new Date();
+      trialEnd = new Date(trialEndDate);
+      timeDifference = trialEnd?.getTime() - today?.getTime();
     }
-    const trialRemainingDays = this.trialRemainingDays;
-    return { isOwner, isTrialing, trialRemainingDays };
+    return {
+      isOwner,
+      isTrialing,
+      trialRemainingDays: Math.ceil(timeDifference / (1000 * 60 * 60 * 24)),
+    };
   }
 }
