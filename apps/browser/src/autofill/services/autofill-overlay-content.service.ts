@@ -30,6 +30,7 @@ import AutofillField from "../models/autofill-field";
 import AutofillPageDetails from "../models/autofill-page-details";
 import { ElementWithOpId, FillableFormFieldElement, FormFieldElement } from "../types";
 import {
+  currentlyInSandboxedIframe,
   debounce,
   elementIsFillableFormField,
   elementIsSelectElement,
@@ -186,7 +187,9 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     autofillFieldData: AutofillField,
     pageDetails: AutofillPageDetails,
   ) {
+    // TODO: Might want to look into handling this sandbox iframe check a bit more effectively.
     if (
+      currentlyInSandboxedIframe() ||
       this.formFieldElements.has(formFieldElement) ||
       this.isIgnoredField(autofillFieldData, pageDetails)
     ) {

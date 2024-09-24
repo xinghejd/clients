@@ -487,3 +487,11 @@ export function generateDomainMatchPatterns(url: string): string[] {
 export function isInvalidResponseStatusCode(statusCode: number) {
   return statusCode < 200 || statusCode >= 300;
 }
+
+export function currentlyInSandboxedIframe(): boolean {
+  return (
+    String(self.origin).toLowerCase() === "null" ||
+    globalThis.frameElement?.hasAttribute("sandbox") ||
+    globalThis.location.hostname === ""
+  );
+}
