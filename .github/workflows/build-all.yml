@@ -2,6 +2,7 @@
 name: Build all
 
 on:
+  push:
   workflow_dispatch:
     inputs:
       checkout_ref:
