@@ -38,7 +38,7 @@ export const authGuard: CanActivateFn = async (
     if (routerState != null) {
       messagingService.send("lockedUrl", { url: routerState.url });
     }
-    // TODO: when extension refresh is finished, remove promptBiometric
+    // TODO PM-9674: when extension refresh is finished, remove promptBiometric
     // as it has been integrated into the component as a default feature.
     return router.createUrlTree(["lock"], { queryParams: { promptBiometric: true } });
   }
