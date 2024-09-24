@@ -25,7 +25,13 @@
     <!-- Email Address input -->
     <bit-form-field class="!tw-mb-4">
       <bit-label>{{ "emailAddress" | i18n }}</bit-label>
-      <input type="email" formControlName="email" bitInput appAutofocus />
+      <input
+        type="email"
+        formControlName="email"
+        bitInput
+        appAutofocus
+        (blur)="onEmailBlur($event)"
+      />
     </bit-form-field>
 
     <!-- Remember Email input -->

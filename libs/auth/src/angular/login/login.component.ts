@@ -82,14 +82,17 @@ export class LoginComponent implements OnInit, OnDestroy {
   showLoginWithDevice = false;
   validatedEmail = false;
 
-  formGroup = this.formBuilder.group({
-    email: ["", [Validators.required, Validators.email]],
-    masterPassword: [
-      "",
-      [Validators.required, Validators.minLength(Utils.originalMinimumPasswordLength)],
-    ],
-    rememberEmail: [false],
-  });
+  formGroup = this.formBuilder.group(
+    {
+      email: ["", [Validators.required, Validators.email]],
+      masterPassword: [
+        "",
+        [Validators.required, Validators.minLength(Utils.originalMinimumPasswordLength)],
+      ],
+      rememberEmail: [false],
+    },
+    { updateOn: "submit" },
+  );
 
   get emailFormControl(): FormControl<string> {
     return this.formGroup.controls.email;
@@ -371,6 +374,15 @@ export class LoginComponent implements OnInit, OnDestroy {
         });
       }
     }
+  }
+
+  /**
+   * Set the email value from the input field.
+   * @param event The event object from the input field.
+   */
+  onEmailBlur(event: Event) {
+    const emailInput = event.target as HTMLInputElement;
+    this.formGroup.controls.email.setValue(emailInput.value);
   }
 
   protected async goToHint(): Promise<void> {
