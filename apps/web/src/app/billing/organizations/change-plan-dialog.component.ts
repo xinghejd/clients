@@ -160,6 +160,9 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
   showPayment: boolean = false;
   totalOpened: boolean = false;
   currentPlan: PlanResponse;
+  currentFocusIndex = 0;
+  isCardStateDisabled = false;
+  focusedIndex: number | null = null;
 
   deprecateStripeSourcesAPI: boolean;
 
@@ -246,25 +249,27 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
         selected: false,
       },
     ];
-    this.discountPercentageFromSub = this.sub?.customerDiscount?.percentOff;
+    this.discountPercentageFromSub = this.isSecretsManagerTrial()
+      ? 0
+      : (this.sub?.customerDiscount?.percentOff ?? 0);
 
     this.setInitialPlanSelection();
     this.loading = false;
   }
 
   setInitialPlanSelection() {
-    if (
-      this.organization.useSecretsManager &&
-      this.currentPlan.productTier == ProductTierType.Free
-    ) {
-      this.selectPlan(this.getPlanByType(ProductTierType.Teams));
-    } else {
-      this.selectPlan(this.getPlanByType(ProductTierType.Enterprise));
-    }
+    this.focusedIndex = this.selectableProducts.length - 1;
+    this.selectPlan(this.getPlanByType(ProductTierType.Enterprise));
   }
 
   getPlanByType(productTier: ProductTierType) {
     return this.selectableProducts.find((product) => product.productTier === productTier);
+  }
+
+  secretsManagerTrialDiscount() {
+    return this.sub?.customerDiscount?.appliesTo?.includes("sm-standalone")
+      ? this.discountPercentage
+      : this.discountPercentageFromSub + this.discountPercentage;
   }
 
   isSecretsManagerTrial(): boolean {
@@ -276,14 +281,7 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
   }
 
   planTypeChanged() {
-    if (
-      this.organization.useSecretsManager &&
-      this.currentPlan.productTier == ProductTierType.Free
-    ) {
-      this.selectPlan(this.getPlanByType(ProductTierType.Teams));
-    } else {
-      this.selectPlan(this.getPlanByType(ProductTierType.Enterprise));
-    }
+    this.selectPlan(this.getPlanByType(ProductTierType.Enterprise));
   }
 
   updateInterval(event: number) {
@@ -304,20 +302,31 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
     ];
   }
 
+  optimizedNgForRender(index: number) {
+    return index;
+  }
+
   protected getPlanCardContainerClasses(plan: PlanResponse, index: number) {
     let cardState: PlanCardState;
 
     if (plan == this.currentPlan) {
       cardState = PlanCardState.Disabled;
+      this.isCardStateDisabled = true;
+      this.focusedIndex = index;
     } else if (plan == this.selectedPlan) {
       cardState = PlanCardState.Selected;
+      this.isCardStateDisabled = false;
+      this.focusedIndex = index;
     } else if (
       this.selectedInterval === PlanInterval.Monthly &&
       plan.productTier == ProductTierType.Families
     ) {
       cardState = PlanCardState.Disabled;
+      this.isCardStateDisabled = true;
+      this.focusedIndex = this.selectableProducts.length - 1;
     } else {
       cardState = PlanCardState.NotSelected;
+      this.isCardStateDisabled = false;
     }
 
     switch (cardState) {
@@ -368,6 +377,10 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
       this.selectedInterval === PlanInterval.Monthly &&
       plan.productTier == ProductTierType.Families
     ) {
+      return;
+    }
+
+    if (plan === this.currentPlan) {
       return;
     }
     this.selectedPlan = plan;
@@ -463,6 +476,10 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
     return result;
   }
 
+  get storageGb() {
+    return this.sub?.maxStorageGb ? this.sub?.maxStorageGb - 1 : 0;
+  }
+
   passwordManagerSeatTotal(plan: PlanResponse): number {
     if (!plan.PasswordManager.hasAdditionalSeatsOption || this.isSecretsManagerTrial()) {
       return 0;
@@ -487,7 +504,7 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
 
     return (
       plan.PasswordManager.additionalStoragePricePerGb *
-      Math.abs(this.organization.maxStorageGb || 0)
+      Math.abs(this.sub?.maxStorageGb ? this.sub?.maxStorageGb - 1 : 0 || 0)
     );
   }
 
@@ -499,7 +516,10 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
   }
 
   additionalServiceAccountTotal(plan: PlanResponse): number {
-    if (!plan.SecretsManager.hasAdditionalServiceAccountOption || this.additionalServiceAccount) {
+    if (
+      !plan.SecretsManager.hasAdditionalServiceAccountOption ||
+      this.additionalServiceAccount == 0
+    ) {
       return 0;
     }
 
@@ -541,7 +561,7 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
     if (this.selectedPlan.productTier === ProductTierType.Families) {
       return this.selectedPlan.PasswordManager.baseSeats;
     }
-    return this.organization.seats;
+    return this.sub?.seats;
   }
 
   get total() {
@@ -565,7 +585,7 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
   }
 
   get additionalServiceAccount() {
-    const baseServiceAccount = this.selectedPlan.SecretsManager?.baseServiceAccount || 0;
+    const baseServiceAccount = this.currentPlan.SecretsManager?.baseServiceAccount || 0;
     const usedServiceAccounts = this.sub?.smServiceAccounts || 0;
 
     const additionalServiceAccounts = baseServiceAccount - usedServiceAccounts;
@@ -652,7 +672,7 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
       if (!this.acceptingSponsorship && !this.isInTrialFlow) {
         // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
         // eslint-disable-next-line @typescript-eslint/no-floating-promises
-        this.router.navigate(["/organizations/" + orgId]);
+        this.router.navigate(["/organizations/" + orgId + "/members"]);
       }
 
       if (this.isInTrialFlow) {
@@ -676,11 +696,11 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
   private async updateOrganization() {
     const request = new OrganizationUpgradeRequest();
     if (this.selectedPlan.productTier !== ProductTierType.Families) {
-      request.additionalSeats = this.organization.seats;
+      request.additionalSeats = this.sub?.seats;
     }
-    if (this.organization.maxStorageGb > this.selectedPlan.PasswordManager.baseStorageGb) {
+    if (this.sub?.maxStorageGb > this.selectedPlan.PasswordManager.baseStorageGb) {
       request.additionalStorageGb =
-        this.organization.maxStorageGb - this.selectedPlan.PasswordManager.baseStorageGb;
+        this.sub?.maxStorageGb - this.selectedPlan.PasswordManager.baseStorageGb;
     }
     request.premiumAccessAddon =
       this.selectedPlan.PasswordManager.hasPremiumAccessOption &&
@@ -768,6 +788,7 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
       request.additionalSmSeats = this.organization.seats;
     } else {
       request.additionalSmSeats = this.sub?.smSeats;
+      request.additionalServiceAccounts = this.additionalServiceAccount;
     }
   }
 
@@ -812,6 +833,16 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
     this.totalOpened = !this.totalOpened;
   }
 
+  calculateTotalAppliedDiscount(total: number) {
+    const discountPercent =
+      this.selectedInterval == PlanInterval.Annually
+        ? this.discountPercentage + this.discountPercentageFromSub
+        : this.discountPercentageFromSub;
+
+    const discountedTotal = total / (1 - discountPercent / 100);
+    return discountedTotal;
+  }
+
   get paymentSourceClasses() {
     if (this.billing.paymentSource == null) {
       return [];
@@ -841,5 +872,45 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
       case ProductTierType.Teams:
         return this.i18nService.t("planNameTeams");
     }
+  }
+
+  onKeydown(event: KeyboardEvent, index: number) {
+    const cardElements = Array.from(document.querySelectorAll(".product-card")) as HTMLElement[];
+    let newIndex = index;
+    const direction = event.key === "ArrowRight" || event.key === "ArrowDown" ? 1 : -1;
+
+    if (["ArrowRight", "ArrowDown", "ArrowLeft", "ArrowUp"].includes(event.key)) {
+      do {
+        newIndex = (newIndex + direction + cardElements.length) % cardElements.length;
+      } while (this.isCardDisabled(newIndex) && newIndex !== index);
+
+      event.preventDefault();
+
+      setTimeout(() => {
+        const card = cardElements[newIndex];
+        if (
+          !(
+            card.classList.contains("tw-bg-secondary-100") &&
+            card.classList.contains("tw-text-muted")
+          )
+        ) {
+          card?.focus();
+        }
+      }, 0);
+    }
+  }
+
+  onFocus(index: number) {
+    this.focusedIndex = index;
+    this.selectPlan(this.selectableProducts[index]);
+  }
+
+  isCardDisabled(index: number): boolean {
+    const card = this.selectableProducts[index];
+    return card === (this.currentPlan || this.isCardStateDisabled);
+  }
+
+  manageSelectableProduct(index: number) {
+    return index;
   }
 }
