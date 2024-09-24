@@ -123,6 +123,8 @@ const safeProviders: SafeProvider[] = [
   providers: safeProviders,
 })
 export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
+  MAX_PASSWORD_ATTEMPTS = 3;
+
   featuredImportOptions: ImportOption[];
   importOptions: ImportOption[];
   format: ImportType = null;
@@ -493,11 +495,38 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
     });
   }
 
-  private extractZipContent(
+  private async extractZipContent(
     zipFile: File,
     contentFilePath: string,
     promptForPassword_callback?: () => Promise<string>,
   ): Promise<string> {
+    let password: string = null;
+    // try password 3 times before giving up
+    for (let attempt = 0; attempt < this.MAX_PASSWORD_ATTEMPTS + 1; attempt++) {
+      const blobReader = new BlobReader(zipFile);
+      const zipReader = new ZipReader(blobReader);
+
+      try {
+        const entries = await zipReader.getEntries();
+        const contentEntry = entries.find((entry) => entry.filename === contentFilePath);
+        if (!contentEntry) {
+          throw new Error("Content file not found");
+        }
+
+        await contentEntry.getData(new TextWriter(), { password });
+      } catch (e) {
+        if (attempt < this.MAX_PASSWORD_ATTEMPTS + 1) {
+          if (e.message == ERR_ENCRYPTED || e.message == ERR_INVALID_PASSWORD) {
+            password = await promptForPassword_callback();
+          }
+        } else {
+          throw new Error("Invalid password");
+        }
+      } finally {
+        await zipReader.close();
+      }
+    }
+
     const blobReader = new BlobReader(zipFile);
     const zipReader = new ZipReader(blobReader);
     return zipReader.getEntries().then(async (entries) => {
@@ -507,17 +536,12 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
       } else {
         const textWriter = new TextWriter();
 
-        let password = null;
-        for (let attempt = 0; attempt < 3; attempt++) {
-          try {
-            const dataJson = await contentEntry.getData(textWriter, { password });
-            await zipReader.close();
-            return dataJson;
-          } catch (e) {
-            if (e.message == ERR_ENCRYPTED || e.message == ERR_INVALID_PASSWORD) {
-              password = await promptForPassword_callback();
-            }
-          }
+        try {
+          const dataJson = await contentEntry.getData(textWriter, { password });
+          await zipReader.close();
+          return dataJson;
+        } catch (e) {
+          return "";
         }
       }
     });
