@@ -41,6 +41,7 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
   private passkeysHeadingHeight: number;
   private lastPasskeysListItemHeight: number;
   private ciphersListHeight: number;
+  private isPasskeyAuthInProgress = false;
   private readonly showCiphersPerPage = 6;
   private readonly headingBorderClass = "inline-menu-list-heading--bordered";
   private readonly inlineMenuListWindowMessageHandlers: AutofillInlineMenuListWindowMessageHandlers =
@@ -157,6 +158,10 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
     ciphers: InlineMenuCipherData[],
     showInlineMenuAccountCreation?: boolean,
   ) {
+    if (this.isPasskeyAuthInProgress) {
+      return;
+    }
+
     this.ciphers = ciphers;
     this.currentCipherIndex = 0;
     this.showInlineMenuAccountCreation = showInlineMenuAccountCreation;
@@ -929,6 +934,7 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
    * Creates an indicator for the user that the passkey is being authenticated.
    */
   private createPasskeyAuthenticatingLoader() {
+    this.isPasskeyAuthInProgress = true;
     this.resetInlineMenuContainer();
 
     const passkeyAuthenticatingLoader = globalThis.document.createElement("div");
@@ -937,6 +943,11 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
     passkeyAuthenticatingLoader.appendChild(buildSvgDomElement(spinnerIcon));
 
     this.inlineMenuListContainer.appendChild(passkeyAuthenticatingLoader);
+
+    globalThis.setTimeout(() => {
+      this.isPasskeyAuthInProgress = false;
+      this.postMessageToParent({ command: "checkAutofillInlineMenuButtonFocused" });
+    }, 4000);
   }
 
   /**
