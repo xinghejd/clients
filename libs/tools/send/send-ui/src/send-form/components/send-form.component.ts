@@ -201,11 +201,9 @@ export class SendFormComponent implements AfterViewInit, OnInit, OnChanges, Send
       return;
     }
 
-    await this.addEditFormService.saveSend(this.updatedSendView, this.file, this.config);
-
     const sendView = await this.addEditFormService.saveSend(
       this.updatedSendView,
-      null,
+      this.file,
       this.config,
     );
 
