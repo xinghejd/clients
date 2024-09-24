@@ -5,10 +5,14 @@ import { InlineMenuFillTypes } from "../../../enums/autofill-overlay.enum";
 
 type AutofillInlineMenuListMessage = { command: string };
 
-export type UpdateAutofillInlineMenuListCiphersMessage = AutofillInlineMenuListMessage & {
+export type UpdateAutofillInlineMenuListCiphersParams = {
   ciphers: InlineMenuCipherData[];
   showInlineMenuAccountCreation?: boolean;
+  focusedFieldHasValue?: boolean;
 };
+
+export type UpdateAutofillInlineMenuListCiphersMessage = AutofillInlineMenuListMessage &
+  UpdateAutofillInlineMenuListCiphersParams;
 
 export type UpdateAutofillInlineMenuGeneratedPasswordMessage = AutofillInlineMenuListMessage & {
   generatedPassword: string;
@@ -25,6 +29,7 @@ export type InitAutofillInlineMenuListMessage = AutofillInlineMenuListMessage & 
   showPasskeysLabels?: boolean;
   portKey: string;
   generatedPassword?: string;
+  focusedFieldHasValue?: boolean;
 };
 
 export type AutofillInlineMenuListWindowMessageHandlers = {

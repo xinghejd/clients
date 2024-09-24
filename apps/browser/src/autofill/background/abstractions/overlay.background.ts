@@ -35,7 +35,7 @@ export type WebsiteIconData = {
 
 export type UpdateOverlayCiphersParams = {
   updateAllCipherTypes: boolean;
-  openInlineMenu: boolean;
+  refocusField: boolean;
 };
 
 export type FocusedFieldData = {
@@ -127,6 +127,7 @@ export type OverlayBackgroundExtensionMessage = {
   isVisible?: boolean;
   subFrameData?: SubFrameOffsetData;
   focusedFieldData?: FocusedFieldData;
+  isOpeningFullInlineMenu?: boolean;
   styles?: Partial<CSSStyleDeclaration>;
   data?: LockedVaultPendingNotificationsData;
 } & OverlayAddNewItemMessage &
@@ -193,14 +194,10 @@ export type OverlayBackgroundExtensionMessageHandlers = {
   updateIsFieldCurrentlyFilling: ({ message }: BackgroundMessageParam) => void;
   checkIsFieldCurrentlyFilling: () => boolean;
   getAutofillInlineMenuVisibility: () => void;
-  openAutofillInlineMenu: () => void;
+  openAutofillInlineMenu: ({ message, sender }: BackgroundOnMessageHandlerParams) => Promise<void>;
   closeAutofillInlineMenu: ({ message, sender }: BackgroundOnMessageHandlerParams) => void;
   checkAutofillInlineMenuFocused: ({ sender }: BackgroundSenderParam) => void;
   focusAutofillInlineMenuList: () => void;
-  updateAutofillInlineMenuPosition: ({
-    message,
-    sender,
-  }: BackgroundOnMessageHandlerParams) => Promise<void>;
   getAutofillInlineMenuPosition: () => InlineMenuPosition;
   updateAutofillInlineMenuElementIsVisibleStatus: ({
     message,

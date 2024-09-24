@@ -24,6 +24,7 @@ import {
   AutofillInlineMenuListWindowMessageHandlers,
   InitAutofillInlineMenuListMessage,
   UpdateAutofillInlineMenuGeneratedPasswordMessage,
+  UpdateAutofillInlineMenuListCiphersParams,
 } from "../../abstractions/autofill-inline-menu-list";
 import { AutofillInlineMenuPageElement } from "../shared/autofill-inline-menu-page-element";
 
@@ -52,8 +53,7 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
     {
       initAutofillInlineMenuList: ({ message }) => this.initAutofillInlineMenuList(message),
       checkAutofillInlineMenuListFocused: () => this.checkInlineMenuListFocused(),
-      updateAutofillInlineMenuListCiphers: ({ message }) =>
-        this.updateListItems(message.ciphers, message.showInlineMenuAccountCreation),
+      updateAutofillInlineMenuListCiphers: ({ message }) => this.updateListItems(message),
       updateAutofillInlineMenuGeneratedPassword: ({ message }) =>
         this.handleUpdateAutofillInlineMenuGeneratedPassword(message),
       focusAutofillInlineMenuList: () => this.focusInlineMenuList(),
@@ -69,29 +69,22 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
    * Initializes the inline menu list and updates the list items with the passed ciphers.
    * If the auth status is not `Unlocked`, the locked inline menu is built.
    *
-   * @param translations - The translations to use for the inline menu list.
-   * @param styleSheetUrl - The URL of the stylesheet to use for the inline menu list.
-   * @param theme - The theme to use for the inline menu list.
-   * @param authStatus - The current authentication status.
-   * @param ciphers - The ciphers to display in the inline menu list.
-   * @param portKey - Background generated key that allows the port to communicate with the background.
-   * @param inlineMenuFillType - The type of cipher that fills the current field.
-   * @param showInlineMenuAccountCreation - Whether identity ciphers are shown on login fields.
-   * @param showPasskeysLabels - Whether passkeys labels are shown in the inline menu list.
-   * @param generatedPassword - The generated password to display in the inline menu list.
+   * @param message - The message containing the data to initialize the inline menu list.
    */
-  private async initAutofillInlineMenuList({
-    translations,
-    styleSheetUrl,
-    theme,
-    authStatus,
-    ciphers,
-    portKey,
-    inlineMenuFillType,
-    showInlineMenuAccountCreation,
-    showPasskeysLabels,
-    generatedPassword,
-  }: InitAutofillInlineMenuListMessage) {
+  private async initAutofillInlineMenuList(message: InitAutofillInlineMenuListMessage) {
+    const {
+      translations,
+      styleSheetUrl,
+      theme,
+      authStatus,
+      ciphers,
+      portKey,
+      inlineMenuFillType,
+      showInlineMenuAccountCreation,
+      showPasskeysLabels,
+      generatedPassword,
+      focusedFieldHasValue,
+    } = message;
     const linkElement = await this.initAutofillInlineMenuPage(
       "list",
       styleSheetUrl,
@@ -116,12 +109,21 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
       return;
     }
 
+    if (focusedFieldHasValue && (showInlineMenuAccountCreation || generatedPassword)) {
+      this.buildSaveLoginInlineMenuList();
+      return;
+    }
+
     if (generatedPassword) {
       this.buildPasswordGenerator(generatedPassword);
       return;
     }
 
-    this.updateListItems(ciphers, showInlineMenuAccountCreation);
+    this.updateListItems({
+      ciphers,
+      showInlineMenuAccountCreation,
+      focusedFieldHasValue,
+    });
   }
 
   /**
@@ -150,6 +152,16 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
     const inlineMenuListButtonContainer = this.buildButtonContainer(unlockButtonElement);
 
     this.inlineMenuListContainer.append(lockedInlineMenu, inlineMenuListButtonContainer);
+  }
+
+  private buildSaveLoginInlineMenuList() {
+    const saveLoginMessage = globalThis.document.createElement("div");
+    saveLoginMessage.classList.add("save-login", "inline-menu-list-message");
+    saveLoginMessage.textContent = this.getTranslation("saveLoginToBitwarden");
+
+    const newItemButton = this.buildNewItemButton();
+
+    this.inlineMenuListContainer.append(saveLoginMessage, newItemButton);
   }
 
   /**
@@ -342,10 +354,11 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
    * @param ciphers - The ciphers to display in the inline menu list.
    * @param showInlineMenuAccountCreation - Whether identity ciphers are shown on login fields.
    */
-  private updateListItems(
-    ciphers: InlineMenuCipherData[],
-    showInlineMenuAccountCreation?: boolean,
-  ) {
+  private updateListItems({
+    ciphers,
+    showInlineMenuAccountCreation,
+    focusedFieldHasValue,
+  }: UpdateAutofillInlineMenuListCiphersParams) {
     this.ciphers = ciphers;
     this.currentCipherIndex = 0;
     this.showInlineMenuAccountCreation = showInlineMenuAccountCreation;

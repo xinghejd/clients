@@ -2,7 +2,6 @@ import "@webcomponents/custom-elements";
 import "lit/polyfill-support.js";
 import { FocusableElement, tabbable } from "tabbable";
 
-import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import {
   AUTOFILL_OVERLAY_HANDLE_REPOSITION,
   AUTOFILL_TRIGGER_FORM_FIELD_SUBMIT,
@@ -45,7 +44,6 @@ import {
   AutofillOverlayContentExtensionMessageHandlers,
   AutofillOverlayContentService as AutofillOverlayContentServiceInterface,
   NotificationFormFieldData,
-  OpenAutofillInlineMenuOptions,
   SubFrameDataFromWindowMessage,
 } from "./abstractions/autofill-overlay-content.service";
 import { DomQueryService } from "./abstractions/dom-query.service";
@@ -65,7 +63,6 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
   private fieldsWithSubmitElements: WeakMap<FillableFormFieldElement, HTMLElement> = new WeakMap();
   private ignoredFieldTypes: Set<string> = new Set(AutoFillConstants.ExcludedInlineMenuTypes);
   private userFilledFields: Record<string, FillableFormFieldElement> = {};
-  private authStatus: AuthenticationStatus;
   private focusableElements: FocusableElement[] = [];
   private mostRecentlyFocusedField: ElementWithOpId<FormFieldElement>;
   private focusedFieldData: FocusedFieldData;
@@ -73,9 +70,9 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
   private focusInlineMenuListTimeout: number | NodeJS.Timeout;
   private eventHandlersMemo: { [key: string]: EventListener } = {};
   private readonly extensionMessageHandlers: AutofillOverlayContentExtensionMessageHandlers = {
-    openAutofillInlineMenu: ({ message }) => this.openInlineMenu(message),
     addNewVaultItemFromOverlay: ({ message }) => this.addNewVaultItem(message),
     blurMostRecentlyFocusedField: () => this.blurMostRecentlyFocusedField(),
+    focusMostRecentlyFocusedField: () => this.focusMostRecentlyFocusedField(),
     unsetMostRecentlyFocusedField: () => this.unsetMostRecentlyFocusedField(),
     checkIsMostRecentlyFocusedFieldWithinViewport: () =>
       this.checkIsMostRecentlyFocusedFieldWithinViewport(),
@@ -201,46 +198,6 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     }
 
     await this.setupOverlayListenersOnQualifiedField(formFieldElement, autofillFieldData);
-  }
-
-  /**
-   * Handles opening the autofill inline menu. Will conditionally open
-   * the inline menu based on the current inline menu visibility setting.
-   * Allows you to optionally focus the field element when opening the inline menu.
-   * Will also optionally ignore the inline menu visibility setting and open the
-   *
-   * @param options - Options for opening the autofill inline menu.
-   */
-  openInlineMenu(options: OpenAutofillInlineMenuOptions = {}) {
-    const { isFocusingFieldElement, isOpeningFullInlineMenu, authStatus } = options;
-    if (!this.mostRecentlyFocusedField) {
-      return;
-    }
-
-    if (this.pageDetailsUpdateRequired) {
-      void this.sendExtensionMessage("bgCollectPageDetails", {
-        sender: "autofillOverlayContentService",
-      });
-      this.pageDetailsUpdateRequired = false;
-    }
-
-    if (isFocusingFieldElement && !this.recentlyFocusedFieldIsCurrentlyFocused()) {
-      this.focusMostRecentlyFocusedField();
-    }
-
-    if (typeof authStatus !== "undefined") {
-      this.authStatus = authStatus;
-    }
-
-    if (
-      this.inlineMenuVisibility === AutofillOverlayVisibility.OnButtonClick &&
-      !isOpeningFullInlineMenu
-    ) {
-      this.updateInlineMenuButtonPosition();
-      return;
-    }
-
-    this.updateInlineMenuElementsPosition();
   }
 
   /**
@@ -714,7 +671,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     if (this.mostRecentlyFocusedField && !(await this.isInlineMenuListVisible())) {
       this.clearFocusInlineMenuListTimeout();
       await this.updateMostRecentlyFocusedField(this.mostRecentlyFocusedField);
-      this.openInlineMenu({ isOpeningFullInlineMenu: true });
+      await this.sendExtensionMessage("openAutofillInlineMenu", { isOpeningFullInlineMenu: true });
       this.focusInlineMenuListTimeout = globalThis.setTimeout(
         () => this.sendExtensionMessage("focusAutofillInlineMenuList"),
         125,
@@ -762,12 +719,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
       return;
     }
 
-    if (await this.isInlineMenuButtonVisible()) {
-      this.updateInlineMenuListPosition();
-      return;
-    }
-
-    this.openInlineMenu();
+    await this.sendExtensionMessage("openAutofillInlineMenu");
   }
 
   /**
@@ -903,6 +855,13 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
       return;
     }
 
+    if (this.pageDetailsUpdateRequired) {
+      await this.sendExtensionMessage("bgCollectPageDetails", {
+        sender: "autofillOverlayContentService",
+      });
+      this.pageDetailsUpdateRequired = false;
+    }
+
     if (elementIsSelectElement(formFieldElement)) {
       await this.sendExtensionMessage("closeAutofillInlineMenu", {
         forceCloseInlineMenu: true,
@@ -911,26 +870,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     }
 
     await this.updateIsFieldCurrentlyFocused(true);
-    const initiallyFocusedField = this.mostRecentlyFocusedField;
     await this.updateMostRecentlyFocusedField(formFieldElement);
-
-    const hideInlineMenuListOnFilledField = await this.hideInlineMenuListOnFilledField(
-      formFieldElement as FillableFormFieldElement,
-    );
-    if (
-      this.inlineMenuVisibility === AutofillOverlayVisibility.OnButtonClick ||
-      (initiallyFocusedField !== this.mostRecentlyFocusedField && hideInlineMenuListOnFilledField)
-    ) {
-      await this.sendExtensionMessage("closeAutofillInlineMenu", {
-        overlayElement: AutofillOverlayElement.List,
-        forceCloseInlineMenu: true,
-      });
-    }
-
-    if (hideInlineMenuListOnFilledField) {
-      this.updateInlineMenuButtonPosition();
-      return;
-    }
 
     await this.sendExtensionMessage("openAutofillInlineMenu");
   }
@@ -938,13 +878,6 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
   private updateIsFieldCurrentlyFocused = async (isFieldCurrentlyFocused: boolean) => {
     await this.sendExtensionMessage("updateIsFieldCurrentlyFocused", { isFieldCurrentlyFocused });
   };
-
-  /**
-   * Validates whether the user is currently authenticated.
-   */
-  private isUserAuthed() {
-    return this.authStatus === AuthenticationStatus.Unlocked;
-  }
 
   /**
    * Validates that the most recently focused field is currently
@@ -1131,9 +1064,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
   private async setQualifiedLoginFillType(autofillFieldData: AutofillField) {
     autofillFieldData.inlineMenuFillType = CipherType.Login;
     autofillFieldData.showPasskeys = autofillFieldData.autoCompleteType.includes("webauthn");
-    if (!(await this.isInlineMenuCiphersPopulated())) {
-      this.qualifyAccountCreationFieldType(autofillFieldData);
-    }
+    this.qualifyAccountCreationFieldType(autofillFieldData);
   }
 
   private setQualifiedAccountCreationFillType(autofillFieldData: AutofillField) {
@@ -1289,20 +1220,6 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
   private async getInlineMenuVisibility() {
     const inlineMenuVisibility = await this.sendExtensionMessage("getAutofillInlineMenuVisibility");
     this.inlineMenuVisibility = inlineMenuVisibility || AutofillOverlayVisibility.OnFieldFocus;
-  }
-
-  /**
-   * Returns a value that indicates if we should hide the inline menu list due to a filled field.
-   *
-   * @param formFieldElement - The form field element that triggered the focus event.
-   */
-  private async hideInlineMenuListOnFilledField(
-    formFieldElement?: FillableFormFieldElement,
-  ): Promise<boolean> {
-    return !!(
-      formFieldElement?.value &&
-      ((await this.isInlineMenuCiphersPopulated()) || !this.isUserAuthed())
-    );
   }
 
   /**
