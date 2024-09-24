@@ -16,6 +16,7 @@ import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, ReactiveFormsModule } from "@angular/forms";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { SendType } from "@bitwarden/common/tools/send/enums/send-type";
 import { SendView } from "@bitwarden/common/tools/send/models/view/send.view";
 import {
@@ -34,6 +35,8 @@ import {
 import { SendFormConfig } from "../abstractions/send-form-config.service";
 import { SendFormService } from "../abstractions/send-form.service";
 import { SendForm, SendFormContainer } from "../send-form-container";
+
+import { SendDetailsComponent } from "./send-details/send-details.component";
 
 @Component({
   selector: "tools-send-form",
@@ -55,6 +58,7 @@ import { SendForm, SendFormContainer } from "../send-form-container";
     ReactiveFormsModule,
     SelectModule,
     NgIf,
+    SendDetailsComponent,
   ],
 })
 export class SendFormComponent implements AfterViewInit, OnInit, OnChanges, SendFormContainer {
@@ -62,6 +66,7 @@ export class SendFormComponent implements AfterViewInit, OnInit, OnChanges, Send
   private bitSubmit: BitSubmitDirective;
   private destroyRef = inject(DestroyRef);
   private _firstInitialized = false;
+  private file: File | null = null;
 
   /**
    * The form ID to use for the form. Used to connect it to a submit button.
@@ -131,12 +136,11 @@ export class SendFormComponent implements AfterViewInit, OnInit, OnChanges, Send
   }
 
   /**
-   * Patches the updated send with the provided partial senbd. Used by child components to update the send
-   * as their form values change.
-   * @param send
+   * Method to update the sendView with the new values. This method should be called by the child form components
+   * @param updateFn - A function that takes the current sendView and returns the updated sendView
    */
-  patchSend(send: Partial<SendView>): void {
-    this.updatedSendView = Object.assign(this.updatedSendView, send);
+  patchSend(updateFn: (current: SendView) => SendView): void {
+    this.updatedSendView = updateFn(this.updatedSendView);
   }
 
   /**
@@ -186,14 +190,21 @@ export class SendFormComponent implements AfterViewInit, OnInit, OnChanges, Send
     private i18nService: I18nService,
   ) {}
 
+  onFileSelected(file: File): void {
+    this.file = file;
+  }
+
   submit = async () => {
     if (this.sendForm.invalid) {
       this.sendForm.markAllAsTouched();
       return;
     }
 
-    // TODO: Add file handling
-    await this.addEditFormService.saveSend(this.updatedSendView, null, this.config);
+    if (Utils.isNullOrWhitespace(this.updatedSendView.password)) {
+      this.updatedSendView.password = null;
+    }
+
+    await this.addEditFormService.saveSend(this.updatedSendView, this.file, this.config);
 
     this.toastService.showToast({
       variant: "success",
