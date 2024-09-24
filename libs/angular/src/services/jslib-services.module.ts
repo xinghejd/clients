@@ -964,6 +964,7 @@ const safeProviders: SafeProvider[] = [
       OrganizationApiServiceAbstraction,
       AccountServiceAbstraction,
       CryptoServiceAbstraction,
+      EncryptService,
       OrganizationUserApiService,
       I18nServiceAbstraction,
     ],
@@ -1093,6 +1094,7 @@ const safeProviders: SafeProvider[] = [
       AccountServiceAbstraction,
       InternalMasterPasswordServiceAbstraction,
       CryptoServiceAbstraction,
+      EncryptService,
       ApiServiceAbstraction,
       StateProvider,
     ],
@@ -1288,6 +1290,7 @@ const safeProviders: SafeProvider[] = [
     deps: [
       ApiServiceAbstraction,
       CryptoServiceAbstraction,
+      EncryptService,
       I18nServiceAbstraction,
       KdfConfigServiceAbstraction,
       InternalMasterPasswordServiceAbstraction,

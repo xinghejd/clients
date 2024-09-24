@@ -145,7 +145,7 @@ export class DeviceTrustService implements DeviceTrustServiceAbstraction {
       deviceKeyEncryptedDevicePrivateKey,
     ] = await Promise.all([
       // Encrypt user key with the DevicePublicKey
-      this.cryptoService.rsaEncrypt(userKey.key, devicePublicKey),
+      this.encryptService.rsaEncrypt(userKey.key, devicePublicKey),
 
       // Encrypt devicePublicKey with user key
       this.encryptService.encrypt(devicePublicKey, userKey),
@@ -207,7 +207,7 @@ export class DeviceTrustService implements DeviceTrustServiceAbstraction {
     );
 
     // Encrypt the brand new user key with the now-decrypted public key for the device
-    const encryptedNewUserKey = await this.cryptoService.rsaEncrypt(
+    const encryptedNewUserKey = await this.encryptService.rsaEncrypt(
       newUserKey.key,
       decryptedDevicePublicKey,
     );
@@ -318,8 +318,8 @@ export class DeviceTrustService implements DeviceTrustServiceAbstraction {
       );
 
       // Attempt to decrypt encryptedUserDataKey with devicePrivateKey
-      const userKey = await this.cryptoService.rsaDecrypt(
-        encryptedUserKey.encryptedString,
+      const userKey = await this.encryptService.rsaDecrypt(
+        new EncString(encryptedUserKey.encryptedString),
         devicePrivateKey,
       );
 
