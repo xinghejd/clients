@@ -346,8 +346,7 @@ export class LoginComponent implements OnInit, OnDestroy {
       this.anonLayoutWrapperDataService.setAnonLayoutWrapperData({
         pageTitle: "welcomeBack",
         pageSubtitle: {
-          // TODO-rr-bw: add an icon that takes the user back
-          subtitle: `(todo: back btn) ${this.loggedEmail}`,
+          subtitle: `${this.loggedEmail}`,
           translate: false,
         },
         pageIcon: this.Icons.WaveIcon,
