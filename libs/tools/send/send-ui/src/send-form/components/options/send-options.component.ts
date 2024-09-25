@@ -97,15 +97,19 @@ export class SendOptionsComponent implements OnInit {
       });
     });
   }
+
   ngOnInit() {
     if (this.sendFormContainer.originalSendView) {
       this.sendOptionsForm.patchValue({
         maxAccessCount: this.sendFormContainer.originalSendView.maxAccessCount,
         accessCount: this.sendFormContainer.originalSendView.accessCount,
-        password: this.sendFormContainer.originalSendView.password,
+        password: null,
         hideEmail: this.sendFormContainer.originalSendView.hideEmail,
         notes: this.sendFormContainer.originalSendView.notes,
       });
+    }
+    if (!this.config.areSendsAllowed) {
+      this.sendOptionsForm.disable();
     }
   }
 }
