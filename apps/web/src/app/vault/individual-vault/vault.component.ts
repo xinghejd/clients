@@ -497,11 +497,11 @@ export class VaultComponent implements OnInit, OnDestroy {
     const sub = await this.organizationApiService.getSubscription(organizationId);
     const billing = await this.organizationApiService.getBilling(organizationId);
 
-    const isTrialing = sub?.subscription.status === "trialing";
+    const isTrialing = sub?.subscription?.status === "trialing";
     const isOwner = org?.isOwner ?? false;
     const isPaymentSourceEmpty = !billing?.paymentSource;
 
-    const trialRemainingDays = this.calculateTrialRemainingDays(sub?.subscription.trialEndDate);
+    const trialRemainingDays = this.calculateTrialRemainingDays(sub?.subscription?.trialEndDate);
 
     return {
       isTrialing,

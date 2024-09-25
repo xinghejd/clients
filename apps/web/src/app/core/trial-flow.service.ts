@@ -11,7 +11,7 @@ export class TrialFlowService {
   ): { isOwner: boolean; isTrialing: boolean; trialRemainingDays: number } {
     const trialEndDate = org?.subscription?.trialEndDate;
     const isOwner = organization?.isOwner;
-    const isTrialing = org.subscription.status == "trialing";
+    const isTrialing = org?.subscription?.status == "trialing";
     let timeDifference = 0;
     if (trialEndDate) {
       const today = new Date();

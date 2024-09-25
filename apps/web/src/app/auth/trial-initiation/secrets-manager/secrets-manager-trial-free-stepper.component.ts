@@ -119,8 +119,8 @@ export class SecretsManagerTrialFreeStepperComponent implements OnInit {
       },
     });
 
-    this.organizationId = response.id;
-    this.subLabels.organizationInfo = response.name;
+    this.organizationId = response?.id;
+    this.subLabels.organizationInfo = response?.name;
     this.createOrganizationLoading = false;
     this.verticalStepper.next();
   }

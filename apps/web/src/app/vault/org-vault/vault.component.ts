@@ -600,7 +600,7 @@ export class VaultComponent implements OnInit, OnDestroy {
           // This is a temporary fix to avoid double fetching collections.
           // TODO: Remove when implementing new VVR menu
           this.vaultFilterService.reloadCollections(allCollections);
-          if (this.organization.id) {
+          if (this.organization?.id) {
             await this.flagOrgsWithPaymentIssues();
           }
           this.refreshing = false;
@@ -611,8 +611,8 @@ export class VaultComponent implements OnInit, OnDestroy {
 
   private async flagOrgsWithPaymentIssues() {
     combineLatest([
-      from(this.organizationApiService.getSubscription(this.organization.id)),
-      from(this.organizationApiService.getBilling(this.organization.id)),
+      from(this.organizationApiService.getSubscription(this.organization?.id)),
+      from(this.organizationApiService.getBilling(this.organization?.id)),
     ])
       .pipe(
         tap(([sub, billing]) => {
@@ -631,7 +631,7 @@ export class VaultComponent implements OnInit, OnDestroy {
 
   async navigateToPaymentMethod() {
     await this.router.navigate(
-      ["organizations", `${this.organization.id}`, "billing", "payment-method"],
+      ["organizations", `${this.organization?.id}`, "billing", "payment-method"],
       { state: { launchPaymentModalAutomatically: true } },
     );
   }

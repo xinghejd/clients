@@ -69,18 +69,18 @@ export class OrgSwitcherComponent {
 
   async handleUnpaidSubscription(org: Organization) {
     const sub = await this.organizationApiService.getSubscription(org.id);
-    if (sub?.subscription.status === "unpaid") {
+    if (sub?.subscription?.status === "unpaid") {
       const confirmed = await this.promptForPaymentNavigation(org);
       if (confirmed) {
-        await this.navigateToPaymentMethod(org.id);
+        await this.navigateToPaymentMethod(org?.id);
       }
     }
   }
 
   private async promptForPaymentNavigation(org: Organization): Promise<boolean> {
     return await this.dialogService.openSimpleDialog({
-      title: this.i18nService.t("suspendedOrganizationTitle", org.name),
-      content: org.isOwner
+      title: this.i18nService.t("suspendedOrganizationTitle", org?.name),
+      content: org?.isOwner
         ? { key: "suspendedOwnerOrgMessage" }
         : { key: "suspendedUserOrgMessage" },
       type: "danger",
