@@ -32,6 +32,9 @@ export class AutofillV1Component implements OnInit {
   protected autoFillOverlayVisibility: InlineMenuVisibilitySetting;
   protected autoFillOverlayVisibilityOptions: any[];
   protected disablePasswordManagerLink: string;
+  inlineMenuIsEnabled: boolean = false;
+  showInlineMenuIdentities: boolean = true;
+  showInlineMenuCards: boolean = true;
   enableAutoFillOnPageLoad = false;
   autoFillOnPageLoadDefault = false;
   autoFillOnPageLoadOptions: any[];
@@ -109,6 +112,16 @@ export class AutofillV1Component implements OnInit {
       this.autofillSettingsService.inlineMenuVisibility$,
     );
 
+    this.inlineMenuIsEnabled = this.isInlineMenuEnabled();
+
+    this.showInlineMenuIdentities = await firstValueFrom(
+      this.autofillSettingsService.showInlineMenuIdentities$,
+    );
+
+    this.showInlineMenuCards = await firstValueFrom(
+      this.autofillSettingsService.showInlineMenuCards$,
+    );
+
     this.enableAutoFillOnPageLoad = await firstValueFrom(
       this.autofillSettingsService.autofillOnPageLoad$,
     );
@@ -140,9 +153,18 @@ export class AutofillV1Component implements OnInit {
     );
   }
 
+  isInlineMenuEnabled() {
+    return (
+      this.autoFillOverlayVisibility === AutofillOverlayVisibility.OnFieldFocus ||
+      this.autoFillOverlayVisibility === AutofillOverlayVisibility.OnButtonClick
+    );
+  }
+
   async updateAutoFillOverlayVisibility() {
     await this.autofillSettingsService.setInlineMenuVisibility(this.autoFillOverlayVisibility);
     await this.requestPrivacyPermission();
+
+    this.inlineMenuIsEnabled = this.isInlineMenuEnabled();
   }
 
   async updateAutoFillOnPageLoad() {
@@ -297,5 +319,13 @@ export class AutofillV1Component implements OnInit {
 
   async updateShowIdentitiesCurrentTab() {
     await this.vaultSettingsService.setShowIdentitiesCurrentTab(this.showIdentitiesCurrentTab);
+  }
+
+  async updateShowInlineMenuCards() {
+    await this.autofillSettingsService.setShowInlineMenuCards(this.showInlineMenuCards);
+  }
+
+  async updateShowInlineMenuIdentities() {
+    await this.autofillSettingsService.setShowInlineMenuIdentities(this.showInlineMenuIdentities);
   }
 }
