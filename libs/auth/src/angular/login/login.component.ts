@@ -266,20 +266,18 @@ export class LoginComponent implements OnInit, OnDestroy {
     // If none of the above cases are true, proceed with login...
     // ...on Web
     if (this.clientType === ClientType.Web) {
-      await this.goAfterLogIn(authResult.userId);
-      return;
-
       // ...on Browser/Desktop
+      await this.goAfterLogIn(authResult.userId);
     } else {
-      this.loginEmailService.clearValues();
-
       if (this.clientType === ClientType.Browser) {
         await this.router.navigate(["/tabs/vault"]);
       } else {
         await this.router.navigate(["vault"]); // Desktop
       }
-      return;
     }
+
+    this.loginEmailService.clearValues();
+    await this.router.navigate(["vault"]);
   }
 
   protected async launchSsoBrowserWindow(clientId: "browser" | "desktop"): Promise<void> {
@@ -312,11 +310,6 @@ export class LoginComponent implements OnInit, OnDestroy {
         return;
       }
     }
-
-    /* TODO-rr-bw: these two lines are also used at the end of the submit method for
-       Browser/Desktop. See if you can consolidate for all 3 clients. */
-    this.loginEmailService.clearValues();
-    await this.router.navigate(["vault"]);
   }
 
   protected showCaptcha(): boolean {
