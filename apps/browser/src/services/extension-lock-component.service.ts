@@ -19,6 +19,7 @@ import { UserId } from "@bitwarden/common/types/guid";
 
 import { BiometricErrors, BiometricErrorTypes } from "../models/biometricErrors";
 import { BrowserRouterService } from "../platform/popup/services/browser-router.service";
+
 export class ExtensionLockComponentService implements LockComponentService {
   private readonly userDecryptionOptionsService = inject(UserDecryptionOptionsServiceAbstraction);
   private readonly platformUtilsService = inject(PlatformUtilsService);
