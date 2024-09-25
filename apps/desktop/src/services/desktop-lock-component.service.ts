@@ -1,5 +1,5 @@
 import { inject } from "@angular/core";
-import { combineLatest, from, map, Observable } from "rxjs";
+import { combineLatest, defer, map, Observable } from "rxjs";
 
 import {
   BiometricsDisableReason,
@@ -76,10 +76,11 @@ export class DesktopLockComponentService implements LockComponentService {
 
   getAvailableUnlockOptions$(userId: UserId): Observable<UnlockOptions> {
     return combineLatest([
-      from(this.isBiometricsSupportedAndReady(userId)),
-      from(this.isBiometricLockSet(userId)),
+      // Note: defer is preferable b/c it delays the execution of the function until the observable is subscribed to
+      defer(() => this.isBiometricsSupportedAndReady(userId)),
+      defer(() => this.isBiometricLockSet(userId)),
       this.userDecryptionOptionsService.userDecryptionOptionsById$(userId),
-      from(this.pinService.isPinDecryptionAvailable(userId)),
+      defer(() => this.pinService.isPinDecryptionAvailable(userId)),
     ]).pipe(
       map(
         ([biometricsData, isBiometricsLockSet, userDecryptionOptions, pinDecryptionAvailable]) => {
