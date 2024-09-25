@@ -277,7 +277,6 @@ export class LoginComponent implements OnInit, OnDestroy {
     }
 
     this.loginEmailService.clearValues();
-    await this.router.navigate(["vault"]);
   }
 
   protected async launchSsoBrowserWindow(clientId: "browser" | "desktop"): Promise<void> {
