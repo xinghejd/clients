@@ -211,6 +211,13 @@ export class NativeMessagingMain {
             chromeJson,
           );
         }
+
+        if (existsSync(`${this.homedir()}/.config/chromium/`)) {
+          await this.writeManifest(
+            `${this.homedir()}/.config/chromium/NativeMessagingHosts/com.8bit.bitwarden.json`,
+            chromeJson,
+          );
+        }
         break;
       default:
         break;
