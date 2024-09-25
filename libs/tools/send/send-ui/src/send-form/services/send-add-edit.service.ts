@@ -1,6 +1,7 @@
 import { Injectable } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, Params } from "@angular/router";
-import { from, map, Observable, switchMap } from "rxjs";
+import { map, switchMap } from "rxjs";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { SendType } from "@bitwarden/common/tools/send/enums/send-type";
@@ -50,7 +51,9 @@ export class SendAddEditService {
     private sendApiService: SendApiService,
     private toastService: ToastService,
     private dialogService: DialogService,
-  ) {}
+  ) {
+    this.subscribeToParams();
+  }
 
   deleteSend = async () => {
     const confirmed = await this.dialogService.openSimpleDialog({
@@ -86,24 +89,30 @@ export class SendAddEditService {
   /**
    * Subscribes to the query parameters and builds the configuration and header text.
    */
-  subscribeToParams(): Observable<{ config: SendFormConfig; headerText: string }> {
-    return this.route.queryParams.pipe(
-      map((params) => new QueryParams(params)),
-      switchMap((params) => {
-        const mode: SendFormMode = params.sendId == null ? "add" : "edit";
-        return from(
-          this.addEditFormConfigService.buildConfig(mode, params.sendId, params.type),
-        ).pipe(
-          map((config) => {
-            this.config = config;
-            return {
-              config,
-              headerText: this.getHeaderText(config.mode),
-            };
-          }),
-        );
-      }),
-    );
+  subscribeToParams(): void {
+    this.route.queryParams
+      .pipe(
+        takeUntilDestroyed(),
+        map((params) => new QueryParams(params)),
+        switchMap(async (params) => {
+          let mode: SendFormMode;
+          if (params.sendId == null) {
+            mode = "add";
+          } else {
+            mode = "edit";
+          }
+          const config = await this.addEditFormConfigService.buildConfig(
+            mode,
+            params.sendId,
+            params.type,
+          );
+          return config;
+        }),
+      )
+      .subscribe((config) => {
+        this.config = config;
+        this.headerText = this.getHeaderText(config.mode);
+      });
   }
 
   /**

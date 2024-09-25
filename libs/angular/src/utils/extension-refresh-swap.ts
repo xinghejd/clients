@@ -23,7 +23,6 @@ export function extensionRefreshSwap(
     defaultComponent,
     refreshedComponent,
     async () => {
-      return true;
       const configService = inject(ConfigService);
       return configService.getFeatureFlag(FeatureFlag.ExtensionRefresh);
     },

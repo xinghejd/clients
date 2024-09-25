@@ -1,6 +1,5 @@
 import { CommonModule, Location } from "@angular/common";
 import { Component } from "@angular/core";
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormsModule } from "@angular/forms";
 import { Params } from "@angular/router";
 
@@ -17,7 +16,6 @@ import {
   DefaultSendFormConfigService,
   SendAddEditService,
   SendAddEditServiceAbstraction,
-  SendFormConfig,
   SendFormConfigService,
 } from "@bitwarden/send-ui";
 
@@ -74,41 +72,16 @@ export type AddEditQueryParams = Partial<Record<keyof QueryParams, string>>;
   ],
 })
 export class SendAddEditComponent {
-  /**
-   * The header text for the component.
-   */
-  headerText: string;
-
-  /**
-   * The configuration for the send form.
-   */
-  config: SendFormConfig;
-
   constructor(
     private location: Location,
     protected sendAddEditService: SendAddEditServiceAbstraction,
-  ) {
-    this.subscribeToService();
-  }
+  ) {}
 
   deleteSend = async () => {
     if (await this.sendAddEditService.deleteSend()) {
       this.location.back();
     }
   };
-
-  /**
-   * Subscribes to the SendAddEditService to get the config and headerText.
-   */
-  subscribeToService(): void {
-    this.sendAddEditService
-      .subscribeToParams()
-      .pipe(takeUntilDestroyed())
-      .subscribe(({ config, headerText }) => {
-        this.config = config;
-        this.headerText = headerText;
-      });
-  }
 
   /**
    * Handles the event when the send is saved.

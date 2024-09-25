@@ -1,9 +1,13 @@
 <popup-page>
-  <popup-header slot="header" [pageTitle]="headerText" showBackButton></popup-header>
+  <popup-header
+    slot="header"
+    [pageTitle]="sendAddEditService.headerText"
+    showBackButton
+  ></popup-header>
 
   <tools-send-form
     formId="sendForm"
-    [config]="config"
+    [config]="sendAddEditService.config"
     (sendSaved)="onSendSaved()"
     [submitBtn]="submitBtn"
   >
@@ -14,7 +18,7 @@
       {{ "save" | i18n }}
     </button>
     <button
-      *ngIf="config?.mode !== 'add'"
+      *ngIf="sendAddEditService.config?.mode !== 'add'"
       type="button"
       buttonType="danger"
       class="tw-ml-auto bwi-lg"
