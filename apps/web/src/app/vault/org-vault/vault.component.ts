@@ -885,7 +885,7 @@ export class VaultComponent implements OnInit, OnDestroy {
 
   /**
    * Edit a cipher using the new AddEditCipherDialogV2 component.
-   * Only to be used behind the ExtenstionRefresh feature flag.
+   * Only to be used behind the ExtensionRefresh feature flag.
    */
   private async editCipherIdV2(cipherId: CipherId, cloneCipher: boolean) {
     const cipherFormConfig = await this.cipherFormConfigService.buildConfig(
@@ -898,11 +898,6 @@ export class VaultComponent implements OnInit, OnDestroy {
     });
 
     const result: AddEditCipherDialogCloseResult = await firstValueFrom(dialogRef.closed);
-
-    // Refresh the vault if the dialog was closed by adding, editing, or deleting a cipher.
-    if (result?.action === AddEditCipherDialogResult.Edited) {
-      this.refresh();
-    }
 
     // View the cipher if the dialog was closed by editing the cipher.
     if (result?.action === AddEditCipherDialogResult.Edited) {
