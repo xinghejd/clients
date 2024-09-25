@@ -117,6 +117,7 @@ $ng-dropdown-shadow: rgb(var(--color-secondary-100)) !default;
       }
 
       .ng-input {
+        padding-top: 2px;
         > input {
           color: $ng-select-input-text;
         }
@@ -127,8 +128,9 @@ $ng-dropdown-shadow: rgb(var(--color-secondary-100)) !default;
     .ng-select-container {
       height: $ng-select-height;
       .ng-value-container {
+        display: flex;
+        height: 100%;
         .ng-input {
-          top: 5px;
           left: 0;
           padding-left: $ng-select-value-padding-left;
           padding-right: 50px;
@@ -152,7 +154,7 @@ $ng-dropdown-shadow: rgb(var(--color-secondary-100)) !default;
     }
     .ng-select-container {
       .ng-value-container {
-        padding-top: 5px;
+        height: 100%;
         @include rtl {
           padding-left: 0;
         }
@@ -202,9 +204,6 @@ $ng-dropdown-shadow: rgb(var(--color-secondary-100)) !default;
               }
             }
           }
-        }
-        .ng-placeholder {
-          padding-bottom: 0.25rem;
         }
       }
     }
