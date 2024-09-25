@@ -9,8 +9,8 @@ import {
   firstValueFrom,
   combineLatest,
   switchMap,
-  startWith,
   tap,
+  shareReplay,
 } from "rxjs";
 
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
@@ -52,21 +52,24 @@ export class SMOnboardingComponent implements OnInit, OnDestroy {
   private prevOrgTasks: OrganizationTasks;
   private prevTasks: any;
   private organizationId: string;
-  protected userIsAdmin: boolean;
-  protected loading = true;
   protected organizationEnabled = false;
-  protected onboardingTasks$: Observable<SMOnboardingTasks>;
+  protected loading = true;
   protected tasks: SMOnboardingTasks;
+  protected firstIncompleteTaskKey: string;
+  protected userIsAdmin: boolean;
   protected linuxAndMacOS1: string = "curl https://bws.bitwarden.com/install | sh";
   protected linuxAndMacOS2: string = "wget -O - https://bws.bitwarden.com/install | sh";
   protected windows: string = "iwr https://bws.bitwarden.com/install | iex";
-  protected inviteYourTeamLink?: string;
-  protected firstIncompleteTaskKey: string;
   protected createAccessTokenCreationInstructionsLink =
     "https://bitwarden.com/help/secrets-manager-quick-start/#create-an-access-token";
 
   protected view$: Observable<{
     tasks: OrganizationTasks;
+    organizationId: string;
+    userIsAdmin: boolean;
+    organizationEnabled: boolean;
+    inviteYourTeamLink: string;
+    firstIncompleteTaskKey: string;
   }>;
 
   constructor(
@@ -78,7 +81,6 @@ export class SMOnboardingComponent implements OnInit, OnDestroy {
   ) {}
 
   protected updateOnboardingTasks$ = new Subject<string>();
-  private navigationSubscription: any;
 
   importDataCompleted: boolean = false;
   installTheCLICompleted: boolean = false;
@@ -100,39 +102,57 @@ export class SMOnboardingComponent implements OnInit, OnDestroy {
   }
 
   private initialize() {
-    this.onboardingTasks$ = this.smOnboardingTasksService.smOnboardingTasks$;
+
+    const organization$ = this.route.params.pipe(
+      map(params => params.organizationId),
+      distinctUntilChanged(),
+      switchMap(orgId => this.organizationService.get(orgId)),
+      shareReplay({ refCount: false, bufferSize: 1 })
+    );
+    
+    const tasks$ = combineLatest([
+      organization$,
+      this.smOnboardingTasksService.smOnboardingTasks$
+    ]).pipe(
+      switchMap(([org, _]) => this.getCurrentStateOfOrgTasks(org.id))
+    );
 
     this.view$ = combineLatest([
-      this.route.params.pipe(map((p) => p.organizationId)),
-      this.updateOnboardingTasks$.pipe(startWith(null)),
+      organization$,
+      tasks$,
+      organization$.pipe(
+        switchMap(org => this.smOnboardingTasksService.findFirstFalseTask(org.isAdmin, org.id))
+      )
     ]).pipe(
-      distinctUntilChanged(([prevOrgId, prevOnboardingValue], [currOrgId, currOnboardingValue]) => {
-        return prevOrgId === currOrgId && prevOnboardingValue === currOnboardingValue;
+      map(([org, tasks, firstIncompleteTaskKey]) => ({
+        tasks,
+        organizationId: org.id,
+        userIsAdmin: org.isAdmin,
+        organizationEnabled: org.enabled,
+        inviteYourTeamLink: `/#/organizations/${org.id}/members`,
+        firstIncompleteTaskKey,
+      })),
+      tap(view => {
+        this.organizationId = view.organizationId;
+        this.organizationEnabled = view.organizationEnabled;
+        this.firstIncompleteTaskKey = view.firstIncompleteTaskKey;
+        this.userIsAdmin = view.userIsAdmin;
+        this.loading = false;
       }),
-      switchMap(async ([orgId]) => {
-        const org = await this.organizationService.get(orgId);
-        this.organizationId = org.id;
-        this.userIsAdmin = org.isAdmin;
-        this.organizationEnabled = org.enabled;
-        this.inviteYourTeamLink = `/#/organizations/${this.organizationId}/members`;
-        this.firstIncompleteTaskKey = await this.smOnboardingTasksService.findFirstFalseTask(
-          org.isAdmin,
-          org.id,
-        );
-
-        this.prevTasks = (await firstValueFrom(this.onboardingTasks$)) as {
-          [organizationId: string]: OrganizationTasks;
-        };
-
-        this.prevOrgTasks = this.prevTasks[org.id];
-
-        return {
-          tasks: await this.updateOnboardingTasks(),
-        };
-      }),
-      tap((_) => (this.loading = false)),
-      takeUntil(this.destroy$),
+      takeUntil(this.destroy$)
     );
+
+    this.updateOnboardingTasks$.pipe(
+      switchMap(taskToUpdate => this.updateOnboardingTasks(this.organizationId, taskToUpdate))).subscribe()
+  }
+
+  private async getCurrentStateOfOrgTasks(orgId: string): Promise<OrganizationTasks> {
+    var tasks = await firstValueFrom(this.smOnboardingTasksService.smOnboardingTasks$);
+      this.prevTasks = tasks as {
+        [organizationId: string]: OrganizationTasks;
+      };
+      this.prevOrgTasks = this.prevTasks[orgId];
+      return this.prevOrgTasks;
   }
 
   private async saveCompletedTasks(
@@ -180,22 +200,21 @@ export class SMOnboardingComponent implements OnInit, OnDestroy {
     return nextOrgTasks as OrganizationTasks;
   }
 
-  private async updateOnboardingTasks() {
-    const updatedTasks = await this.saveCompletedTasks(this.organizationId, {
-      createSecret: this.createSecretCompleted,
-      createProject: this.createProjectCompleted,
-      createServiceAccount: this.createServiceAccountCompleted,
-      createAccessToken: this.createAccessTokenCompleted,
-      importData: this.importDataCompleted,
-      inviteYourTeam: this.inviteYourTeamCompleted,
-      setUpIntegrations: this.setUpIntegrationsCompleted,
-      installTheCLI: this.installTheCLICompleted,
+  private async updateOnboardingTasks(orgId: string, onboardingTaskToUpdate: string) {
+      const updatedTasks = await this.saveCompletedTasks(orgId, {
+        createSecret: onboardingTaskToUpdate === "createSecretCompleted",
+        createProject: onboardingTaskToUpdate === "createProjectCompleted",
+        createServiceAccount: onboardingTaskToUpdate === "createServiceAccountCompleted",
+        createAccessToken: onboardingTaskToUpdate === "createAccessTokenCompleted",
+        importData: onboardingTaskToUpdate === "importDataCompleted",
+        inviteYourTeam: onboardingTaskToUpdate === "inviteYourTeamCompleted",
+        setUpIntegrations: onboardingTaskToUpdate === "setUpIntegrationsCompleted",
+        installTheCLI: onboardingTaskToUpdate === "installTheCLICompleted",
     });
 
     if (this.showCompletedDialog) {
       await this.showOnboardingCompletedDialog();
     }
-
     return updatedTasks;
   }
 
@@ -268,17 +287,17 @@ export class SMOnboardingComponent implements OnInit, OnDestroy {
 
   async completeInviteYourTeam() {
     this.inviteYourTeamCompleted = true;
-    this.updateOnboardingTasks$.next("completeInviteYourTeam");
+    this.updateOnboardingTasks$.next("inviteYourTeamCompleted");
   }
 
   async completeInstallTheCLI() {
     this.installTheCLICompleted = true;
-    this.updateOnboardingTasks$.next("completeInstallTheCLI");
+    this.updateOnboardingTasks$.next("installTheCLICompleted");
   }
 
   async completeSetUpIntegrations() {
     this.setUpIntegrationsCompleted = true;
-    this.updateOnboardingTasks$.next("completeSetUpIntegrations");
+    this.updateOnboardingTasks$.next("setUpIntegrationsCompleted");
   }
 
   async completeCreateAccessToken() {

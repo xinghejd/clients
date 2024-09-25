@@ -16,12 +16,18 @@ import { SMOnboardingTaskComponent } from "./sm-onboarding-task.component";
   selector: "sm-app-onboarding",
   templateUrl: "./sm-onboarding-section.component.html",
 })
-export class SMOnboardingSectionComponent implements OnChanges, AfterViewInit {
+export class SMOnboardingSectionComponent {
   @ContentChildren(SMOnboardingTaskComponent) tasks: QueryList<SMOnboardingTaskComponent>;
   @Input() title: string;
 
-  @Input()
-  open: boolean = false;
+  private _open: boolean;
+  @Input() get open(): boolean {
+    return this._open ? true : null;
+  }
+  set open(value: boolean) {
+    this._open = value;
+  }
+  
   @ViewChild("details") detailsElement!: ElementRef<HTMLDetailsElement>;
 
   protected get amountCompleted(): number {
@@ -38,24 +44,6 @@ export class SMOnboardingSectionComponent implements OnChanges, AfterViewInit {
     }
 
     return Math.round((this.amountCompleted / this.tasks.length) * 100).toString();
-  }
-
-  ngOnChanges(changes: SimpleChanges) {
-    if (changes["open"] && this.detailsElement) {
-      this.updateDetailsState();
-    }
-  }
-
-  ngAfterViewInit() {
-    this.updateDetailsState();
-  }
-
-  updateDetailsState() {
-    if (this.open) {
-      this.detailsElement.nativeElement.setAttribute("open", "true");
-    } else {
-      this.detailsElement.nativeElement.removeAttribute("open");
-    }
   }
 
   onToggle(event: Event) {

@@ -2,7 +2,7 @@
   #details
   class="tw-rounded-sm tw-text-main tw-ml-4 tw-mb-4"
   (toggle)="onToggle($event)"
-  open
+  [open]="open"
 >
   <summary class="tw-list-none tw-p-2 tw-px-4">
     <div class="tw-flex tw-select-none tw-items-center tw-gap-4">
@@ -26,7 +26,6 @@
   </summary>
   <ul
     class="tw-mb-0 tw-ml-4 tw-flex tw-flex-col tw-gap-4"
-    *ngIf="detailsElement?.nativeElement?.open"
   >
     <li class="tw-list-none">
       <ng-template #content>
@@ -91,9 +90,7 @@
           </button>
         </div>
       </ng-template>
-      <ng-container *ngIf="detailsElement?.nativeElement?.open">
-        <ng-container *ngTemplateOutlet="content"></ng-container>
-      </ng-container>
+      <ng-container *ngTemplateOutlet="content"></ng-container>
     </li>
   </ul>
 </details>

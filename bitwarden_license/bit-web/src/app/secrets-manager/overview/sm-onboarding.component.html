@@ -8,10 +8,10 @@
         <sm-app-onboarding
           [title]="'setUpSecretsManagerForYourOrganization' | i18n"
           [open]="true"
-          *ngIf="userIsAdmin"
+          *ngIf="view.userIsAdmin"
         >
           <sm-app-onboarding-task
-            *ngIf="userIsAdmin"
+            *ngIf="view.userIsAdmin"
             [title]="'importData' | i18n"
             [route]="['../settings', 'import']"
             [description]="'importSMDataDescriptionOnboarding' | i18n"
@@ -21,17 +21,17 @@
           >
           </sm-app-onboarding-task>
           <sm-app-onboarding-task
-            *ngIf="userIsAdmin"
+            *ngIf="view.userIsAdmin"
             [title]="'inviteYourTeam' | i18n"
             [description]="'inviteYourTeamDescription' | i18n"
-            [externalButton]="inviteYourTeamLink"
+            [externalButton]="view.inviteYourTeamLink"
             [onCompleteButtonPress]="completeInviteYourTeam.bind(this)"
             [completed]="view.tasks.inviteYourTeam"
             [open]="'inviteYourTeam' == firstIncompleteTaskKey"
           >
           </sm-app-onboarding-task>
           <sm-app-onboarding-task
-            *ngIf="userIsAdmin"
+            *ngIf="view.userIsAdmin"
             [title]="'setUpIntegrations' | i18n"
             [route]="['../integrations']"
             [completed]="view.tasks.setUpIntegrations"

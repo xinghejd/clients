@@ -15,7 +15,7 @@ import {
     class: "tw-max-w-max",
   },
 })
-export class SMOnboardingTaskComponent implements OnChanges, AfterViewInit {
+export class SMOnboardingTaskComponent {
   @Input()
   completed = false;
 
@@ -40,22 +40,16 @@ export class SMOnboardingTaskComponent implements OnChanges, AfterViewInit {
   @Input()
   onCompleteButtonPress: () => void;
 
-  @Input()
-  open: boolean = false;
+  private _open: boolean;
+  @Input() get open(): boolean {
+    return this._open ? true : null;
+  }
+  set open(value: boolean) {
+    this._open = value;
+  }
 
   @ViewChild("details") detailsElement!: ElementRef<HTMLDetailsElement>;
 
-  ngAfterViewInit() {
-    this.updateDetailsState();
-  }
-
-  updateDetailsState() {
-    if (this.open) {
-      this.detailsElement.nativeElement.setAttribute("open", "true");
-    } else {
-      this.detailsElement.nativeElement.removeAttribute("open");
-    }
-  }
 
   onToggle(event: Event) {
     this.open = (event.target as HTMLDetailsElement).open;
@@ -64,8 +58,7 @@ export class SMOnboardingTaskComponent implements OnChanges, AfterViewInit {
   onClick() {
     if (this.callbackFunction) {
       this.callbackFunction(!this.completed);
-      this.open = false;
-      this.updateDetailsState();
+      this.open = null;
     }
   }
 
@@ -79,16 +72,10 @@ export class SMOnboardingTaskComponent implements OnChanges, AfterViewInit {
   completeButtonPress() {
     if (this.onCompleteButtonPress) {
       this.onCompleteButtonPress();
-      this.open = false;
-      this.updateDetailsState();
+      this.open = null;
     }
   }
 
-  ngOnChanges(changes: SimpleChanges) {
-    if (changes["open"] && this.detailsElement) {
-      this.updateDetailsState();
-    }
-  }
 
   handleClick(ev: MouseEvent) {
     /**
