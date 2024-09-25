@@ -127,11 +127,15 @@ export class MainBiometricsService extends DesktopBiometricsService {
     ) as UserKey;
   }
 
-  async setBiometricProtectedUnlockKeyForUser(userId: UserId, value: string): Promise<void> {
+  async setBiometricProtectedUnlockKeyForUser(userId: UserId, value?: string): Promise<void> {
     const service = "Bitwarden_biometric";
     const storageKey = `${userId}_user_biometric`;
     if (!this.clientKeyHalves.has(userId)) {
       throw new Error("No client key half provided for user");
+    }
+
+    if (value == null) {
+      return await this.osBiometricsService.deleteBiometricKey(service, storageKey);
     }
 
     return await this.osBiometricsService.setBiometricKey(

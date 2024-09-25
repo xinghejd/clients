@@ -6,7 +6,7 @@ import { UserId } from "@bitwarden/common/types/guid";
  * specifically for the main process.
  */
 export abstract class DesktopBiometricsService extends BiometricsService {
-  abstract setBiometricProtectedUnlockKeyForUser(userId: UserId, value: string): Promise<void>;
+  abstract setBiometricProtectedUnlockKeyForUser(userId: UserId, value?: string): Promise<void>;
   abstract deleteBiometricUnlockKeyForUser(userId: UserId): Promise<void>;
 
   abstract setupBiometrics(): Promise<void>;
