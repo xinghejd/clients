@@ -22,11 +22,24 @@ import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legac
 
 import { AcceptOrganizationInviteService } from "../organization-invite/accept-organization.service";
 import { LoginEmailService } from "../../../../../../libs/auth/src/common/services/login-email/login-email.service";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
+import { StateProvider } from "@bitwarden/common/platform/state";
 
 @Component({
   selector: "app-register-form",
   templateUrl: "./register-form.component.html",
-  providers: [LoginEmailService],
+  providers: [
+    {
+      provide: LoginEmailService,
+      useFactory: (
+        accountService: AccountService,
+        authService: AuthService,
+        stateProvider: StateProvider,
+      ) => new LoginEmailService(accountService, authService, stateProvider),
+      deps: [AccountService, AuthService, StateProvider],
+    },
+  ],
 })
 export class RegisterFormComponent extends BaseRegisterComponent implements OnInit {
   @Input() queryParamEmail: string;

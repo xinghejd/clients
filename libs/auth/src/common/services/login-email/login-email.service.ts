@@ -12,7 +12,6 @@ import {
   StateProvider,
 } from "../../../../../common/src/platform/state";
 import { LoginEmailServiceAbstraction } from "../../abstractions/login-email.service";
-import { Injectable } from "@angular/core";
 
 export const LOGIN_EMAIL = new KeyDefinition<string>(LOGIN_EMAIL_MEMORY, "loginEmail", {
   deserializer: (value: string) => value,
@@ -22,7 +21,6 @@ export const STORED_EMAIL = new KeyDefinition<string>(LOGIN_EMAIL_DISK, "storedE
   deserializer: (value: string) => value,
 });
 
-@Injectable()
 export class LoginEmailService implements LoginEmailServiceAbstraction {
   private rememberEmail: boolean;
 
