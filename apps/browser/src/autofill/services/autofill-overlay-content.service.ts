@@ -722,6 +722,13 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
       return;
     }
 
+    if (await this.isInlineMenuListVisible()) {
+      await this.sendExtensionMessage("closeAutofillInlineMenu", {
+        overlayElement: AutofillOverlayElement.List,
+        forceCloseInlineMenu: true,
+      });
+    }
+
     await this.sendExtensionMessage("openAutofillInlineMenu");
   }
 

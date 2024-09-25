@@ -49,6 +49,7 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
   private lastPasskeysListItemHeight: number;
   private ciphersListHeight: number;
   private isPasskeyAuthInProgress = false;
+  private authStatus: AuthenticationStatus;
   private readonly showCiphersPerPage = 6;
   private readonly headingBorderClass = "inline-menu-list-heading--bordered";
   private readonly inlineMenuListWindowMessageHandlers: AutofillInlineMenuListWindowMessageHandlers =
@@ -69,6 +70,10 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
   }
 
   private showSaveLoginInlineMenuList() {
+    if (this.authStatus !== AuthenticationStatus.Unlocked) {
+      return;
+    }
+
     this.resetInlineMenuContainer();
     this.buildSaveLoginInlineMenuList();
   }
@@ -100,6 +105,7 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
       portKey,
     );
 
+    this.authStatus = authStatus;
     this.inlineMenuFillType = inlineMenuFillType;
     this.showPasskeysLabels = showPasskeysLabels;
 
@@ -331,6 +337,10 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
   private handleUpdateAutofillInlineMenuGeneratedPassword(
     message: UpdateAutofillInlineMenuGeneratedPasswordMessage,
   ) {
+    if (this.authStatus !== AuthenticationStatus.Unlocked) {
+      return;
+    }
+
     const passwordGeneratorContentElement = this.inlineMenuListContainer.querySelector(
       "#password-generator-content",
     );
