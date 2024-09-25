@@ -85,6 +85,7 @@ import { CollectionAdminView } from "../core/views/collection-admin.view";
 import {
   AddEditCipherDialogCloseResult,
   AddEditCipherDialogResult,
+  AddEditComponentV2,
   openAddEditCipherDialog,
 } from "../individual-vault/add-edit-v2.component";
 import {
@@ -100,12 +101,6 @@ import {
   RoutedVaultFilterModel,
   Unassigned,
 } from "../individual-vault/vault-filter/shared/models/routed-vault-filter.model";
-import {
-  openViewCipherDialog,
-  ViewCipherDialogCloseResult,
-  ViewCipherDialogResult,
-  ViewComponent,
-} from "../individual-vault/view.component";
 import { VaultHeaderComponent } from "../org-vault/vault-header/vault-header.component";
 import { getNestedCollectionTree } from "../utils/collection-utils";
 
@@ -138,7 +133,7 @@ enum AddAccessStatusType {
     VaultItemsModule,
     SharedModule,
     NoItemsModule,
-    ViewComponent,
+    AddEditComponentV2,
   ],
   providers: [
     RoutedVaultFilterService,
@@ -499,21 +494,19 @@ export class VaultComponent implements OnInit, OnDestroy {
         switchMap(() =>
           combineLatest([this.route.queryParams, allCipherMap$, allCollections$, organization$]),
         ),
-        switchMap(async ([qParams, allCiphersMap, allCollections]) => {
+        switchMap(async ([qParams, allCiphersMap]) => {
           const cipherId = getCipherIdFromParams(qParams);
           if (!cipherId) {
             return;
           }
 
           const cipher = allCiphersMap[cipherId];
-          const cipherCollections = allCollections.filter((c) =>
-            cipher.collectionIds.includes(c.id),
-          );
 
           if (cipher) {
             if (qParams.action === "view") {
-              await this.viewCipher(cipher, cipherCollections);
-            } else {
+              // Only allow for edit in the admin console via query params,
+              // This prevents multiple modals from stacking on top of each other between view & edit.
+              // TODO: PM-12398 - combine view/edit actions into a single dialog
               await this.editCipherId(cipherId, false);
             }
           } else {
@@ -914,54 +907,9 @@ export class VaultComponent implements OnInit, OnDestroy {
     // View the cipher if the dialog was closed by editing the cipher.
     if (result?.action === AddEditCipherDialogResult.Edited) {
       this.refresh();
-      this.go({ itemId: cipherId, action: "view" });
-      return;
     }
 
     // Navigate to the vault if the dialog was closed by any other action.
-    this.go({ cipherId: null, itemId: null, action: null });
-  }
-
-  /**
-   * Takes a cipher and its assigned collections to opens dialog where it can be viewed.
-   * @param cipher - the cipher to view
-   * @param collections - the collections the cipher is assigned to
-   */
-  async viewCipher(cipher: CipherView, collections: CollectionView[] = []) {
-    if (!cipher) {
-      this.go({ cipherId: null, itemId: null });
-      return;
-    }
-
-    if (cipher.reprompt !== 0 && !(await this.passwordRepromptService.showPasswordPrompt())) {
-      // didn't pass password prompt, so don't open the dialog
-      this.go({ cipherId: null, itemId: null });
-      return;
-    }
-
-    const dialogRef = openViewCipherDialog(this.dialogService, {
-      data: {
-        cipher: cipher,
-        collections: collections,
-        disableEdit: !cipher.edit && !this.organization.canEditAllCiphers,
-      },
-    });
-
-    // Wait for the dialog to close.
-    const result: ViewCipherDialogCloseResult = await lastValueFrom(dialogRef.closed);
-
-    // If the dialog was closed by clicking the edit button, navigate to open the edit dialog.
-    if (result?.action === ViewCipherDialogResult.Edited) {
-      this.go({ itemId: cipher.id, action: "edit" });
-      return;
-    }
-
-    // If the dialog was closed by deleting the cipher, refresh the vault.
-    if (result?.action === ViewCipherDialogResult.Deleted) {
-      this.refresh();
-    }
-
-    // Clear the query params when the view dialog closes
     this.go({ cipherId: null, itemId: null, action: null });
   }
 
