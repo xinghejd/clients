@@ -4500,5 +4500,110 @@
   "saveLoginToBitwarden": {
     "message": "Save login to Bitwarden?",
     "description": "Confirmation message for saving a login to Bitwarden"
-  }
+  },
+  "keySpace": {
+    "message": "Space",
+    "description": "Represents the space key in screen reader content as a readable word"
+  },
+  "keyTilde": {
+    "message": "Tilde",
+    "description": "Represents the ~ key in screen reader content as a readable word"
+  },
+  "keyBacktick": {
+    "message": "Backtick",
+    "description": "Represents the ` key in screen reader content as a readable word"
+  },
+  "keyExclamation": {
+    "message": "Exclamation mark",
+    "description": "Represents the ! key in screen reader content as a readable word"
+  },
+  "keyAt": {
+    "message": "At sign",
+    "description": "Represents the @ key in screen reader content as a readable word"
+  },
+  "keyHash": {
+    "message": "Hash",
+    "description": "Represents the # key in screen reader content as a readable word"
+  },
+  "keyDollar": {
+    "message": "Dollar"
+  },
+  "keyPercent": {
+    "message": "Percent"
+  },
+  "keyCaret": {
+    "message": "Caret"
+  },
+  "keyAmpersand": {
+    "message": "Ampersand"
+  },
+  "keyAsterisk": {
+    "message": "Asterisk"
+  },
+  "keyParenLeft": {
+    "message": "Left parenthesis"
+  },
+  "keyParenRight": {
+    "message": "Right parenthesis"
+  },
+  "key_": {
+    "message": "Underscore"
+  },
+  "key-": {
+    "message": "Hyphen"
+  },
+  "keyPlus": {
+    "message": "Plus"
+  },
+  "keyEquals": {
+    "message": "Equals"
+  },
+  "keyBraceLeft": {
+    "message": "Left brace"
+  },
+  "keyBraceRight": {
+    "message": "Right brace"
+  },
+  "keyBracketLeft": {
+    "message": "Left bracket"
+  },
+  "keyBracketRight": {
+    "message": "Right bracket"
+  },
+  "keyPipe": {
+    "message": "Pipe"
+  },
+  "keyBackSlash": {
+    "message": "Back slash"
+  },
+  "keyColon": {
+    "message": "Colon"
+  },
+  "keySemicolon": {
+    "message": "Semicolon"
+  },
+  "keyDoubleQuote": {
+    "message": "Double quote"
+  },
+  "keyApostrophe": {
+    "message": "Double apostrophe"
+  },
+  "keyLessThan": {
+    "message": "Less than"
+  },
+  "keyGreaterThan": {
+    "message": "Greater than"
+  },
+  "keyComma": {
+    "message": "Comma"
+  },
+  "keyPeriod": {
+    "message": "Period"
+  },
+  "keyQuestion": {
+    "message": "Question mark"
+  },
+  "keyForwardSlash": {
+    "message": "Forward slash"
+  },
 }

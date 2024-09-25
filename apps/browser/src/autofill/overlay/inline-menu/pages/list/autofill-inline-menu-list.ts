@@ -200,15 +200,10 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
       "fill-generated-password-button",
       "inline-menu-list-action",
     );
-    fillGeneratedPasswordButton.setAttribute(
-      "aria-label",
-      this.getTranslation("fillGeneratedPassword"),
-    );
 
     const passwordGeneratorHeading = globalThis.document.createElement("div");
     passwordGeneratorHeading.classList.add("password-generator-heading");
     passwordGeneratorHeading.textContent = this.getTranslation("fillGeneratedPassword");
-    passwordGeneratorHeading.setAttribute("aria-hidden", "true");
 
     const passwordGeneratorContent = globalThis.document.createElement("div");
     passwordGeneratorContent.id = "password-generator-content";
@@ -217,7 +212,6 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
       passwordGeneratorHeading,
       this.buildColorizedPasswordElement(generatedPassword),
     );
-    passwordGeneratorContent.setAttribute("aria-hidden", "true");
 
     fillGeneratedPasswordButton.append(buildSvgDomElement(keyIcon), passwordGeneratorContent);
     fillGeneratedPasswordButton.addEventListener(
@@ -257,12 +251,24 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
 
   // TODO - We likely want to combine this behavior with the ColorPasswordPipe used within the Angular app.
   private buildColorizedPasswordElement(password: string) {
+    let ariaLabel = "Generated password is: ";
     const passwordContainer = globalThis.document.createElement("div");
     passwordContainer.classList.add("colorized-password");
     const appendPasswordCharacter = (character: string, type: string) => {
-      const characterElement = globalThis.document.createElement("span");
+      const characterElement = globalThis.document.createElement("div");
       characterElement.classList.add(`password-${type}`);
       characterElement.textContent = character;
+
+      // TODO - Need to refine this to show word references for characters
+      if (type === "letter") {
+        ariaLabel +=
+          character === character.toLowerCase()
+            ? `lowercase ${character} `
+            : `uppercase ${character} `;
+      } else {
+        ariaLabel += `${character} `;
+      }
+
       passwordContainer.appendChild(characterElement);
     };
 
@@ -283,6 +289,7 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
       appendPasswordCharacter(character, "letter");
     }
 
+    passwordContainer.setAttribute("aria-label", ariaLabel);
     return passwordContainer;
   }
 
