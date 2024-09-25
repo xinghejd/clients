@@ -12,6 +12,7 @@ import { PolicyService } from "@bitwarden/common/admin-console/abstractions/poli
 import { OrganizationUserStatusType, PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { normalizeExpiryYearFormat } from "@bitwarden/common/autofill/utils";
 import { EventType } from "@bitwarden/common/enums";
 import { UriMatchStrategy } from "@bitwarden/common/models/domain/domain-service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
@@ -36,7 +37,6 @@ import { IdentityView } from "@bitwarden/common/vault/models/view/identity.view"
 import { LoginUriView } from "@bitwarden/common/vault/models/view/login-uri.view";
 import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
 import { SecureNoteView } from "@bitwarden/common/vault/models/view/secure-note.view";
-import { normalizeExpiryYearFormat } from "@bitwarden/common/vault/utils";
 import { DialogService } from "@bitwarden/components";
 import { PasswordRepromptService } from "@bitwarden/vault";
 
@@ -327,6 +327,11 @@ export class AddEditComponent implements OnInit, OnDestroy {
     // normalize card expiry year on save
     if (this.cipher.type === this.cipherType.Card) {
       this.cipher.card.expYear = normalizeExpiryYearFormat(this.cipher.card.expYear);
+    }
+
+    // trim whitespace from the TOTP field
+    if (this.cipher.type === this.cipherType.Login && this.cipher.login.totp) {
+      this.cipher.login.totp = this.cipher.login.totp.trim();
     }
 
     if (this.cipher.name == null || this.cipher.name === "") {
