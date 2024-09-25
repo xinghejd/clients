@@ -35,6 +35,7 @@ import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/auth
 import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
 import { ClientType } from "@bitwarden/common/enums";
 import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { CryptoFunctionService as CryptoFunctionServiceAbstraction } from "@bitwarden/common/platform/abstractions/crypto-function.service";
 import { CryptoService as CryptoServiceAbstraction } from "@bitwarden/common/platform/abstractions/crypto.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
@@ -182,10 +183,10 @@ const safeProviders: SafeProvider[] = [
   }),
   safeProvider({
     provide: ThemeStateService,
-    useFactory: (globalStateProvider: GlobalStateProvider) =>
+    useFactory: (globalStateProvider: GlobalStateProvider, configService: ConfigService) =>
       // Web chooses to have Light as the default theme
-      new DefaultThemeStateService(globalStateProvider, ThemeType.Light),
-    deps: [GlobalStateProvider],
+      new DefaultThemeStateService(globalStateProvider, configService, ThemeType.Light),
+    deps: [GlobalStateProvider, ConfigService],
   }),
   safeProvider({
     provide: CLIENT_TYPE,
