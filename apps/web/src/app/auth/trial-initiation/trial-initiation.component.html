@@ -94,13 +94,13 @@
                   [loading]="loading"
                   (click)="createOrganizationOnTrial()"
                 >
-                  {{ isTrialPaymentEnabled ? ("startTrial" | i18n) : ("next" | i18n) }}
+                  {{ (enableTrialPayment$ | async) ? ("startTrial" | i18n) : ("next" | i18n) }}
                 </button>
               </app-vertical-step>
               <app-vertical-step
                 label="Billing"
                 [subLabel]="billingSubLabel"
-                *ngIf="!isTrialPaymentEnabled"
+                *ngIf="!(enableTrialPayment$ | async)"
               >
                 <app-trial-billing-step
                   *ngIf="stepper.selectedIndex === 2"

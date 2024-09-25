@@ -3,7 +3,7 @@ import { TitleCasePipe } from "@angular/common";
 import { Component, OnDestroy, OnInit, ViewChild } from "@angular/core";
 import { UntypedFormBuilder, Validators } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
-import { firstValueFrom, Subject, takeUntil } from "rxjs";
+import { Subject, takeUntil } from "rxjs";
 
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
@@ -77,7 +77,6 @@ export class TrialInitiationComponent implements OnInit, OnDestroy {
   accountCreateOnly = true;
   useTrialStepper = false;
   loading = false;
-  isTrialPaymentEnabled: boolean;
   policies: Policy[];
   enforcedPolicyOptions: MasterPasswordPolicyOptions;
   trialFlowOrgs: string[] = [
@@ -205,8 +204,6 @@ export class TrialInitiationComponent implements OnInit, OnDestroy {
       .subscribe(() => {
         this.orgInfoFormGroup.controls.name.markAsTouched();
       });
-
-    this.isTrialPaymentEnabled = await firstValueFrom(this.enableTrialPayment$);
   }
 
   ngOnDestroy(): void {
