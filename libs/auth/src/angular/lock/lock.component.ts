@@ -42,7 +42,12 @@ import {
 import { PinServiceAbstraction } from "../../common/abstractions";
 import { AnonLayoutWrapperDataService } from "../anon-layout/anon-layout-wrapper-data.service";
 
-import { UnlockOption, LockComponentService, UnlockOptions } from "./lock-component.service";
+import {
+  UnlockOption,
+  LockComponentService,
+  UnlockOptions,
+  UnlockOptionValue,
+} from "./lock-component.service";
 
 const BroadcasterSubscriptionId = "LockComponent";
 
@@ -78,16 +83,16 @@ export class LockV2Component implements OnInit, OnDestroy {
 
   UnlockOption = UnlockOption;
 
-  private _activeUnlockOptionBSubject: BehaviorSubject<UnlockOption> =
-    new BehaviorSubject<UnlockOption>(null);
+  private _activeUnlockOptionBSubject: BehaviorSubject<UnlockOptionValue> =
+    new BehaviorSubject<UnlockOptionValue>(null);
 
   activeUnlockOption$ = this._activeUnlockOptionBSubject.asObservable();
 
-  set activeUnlockOption(value: UnlockOption) {
+  set activeUnlockOption(value: UnlockOptionValue) {
     this._activeUnlockOptionBSubject.next(value);
   }
 
-  get activeUnlockOption(): UnlockOption {
+  get activeUnlockOption(): UnlockOptionValue {
     return this._activeUnlockOptionBSubject.value;
   }
 
@@ -160,10 +165,10 @@ export class LockV2Component implements OnInit, OnDestroy {
   private listenForActiveUnlockOptionChanges() {
     this.activeUnlockOption$
       .pipe(takeUntil(this.destroy$))
-      .subscribe((activeUnlockOption: UnlockOption) => {
-        if (activeUnlockOption === "pin") {
+      .subscribe((activeUnlockOption: UnlockOptionValue) => {
+        if (activeUnlockOption === UnlockOption.Pin) {
           this.buildPinForm();
-        } else if (activeUnlockOption === "masterPassword") {
+        } else if (activeUnlockOption === UnlockOption.MasterPassword) {
           this.buildMasterPasswordForm();
         }
       });

@@ -8,12 +8,14 @@ export enum BiometricsDisableReason {
   SystemBiometricsUnavailable = "SystemBiometricsUnavailable",
 }
 
-// The options here should match the top level properties of the UnlockOptions type.
-export enum UnlockOption {
-  MasterPassword = "masterPassword",
-  Pin = "pin",
-  Biometrics = "biometrics",
-}
+// ex: type UnlockOptionValue = "masterPassword" | "pin" | "biometrics"
+export type UnlockOptionValue = (typeof UnlockOption)[keyof typeof UnlockOption];
+
+export const UnlockOption = Object.freeze({
+  MasterPassword: "masterPassword",
+  Pin: "pin",
+  Biometrics: "biometrics",
+}) satisfies { [Prop in keyof UnlockOptions as Capitalize<Prop>]: Prop };
 
 export type UnlockOptions = {
   masterPassword: {
