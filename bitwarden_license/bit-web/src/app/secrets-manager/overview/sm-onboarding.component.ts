@@ -102,27 +102,24 @@ export class SMOnboardingComponent implements OnInit, OnDestroy {
   }
 
   private initialize() {
-
     const organization$ = this.route.params.pipe(
-      map(params => params.organizationId),
+      map((params) => params.organizationId),
       distinctUntilChanged(),
-      switchMap(orgId => this.organizationService.get(orgId)),
-      shareReplay({ refCount: false, bufferSize: 1 })
+      switchMap((orgId) => this.organizationService.get(orgId)),
+      shareReplay({ refCount: false, bufferSize: 1 }),
     );
-    
+
     const tasks$ = combineLatest([
       organization$,
-      this.smOnboardingTasksService.smOnboardingTasks$
-    ]).pipe(
-      switchMap(([org, _]) => this.getCurrentStateOfOrgTasks(org.id))
-    );
+      this.smOnboardingTasksService.smOnboardingTasks$,
+    ]).pipe(switchMap(([org, _]) => this.getCurrentStateOfOrgTasks(org.id)));
 
     this.view$ = combineLatest([
       organization$,
       tasks$,
       organization$.pipe(
-        switchMap(org => this.smOnboardingTasksService.findFirstFalseTask(org.isAdmin, org.id))
-      )
+        switchMap((org) => this.smOnboardingTasksService.findFirstFalseTask(org.isAdmin, org.id)),
+      ),
     ]).pipe(
       map(([org, tasks, firstIncompleteTaskKey]) => ({
         tasks,
@@ -132,27 +129,31 @@ export class SMOnboardingComponent implements OnInit, OnDestroy {
         inviteYourTeamLink: `/#/organizations/${org.id}/members`,
         firstIncompleteTaskKey,
       })),
-      tap(view => {
+      tap((view) => {
         this.organizationId = view.organizationId;
         this.organizationEnabled = view.organizationEnabled;
         this.firstIncompleteTaskKey = view.firstIncompleteTaskKey;
         this.userIsAdmin = view.userIsAdmin;
         this.loading = false;
       }),
-      takeUntil(this.destroy$)
+      takeUntil(this.destroy$),
     );
 
-    this.updateOnboardingTasks$.pipe(
-      switchMap(taskToUpdate => this.updateOnboardingTasks(this.organizationId, taskToUpdate))).subscribe()
+    this.updateOnboardingTasks$
+      .pipe(
+        switchMap((taskToUpdate) => this.updateOnboardingTasks(this.organizationId, taskToUpdate)),
+        takeUntil(this.destroy$),
+      )
+      .subscribe();
   }
 
   private async getCurrentStateOfOrgTasks(orgId: string): Promise<OrganizationTasks> {
-    var tasks = await firstValueFrom(this.smOnboardingTasksService.smOnboardingTasks$);
-      this.prevTasks = tasks as {
-        [organizationId: string]: OrganizationTasks;
-      };
-      this.prevOrgTasks = this.prevTasks[orgId];
-      return this.prevOrgTasks;
+    const tasks = await firstValueFrom(this.smOnboardingTasksService.smOnboardingTasks$);
+    this.prevTasks = tasks as {
+      [organizationId: string]: OrganizationTasks;
+    };
+    this.prevOrgTasks = this.prevTasks[orgId];
+    return this.prevOrgTasks;
   }
 
   private async saveCompletedTasks(
@@ -201,15 +202,15 @@ export class SMOnboardingComponent implements OnInit, OnDestroy {
   }
 
   private async updateOnboardingTasks(orgId: string, onboardingTaskToUpdate: string) {
-      const updatedTasks = await this.saveCompletedTasks(orgId, {
-        createSecret: onboardingTaskToUpdate === "createSecretCompleted",
-        createProject: onboardingTaskToUpdate === "createProjectCompleted",
-        createServiceAccount: onboardingTaskToUpdate === "createServiceAccountCompleted",
-        createAccessToken: onboardingTaskToUpdate === "createAccessTokenCompleted",
-        importData: onboardingTaskToUpdate === "importDataCompleted",
-        inviteYourTeam: onboardingTaskToUpdate === "inviteYourTeamCompleted",
-        setUpIntegrations: onboardingTaskToUpdate === "setUpIntegrationsCompleted",
-        installTheCLI: onboardingTaskToUpdate === "installTheCLICompleted",
+    const updatedTasks = await this.saveCompletedTasks(orgId, {
+      createSecret: onboardingTaskToUpdate === "createSecretCompleted",
+      createProject: onboardingTaskToUpdate === "createProjectCompleted",
+      createServiceAccount: onboardingTaskToUpdate === "createServiceAccountCompleted",
+      createAccessToken: onboardingTaskToUpdate === "createAccessTokenCompleted",
+      importData: onboardingTaskToUpdate === "importDataCompleted",
+      inviteYourTeam: onboardingTaskToUpdate === "inviteYourTeamCompleted",
+      setUpIntegrations: onboardingTaskToUpdate === "setUpIntegrationsCompleted",
+      installTheCLI: onboardingTaskToUpdate === "installTheCLICompleted",
     });
 
     if (this.showCompletedDialog) {

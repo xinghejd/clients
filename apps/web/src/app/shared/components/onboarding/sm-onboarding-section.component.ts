@@ -1,14 +1,4 @@
-import {
-  Component,
-  ContentChildren,
-  ElementRef,
-  Input,
-  QueryList,
-  SimpleChanges,
-  ViewChild,
-  OnChanges,
-  AfterViewInit,
-} from "@angular/core";
+import { Component, ContentChildren, ElementRef, Input, QueryList, ViewChild } from "@angular/core";
 
 import { SMOnboardingTaskComponent } from "./sm-onboarding-task.component";
 
@@ -27,7 +17,7 @@ export class SMOnboardingSectionComponent {
   set open(value: boolean) {
     this._open = value;
   }
-  
+
   @ViewChild("details") detailsElement!: ElementRef<HTMLDetailsElement>;
 
   protected get amountCompleted(): number {

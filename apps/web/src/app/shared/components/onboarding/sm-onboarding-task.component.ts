@@ -1,12 +1,4 @@
-import {
-  AfterViewInit,
-  Component,
-  ElementRef,
-  Input,
-  OnChanges,
-  SimpleChanges,
-  ViewChild,
-} from "@angular/core";
+import { Component, ElementRef, Input, ViewChild } from "@angular/core";
 
 @Component({
   selector: "sm-app-onboarding-task",
@@ -50,7 +42,6 @@ export class SMOnboardingTaskComponent {
 
   @ViewChild("details") detailsElement!: ElementRef<HTMLDetailsElement>;
 
-
   onToggle(event: Event) {
     this.open = (event.target as HTMLDetailsElement).open;
   }
@@ -75,7 +66,6 @@ export class SMOnboardingTaskComponent {
       this.open = null;
     }
   }
-
 
   handleClick(ev: MouseEvent) {
     /**

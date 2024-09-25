@@ -1,4 +1,9 @@
-<details #details class="tw-rounded-sm tw-text-main tw-mb-8 tw-mr-4" (toggle)="onToggle($event)" [open]="open">
+<details
+  #details
+  class="tw-rounded-sm tw-text-main tw-mb-8 tw-mr-4"
+  (toggle)="onToggle($event)"
+  [open]="open"
+>
   <summary class="tw-list-none tw-p-2 tw-px-4 tw-mb-4">
     <div class="tw-text-2xl tw-font-semibold tw-mb-4">{{ title }}</div>
     <div class="tw-flex tw-select-none tw-items-center tw-gap-4">
