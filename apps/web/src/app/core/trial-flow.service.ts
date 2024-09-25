@@ -5,7 +5,6 @@ import { OrganizationSubscriptionResponse } from "@bitwarden/common/billing/mode
 
 @Injectable({ providedIn: "root" })
 export class TrialFlowService {
-  private trialRemainingDays: number = 0;
   checkForOrgsWithUpcomingPaymentIssues(
     org: OrganizationSubscriptionResponse,
     organization: Organization,
@@ -13,10 +12,10 @@ export class TrialFlowService {
     const trialEndDate = org?.subscription?.trialEndDate;
     const isOwner = organization?.isOwner;
     const isTrialing = org.subscription.status == "trialing";
-    let today, trialEnd, timeDifference;
+    let timeDifference = 0;
     if (trialEndDate) {
-      today = new Date();
-      trialEnd = new Date(trialEndDate);
+      const today = new Date();
+      const trialEnd = new Date(trialEndDate);
       timeDifference = trialEnd?.getTime() - today?.getTime();
     }
     return {

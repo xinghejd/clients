@@ -103,7 +103,6 @@ export class OverviewComponent implements OnInit, OnDestroy {
     tasks: OrganizationTasks;
     counts: OrganizationCounts;
   }>;
-  protected freeTrialMessage: string;
 
   constructor(
     private route: ActivatedRoute,
@@ -234,20 +233,17 @@ export class OverviewComponent implements OnInit, OnDestroy {
       const trialEnd = new Date(trialEndDate);
       const timeDifference = trialEnd.getTime() - today.getTime();
       this.trialRemainingDays = Math.ceil(timeDifference / (1000 * 60 * 60 * 24));
-      this.updateFreeTrialMsg();
     }
   }
 
-  updateFreeTrialMsg() {
-    this.freeTrialMessage = (() => {
-      if (this.trialRemainingDays >= 2) {
-        return this.i18nService.t("freeTrialEndPrompt", this.trialRemainingDays);
-      } else if (this.trialRemainingDays == 1) {
-        return this.i18nService.t("freeTrialEndPromptForOneDayNoOrgName");
-      } else {
-        return this.i18nService.t("freeTrialEndingSoonWithoutOrgName");
-      }
-    })();
+  get freeTrialMessage() {
+    if (this.trialRemainingDays >= 2) {
+      return this.i18nService.t("freeTrialEndPrompt", this.trialRemainingDays);
+    } else if (this.trialRemainingDays == 1) {
+      return this.i18nService.t("freeTrialEndPromptForOneDayNoOrgName");
+    } else {
+      return this.i18nService.t("freeTrialEndingSoonWithoutOrgName");
+    }
   }
 
   async navigateToPaymentMethod() {
