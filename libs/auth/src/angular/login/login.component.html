@@ -1,26 +1,16 @@
 <!-- 
   # Table of Contents
 
-    This file contains three templates, one for each visual client.
-    
-    For easy navigation, search for the following phrases:
-      Web Template
-      Browser Template
-      Desktop Template
-
-    Or simply collapse the templates you are not working on in your editor.
+    This file contains a single consolidated template for all visual clients.
 
   # UI States
 
-    Each client template has two UI states, defined by the `LoginUiState` enum:
+    The template has two UI states, defined by the `LoginUiState` enum:
       State 1: displays the email input field + continue button
       State 2: displays the master password input field + login button
 -->
 
-<!---------------------------------------------->
-<!--               Web Template               -->
-<!---------------------------------------------->
-<form *ngIf="clientType === ClientType.Web" [bitSubmit]="submit" [formGroup]="formGroup">
+<form [bitSubmit]="submit" [formGroup]="formGroup">
   <ng-container *ngIf="uiState === LoginUiState.EMAIL_ENTRY">
     <!-- Email Address input -->
     <bit-form-field class="!tw-mb-4">
@@ -31,6 +21,7 @@
         bitInput
         appAutofocus
         (blur)="onEmailBlur($event)"
+        (keyup.enter)="clientType === ClientType.Desktop ? continue() : null"
       />
     </bit-form-field>
 
@@ -48,30 +39,48 @@
 
       <div class="tw-text-center">{{ "or" | i18n }}</div>
 
-      <!-- Link to Login with Passkey page -->
-      <a
-        bitButton
-        block
-        linkType="primary"
-        routerLink="/login-with-passkey"
-        (mousedown)="$event.preventDefault()"
-      >
-        <i class="bwi bwi-passkey tw-mr-1"></i>
-        {{ "logInWithPasskey" | i18n }}
-      </a>
+      <!-- Link to Login with Passkey page (Web and Desktop only) -->
+      <ng-container *ngIf="clientType !== ClientType.Browser">
+        <a
+          bitButton
+          block
+          linkType="primary"
+          routerLink="/login-with-passkey"
+          (mousedown)="$event.preventDefault()"
+        >
+          <i class="bwi bwi-passkey tw-mr-1"></i>
+          {{ "logInWithPasskey" | i18n }}
+        </a>
+      </ng-container>
 
-      <!-- Link to Login with SSO page -->
-      <a
-        bitButton
-        block
-        buttonType="secondary"
-        routerLink="/sso"
-        [queryParams]="{ email: formGroup.value.email }"
-        (click)="saveEmailSettings()"
-      >
-        <i class="bwi bwi-provider tw-mr-1"></i>
-        {{ "useSingleSignOn" | i18n }}
-      </a>
+      <!-- Button to Login with SSO -->
+      <ng-container *ngIf="clientType === ClientType.Web">
+        <a
+          bitButton
+          block
+          buttonType="secondary"
+          routerLink="/sso"
+          [queryParams]="{ email: formGroup.value.email }"
+          (click)="saveEmailSettings()"
+        >
+          <i class="bwi bwi-provider tw-mr-1"></i>
+          {{ "useSingleSignOn" | i18n }}
+        </a>
+      </ng-container>
+      <ng-container *ngIf="clientType === ClientType.Browser || clientType === ClientType.Desktop">
+        <button
+          type="button"
+          bitButton
+          block
+          buttonType="secondary"
+          (click)="
+            launchSsoBrowserWindow(clientType === ClientType.Browser ? 'browser' : 'desktop')
+          "
+        >
+          <i class="bwi bwi-provider tw-mr-1"></i>
+          {{ "useSingleSignOn" | i18n }}
+        </button>
+      </ng-container>
     </div>
   </ng-container>
 
@@ -80,202 +89,6 @@
     <bit-form-field class="!tw-mb-1">
       <bit-label>{{ "masterPass" | i18n }}</bit-label>
       <input type="password" formControlName="masterPassword" bitInput #masterPasswordInputRef />
-      <button type="button" bitIconButton bitSuffix bitPasswordInputToggle></button>
-    </bit-form-field>
-
-    <!-- Link to Password Hint page -->
-    <a
-      class="tw-inline-block tw-mb-4 tw-font-semibold"
-      routerLink="/hint"
-      (mousedown)="goToHint()"
-      (click)="saveEmailSettings()"
-    >
-      {{ "getMasterPasswordHint" | i18n }}
-    </a>
-
-    <!-- Captcha iframe -->
-    <iframe
-      [ngClass]="{ 'tw-hidden': !showCaptcha() }"
-      id="hcaptcha_iframe"
-      height="80"
-      sandbox="allow-scripts allow-same-origin"
-    ></iframe>
-
-    <div class="tw-grid tw-gap-3">
-      <!-- Submit button to Login with Master Password -->
-      <button type="submit" bitButton bitFormButton block buttonType="primary">
-        {{ "loginWithMasterPassword" | i18n }}
-      </button>
-
-      <!-- Button to Login with Device -->
-      <ng-container *ngIf="showLoginWithDevice && showPasswordless">
-        <div class="tw-text-center">{{ "or" | i18n }}</div>
-
-        <button
-          type="button"
-          bitButton
-          block
-          buttonType="secondary"
-          (click)="startAuthRequestLogin()"
-        >
-          <i class="bwi bwi-mobile"></i>
-          {{ "loginWithDevice" | i18n }}
-        </button>
-      </ng-container>
-    </div>
-  </ng-container>
-</form>
-
-<!---------------------------------------------->
-<!--             Browser Template             -->
-<!---------------------------------------------->
-<form *ngIf="clientType === ClientType.Browser" [bitSubmit]="submit" [formGroup]="formGroup">
-  <!--
-    TODO-rr-bw: the original Browser template had `main tabindex="-1".
-    Why? And do we need to add it here?
-  -->
-  <ng-container *ngIf="uiState === LoginUiState.EMAIL_ENTRY">
-    <!-- Email Address input -->
-    <bit-form-field class="!tw-mb-4">
-      <bit-label>{{ "emailAddress" | i18n }}</bit-label>
-      <input type="email" formControlName="email" bitInput appAutofocus />
-    </bit-form-field>
-
-    <!-- Remember Email input -->
-    <bit-form-control class="!tw-mb-4">
-      <input type="checkbox" formControlName="rememberEmail" bitCheckbox />
-      <bit-label>{{ "rememberEmail" | i18n }}</bit-label>
-    </bit-form-control>
-
-    <div class="tw-grid tw-gap-3">
-      <!-- Continue button -->
-      <button type="submit" bitButton block buttonType="primary" (click)="validateEmail()">
-        {{ "continue" | i18n }}
-      </button>
-
-      <!-- TODO-rr-bw: Figma shows no Login with Passkey option on browser. Is that intentional? -->
-
-      <!-- Button to Login with SSO -->
-      <button
-        type="button"
-        bitButton
-        block
-        buttonType="secondary"
-        (click)="launchSsoBrowserWindow('browser')"
-      >
-        <i class="bwi bwi-provider tw-mr-1"></i>
-        {{ "useSingleSignOn" | i18n }}
-      </button>
-    </div>
-  </ng-container>
-
-  <ng-container *ngIf="uiState === LoginUiState.MASTER_PASSWORD_ENTRY">
-    <!-- Master Password input -->
-    <bit-form-field class="!tw-mb-1">
-      <bit-label>{{ "masterPass" | i18n }}</bit-label>
-      <input type="password" formControlName="masterPassword" bitInput #masterPasswordInputRef />
-      <button type="button" bitIconButton bitSuffix bitPasswordInputToggle></button>
-    </bit-form-field>
-
-    <!-- Link to Password Hint page -->
-    <a
-      class="tw-inline-block tw-mb-4 tw-font-semibold"
-      routerLink="/hint"
-      (mousedown)="goToHint()"
-      (click)="saveEmailSettings()"
-    >
-      {{ "getMasterPasswordHint" | i18n }}
-    </a>
-
-    <!-- Captcha iframe -->
-    <iframe
-      [ngClass]="{ 'tw-hidden': !showCaptcha() }"
-      id="hcaptcha_iframe"
-      height="80"
-      sandbox="allow-scripts allow-same-origin"
-    ></iframe>
-
-    <div class="tw-grid tw-gap-3">
-      <!-- Submit button to Login with Master Password -->
-      <button type="submit" bitButton bitFormButton block buttonType="primary">
-        {{ "loginWithMasterPassword" | i18n }}
-      </button>
-
-      <!-- Button to Login with Device -->
-      <ng-container *ngIf="showLoginWithDevice && showPasswordless">
-        <div class="tw-text-center">{{ "or" | i18n }}</div>
-
-        <button
-          type="button"
-          bitButton
-          block
-          buttonType="secondary"
-          (click)="startAuthRequestLogin()"
-        >
-          <i class="bwi bwi-mobile"></i>
-          {{ "loginWithDevice" | i18n }}
-        </button>
-      </ng-container>
-    </div>
-  </ng-container>
-</form>
-
-<!---------------------------------------------->
-<!--             Desktop Template             -->
-<!---------------------------------------------->
-<form *ngIf="clientType === ClientType.Desktop" [bitSubmit]="submit" [formGroup]="formGroup">
-  <ng-container *ngIf="uiState === LoginUiState.EMAIL_ENTRY">
-    <!-- Email Address input -->
-    <bit-form-field class="!tw-mb-4">
-      <bit-label>{{ "emailAddress" | i18n }}</bit-label>
-      <input
-        type="email"
-        formControlName="email"
-        bitInput
-        appAutofocus
-        (keyup.enter)="continue()"
-      />
-    </bit-form-field>
-
-    <!-- Remember Email input -->
-    <bit-form-control class="!tw-mb-4">
-      <input type="checkbox" formControlName="rememberEmail" bitCheckbox />
-      <bit-label>{{ "rememberEmail" | i18n }}</bit-label>
-    </bit-form-control>
-
-    <div class="tw-grid tw-gap-3">
-      <!-- Continue button -->
-      <button type="submit" bitButton buttonType="primary" (click)="continue()">
-        {{ "continue" | i18n }}
-      </button>
-
-      <div class="tw-text-center">{{ "or" | i18n }}</div>
-
-      <!-- Link to Login with Passkey page -->
-      <button type="button" bitButton block buttonType="secondary" routerLink="/login-with-passkey">
-        <i class="bwi bwi-passkey tw-mr-1"></i>
-        {{ "logInWithPasskey" | i18n }}
-      </button>
-
-      <!-- Button to Login with SSO -->
-      <button
-        type="button"
-        bitButton
-        block
-        buttonType="secondary"
-        (click)="launchSsoBrowserWindow('desktop')"
-      >
-        <i class="bwi bwi-provider tw-mr-1"></i>
-        {{ "useSingleSignOn" | i18n }}
-      </button>
-    </div>
-  </ng-container>
-
-  <ng-container *ngIf="uiState === LoginUiState.MASTER_PASSWORD_ENTRY">
-    <!-- Master Password input -->
-    <bit-form-field class="!tw-mb-1">
-      <bit-label>{{ "masterPassword" | i18n }}</bit-label>
-      <input type="password" formControlName="masterPassword" bitInput />
       <button type="button" bitIconButton bitSuffix bitPasswordInputToggle></button>
     </bit-form-field>
 
