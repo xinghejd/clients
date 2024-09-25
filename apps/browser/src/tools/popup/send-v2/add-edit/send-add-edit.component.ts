@@ -2,27 +2,23 @@ import { CommonModule, Location } from "@angular/common";
 import { Component } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormsModule } from "@angular/forms";
-import { ActivatedRoute, Params } from "@angular/router";
-import { map, switchMap } from "rxjs";
+import { Params } from "@angular/router";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
-import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { SendType } from "@bitwarden/common/tools/send/enums/send-type";
-import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
 import { SendId } from "@bitwarden/common/types/guid";
 import {
   AsyncActionsModule,
   ButtonModule,
-  DialogService,
   IconButtonModule,
   SearchModule,
-  ToastService,
 } from "@bitwarden/components";
 import {
   DefaultSendFormConfigService,
+  SendAddEditService,
+  SendAddEditServiceAbstraction,
   SendFormConfig,
   SendFormConfigService,
-  SendFormMode,
 } from "@bitwarden/send-ui";
 
 import { SendFormModule } from "../../../../../../../libs/tools/send/send-ui/src/send-form/send-form.module";
@@ -59,7 +55,10 @@ export type AddEditQueryParams = Partial<Record<keyof QueryParams, string>>;
   selector: "tools-send-add-edit",
   templateUrl: "send-add-edit.component.html",
   standalone: true,
-  providers: [{ provide: SendFormConfigService, useClass: DefaultSendFormConfigService }],
+  providers: [
+    { provide: SendFormConfigService, useClass: DefaultSendFormConfigService },
+    { provide: SendAddEditServiceAbstraction, useClass: SendAddEditService },
+  ],
   imports: [
     CommonModule,
     SearchModule,
@@ -86,15 +85,29 @@ export class SendAddEditComponent {
   config: SendFormConfig;
 
   constructor(
-    private route: ActivatedRoute,
     private location: Location,
-    private i18nService: I18nService,
-    private addEditFormConfigService: SendFormConfigService,
-    private sendApiService: SendApiService,
-    private toastService: ToastService,
-    private dialogService: DialogService,
+    protected sendAddEditService: SendAddEditServiceAbstraction,
   ) {
-    this.subscribeToParams();
+    this.subscribeToService();
+  }
+
+  deleteSend = async () => {
+    if (await this.sendAddEditService.deleteSend()) {
+      this.location.back();
+    }
+  };
+
+  /**
+   * Subscribes to the SendAddEditService to get the config and headerText.
+   */
+  subscribeToService(): void {
+    this.sendAddEditService
+      .subscribeToParams()
+      .pipe(takeUntilDestroyed())
+      .subscribe(({ config, headerText }) => {
+        this.config = config;
+        this.headerText = headerText;
+      });
   }
 
   /**
@@ -102,76 +115,5 @@ export class SendAddEditComponent {
    */
   onSendSaved() {
     this.location.back();
-  }
-
-  deleteSend = async () => {
-    const confirmed = await this.dialogService.openSimpleDialog({
-      title: { key: "deleteSend" },
-      content: { key: "deleteSendPermanentConfirmation" },
-      type: "warning",
-    });
-
-    if (!confirmed) {
-      return;
-    }
-
-    try {
-      await this.sendApiService.delete(this.config.originalSend?.id);
-    } catch (e) {
-      this.toastService.showToast({
-        variant: "error",
-        title: null,
-        message: e.message,
-      });
-      return;
-    }
-
-    this.location.back();
-
-    this.toastService.showToast({
-      variant: "success",
-      title: null,
-      message: this.i18nService.t("deletedSend"),
-    });
-  };
-
-  /**
-   * Subscribes to the route query parameters and builds the configuration based on the parameters.
-   */
-  subscribeToParams(): void {
-    this.route.queryParams
-      .pipe(
-        takeUntilDestroyed(),
-        map((params) => new QueryParams(params)),
-        switchMap(async (params) => {
-          let mode: SendFormMode;
-          if (params.sendId == null) {
-            mode = "add";
-          } else {
-            mode = "edit";
-          }
-          const config = await this.addEditFormConfigService.buildConfig(
-            mode,
-            params.sendId,
-            params.type,
-          );
-          return config;
-        }),
-      )
-      .subscribe((config) => {
-        this.config = config;
-        this.headerText = this.getHeaderText(config.mode);
-      });
-  }
-
-  /**
-   * Gets the header text based on the mode.
-   * @param mode The mode of the send form.
-   * @returns The header text.
-   */
-  private getHeaderText(mode: SendFormMode) {
-    return this.i18nService.t(
-      mode === "edit" || mode === "partial-edit" ? "editSend" : "createSend",
-    );
   }
 }
