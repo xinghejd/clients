@@ -9,10 +9,6 @@ import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { CollectionView } from "@bitwarden/common/vault/models/view/collection.view";
 
-import {
-  convertToPermission,
-  getPermissionList,
-} from "./../../../admin-console/organizations/shared/components/access-selector/access-selector.models";
 import { VaultItemEvent } from "./vault-item-event";
 import { RowHeightClass } from "./vault-items.component";
 
@@ -48,14 +44,6 @@ export class VaultCipherRowComponent implements OnInit {
   @Output() checkedToggled = new EventEmitter<void>();
 
   protected CipherType = CipherType;
-  private permissionList = getPermissionList();
-  private permissionPriority = [
-    "canManage",
-    "canEdit",
-    "canEditExceptPass",
-    "canView",
-    "canViewExceptPass",
-  ];
 
   constructor(
     private configService: ConfigService,
@@ -104,42 +92,28 @@ export class VaultCipherRowComponent implements OnInit {
   }
 
   protected get permissionText() {
-    if (this.cipher.collectionIds.length > 1) {
-      const filteredCollections = this.cipher.collectionIds.map((id) => {
-        return this.collections.find((collection) => {
-          if (collection.id === id) {
-            return collection;
-          }
-        });
-      });
-
-      const labels = filteredCollections.map((collection) => {
-        return this.permissionList.find((p) => p.perm === convertToPermission(collection))?.labelId;
-      });
-
-      const highestPerm = this.permissionPriority.find((perm) => labels.includes(perm));
-      return this.i18nService.t(highestPerm);
+    if (!this.cipher.organizationId || this.cipher.collectionIds.length === 0) {
+      return this.i18nService.t("canManage");
     }
 
-    if (this.cipher.collectionIds.length === 1) {
-      const filteredCollection = this.collections.find((collection) => {
-        if (collection.id === this.cipher.collectionIds[0]) {
-          return collection;
-        }
+    const filteredCollections = this.cipher.collectionIds.find((id) => {
+      return this.collections.find((collection) => {
+        return collection.id === id && collection.manage;
       });
-      return this.i18nService.t(
-        this.permissionList.find((p) => p.perm === convertToPermission(filteredCollection))
-          ?.labelId,
-      );
+    });
+    if (filteredCollections?.length > 0) {
+      return this.i18nService.t("canManage");
     }
 
     if (this.cipher.edit) {
-      return this.i18nService.t("canEdit");
-    } else if (this.cipher.viewPassword) {
-      return this.i18nService.t("canView");
+      return this.cipher.viewPassword
+        ? this.i18nService.t("canEdit")
+        : this.i18nService.t("canEditExceptPass");
+    } else {
+      return this.cipher.viewPassword
+        ? this.i18nService.t("canView")
+        : this.i18nService.t("canViewExceptPass");
     }
-
-    return this.i18nService.t("noAccess");
   }
 
   protected get showCopyPassword(): boolean {
