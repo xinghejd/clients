@@ -42,7 +42,10 @@ import {
 import { AnonLayoutWrapperDataService } from "../anon-layout/anon-layout-wrapper-data.service";
 import { WaveIcon } from "../icons";
 
+import { DesktopLoginService } from "./desktop-login.service";
+import { ExtensionLoginService } from "./extension-login.service";
 import { LoginComponentService } from "./login-component.service";
+import { WebLoginService } from "./web-login.service";
 
 const BroadcasterSubscriptionId = "LoginComponent";
 
@@ -136,6 +139,9 @@ export class LoginComponent implements OnInit, OnDestroy {
     private router: Router,
     private syncService: SyncService,
     private toastService: ToastService,
+    private webLoginService: WebLoginService,
+    private desktopLoginService: DesktopLoginService,
+    private extensionLoginService: ExtensionLoginService,
   ) {
     this.clientType = this.platformUtilsService.getClientType();
     this.showPasswordless = this.loginComponentService.getShowPasswordlessFlag();
@@ -266,15 +272,14 @@ export class LoginComponent implements OnInit, OnDestroy {
     // If none of the above cases are true, proceed with login...
     // ...on Web
     if (this.clientType === ClientType.Web) {
-      // ...on Browser/Desktop
       await this.goAfterLogIn(authResult.userId);
+      // ...on Browser/Desktop
     } else if (this.clientType === ClientType.Browser) {
+      await this.extensionLoginService.handleSuccessfulLogin();
+    } else {
+      await this.router.navigate(["vault"]);
       this.loginEmailService.clearValues();
-      await this.router.navigate(["/tabs/vault"]);
     }
-
-    await this.router.navigate(["vault"]);
-    this.loginEmailService.clearValues();
   }
 
   protected async launchSsoBrowserWindow(clientId: "browser" | "desktop"): Promise<void> {
@@ -518,24 +523,21 @@ export class LoginComponent implements OnInit, OnDestroy {
   }
 
   private async webOnInit(): Promise<void> {
-    this.activatedRoute.queryParams.pipe(first(), takeUntil(this.destroy$)).subscribe((qParams) => {
-      if (qParams.org != null) {
-        const route = this.router.createUrlTree(["create-organization"], {
-          queryParams: { plan: qParams.org },
-        });
-        this.loginComponentService.setPreviousUrl(route);
-      }
-
-      /* If there is a parameter called 'sponsorshipToken', they are coming
-         from an email for sponsoring a families organization. Therefore set
-         the prevousUrl to /setup/families-for-enterprise?token=<paramValue> */
-      if (qParams.sponsorshipToken != null) {
-        const route = this.router.createUrlTree(["setup/families-for-enterprise"], {
-          queryParams: { token: qParams.sponsorshipToken },
-        });
-        this.loginComponentService.setPreviousUrl(route);
-      }
-    });
+    this.activatedRoute.queryParams
+      .pipe(
+        first(),
+        switchMap((qParams) => this.webLoginService.handleQueryParams(qParams)),
+        takeUntil(this.destroy$),
+      )
+      .subscribe({
+        error: (error: unknown) => {
+          this.toastService.showToast({
+            variant: "error",
+            title: this.i18nService.t("errorOccurred"),
+            message: String(error),
+          });
+        },
+      });
 
     /**
      * TODO-rr-bw: Verify the following
@@ -554,27 +556,6 @@ export class LoginComponent implements OnInit, OnDestroy {
 
   private async desktopOnInit(): Promise<void> {
     await this.getLoginWithDevice(this.loggedEmail);
-
-    // TODO-rr-bw: refactor to not use deprecated broadcaster service.
-    this.broadcasterService.subscribe(BroadcasterSubscriptionId, async (message: any) => {
-      this.ngZone.run(() => {
-        switch (message.command) {
-          case "windowIsFocused":
-            if (this.deferFocus === null) {
-              this.deferFocus = !message.windowIsFocused;
-              if (!this.deferFocus) {
-                this.focusInput();
-              }
-            } else if (this.deferFocus && message.windowIsFocused) {
-              this.focusInput();
-              this.deferFocus = false;
-            }
-            break;
-          default:
-        }
-      });
-    });
-
-    this.messagingService.send("getWindowIsFocused");
+    this.desktopLoginService.setupWindowFocusHandler(() => this.focusInput());
   }
 }
