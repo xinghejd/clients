@@ -714,22 +714,14 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
       return;
     }
 
-    if (formFieldElement?.value) {
-      void this.sendExtensionMessage("closeAutofillInlineMenu", {
-        overlayElement: AutofillOverlayElement.List,
-        forceCloseInlineMenu: true,
-      });
-      return;
-    }
+    await this.sendExtensionMessage("closeAutofillInlineMenu", {
+      overlayElement: AutofillOverlayElement.List,
+      forceCloseInlineMenu: true,
+    });
 
-    if (await this.isInlineMenuListVisible()) {
-      await this.sendExtensionMessage("closeAutofillInlineMenu", {
-        overlayElement: AutofillOverlayElement.List,
-        forceCloseInlineMenu: true,
-      });
+    if (!formFieldElement?.value) {
+      await this.sendExtensionMessage("openAutofillInlineMenu");
     }
-
-    await this.sendExtensionMessage("openAutofillInlineMenu");
   }
 
   /**
@@ -881,7 +873,6 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
 
     await this.updateIsFieldCurrentlyFocused(true);
     await this.updateMostRecentlyFocusedField(formFieldElement);
-
     await this.sendExtensionMessage("openAutofillInlineMenu");
   }
 
