@@ -14,6 +14,7 @@ import {
 } from "rxjs";
 
 import {
+  CollectionAccessSelectionView,
   CollectionAdminService,
   CollectionAdminView,
   OrganizationUserApiService,
@@ -32,7 +33,6 @@ import { CollectionView } from "@bitwarden/common/vault/models/view/collection.v
 import { DialogService, ToastService } from "@bitwarden/components";
 
 import {
-  CollectionAccessSelectionView,
   GroupService,
   GroupView,
   OrganizationUserAdminView,

@@ -14,6 +14,7 @@ import {
 import { first } from "rxjs/operators";
 
 import {
+  CollectionAccessSelectionView,
   CollectionAdminService,
   CollectionAdminView,
   OrganizationUserApiService,
@@ -28,11 +29,7 @@ import { CollectionResponse } from "@bitwarden/common/vault/models/response/coll
 import { CollectionView } from "@bitwarden/common/vault/models/view/collection.view";
 import { BitValidators, DialogService } from "@bitwarden/components";
 
-import {
-  CollectionAccessSelectionView,
-  GroupService,
-  GroupView,
-} from "../../../admin-console/organizations/core";
+import { GroupService, GroupView } from "../../../admin-console/organizations/core";
 import { PermissionMode } from "../../../admin-console/organizations/shared/components/access-selector/access-selector.component";
 import {
   AccessItemType,
