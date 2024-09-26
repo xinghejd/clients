@@ -4,7 +4,7 @@ import { ActivatedRoute, Router } from "@angular/router";
 import { firstValueFrom, takeUntil } from "rxjs";
 import { first } from "rxjs/operators";
 
-import { LoginComponentV1 as BaseLoginComponent } from "@bitwarden/angular/auth/components/login.component";
+import { LoginComponentV1 as BaseLoginComponent } from "@bitwarden/angular/auth/components/login-v1.component";
 import { FormValidationErrorsService } from "@bitwarden/angular/platform/abstractions/form-validation-errors.service";
 import {
   LoginStrategyServiceAbstraction,
