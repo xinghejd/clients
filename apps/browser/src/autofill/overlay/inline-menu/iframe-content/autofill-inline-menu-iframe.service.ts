@@ -56,6 +56,8 @@ export class AutofillInlineMenuIframeService implements AutofillInlineMenuIframe
     updateAutofillInlineMenuColorScheme: () => this.updateAutofillInlineMenuColorScheme(),
     triggerDelayedAutofillInlineMenuClosure: () => this.handleDelayedAutofillInlineMenuClosure(),
     fadeInAutofillInlineMenuIframe: () => this.handleFadeInInlineMenuIframe(),
+    updateAutofillInlineMenuGeneratedPassword: ({ message }) =>
+      this.handleUpdateGeneratedPassword(message),
   };
 
   constructor(
@@ -89,7 +91,7 @@ export class AutofillInlineMenuIframeService implements AutofillInlineMenuIframe
     this.iframe.addEventListener(EVENTS.LOAD, this.setupPortMessageListener);
 
     if (this.ariaAlert) {
-      this.createAriaAlertElement(this.ariaAlert);
+      this.createAriaAlertElement();
     }
 
     this.shadow.appendChild(this.iframe);
@@ -99,13 +101,11 @@ export class AutofillInlineMenuIframeService implements AutofillInlineMenuIframe
   /**
    * Creates an aria alert element that is used to announce to screen readers
    * when the iframe is loaded.
-   *
-   * @param ariaAlertText - Text to announce to screen readers when the iframe is loaded
    */
-  private createAriaAlertElement(ariaAlertText: string) {
+  private createAriaAlertElement(assertive = false) {
     this.ariaAlertElement = globalThis.document.createElement("div");
     this.ariaAlertElement.setAttribute("role", "alert");
-    this.ariaAlertElement.setAttribute("aria-live", "polite");
+    this.ariaAlertElement.setAttribute("aria-live", assertive ? "assertive" : "polite");
     this.ariaAlertElement.setAttribute("aria-atomic", "true");
     this.updateElementStyles(this.ariaAlertElement, {
       position: "absolute",
@@ -117,7 +117,6 @@ export class AutofillInlineMenuIframeService implements AutofillInlineMenuIframe
       opacity: "0",
       pointerEvents: "none",
     });
-    this.ariaAlertElement.textContent = ariaAlertText;
   }
 
   /**
@@ -130,28 +129,38 @@ export class AutofillInlineMenuIframeService implements AutofillInlineMenuIframe
     this.port.onDisconnect.addListener(this.handlePortDisconnect);
     this.port.onMessage.addListener(this.handlePortMessage);
 
-    this.announceAriaAlert();
+    this.announceAriaAlert(this.ariaAlert);
   };
 
   /**
    * Announces the aria alert element to screen readers when the iframe is loaded.
    */
-  private announceAriaAlert() {
-    if (!this.ariaAlertElement) {
+  private announceAriaAlert(textContent: string, triggeredByUser = false) {
+    if (!this.ariaAlertElement || !textContent) {
       return;
     }
 
     this.ariaAlertElement.remove();
+    this.ariaAlertElement.textContent = textContent;
+    this.clearAriaAlert();
+
+    this.ariaAlertTimeout = globalThis.setTimeout(
+      async () => {
+        const isFieldFocused = await this.sendExtensionMessage("checkIsFieldCurrentlyFocused");
+        if (isFieldFocused || triggeredByUser) {
+          this.shadow.appendChild(this.ariaAlertElement);
+        }
+        this.ariaAlertTimeout = null;
+      },
+      triggeredByUser ? 500 : 2000,
+    );
+  }
+
+  clearAriaAlert() {
     if (this.ariaAlertTimeout) {
       clearTimeout(this.ariaAlertTimeout);
+      this.ariaAlertTimeout = null;
     }
-
-    this.ariaAlertTimeout = globalThis.setTimeout(async () => {
-      const isFieldFocused = await this.sendExtensionMessage("checkIsFieldCurrentlyFocused");
-      if (isFieldFocused) {
-        this.shadow.appendChild(this.ariaAlertElement);
-      }
-    }, 2000);
   }
 
   /**
@@ -270,7 +279,7 @@ export class AutofillInlineMenuIframeService implements AutofillInlineMenuIframe
       this.handleFadeInInlineMenuIframe();
     }
 
-    this.announceAriaAlert();
+    this.announceAriaAlert(this.ariaAlert);
   }
 
   /**
@@ -361,6 +370,18 @@ export class AutofillInlineMenuIframeService implements AutofillInlineMenuIframe
       this.forceCloseInlineMenu();
     }, 100);
   }
+
+  private handleUpdateGeneratedPassword = (message: AutofillInlineMenuIframeExtensionMessage) => {
+    this.postMessageToIFrame(message);
+
+    if (!message.refreshPassword) {
+      return;
+    }
+
+    this.clearAriaAlert();
+    this.createAriaAlertElement(true);
+    this.announceAriaAlert(chrome.i18n.getMessage("passwordRegenerated"), true);
+  };
 
   /**
    * Handles mutations to the iframe element. The ensures that the iframe

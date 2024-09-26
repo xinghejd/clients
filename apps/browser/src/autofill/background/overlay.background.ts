@@ -1504,7 +1504,10 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     });
   }
 
-  private async updateGeneratedPassword(refreshPassword: boolean = false) {
+  private async updateGeneratedPassword(
+    refreshPassword: boolean = false,
+    sender?: chrome.runtime.MessageSender,
+  ) {
     if (!this.generatedPassword || refreshPassword) {
       await this.generatePassword();
     }
@@ -1512,6 +1515,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     this.inlineMenuListPort?.postMessage({
       command: "updateAutofillInlineMenuGeneratedPassword",
       generatedPassword: this.generatedPassword,
+      refreshPassword,
     });
   }
 
