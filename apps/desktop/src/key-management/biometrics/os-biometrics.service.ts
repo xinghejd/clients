@@ -1,5 +1,20 @@
 export interface OsBiometricService {
-  osSupportsBiometric(): Promise<boolean>;
+  authenticateBiometric(): Promise<boolean>;
+  isBiometricsAvailable(): Promise<boolean>;
+
+  unlockWithBiometrics(
+    userId: string,
+    clientKeyHalfB64: string | undefined,
+  ): Promise<string | null>;
+  enableBiometricUnlock(
+    userId: string,
+    unlockKey: string,
+    clientKeyHalfB64: string | undefined,
+  ): Promise<boolean>;
+  disableBiometricUnlock(userId: string): Promise<void>;
+  provideUnlockKey(userId: string, unlockKey: string): Promise<void>;
+
+  /** LINUX ONLY */
   /**
    * Check whether support for biometric unlock requires setup. This can be automatic or manual.
    *
@@ -16,17 +31,4 @@ export interface OsBiometricService {
    * Starts automatic biometric setup, which places the required configuration files / changes the required settings.
    */
   osBiometricsSetup: () => Promise<void>;
-  authenticateBiometric(): Promise<boolean>;
-  getBiometricKey(
-    service: string,
-    key: string,
-    clientKeyHalfB64: string | undefined,
-  ): Promise<string | null>;
-  setBiometricKey(
-    service: string,
-    key: string,
-    value: string,
-    clientKeyHalfB64: string | undefined,
-  ): Promise<void>;
-  deleteBiometricKey(service: string, key: string): Promise<void>;
 }
