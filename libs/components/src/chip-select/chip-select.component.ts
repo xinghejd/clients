@@ -108,8 +108,20 @@ export class ChipSelectComponent<T = unknown> implements ControlValueAccessor, A
     return this.selectedOption?.icon || this.placeholderIcon;
   }
 
+  /**
+   * Set the rendered options based on whether or not an option is already selected, so that the correct
+   * submenu displays.
+   */
+  protected setOrResetRenderedOptions(): void {
+    this.renderedOptions = this.selectedOption
+      ? this.selectedOption.children?.length > 0
+        ? this.selectedOption
+        : this.getParent(this.selectedOption)
+      : this.rootTree;
+  }
+
   protected handleMenuClosed(): void {
-    this.renderedOptions = this.selectedOption ?? this.rootTree;
+    this.setOrResetRenderedOptions();
   }
 
   protected selectOption(option: ChipSelectOption<T>, _event: MouseEvent) {
@@ -197,11 +209,7 @@ export class ChipSelectComponent<T = unknown> implements ControlValueAccessor, A
   /** Implemented as part of NG_VALUE_ACCESSOR */
   writeValue(obj: T): void {
     this.selectedOption = this.findOption(this.rootTree, obj);
-
-    /** Update the rendered options for next time the menu is opened */
-    this.renderedOptions = this.selectedOption
-      ? this.getParent(this.selectedOption)
-      : this.rootTree;
+    this.setOrResetRenderedOptions();
   }
 
   /** Implemented as part of NG_VALUE_ACCESSOR */
