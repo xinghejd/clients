@@ -34,7 +34,7 @@ const BroadcasterSubscriptionId = "LoginComponent";
 
 @Component({
   selector: "app-login",
-  templateUrl: "login.component.html",
+  templateUrl: "login-v1.component.html",
 })
 export class LoginComponentV1 extends BaseLoginComponent implements OnInit, OnDestroy {
   @ViewChild("environment", { read: ViewContainerRef, static: true })
