@@ -5,7 +5,6 @@ import {
 } from "@bitwarden/common/admin-console/enums";
 import { PermissionsApi } from "@bitwarden/common/admin-console/models/api/permissions.api";
 
-
 export class OrganizationUserAdminView {
   id: string;
   userId: string;
