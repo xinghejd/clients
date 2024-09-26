@@ -1,6 +1,8 @@
 import { combineLatest, firstValueFrom, map, Observable, of, switchMap } from "rxjs";
 import { Jsonify } from "type-fest";
 
+import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
+
 import { CryptoService } from "../../platform/abstractions/crypto.service";
 import { I18nService } from "../../platform/abstractions/i18n.service";
 import { Utils } from "../../platform/misc/utils";
@@ -62,6 +64,7 @@ export class CollectionService implements CollectionServiceAbstraction {
 
   constructor(
     private cryptoService: CryptoService,
+    private encryptService: EncryptService,
     private i18nService: I18nService,
     protected stateProvider: StateProvider,
   ) {
@@ -109,7 +112,7 @@ export class CollectionService implements CollectionServiceAbstraction {
     collection.organizationId = model.organizationId;
     collection.readOnly = model.readOnly;
     collection.externalId = model.externalId;
-    collection.name = await this.cryptoService.encrypt(model.name, key);
+    collection.name = await this.encryptService.encrypt(model.name, key);
     return collection;
   }
 
