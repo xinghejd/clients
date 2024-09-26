@@ -101,10 +101,23 @@ export class OrganizationApiService implements OrganizationApiServiceAbstraction
     return new OrganizationAutoEnrollStatusResponse(r);
   }
 
-  async create(
-    request: OrganizationCreateRequest | OrganizationNoPaymentMethodCreateRequest,
-  ): Promise<OrganizationResponse> {
+  async create(request: OrganizationCreateRequest): Promise<OrganizationResponse> {
     const r = await this.apiService.send("POST", "/organizations", request, true, true);
+    // Forcing a sync will notify organization service that they need to repull
+    await this.syncService.fullSync(true);
+    return new OrganizationResponse(r);
+  }
+
+  async createWithoutPayment(
+    request: OrganizationNoPaymentMethodCreateRequest,
+  ): Promise<OrganizationResponse> {
+    const r = await this.apiService.send(
+      "POST",
+      "/organizations/create-without-payment",
+      request,
+      true,
+      true,
+    );
     // Forcing a sync will notify organization service that they need to repull
     await this.syncService.fullSync(true);
     return new OrganizationResponse(r);

@@ -12,7 +12,7 @@ import {
   take,
   share,
   firstValueFrom,
-  concatMap,
+  of,
 } from "rxjs";
 
 import { I18nPipe } from "@bitwarden/angular/platform/pipes/i18n.pipe";
@@ -73,6 +73,13 @@ type OrganizationTasks = {
   createProject: boolean;
   createServiceAccount: boolean;
 };
+type FreeTrial = {
+  trialing: boolean;
+  remainingDays: number;
+  message: string;
+  isOwner: boolean;
+  defaultPaymentSource: BillingResponse;
+};
 
 @Component({
   selector: "sm-overview",
@@ -103,6 +110,7 @@ export class OverviewComponent implements OnInit, OnDestroy {
     tasks: OrganizationTasks;
     counts: OrganizationCounts;
   }>;
+  protected freeTrial$!: Observable<FreeTrial>;
 
   constructor(
     private route: ActivatedRoute,
@@ -129,24 +137,30 @@ export class OverviewComponent implements OnInit, OnDestroy {
       distinctUntilChanged(),
     );
 
-    orgId$
-      .pipe(
-        concatMap(async (orgId) => await this.organizationService.get(orgId)),
-        takeUntil(this.destroy$),
-      )
-      .subscribe({
-        next: async (org) => {
-          this.organizationId = org.id;
-          this.organization = org;
-          this.organizationName = org.name;
-          this.userIsAdmin = org.isAdmin;
-          this.loading = true;
-          this.organizationEnabled = org.enabled;
-          const sub = await this.organizationApiService.getSubscription(this.organizationId);
-          const billing = await this.organizationApiService.getBilling(this.organizationId);
-          this.locateOrganizationsWithIncomingPaymentIssues(sub, billing);
-        },
-      });
+    const org$ = orgId$.pipe(switchMap((orgId) => this.organizationService.get(orgId)));
+
+    org$.pipe(takeUntil(this.destroy$)).subscribe((org) => {
+      this.organizationId = org.id;
+      this.organization = org;
+      this.organizationName = org.name;
+      this.userIsAdmin = org.isAdmin;
+      this.loading = true;
+      this.organizationEnabled = org.enabled;
+    });
+
+    this.freeTrial$ = org$.pipe(
+      switchMap((org) =>
+        combineLatest([
+          of(org),
+          this.organizationApiService.getSubscription(org.id),
+          this.organizationApiService.getBilling(org.id),
+        ]),
+      ),
+      map(([org, sub, billing]) => {
+        return this.locateOrganizationsWithIncomingPaymentIssues(org, sub, billing);
+      }),
+      takeUntil(this.destroy$),
+    );
 
     const projects$ = combineLatest([
       orgId$,
@@ -221,19 +235,27 @@ export class OverviewComponent implements OnInit, OnDestroy {
   }
 
   private locateOrganizationsWithIncomingPaymentIssues(
+    organization: Organization,
     sub: OrganizationSubscriptionResponse,
     billing: BillingResponse,
-  ) {
+  ): FreeTrial {
     const trialEndDate = sub?.subscription?.trialEndDate;
-    this.isOwner = this.organization?.isOwner;
-    this.isTrialing = sub?.subscription?.status == "trialing";
-    this.defaultPaymentSource = billing;
+    const isOwner = organization?.isOwner;
+    const isTrialing = sub?.subscription?.status == "trialing";
+    const defaultPaymentSource = billing;
     if (trialEndDate) {
       const today = new Date();
       const trialEnd = new Date(trialEndDate);
       const timeDifference = trialEnd.getTime() - today.getTime();
       this.trialRemainingDays = Math.ceil(timeDifference / (1000 * 60 * 60 * 24));
     }
+    return {
+      trialing: isTrialing,
+      remainingDays: this.trialRemainingDays,
+      message: this.freeTrialMessage,
+      isOwner,
+      defaultPaymentSource,
+    };
   }
 
   get freeTrialMessage() {

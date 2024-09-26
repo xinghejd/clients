@@ -1,22 +1,29 @@
-<bit-banner
-  id="update-browser-banner"
-  class="-tw-m-6 tw-flex tw-flex-col tw-pb-6"
-  bannerType="premium"
-  icon="bwi-billing"
-  [showClose]="false"
-  *ngIf="!loading && isTrialing && !defaultPaymentSource?.paymentSource && isOwner"
->
-  {{ freeTrialMessage }}
-  <a
-    bitLink
-    linkType="contrast"
-    class="tw-cursor-pointer"
-    (click)="navigateToPaymentMethod()"
-    rel="noreferrer noopener"
+<ng-container *ngIf="freeTrial$ | async as freeTrial">
+  <bit-banner
+    id="update-browser-banner"
+    class="-tw-m-6 tw-flex tw-flex-col tw-pb-6"
+    bannerType="premium"
+    icon="bwi-billing"
+    [showClose]="false"
+    *ngIf="
+      !loading &&
+      freeTrial.trialing &&
+      !freeTrial.defaultPaymentSource?.paymentSource &&
+      freeTrial.isOwner
+    "
   >
-    {{ "routeToPaymentPageTrigger" | i18n }}
-  </a>
-</bit-banner>
+    {{ freeTrial?.message }}
+    <a
+      bitLink
+      linkType="contrast"
+      class="tw-cursor-pointer"
+      (click)="navigateToPaymentMethod()"
+      rel="noreferrer noopener"
+    >
+      {{ "routeToPaymentPageTrigger" | i18n }}
+    </a>
+  </bit-banner>
+</ng-container>
 <app-header [title]="organizationName">
   <sm-new-menu></sm-new-menu>
 </app-header>

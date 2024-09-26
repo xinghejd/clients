@@ -91,7 +91,7 @@ export class OrganizationBillingService implements OrganizationBillingServiceAbs
 
     this.setPlanInformation(request, subscription.plan);
 
-    const response = await this.organizationApiService.create(request);
+    const response = await this.organizationApiService.createWithoutPayment(request);
 
     await this.apiService.refreshIdentityToken();
 

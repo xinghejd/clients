@@ -40,8 +40,9 @@ export class OrganizationApiServiceAbstraction {
   getSubscription: (id: string) => Promise<OrganizationSubscriptionResponse>;
   getLicense: (id: string, installationId: string) => Promise<unknown>;
   getAutoEnrollStatus: (identifier: string) => Promise<OrganizationAutoEnrollStatusResponse>;
-  create: (
-    request: OrganizationCreateRequest | OrganizationNoPaymentMethodCreateRequest,
+  create: (request: OrganizationCreateRequest) => Promise<OrganizationResponse>;
+  createWithoutPayment: (
+    request: OrganizationNoPaymentMethodCreateRequest,
   ) => Promise<OrganizationResponse>;
   createLicense: (data: FormData) => Promise<OrganizationResponse>;
   save: (id: string, request: OrganizationUpdateRequest) => Promise<OrganizationResponse>;
