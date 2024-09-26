@@ -30,7 +30,6 @@ const BroadcasterSubscriptionId = "AddEditComponent";
 export class AddEditComponent extends BaseAddEditComponent implements OnInit, OnChanges, OnDestroy {
   @ViewChild("form")
   private form: NgForm;
-  showPrivateKey = false;
 
   constructor(
     cipherService: CipherService,

@@ -69,6 +69,7 @@ export class AddEditComponent implements OnInit, OnDestroy {
   restorePromise: Promise<any>;
   checkPasswordPromise: Promise<number>;
   showPassword = false;
+  showPrivateKey = false;
   showTotpSeed = false;
   showCardNumber = false;
   showCardCode = false;
@@ -597,6 +598,10 @@ export class AddEditComponent implements OnInit, OnDestroy {
         this.cipherId,
       );
     }
+  }
+
+  togglePrivateKey() {
+    this.showPrivateKey = !this.showPrivateKey;
   }
 
   toggleUriOptions(uri: LoginUriView) {

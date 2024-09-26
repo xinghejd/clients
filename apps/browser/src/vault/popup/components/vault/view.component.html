@@ -431,6 +431,16 @@
       </div>
       <!-- SSHKey -->
       <div *ngIf="cipher.sshKey">
+        <div class="box-content-row" *ngIf="cipher.sshKey.privateKey" style="overflow: hidden">
+          <span
+            class="row-label draggable"
+            draggable="true"
+            (dragstart)="setTextDataOnDrag($event, cipher.sshKey.privateKey)"
+          >
+            {{ "sshPrivateKey" | i18n }}
+          </span>
+          <div [innerText]="cipher.sshKey.maskedPrivateKey" class="monospaced"></div>
+        </div>
         <div class="box-content-row" *ngIf="cipher.sshKey.publicKey" style="overflow: hidden">
           <span
             class="row-label draggable"

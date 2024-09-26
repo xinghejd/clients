@@ -6,6 +6,18 @@
   </bit-section-header>
   <bit-card>
     <bit-form-field>
+      <bit-label>{{ "sshPrivateKey" | i18n }}</bit-label>
+      <input id="privateKey" bitInput formControlName="privateKey" type="password" />
+      <button
+        type="button"
+        bitIconButton
+        bitSuffix
+        data-testid="toggle-privateKey-visibility"
+        bitPasswordInputToggle
+      ></button>
+    </bit-form-field>
+
+    <bit-form-field>
       <bit-label>{{ "sshPublicKey" | i18n }}</bit-label>
       <input id="publicKey" bitInput formControlName="publicKey" />
     </bit-form-field>

@@ -55,6 +55,7 @@ export class ViewComponent implements OnDestroy, OnInit {
   showPasswordCount: boolean;
   showCardNumber: boolean;
   showCardCode: boolean;
+  showPrivateKey: boolean;
   canAccessPremium: boolean;
   showPremiumRequiredTotp: boolean;
   totpCode: string;
@@ -313,6 +314,10 @@ export class ViewComponent implements OnDestroy, OnInit {
         this.cipherId,
       );
     }
+  }
+
+  togglePrivateKey() {
+    this.showPrivateKey = !this.showPrivateKey;
   }
 
   async checkPassword() {
