@@ -4528,93 +4528,129 @@
     "message": "Exclamation mark",
     "description": "Represents the ! key in screen reader content as a readable word"
   },
-  "keyAt": {
+  "keyAtSign": {
     "message": "At sign",
     "description": "Represents the @ key in screen reader content as a readable word"
   },
-  "keyHash": {
-    "message": "Hash",
+  "keyHashSign": {
+    "message": "Hash sign",
     "description": "Represents the # key in screen reader content as a readable word"
   },
-  "keyDollar": {
-    "message": "Dollar"
+  "keyDollarSign": {
+    "message": "Dollar sign",
+    "description": "Represents the $ key in screen reader content as a readable word"
   },
-  "keyPercent": {
-    "message": "Percent"
+  "keyPercentSign": {
+    "message": "Percent sign",
+    "description": "Represents the % key in screen reader content as a readable word"
   },
   "keyCaret": {
-    "message": "Caret"
+    "message": "Caret",
+    "description": "Represents the ^ key in screen reader content as a readable word"
   },
   "keyAmpersand": {
-    "message": "Ampersand"
+    "message": "Ampersand",
+    "description": "Represents the & key in screen reader content as a readable word"
   },
   "keyAsterisk": {
-    "message": "Asterisk"
+    "message": "Asterisk",
+    "description": "Represents the * key in screen reader content as a readable word"
   },
   "keyParenLeft": {
-    "message": "Left parenthesis"
+    "message": "Left parenthesis",
+    "description": "Represents the ( key in screen reader content as a readable word"
   },
   "keyParenRight": {
-    "message": "Right parenthesis"
+    "message": "Right parenthesis",
+    "description": "Represents the ) key in screen reader content as a readable word"
   },
-  "key_": {
-    "message": "Underscore"
+  "keyHyphen": {
+    "message": "Underscore",
+    "description": "Represents the _ key in screen reader content as a readable word"
   },
-  "key-": {
-    "message": "Hyphen"
+  "keyUnderscore": {
+    "message": "Hyphen",
+    "description": "Represents the - key in screen reader content as a readable word"
   },
   "keyPlus": {
-    "message": "Plus"
+    "message": "Plus",
+    "description": "Represents the + key in screen reader content as a readable word"
   },
   "keyEquals": {
-    "message": "Equals"
+    "message": "Equals",
+    "description": "Represents the = key in screen reader content as a readable word"
   },
   "keyBraceLeft": {
-    "message": "Left brace"
+    "message": "Left brace",
+    "description": "Represents the { key in screen reader content as a readable word"
   },
   "keyBraceRight": {
-    "message": "Right brace"
+    "message": "Right brace",
+    "description": "Represents the } key in screen reader content as a readable word"
   },
   "keyBracketLeft": {
-    "message": "Left bracket"
+    "message": "Left bracket",
+    "description": "Represents the [ key in screen reader content as a readable word"
   },
   "keyBracketRight": {
-    "message": "Right bracket"
+    "message": "Right bracket",
+    "description": "Represents the ] key in screen reader content as a readable word"
   },
   "keyPipe": {
-    "message": "Pipe"
+    "message": "Pipe",
+    "description": "Represents the | key in screen reader content as a readable word"
   },
   "keyBackSlash": {
-    "message": "Back slash"
+    "message": "Back slash",
+    "description": "Represents the \\ key in screen reader content as a readable word"
   },
   "keyColon": {
-    "message": "Colon"
+    "message": "Colon",
+    "description": "Represents the : key in screen reader content as a readable word"
   },
   "keySemicolon": {
-    "message": "Semicolon"
+    "message": "Semicolon",
+    "description": "Represents the ; key in screen reader content as a readable word"
   },
   "keyDoubleQuote": {
-    "message": "Double quote"
+    "message": "Double quote",
+    "description": "Represents the \" key in screen reader content as a readable word"
   },
-  "keyApostrophe": {
-    "message": "Double apostrophe"
+  "keySingleQuote": {
+    "message": "Single quote",
+    "description": "Represents the ' key in screen reader content as a readable word"
   },
   "keyLessThan": {
-    "message": "Less than"
+    "message": "Less than",
+    "description": "Represents the < key in screen reader content as a readable word"
   },
   "keyGreaterThan": {
-    "message": "Greater than"
+    "message": "Greater than",
+    "description": "Represents the > key in screen reader content as a readable word"
   },
   "keyComma": {
-    "message": "Comma"
+    "message": "Comma",
+    "description": "Represents the , key in screen reader content as a readable word"
   },
   "keyPeriod": {
-    "message": "Period"
+    "message": "Period",
+    "description": "Represents the . key in screen reader content as a readable word"
   },
   "keyQuestion": {
-    "message": "Question mark"
+    "message": "Question mark",
+    "description": "Represents the ? key in screen reader content as a readable word"
   },
   "keyForwardSlash": {
-    "message": "Forward slash"
+    "message": "Forward slash",
+    "description": "Represents the / key in screen reader content as a readable word"
   },
+  "lowercaseAriaLabel": {
+    "message": "Lowercase"
+  },
+  "uppercaseAriaLabel": {
+    "message": "Uppercase"
+  },
+  "generatedPassword": {
+    "message": "Generated password"
+  }
 }

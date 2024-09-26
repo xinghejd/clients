@@ -8,7 +8,7 @@ import { CipherType } from "@bitwarden/common/vault/enums";
 
 import { InlineMenuCipherData } from "../../../../background/abstractions/overlay.background";
 import { InlineMenuFillTypes } from "../../../../enums/autofill-overlay.enum";
-import { buildSvgDomElement, throttle } from "../../../../utils";
+import { buildSvgDomElement, specialCharacterToKeyMap, throttle } from "../../../../utils";
 import {
   creditCardIcon,
   globeIcon,
@@ -200,6 +200,10 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
       "fill-generated-password-button",
       "inline-menu-list-action",
     );
+    fillGeneratedPasswordButton.setAttribute(
+      "aria-label",
+      this.getTranslation("fillGeneratedPassword"),
+    );
 
     const passwordGeneratorHeading = globalThis.document.createElement("div");
     passwordGeneratorHeading.classList.add("password-generator-heading");
@@ -249,25 +253,14 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
     this.inlineMenuListContainer.appendChild(passwordGeneratorContainer);
   }
 
-  // TODO - We likely want to combine this behavior with the ColorPasswordPipe used within the Angular app.
   private buildColorizedPasswordElement(password: string) {
-    let ariaLabel = "Generated password is: ";
+    let ariaDescription = `${this.getTranslation("generatedPassword")}: `;
     const passwordContainer = globalThis.document.createElement("div");
     passwordContainer.classList.add("colorized-password");
     const appendPasswordCharacter = (character: string, type: string) => {
       const characterElement = globalThis.document.createElement("div");
       characterElement.classList.add(`password-${type}`);
       characterElement.textContent = character;
-
-      // TODO - Need to refine this to show word references for characters
-      if (type === "letter") {
-        ariaLabel +=
-          character === character.toLowerCase()
-            ? `lowercase ${character} `
-            : `uppercase ${character} `;
-      } else {
-        ariaLabel += `${character} `;
-      }
 
       passwordContainer.appendChild(characterElement);
     };
@@ -278,18 +271,24 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
 
       if (character.match(/\W/)) {
         appendPasswordCharacter(character, "special");
+        ariaDescription += `${this.getTranslation(specialCharacterToKeyMap[character])} `;
         continue;
       }
 
       if (character.match(/\d/)) {
         appendPasswordCharacter(character, "number");
+        ariaDescription += `${character} `;
         continue;
       }
 
       appendPasswordCharacter(character, "letter");
+      ariaDescription +=
+        character === character.toLowerCase()
+          ? `${this.getTranslation("lowercaseAriaLabel")} ${character} `
+          : `${this.getTranslation("uppercaseAriaLabel")} ${character} `;
     }
 
-    passwordContainer.setAttribute("aria-label", ariaLabel);
+    passwordContainer.setAttribute("aria-label", ariaDescription);
     return passwordContainer;
   }
 
@@ -298,6 +297,10 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
   };
 
   private handleFillGeneratedPasswordKeyUp = (event: KeyboardEvent) => {
+    if (event.ctrlKey || event.altKey || event.metaKey || event.shiftKey) {
+      return;
+    }
+
     if (event.code === "Space") {
       this.handleFillGeneratedPasswordClick();
       return;
@@ -325,6 +328,10 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
   };
 
   private handleRefreshGeneratedPasswordKeyUp = (event: KeyboardEvent) => {
+    if (event.ctrlKey || event.altKey || event.metaKey || event.shiftKey) {
+      return;
+    }
+
     if (event.code === "Space") {
       this.handleRefreshGeneratedPasswordClick();
       return;

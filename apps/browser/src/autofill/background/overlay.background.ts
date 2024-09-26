@@ -65,6 +65,7 @@ import {
   generateDomainMatchPatterns,
   generateRandomChars,
   isInvalidResponseStatusCode,
+  specialCharacterToKeyMap,
 } from "../utils";
 
 import { LockedVaultPendingNotificationsData } from "./abstractions/notification.background";
@@ -1822,10 +1823,22 @@ export class OverlayBackground implements OverlayBackgroundInterface {
         regeneratePassword: this.i18nService.translate("regeneratePassword"),
         passwordRegenerated: this.i18nService.translate("passwordRegenerated"),
         saveLoginToBitwarden: this.i18nService.translate("saveLoginToBitwarden"),
+        lowercaseAriaLabel: this.i18nService.translate("lowercaseAriaLabel"),
+        uppercaseAriaLabel: this.i18nService.translate("uppercaseAriaLabel"),
+        generatedPassword: this.i18nService.translate("generatedPassword"),
+        ...this.buildSpecialCharactersTranslations(),
       };
     }
 
     return this.inlineMenuPageTranslations;
+  }
+
+  private buildSpecialCharactersTranslations(): Record<string, string> {
+    const keys = Object.values(specialCharacterToKeyMap);
+    return keys.reduce((acc: Record<string, string>, key) => {
+      acc[key] = this.i18nService.translate(key);
+      return acc;
+    }, {});
   }
 
   /**
