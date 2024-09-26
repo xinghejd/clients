@@ -1,5 +1,5 @@
 import { CommonModule } from "@angular/common";
-import { Component, OnInit } from "@angular/core";
+import { Component, Input, OnInit } from "@angular/core";
 import { Router, RouterLink } from "@angular/router";
 import { firstValueFrom } from "rxjs";
 
@@ -15,6 +15,8 @@ import { BadgeModule, ButtonModule, MenuModule } from "@bitwarden/components";
   imports: [JslibModule, CommonModule, ButtonModule, RouterLink, MenuModule, BadgeModule],
 })
 export class NewSendDropdownComponent implements OnInit {
+  @Input() showIcon: boolean = false;
+
   sendType = SendType;
 
   hasNoPremium = false;
@@ -28,6 +30,10 @@ export class NewSendDropdownComponent implements OnInit {
     this.hasNoPremium = !(await firstValueFrom(
       this.billingAccountProfileStateService.hasPremiumFromAnySource$,
     ));
+  }
+
+  get iconClass() {
+    return this.showIcon ? "bwi bwi-plus-f" : null;
   }
 
   newItemNavigate(type: SendType) {
