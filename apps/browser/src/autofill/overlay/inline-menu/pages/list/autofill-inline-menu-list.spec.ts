@@ -228,6 +228,7 @@ describe("AutofillInlineMenuList", () => {
       describe("fill cipher button event listeners", () => {
         beforeEach(() => {
           postWindowMessage(createInitAutofillInlineMenuListMessageMock({ portKey }));
+          jest.spyOn(autofillInlineMenuList as any, "isListHovered").mockReturnValue(true);
         });
 
         describe("filling a cipher", () => {
@@ -736,8 +737,8 @@ describe("AutofillInlineMenuList", () => {
     it("does not post a `checkAutofillInlineMenuButtonFocused` message if the inline menu list is currently hovered", () => {
       jest.spyOn(globalThis.document, "hasFocus").mockReturnValue(false);
       jest
-        .spyOn(autofillInlineMenuList["inlineMenuListContainer"], "matches")
-        .mockReturnValue(true);
+        .spyOn(autofillInlineMenuList["inlineMenuListContainer"], "querySelector")
+        .mockReturnValue(autofillInlineMenuList["inlineMenuListContainer"]);
 
       postWindowMessage({ command: "checkAutofillInlineMenuListFocused" });
 
@@ -747,8 +748,8 @@ describe("AutofillInlineMenuList", () => {
     it("posts a `checkAutofillInlineMenuButtonFocused` message to the parent if the inline menu is not currently focused", () => {
       jest.spyOn(globalThis.document, "hasFocus").mockReturnValue(false);
       jest
-        .spyOn(autofillInlineMenuList["inlineMenuListContainer"], "matches")
-        .mockReturnValue(false);
+        .spyOn(autofillInlineMenuList["inlineMenuListContainer"], "querySelector")
+        .mockReturnValue(null);
 
       postWindowMessage({ command: "checkAutofillInlineMenuListFocused" });
 

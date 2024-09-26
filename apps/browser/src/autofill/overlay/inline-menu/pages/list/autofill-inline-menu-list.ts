@@ -1,6 +1,5 @@
 import "@webcomponents/custom-elements";
 import "lit/polyfill-support.js";
-import { HTMLElement } from "@webcomponents/custom-elements/src/Patch/Native";
 
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { EVENTS, UPDATE_PASSKEYS_HEADINGS_ON_SCROLL } from "@bitwarden/common/autofill/constants";
