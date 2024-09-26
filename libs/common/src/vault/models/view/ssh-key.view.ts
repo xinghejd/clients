@@ -1,15 +1,15 @@
 import { Jsonify } from "type-fest";
 
-import { SSHKey } from "../domain/ssh-key";
+import { SshKey } from "../domain/ssh-key";
 
 import { ItemView } from "./item.view";
 
-export class SSHKeyView extends ItemView {
+export class SshKeyView extends ItemView {
   privateKey: string = null;
   publicKey: string = null;
   keyFingerprint: string = null;
 
-  constructor(n?: SSHKey) {
+  constructor(n?: SshKey) {
     super();
     if (!n) {
       return;
@@ -35,7 +35,7 @@ export class SSHKeyView extends ItemView {
     return this.keyFingerprint;
   }
 
-  static fromJSON(obj: Partial<Jsonify<SSHKeyView>>): SSHKeyView {
-    return Object.assign(new SSHKeyView(), obj);
+  static fromJSON(obj: Partial<Jsonify<SshKeyView>>): SshKeyView {
+    return Object.assign(new SshKeyView(), obj);
   }
 }

@@ -218,8 +218,8 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
       },
       {
         id: "sshKey",
-        name: this.i18nService.t("typeSSHKey"),
-        type: CipherType.SSHKey,
+        name: this.i18nService.t("typeSshKey"),
+        type: CipherType.SshKey,
         icon: "bwi-key",
       },
     ];

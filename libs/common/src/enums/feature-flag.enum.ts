@@ -33,12 +33,14 @@ export enum FeatureFlag {
   GenerateIdentityFillScriptRefactor = "generate-identity-fill-script-refactor",
   DelayFido2PageScriptInitWithinMv2 = "delay-fido2-page-script-init-within-mv2",
   AccountDeprovisioning = "pm-10308-account-deprovisioning",
+  SSHKeyVaultItem = "ssh-key-vault-item",
 }
 
 export type AllowedFeatureFlagTypes = boolean | number | string;
 
 // Helper to ensure the value is treated as a boolean.
 const FALSE = false as boolean;
+const TRUE = true as boolean;
 
 /**
  * Default value for feature flags.
@@ -76,6 +78,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.GenerateIdentityFillScriptRefactor]: FALSE,
   [FeatureFlag.DelayFido2PageScriptInitWithinMv2]: FALSE,
   [FeatureFlag.AccountDeprovisioning]: FALSE,
+  [FeatureFlag.SSHKeyVaultItem]: TRUE,
 } satisfies Record<FeatureFlag, AllowedFeatureFlagTypes>;
 
 export type DefaultFeatureFlagValueType = typeof DefaultFeatureFlagValue;

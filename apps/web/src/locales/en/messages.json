@@ -403,8 +403,8 @@
   "typeSecureNote": {
     "message": "Secure note"
   },
-  "typeSSHKey": {
-    "message": "SSH key"
+  "typeSshKey": {
+    "message": "Ssh key"
   },
   "typeLoginPlural": {
     "message": "Logins"

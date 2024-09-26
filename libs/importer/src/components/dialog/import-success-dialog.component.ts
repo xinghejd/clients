@@ -53,7 +53,7 @@ export class ImportSuccessDialogComponent implements OnInit {
         case CipherType.Identity:
           identities++;
           break;
-        case CipherType.SSHKey:
+        case CipherType.SshKey:
           sshKeys++;
           break;
         default:

@@ -99,7 +99,7 @@ describe("VaultPopupListFiltersService", () => {
         CipherType.Card,
         CipherType.Identity,
         CipherType.SecureNote,
-        CipherType.SSHKey,
+        CipherType.SshKey,
       ]);
     });
   });

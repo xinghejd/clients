@@ -166,8 +166,8 @@ export class VaultPopupListFiltersService {
       icon: "bwi-sticky-note",
     },
     {
-      value: CipherType.SSHKey,
-      label: this.i18nService.t("typeSSHKey"),
+      value: CipherType.SshKey,
+      label: this.i18nService.t("typeSshKey"),
       icon: "bwi-key",
     },
   ];
