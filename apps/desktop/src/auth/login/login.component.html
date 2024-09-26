@@ -8,7 +8,7 @@
     attr.aria-hidden="{{ showingModal }}"
   >
     <div id="content" class="content" style="padding-top: 50px">
-      <a (click)="showLoginPage()" class="tw-cursor-pointer">
+      <a (click)="invalidateEmail()" class="tw-cursor-pointer">
         <img class="logo-image" alt="Bitwarden" />
       </a>
       <p class="lead">{{ "loginOrCreateNewAccount" | i18n }}</p>
