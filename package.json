@@ -210,7 +210,8 @@
       "zone.js": "$zone.js"
     },
     "replacestream": "4.0.3",
-    "@types/minimatch": "3.0.5"
+    "@types/minimatch": "3.0.5",
+    "minimatch": "3.1.2"
   },
   "lint-staged": {
     "*": "prettier --cache --ignore-unknown --write",
