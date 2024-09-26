@@ -213,13 +213,6 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     this.initOverlayEventObservables();
   }
 
-  private async generatePassword(): Promise<void> {
-    const options = (await this.passwordGenerationService.getOptions())?.[0] ?? {};
-    const password = await this.passwordGenerationService.generatePassword(options);
-    await this.passwordGenerationService.addHistory(password);
-    this.generatedPassword = password;
-  }
-
   /**
    * Sets up the extension message listeners and gets the settings for the
    * overlay's visibility and the user's authentication status.
@@ -1514,10 +1507,22 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     });
   }
 
-  private async updateGeneratedPassword(
-    refreshPassword: boolean = false,
-    sender?: chrome.runtime.MessageSender,
-  ) {
+  /**
+   * Generates a password based on the user defined password generation options.
+   */
+  private async generatePassword(): Promise<void> {
+    const options = (await this.passwordGenerationService.getOptions())?.[0] ?? {};
+    const password = await this.passwordGenerationService.generatePassword(options);
+    await this.passwordGenerationService.addHistory(password);
+    this.generatedPassword = password;
+  }
+
+  /**
+   * Updates the generated password in the inline menu list.
+   *
+   * @param refreshPassword - Identifies whether the generated password should be refreshed
+   */
+  private async updateGeneratedPassword(refreshPassword: boolean = false) {
     if (!this.generatedPassword || refreshPassword) {
       await this.generatePassword();
     }
