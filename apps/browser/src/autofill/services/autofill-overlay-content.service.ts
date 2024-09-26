@@ -1033,10 +1033,16 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     const { width, height, top, left } =
       await this.getMostRecentlyFocusedFieldRects(formFieldElement);
     const autofillFieldData = this.formFieldElements.get(formFieldElement);
+
     let accountCreationFieldType = null;
+
     if (
+      // user setting allows display of identities in inline menu
+      this.showInlineMenuIdentities &&
+      // `showInlineMenuAccountCreation` has been set or field is filled by Login cipher
       (autofillFieldData?.showInlineMenuAccountCreation ||
         autofillFieldData?.filledByCipherType === CipherType.Login) &&
+      // field is a username field, which is relevant to both Identity and Login ciphers
       this.inlineMenuFieldQualificationService.isUsernameField(autofillFieldData)
     ) {
       accountCreationFieldType = this.inlineMenuFieldQualificationService.isEmailField(
