@@ -173,7 +173,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     fido2AbortRequest: ({ sender }) => this.abortFido2ActiveRequest(sender.tab.id),
   };
   private readonly inlineMenuButtonPortMessageHandlers: InlineMenuButtonPortMessageHandlers = {
-    triggerDelayedAutofillInlineMenuClosure: () => this.startInlineMenuDelayedCloseSubject.next(),
+    triggerDelayedAutofillInlineMenuClosure: () => this.handleDelayedInlineMenuClosureTrigger(),
     autofillInlineMenuButtonClicked: ({ port }) => this.handleInlineMenuButtonClicked(port),
     autofillInlineMenuBlurred: () => this.checkInlineMenuListFocused(),
     redirectAutofillInlineMenuFocusOut: ({ message, port }) =>
@@ -324,8 +324,10 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     }
   }
 
-  async handleOverlayCiphersUpdate(updateOverlayCiphersParams: UpdateOverlayCiphersParams) {
-    const { updateAllCipherTypes, refocusField } = updateOverlayCiphersParams;
+  async handleOverlayCiphersUpdate({
+    updateAllCipherTypes,
+    refocusField,
+  }: UpdateOverlayCiphersParams) {
     const currentTab = await BrowserApi.getTabFromCurrentWindowId();
 
     if (this.focusedFieldData && currentTab?.id !== this.focusedFieldData.tabId) {
@@ -1194,6 +1196,14 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     const message = { command: "triggerDelayedAutofillInlineMenuClosure" };
     this.inlineMenuButtonPort?.postMessage(message);
     this.inlineMenuListPort?.postMessage(message);
+  }
+
+  /**
+   * Handles the message received from the top level frame to trigger
+   * the delayed closure of the inline menu.
+   */
+  private async handleDelayedInlineMenuClosureTrigger() {
+    this.startInlineMenuDelayedCloseSubject.next();
   }
 
   /**
