@@ -51,6 +51,7 @@ describe("CollectionService", () => {
 
       const collectionService = new CollectionService(
         cryptoService,
+        mock<EncryptService>(),
         mockI18nService(),
         fakeStateProvider,
       );
@@ -87,6 +88,7 @@ describe("CollectionService", () => {
 
       const collectionService = new CollectionService(
         cryptoService,
+        mock<EncryptService>(),
         mockI18nService(),
         fakeStateProvider,
       );
