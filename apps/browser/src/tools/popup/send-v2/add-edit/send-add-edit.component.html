@@ -13,7 +13,9 @@
   >
   </tools-send-form>
 
-  <send-file-popout-dialog-container [config]="config"></send-file-popout-dialog-container>
+  <send-file-popout-dialog-container
+    [config]="sendAddEditService.config"
+  ></send-file-popout-dialog-container>
 
   <popup-footer slot="footer">
     <button bitButton type="submit" form="sendForm" buttonType="primary" #submitBtn>
