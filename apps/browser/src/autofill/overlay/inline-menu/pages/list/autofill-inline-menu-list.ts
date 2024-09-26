@@ -148,7 +148,9 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
     const lockedInlineMenu = globalThis.document.createElement("div");
     lockedInlineMenu.id = "locked-inline-menu-description";
     lockedInlineMenu.classList.add("locked-inline-menu", "inline-menu-list-message");
-    lockedInlineMenu.textContent = this.getTranslation("unlockYourAccount");
+    lockedInlineMenu.textContent = this.getTranslation(
+      "unlockYourAccountToViewAutofillSuggestions",
+    );
 
     const unlockButtonElement = globalThis.document.createElement("button");
     unlockButtonElement.id = "unlock-button";
@@ -487,15 +489,15 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
    */
   private getNewItemAriaLabel(showLogin: boolean) {
     if (this.isFilledByLoginCipher() || this.showInlineMenuAccountCreation || showLogin) {
-      return this.getTranslation("addNewLoginItem");
+      return this.getTranslation("addNewLoginItemAria");
     }
 
     if (this.isFilledByCardCipher()) {
-      return this.getTranslation("addNewCardItem");
+      return this.getTranslation("addNewCardItemAria");
     }
 
     if (this.isFilledByIdentityCipher()) {
-      return this.getTranslation("addNewIdentityItem");
+      return this.getTranslation("addNewIdentityItemAria");
     }
 
     return this.getTranslation("addNewVaultItem");
@@ -785,7 +787,7 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
       "aria-label",
       `${
         cipher.login?.passkey
-          ? this.getTranslation("logInWithPasskey")
+          ? this.getTranslation("logInWithPasskeyAriaLabel")
           : this.getTranslation("fillCredentialsFor")
       } ${cipher.name}`,
     );
@@ -814,7 +816,7 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
       if (username) {
         fillCipherElement.setAttribute(
           "aria-description",
-          `${this.getTranslation("username")}: ${username}`,
+          `${this.getTranslation("username")?.toLowerCase()}: ${username}`,
         );
       }
       return;

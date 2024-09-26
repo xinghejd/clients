@@ -1793,52 +1793,48 @@ export class OverlayBackground implements OverlayBackgroundInterface {
    */
   private getInlineMenuTranslations() {
     if (!this.inlineMenuPageTranslations) {
-      this.inlineMenuPageTranslations = {
-        locale: BrowserApi.getUILanguage(),
-        opensInANewWindow: this.i18nService.translate("opensInANewWindow"),
-        buttonPageTitle: this.i18nService.translate("bitwardenOverlayButton"),
-        toggleBitwardenVaultOverlay: this.i18nService.translate("toggleBitwardenVaultOverlay"),
-        listPageTitle: this.i18nService.translate("bitwardenVault"),
-        unlockYourAccount: this.i18nService.translate("unlockYourAccountToViewAutofillSuggestions"),
-        unlockAccount: this.i18nService.translate("unlockAccount"),
-        unlockAccountAria: this.i18nService.translate("unlockAccountAria"),
-        fillCredentialsFor: this.i18nService.translate("fillCredentialsFor"),
-        username: this.i18nService.translate("username")?.toLowerCase(),
-        view: this.i18nService.translate("view"),
-        noItemsToShow: this.i18nService.translate("noItemsToShow"),
-        newItem: this.i18nService.translate("newItem"),
-        addNewVaultItem: this.i18nService.translate("addNewVaultItem"),
-        newLogin: this.i18nService.translate("newLogin"),
-        addNewLoginItem: this.i18nService.translate("addNewLoginItemAria"),
-        newCard: this.i18nService.translate("newCard"),
-        addNewCardItem: this.i18nService.translate("addNewCardItemAria"),
-        newIdentity: this.i18nService.translate("newIdentity"),
-        addNewIdentityItem: this.i18nService.translate("addNewIdentityItemAria"),
-        cardNumberEndsWith: this.i18nService.translate("cardNumberEndsWith"),
-        passkeys: this.i18nService.translate("passkeys"),
-        passwords: this.i18nService.translate("passwords"),
-        logInWithPasskey: this.i18nService.translate("logInWithPasskeyAriaLabel"),
-        authenticating: this.i18nService.translate("authenticating"),
-        fillGeneratedPassword: this.i18nService.translate("fillGeneratedPassword"),
-        regeneratePassword: this.i18nService.translate("regeneratePassword"),
-        passwordRegenerated: this.i18nService.translate("passwordRegenerated"),
-        saveLoginToBitwarden: this.i18nService.translate("saveLoginToBitwarden"),
-        lowercaseAriaLabel: this.i18nService.translate("lowercaseAriaLabel"),
-        uppercaseAriaLabel: this.i18nService.translate("uppercaseAriaLabel"),
-        generatedPassword: this.i18nService.translate("generatedPassword"),
-        ...this.buildSpecialCharactersTranslations(),
-      };
+      const translationKeys = [
+        "opensInANewWindow",
+        "toggleBitwardenVaultOverlay",
+        "unlockYourAccountToViewAutofillSuggestions",
+        "unlockAccount",
+        "unlockAccountAria",
+        "fillCredentialsFor",
+        "username",
+        "view",
+        "noItemsToShow",
+        "newItem",
+        "addNewVaultItem",
+        "newLogin",
+        "addNewLoginItemAria",
+        "newCard",
+        "addNewCardItemAria",
+        "newIdentity",
+        "addNewIdentityItemAria",
+        "cardNumberEndsWith",
+        "passkeys",
+        "passwords",
+        "logInWithPasskeyAriaLabel",
+        "authenticating",
+        "fillGeneratedPassword",
+        "regeneratePassword",
+        "passwordRegenerated",
+        "saveLoginToBitwarden",
+        "lowercaseAriaLabel",
+        "uppercaseAriaLabel",
+        "generatedPassword",
+        ...Object.values(specialCharacterToKeyMap),
+      ];
+      this.inlineMenuPageTranslations = translationKeys.reduce(
+        (acc: Record<string, string>, key) => {
+          acc[key] = this.i18nService.translate(key);
+          return acc;
+        },
+        {},
+      );
     }
 
     return this.inlineMenuPageTranslations;
-  }
-
-  private buildSpecialCharactersTranslations(): Record<string, string> {
-    const keys = Object.values(specialCharacterToKeyMap);
-    return keys.reduce((acc: Record<string, string>, key) => {
-      acc[key] = this.i18nService.translate(key);
-      return acc;
-    }, {});
   }
 
   /**

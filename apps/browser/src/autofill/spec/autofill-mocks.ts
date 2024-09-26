@@ -156,11 +156,9 @@ export function createAutofillScriptMock(
 
 const overlayPagesTranslations = {
   locale: "en",
-  buttonPageTitle: "buttonPageTitle",
-  listPageTitle: "listPageTitle",
   opensInANewWindow: "opensInANewWindow",
   toggleBitwardenVaultOverlay: "toggleBitwardenVaultOverlay",
-  unlockYourAccount: "unlockYourAccount",
+  unlockYourAccountToViewAutofillSuggestions: "unlockYourAccountToViewAutofillSuggestions",
   unlockAccount: "unlockAccount",
   fillCredentialsFor: "fillCredentialsFor",
   username: "username",
