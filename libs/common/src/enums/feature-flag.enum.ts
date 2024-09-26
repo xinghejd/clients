@@ -67,7 +67,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.VaultBulkManagementAction]: FALSE,
   [FeatureFlag.AC2828_ProviderPortalMembersPage]: FALSE,
   [FeatureFlag.IdpAutoSubmitLogin]: FALSE,
-  [FeatureFlag.UnauthenticatedExtensionUIRefresh]: true,
+  [FeatureFlag.UnauthenticatedExtensionUIRefresh]: FALSE,
   [FeatureFlag.EnableUpgradePasswordManagerSub]: FALSE,
   [FeatureFlag.GenerateIdentityFillScriptRefactor]: FALSE,
   [FeatureFlag.EnableNewCardCombinedExpiryAutofill]: FALSE,
