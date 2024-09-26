@@ -39,7 +39,7 @@ import { OrganizationInvite } from "../organization-invite/organization-invite";
 
 @Component({
   selector: "app-login",
-  templateUrl: "login.component.html",
+  templateUrl: "login-v1.component.html",
 })
 // eslint-disable-next-line rxjs-angular/prefer-takeuntil
 export class LoginComponentV1 extends BaseLoginComponent implements OnInit {
