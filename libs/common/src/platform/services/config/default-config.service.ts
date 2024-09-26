@@ -123,9 +123,9 @@ export class DefaultConfigService implements ConfigService {
     serverConfig: ServerConfig | null,
     flag: Flag,
   ) {
-    if (flag == FeatureFlag.ExtensionRefresh) {
-      return true as FeatureFlagValueType<Flag>;
-    }
+    // if (flag == FeatureFlag.ExtensionRefresh) {
+    //   return true as FeatureFlagValueType<Flag>;
+    // }
 
     if (serverConfig?.featureStates == null || serverConfig.featureStates[flag] == null) {
       return DefaultFeatureFlagValue[flag];
