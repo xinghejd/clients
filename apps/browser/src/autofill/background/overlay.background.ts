@@ -1512,6 +1512,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
    */
   private async generatePassword(): Promise<void> {
     this.generatedPassword = await this.generatePasswordCallback();
+    await this.addPasswordCallback(this.generatedPassword);
   }
 
   /**
@@ -1536,8 +1537,6 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     if (!this.generatedPassword) {
       return;
     }
-
-    await this.addPasswordCallback(this.generatedPassword);
 
     const pageDetails = this.pageDetailsForTab[port.sender.tab.id];
     if (!pageDetails) {
