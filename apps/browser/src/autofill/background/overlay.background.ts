@@ -208,6 +208,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     private inlineMenuFieldQualificationService: InlineMenuFieldQualificationService,
     private themeStateService: ThemeStateService,
     private generatePasswordCallback: () => Promise<string>,
+    private addPasswordCallback: (password: string) => Promise<void>,
   ) {
     this.initOverlayEventObservables();
   }
@@ -1535,6 +1536,8 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     if (!this.generatedPassword) {
       return;
     }
+
+    await this.addPasswordCallback(this.generatedPassword);
 
     const pageDetails = this.pageDetailsForTab[port.sender.tab.id];
     if (!pageDetails) {

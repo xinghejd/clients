@@ -1621,6 +1621,7 @@ export default class MainBackground {
         inlineMenuFieldQualificationService,
         this.themeStateService,
         () => this.generatePassword(),
+        (password) => this.addPasswordToHistory(password),
       );
     }
 
@@ -1636,13 +1637,16 @@ export default class MainBackground {
 
   generatePassword = async (): Promise<string> => {
     const options = (await this.passwordGenerationService.getOptions())?.[0] ?? {};
-    const password = await this.passwordGenerationService.generatePassword(options);
-    await this.passwordGenerationService.addHistory(password);
-
-    return password;
+    return await this.passwordGenerationService.generatePassword(options);
   };
 
   generatePasswordToClipboard = async () => {
-    this.platformUtilsService.copyToClipboard(await this.generatePassword());
+    const password = await this.generatePassword();
+    this.platformUtilsService.copyToClipboard(password);
+    await this.addPasswordToHistory(password);
+  };
+
+  addPasswordToHistory = async (password: string) => {
+    await this.passwordGenerationService.addHistory(password);
   };
 }

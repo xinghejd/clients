@@ -191,6 +191,7 @@ describe("OverlayBackground", () => {
       inlineMenuFieldQualificationService,
       themeStateService,
       () => Promise.resolve(generatedPassword),
+      () => Promise.resolve(),
     );
     portKeyForTabSpy = overlayBackground["portKeyForTab"];
     pageDetailsForTabSpy = overlayBackground["pageDetailsForTab"];
