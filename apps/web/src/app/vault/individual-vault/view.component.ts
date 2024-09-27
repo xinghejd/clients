@@ -10,6 +10,7 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { CollectionId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
+import { ViewPasswordHistoryService } from "@bitwarden/common/vault/abstractions/view-password-history.service";
 import { CipherType } from "@bitwarden/common/vault/enums/cipher-type";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { CollectionView } from "@bitwarden/common/vault/models/view/collection.view";
@@ -25,6 +26,7 @@ import { PremiumUpgradePromptService } from "../../../../../../libs/common/src/v
 import { CipherViewComponent } from "../../../../../../libs/vault/src/cipher-view/cipher-view.component";
 import { SharedModule } from "../../shared/shared.module";
 import { WebVaultPremiumUpgradePromptService } from "../services/web-premium-upgrade-prompt.service";
+import { WebViewPasswordHistoryService } from "../services/web-view-password-history.service";
 
 export interface ViewCipherDialogParams {
   cipher: CipherView;
@@ -65,6 +67,7 @@ export interface ViewCipherDialogCloseResult {
   standalone: true,
   imports: [CipherViewComponent, CommonModule, AsyncActionsModule, DialogModule, SharedModule],
   providers: [
+    { provide: ViewPasswordHistoryService, useClass: WebViewPasswordHistoryService },
     { provide: PremiumUpgradePromptService, useClass: WebVaultPremiumUpgradePromptService },
   ],
 })

@@ -11,7 +11,6 @@ import { ActivatedRoute, Params, Router } from "@angular/router";
 import {
   BehaviorSubject,
   combineLatest,
-  defer,
   firstValueFrom,
   lastValueFrom,
   Observable,
@@ -28,6 +27,7 @@ import {
   switchMap,
   takeUntil,
   tap,
+  withLatestFrom,
 } from "rxjs/operators";
 
 import {
@@ -283,27 +283,10 @@ export class VaultComponent implements OnInit, OnDestroy {
 
     this.currentSearchText$ = this.route.queryParams.pipe(map((queryParams) => queryParams.search));
 
-    this.allCollectionsWithoutUnassigned$ = combineLatest([
-      organizationId$.pipe(switchMap((orgId) => this.collectionAdminService.getAll(orgId))),
-      defer(() => this.collectionService.getAllDecrypted()),
-    ]).pipe(
-      map(([adminCollections, syncCollections]) => {
-        const syncCollectionDict = Object.fromEntries(syncCollections.map((c) => [c.id, c]));
-
-        return adminCollections.map((collection) => {
-          const currentId: any = collection.id;
-
-          const match = syncCollectionDict[currentId];
-
-          if (match) {
-            collection.manage = match.manage;
-            collection.readOnly = match.readOnly;
-            collection.hidePasswords = match.hidePasswords;
-          }
-          return collection;
-        });
-      }),
-      shareReplay({ refCount: true, bufferSize: 1 }),
+    this.allCollectionsWithoutUnassigned$ = this.refresh$.pipe(
+      switchMap(() => organizationId$),
+      switchMap((orgId) => this.collectionAdminService.getAll(orgId)),
+      shareReplay({ refCount: false, bufferSize: 1 }),
     );
 
     this.editableCollections$ = this.allCollectionsWithoutUnassigned$.pipe(
@@ -336,8 +319,8 @@ export class VaultComponent implements OnInit, OnDestroy {
       shareReplay({ refCount: true, bufferSize: 1 }),
     );
 
-    const allCiphers$ = organization$.pipe(
-      concatMap(async (organization) => {
+    const allCiphers$ = combineLatest([organization$, this.refresh$]).pipe(
+      switchMap(async ([organization]) => {
         // If user swaps organization reset the addAccessToggle
         if (!this.showAddAccessToggle || organization) {
           this.addAccessToggle(0);
@@ -361,13 +344,13 @@ export class VaultComponent implements OnInit, OnDestroy {
         await this.searchService.indexCiphers(ciphers, organization.id);
         return ciphers;
       }),
+      shareReplay({ refCount: true, bufferSize: 1 }),
     );
 
     const allCipherMap$ = allCiphers$.pipe(
       map((ciphers) => {
         return Object.fromEntries(ciphers.map((c) => [c.id, c]));
       }),
-      shareReplay({ refCount: true, bufferSize: 1 }),
     );
 
     const nestedCollections$ = allCollections$.pipe(
@@ -494,15 +477,13 @@ export class VaultComponent implements OnInit, OnDestroy {
 
     firstSetup$
       .pipe(
-        switchMap(() =>
-          combineLatest([this.route.queryParams, allCipherMap$, allCollections$, organization$]),
-        ),
+        switchMap(() => this.route.queryParams),
+        withLatestFrom(allCipherMap$, allCollections$, organization$),
         switchMap(async ([qParams, allCiphersMap, allCollections]) => {
           const cipherId = getCipherIdFromParams(qParams);
           if (!cipherId) {
             return;
           }
-
           const cipher = allCiphersMap[cipherId];
           const cipherCollections = allCollections.filter((c) =>
             cipher.collectionIds.includes(c.id),
