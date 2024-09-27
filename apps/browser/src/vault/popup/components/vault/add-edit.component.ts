@@ -173,9 +173,7 @@ export class AddEditComponent extends BaseAddEditComponent implements OnInit {
 
   async load() {
     await super.load();
-    this.showAutoFillOnPageLoadOptions =
-      this.cipher.type === CipherType.Login &&
-      (await firstValueFrom(this.autofillSettingsService.autofillOnPageLoad$));
+    this.showAutoFillOnPageLoadOptions = this.cipher.type === CipherType.Login;
   }
 
   async submit(): Promise<boolean> {

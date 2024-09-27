@@ -32,6 +32,9 @@
     <bit-form-field *ngIf="autofillOnPageLoadEnabled$ | async" disableMargin>
       <bit-label>{{ "autoFillOnPageLoad" | i18n }}</bit-label>
       <bit-select formControlName="autofillOnPageLoad" [items]="autofillOptions"></bit-select>
+      <bit-hint class="tw-text-sm"
+        ><span [innerHTML]="'autofillOnPageLoadWarning' | i18n: '\<b>' : '\</b>'"></span
+      ></bit-hint>
     </bit-form-field>
   </bit-card>
 </bit-section>

@@ -631,6 +631,7 @@
     <div class="box" *ngIf="showAutoFillOnPageLoadOptions">
       <div class="box-content">
         <div class="box-content-row" appBoxRow>
+          <span [innerHTML]="'autofillOnPageLoadWarning' | i18n: '\<b>' : '\</b>'"></span>
           <label for="autofillOnPageLoad">{{ "itemAutoFillOnPageLoad" | i18n }} </label>
           <select
             id="autofillOnPageLoad"

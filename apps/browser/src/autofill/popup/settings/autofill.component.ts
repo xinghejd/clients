@@ -90,7 +90,6 @@ export class AutofillComponent implements OnInit {
   protected autofillOnPageLoadFromPolicy$ =
     this.autofillSettingsService.activateAutofillOnPageLoadFromPolicy$;
 
-  enableAutofillOnPageLoad: boolean = false;
   enableInlineMenu: boolean = false;
   enableInlineMenuOnIconSelect: boolean = false;
   autofillOnPageLoadDefault: boolean = false;
@@ -158,10 +157,6 @@ export class AutofillComponent implements OnInit {
       this.inlineMenuVisibility === AutofillOverlayVisibility.OnFieldFocus ||
       this.enableInlineMenuOnIconSelect;
 
-    this.enableAutofillOnPageLoad = await firstValueFrom(
-      this.autofillSettingsService.autofillOnPageLoad$,
-    );
-
     this.autofillOnPageLoadDefault = await firstValueFrom(
       this.autofillSettingsService.autofillOnPageLoadDefault$,
     );
@@ -202,10 +197,6 @@ export class AutofillComponent implements OnInit {
 
     await this.autofillSettingsService.setInlineMenuVisibility(newInlineMenuVisibilityValue);
     await this.requestPrivacyPermission();
-  }
-
-  async updateAutofillOnPageLoad() {
-    await this.autofillSettingsService.setAutofillOnPageLoad(this.enableAutofillOnPageLoad);
   }
 
   async updateAutofillOnPageLoadDefault() {
