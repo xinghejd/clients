@@ -1,5 +1,9 @@
+import { firstValueFrom } from "rxjs";
+
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 
 import { OrganizationUserApiService } from "../abstractions";
 import {
@@ -23,7 +27,10 @@ import {
 } from "../models/responses";
 
 export class DefaultOrganizationUserApiService implements OrganizationUserApiService {
-  constructor(private apiService: ApiService) {}
+  constructor(
+    private apiService: ApiService,
+    private configService: ConfigService,
+  ) {}
 
   async getOrganizationUser(
     organizationId: string,
@@ -88,6 +95,14 @@ export class DefaultOrganizationUserApiService implements OrganizationUserApiSer
   async getAllMiniUserDetails(
     organizationId: string,
   ): Promise<ListResponse<OrganizationUserUserMiniResponse>> {
+    const apiEnabled = await firstValueFrom(
+      this.configService.getFeatureFlag$(FeatureFlag.Pm3478RefactorOrganizationUserApi),
+    );
+    if (!apiEnabled) {
+      // Keep using the old api until this feature flag is enabled
+      return this.getAllUsers(organizationId);
+    }
+
     const r = await this.apiService.send(
       "GET",
       `/organizations/${organizationId}/users/mini-details`,
