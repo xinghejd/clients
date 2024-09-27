@@ -1119,10 +1119,10 @@ export default class MainBackground {
       );
       this.commandsBackground = new CommandsBackground(
         this,
-        this.passwordGenerationService,
         this.platformUtilsService,
         this.vaultTimeoutService,
         this.authService,
+        () => this.generatePasswordToClipboard(),
       );
       this.notificationBackground = new NotificationBackground(
         this.autofillService,
@@ -1167,9 +1167,7 @@ export default class MainBackground {
 
       const contextMenuClickedHandler = new ContextMenuClickedHandler(
         (options) => this.platformUtilsService.copyToClipboard(options.text),
-        async (_tab) => {
-          this.platformUtilsService.copyToClipboard(await this.generatePassword());
-        },
+        async (_tab) => this.generatePasswordToClipboard(),
         async (tab, cipher) => {
           this.loginToAutoFill = cipher;
           if (tab == null) {
@@ -1642,5 +1640,9 @@ export default class MainBackground {
     await this.passwordGenerationService.addHistory(password);
 
     return password;
+  };
+
+  generatePasswordToClipboard = async () => {
+    this.platformUtilsService.copyToClipboard(await this.generatePassword());
   };
 }
