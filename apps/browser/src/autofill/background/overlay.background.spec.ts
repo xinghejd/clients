@@ -36,7 +36,6 @@ import { VaultSettingsService } from "@bitwarden/common/vault/abstractions/vault
 import { CipherRepromptType, CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { Fido2CredentialView } from "@bitwarden/common/vault/models/view/fido2-credential.view";
-import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legacy";
 
 import { BrowserApi } from "../../platform/browser/browser-api";
 import { BrowserPlatformUtilsService } from "../../platform/services/platform-utils/browser-platform-utils.service";
@@ -76,6 +75,7 @@ import {
 import { OverlayBackground } from "./overlay.background";
 
 describe("OverlayBackground", () => {
+  const generatedPassword = "generated-password";
   const mockUserId = Utils.newGuid() as UserId;
   const sendResponse = jest.fn();
   let accountService: FakeAccountService;
@@ -98,7 +98,6 @@ describe("OverlayBackground", () => {
   let vaultSettingsServiceMock: MockProxy<VaultSettingsService>;
   let fido2ActiveRequestManager: Fido2ActiveRequestManager;
   let selectedThemeMock$: BehaviorSubject<ThemeType>;
-  let passwordGenerationService: MockProxy<PasswordGenerationServiceAbstraction>;
   let inlineMenuFieldQualificationService: MockProxy<InlineMenuFieldQualificationService>;
   let themeStateService: MockProxy<ThemeStateService>;
   let overlayBackground: OverlayBackground;
@@ -176,9 +175,6 @@ describe("OverlayBackground", () => {
     selectedThemeMock$ = new BehaviorSubject(ThemeType.Light);
     inlineMenuFieldQualificationService = mock<InlineMenuFieldQualificationService>();
     themeStateService = mock<ThemeStateService>();
-    passwordGenerationService = mock<PasswordGenerationServiceAbstraction>({
-      getOptions: jest.fn().mockResolvedValue([null, null]),
-    });
     themeStateService.selectedTheme$ = selectedThemeMock$;
     overlayBackground = new OverlayBackground(
       logService,
@@ -192,9 +188,9 @@ describe("OverlayBackground", () => {
       platformUtilsService,
       vaultSettingsServiceMock,
       fido2ActiveRequestManager,
-      passwordGenerationService,
       inlineMenuFieldQualificationService,
       themeStateService,
+      () => Promise.resolve(generatedPassword),
     );
     portKeyForTabSpy = overlayBackground["portKeyForTab"];
     pageDetailsForTabSpy = overlayBackground["pageDetailsForTab"];

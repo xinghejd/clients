@@ -42,7 +42,6 @@ import { Fido2CredentialView } from "@bitwarden/common/vault/models/view/fido2-c
 import { IdentityView } from "@bitwarden/common/vault/models/view/identity.view";
 import { LoginUriView } from "@bitwarden/common/vault/models/view/login-uri.view";
 import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
-import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legacy";
 
 import { openUnlockPopout } from "../../auth/popup/utils/auth-popout-window";
 import { BrowserApi } from "../../platform/browser/browser-api";
@@ -206,9 +205,9 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     private platformUtilsService: PlatformUtilsService,
     private vaultSettingsService: VaultSettingsService,
     private fido2ActiveRequestManager: Fido2ActiveRequestManager,
-    private passwordGenerationService: PasswordGenerationServiceAbstraction,
     private inlineMenuFieldQualificationService: InlineMenuFieldQualificationService,
     private themeStateService: ThemeStateService,
+    private generatePasswordCallback: () => Promise<string>,
   ) {
     this.initOverlayEventObservables();
   }
@@ -1511,10 +1510,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
    * Generates a password based on the user defined password generation options.
    */
   private async generatePassword(): Promise<void> {
-    const options = (await this.passwordGenerationService.getOptions())?.[0] ?? {};
-    const password = await this.passwordGenerationService.generatePassword(options);
-    await this.passwordGenerationService.addHistory(password);
-    this.generatedPassword = password;
+    this.generatedPassword = await this.generatePasswordCallback();
   }
 
   /**

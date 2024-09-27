@@ -1168,12 +1168,7 @@ export default class MainBackground {
       const contextMenuClickedHandler = new ContextMenuClickedHandler(
         (options) => this.platformUtilsService.copyToClipboard(options.text),
         async (_tab) => {
-          const options = (await this.passwordGenerationService.getOptions())?.[0] ?? {};
-          const password = await this.passwordGenerationService.generatePassword(options);
-          this.platformUtilsService.copyToClipboard(password);
-          // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-          // eslint-disable-next-line @typescript-eslint/no-floating-promises
-          this.passwordGenerationService.addHistory(password);
+          this.platformUtilsService.copyToClipboard(await this.generatePassword());
         },
         async (tab, cipher) => {
           this.loginToAutoFill = cipher;
@@ -1625,9 +1620,9 @@ export default class MainBackground {
         this.platformUtilsService,
         this.vaultSettingsService,
         this.fido2ActiveRequestManager,
-        this.passwordGenerationService,
         inlineMenuFieldQualificationService,
         this.themeStateService,
+        () => this.generatePassword(),
       );
     }
 
@@ -1640,4 +1635,12 @@ export default class MainBackground {
     await this.overlayBackground.init();
     await this.tabsBackground.init();
   }
+
+  generatePassword = async (): Promise<string> => {
+    const options = (await this.passwordGenerationService.getOptions())?.[0] ?? {};
+    const password = await this.passwordGenerationService.generatePassword(options);
+    await this.passwordGenerationService.addHistory(password);
+
+    return password;
+  };
 }
