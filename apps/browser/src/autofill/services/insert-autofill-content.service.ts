@@ -143,13 +143,7 @@ class InsertAutofillContentService implements InsertAutofillContentServiceInterf
       return;
     }
 
-    const delayActionsInMilliseconds = 20;
-    return new Promise((resolve) =>
-      setTimeout(() => {
-        this.autofillInsertActions[action]({ opid, value });
-        resolve();
-      }, delayActionsInMilliseconds * actionIndex),
-    );
+    this.autofillInsertActions[action]({ opid, value });
   };
 
   /**
@@ -303,23 +297,18 @@ class InsertAutofillContentService implements InsertAutofillContentServiceInterf
 
     if (!this.filledElements.has(element)) {
       this.filledElements.set(element, {
-        transition: element.style.transition,
         backgroundColor: element.style.backgroundColor,
         textColor: element.style.color,
         borderColor: element.style.borderColor,
-        outline: element.style.outline,
       });
     }
 
     setElementStyles(
       element,
       {
-        transition:
-          "background-color 0.2s ease-out, color 0.2s ease-out, border-color 0.2s ease-out",
-        backgroundColor: "rgba(232, 240, 255, 1)",
-        color: "rgba(14, 55, 129, 1)",
-        borderColor: "rgba(23, 93, 220, 1)",
-        outline: "2px solid rgba(23, 93, 220, 0.7)",
+        backgroundColor: "rgb(219, 229, 246)",
+        color: "rgb(33, 37, 41)",
+        borderColor: "rgb(23, 93, 220)",
       },
       true,
     );
@@ -334,14 +323,11 @@ class InsertAutofillContentService implements InsertAutofillContentServiceInterf
   private resetElementStyles = (event: KeyboardEvent): void => {
     const element = event.target as HTMLElement;
     if (this.filledElements.has(element)) {
-      const { backgroundColor, textColor, borderColor, outline, transition } =
-        this.filledElements.get(element);
+      const { backgroundColor, textColor, borderColor } = this.filledElements.get(element);
       setElementStyles(element, {
         backgroundColor: backgroundColor,
         color: textColor,
         borderColor: borderColor,
-        outline: outline,
-        transition: transition,
       });
     }
   };
