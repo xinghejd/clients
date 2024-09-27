@@ -98,6 +98,8 @@ import { DesktopThemeStateService } from "./desktop-theme.service";
 import { InitService } from "./init.service";
 import { NativeMessagingManifestService } from "./native-messaging-manifest.service";
 import { RendererCryptoFunctionService } from "./renderer-crypto-function.service";
+import { SshKeyNativeGeneratorAbstraction } from "../../../../../libs/tools/generator/core/src/abstractions/sshkey-native-generator.abstraction";
+import { ElectronSshKeyGeneratorService } from "../../platform/services/electron-sshkey-generator.service";
 
 const RELOAD_CALLBACK = new SafeInjectionToken<() => any>("RELOAD_CALLBACK");
 
@@ -295,6 +297,11 @@ const safeProviders: SafeProvider[] = [
       OrganizationUserApiService,
       InternalUserDecryptionOptionsServiceAbstraction,
     ],
+  }),
+  safeProvider({
+    provide: SshKeyNativeGeneratorAbstraction,
+    useClass: ElectronSshKeyGeneratorService,
+    deps: [],
   }),
 ];
 
