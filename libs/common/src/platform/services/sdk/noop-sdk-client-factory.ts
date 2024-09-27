@@ -1,4 +1,4 @@
-import type { BitwardenClient } from "@bitwarden/sdk-wasm";
+import type { BitwardenClient } from "@bitwarden/sdk-internal";
 
 import { SdkClientFactory } from "../../abstractions/sdk/sdk-client-factory";
 

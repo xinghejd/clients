@@ -1,6 +1,6 @@
-import { concatMap } from "rxjs";
+import { concatMap, share } from "rxjs";
 
-import { BitwardenClient, Convert, DeviceType as SdkDeviceType } from "@bitwarden/sdk-client";
+import { LogLevel, DeviceType as SdkDeviceType } from "@bitwarden/sdk-internal";
 
 import { DeviceType } from "../../../enums/device-type.enum";
 import { EnvironmentService } from "../../abstractions/environment.service";
@@ -10,13 +10,21 @@ import { SdkClientFactory } from "../../abstractions/sdk/sdk-client-factory";
 export class DefaultSdkService {
   client$ = this.environmentService.environment$.pipe(
     concatMap(async (env) => {
-      const settings_json = Convert.clientSettingsToJson({
+      const settings = {
         apiUrl: env.getApiUrl(),
         identityUrl: env.getIdentityUrl(),
         deviceType: this.toDevice(this.platformUtilsService.getDevice()),
-        userAgent: this.userAgent ?? navigator.userAgent,
-      });
-      return new BitwardenClient(await this.sdkClientFactory.createSdkClient(settings_json, 2));
+        userAgent2: this.userAgent ?? navigator.userAgent,
+      };
+
+      return await this.sdkClientFactory.createSdkClient(settings, LogLevel.Info);
+    }),
+    share(),
+  );
+
+  supported$ = this.client$.pipe(
+    concatMap(async (client) => {
+      return client.echo("bitwarden wasm!") === "bitwarden wasm!";
     }),
   );
 
@@ -30,54 +38,54 @@ export class DefaultSdkService {
   private toDevice(device: DeviceType): SdkDeviceType {
     switch (device) {
       case DeviceType.Android:
-        return SdkDeviceType.Android;
+        return "Android";
       case DeviceType.iOS:
-        return SdkDeviceType.IOS;
+        return "iOS";
       case DeviceType.ChromeExtension:
-        return SdkDeviceType.ChromeExtension;
+        return "ChromeExtension";
       case DeviceType.FirefoxExtension:
-        return SdkDeviceType.FirefoxExtension;
+        return "FirefoxExtension";
       case DeviceType.OperaExtension:
-        return SdkDeviceType.OperaExtension;
+        return "OperaExtension";
       case DeviceType.EdgeExtension:
-        return SdkDeviceType.EdgeExtension;
+        return "EdgeExtension";
       case DeviceType.WindowsDesktop:
-        return SdkDeviceType.WindowsDesktop;
+        return "WindowsDesktop";
       case DeviceType.MacOsDesktop:
-        return SdkDeviceType.MACOSDesktop;
+        return "MacOsDesktop";
       case DeviceType.LinuxDesktop:
-        return SdkDeviceType.LinuxDesktop;
+        return "LinuxDesktop";
       case DeviceType.ChromeBrowser:
-        return SdkDeviceType.ChromeBrowser;
+        return "ChromeBrowser";
       case DeviceType.FirefoxBrowser:
-        return SdkDeviceType.FirefoxBrowser;
+        return "FirefoxBrowser";
       case DeviceType.OperaBrowser:
-        return SdkDeviceType.OperaBrowser;
+        return "OperaBrowser";
       case DeviceType.EdgeBrowser:
-        return SdkDeviceType.EdgeBrowser;
+        return "EdgeBrowser";
       case DeviceType.IEBrowser:
-        return SdkDeviceType.IEBrowser;
+        return "IEBrowser";
       case DeviceType.UnknownBrowser:
-        return SdkDeviceType.UnknownBrowser;
+        return "UnknownBrowser";
       case DeviceType.AndroidAmazon:
-        return SdkDeviceType.AndroidAmazon;
+        return "AndroidAmazon";
       case DeviceType.UWP:
-        return SdkDeviceType.UWP;
+        return "UWP";
       case DeviceType.SafariBrowser:
-        return SdkDeviceType.SafariBrowser;
+        return "SafariBrowser";
       case DeviceType.VivaldiBrowser:
-        return SdkDeviceType.VivaldiBrowser;
+        return "VivaldiBrowser";
       case DeviceType.VivaldiExtension:
-        return SdkDeviceType.VivaldiExtension;
+        return "VivaldiExtension";
       case DeviceType.SafariExtension:
-        return SdkDeviceType.SafariExtension;
+        return "SafariExtension";
       // FIXME: These should be added to the SDK
       case DeviceType.Server:
       case DeviceType.WindowsCLI:
       case DeviceType.MacOsCLI:
       case DeviceType.LinuxCLI:
       default:
-        return SdkDeviceType.SDK;
+        return "SDK";
     }
   }
 }
