@@ -1,8 +1,6 @@
 import { Component, Input, OnInit, OnDestroy } from "@angular/core";
 import { UntypedFormBuilder } from "@angular/forms";
 import { Router } from "@angular/router";
-import { Subject } from "rxjs";
-import { takeUntil } from "rxjs/operators";
 
 import { RegisterComponent as BaseRegisterComponent } from "@bitwarden/angular/auth/components/register.component";
 import { FormValidationErrorsService } from "@bitwarden/angular/platform/abstractions/form-validation-errors.service";
@@ -11,8 +9,6 @@ import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AuditService } from "@bitwarden/common/abstractions/audit.service";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/models/domain/master-password-policy-options";
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { ReferenceEventRequest } from "@bitwarden/common/models/request/reference-event.request";
 import { RegisterRequest } from "@bitwarden/common/models/request/register.request";
 import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
@@ -21,7 +17,6 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
-import { StateProvider } from "@bitwarden/common/platform/state";
 import { DialogService, ToastService } from "@bitwarden/components";
 import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legacy";
 
@@ -31,21 +26,8 @@ import { AcceptOrganizationInviteService } from "../organization-invite/accept-o
 @Component({
   selector: "app-register-form",
   templateUrl: "./register-form.component.html",
-  providers: [
-    {
-      provide: LoginEmailService,
-      useFactory: (
-        accountService: AccountService,
-        authService: AuthService,
-        stateProvider: StateProvider,
-      ) => new LoginEmailService(accountService, authService, stateProvider),
-      deps: [AccountService, AuthService, StateProvider],
-    },
-  ],
 })
 export class RegisterFormComponent extends BaseRegisterComponent implements OnInit, OnDestroy {
-  private destroy$ = new Subject<void>();
-
   @Input() queryParamEmail: string;
   @Input() queryParamFromOrgInvite: boolean;
   @Input() enforcedPolicyOptions: MasterPasswordPolicyOptions;
@@ -72,7 +54,7 @@ export class RegisterFormComponent extends BaseRegisterComponent implements OnIn
     dialogService: DialogService,
     acceptOrgInviteService: AcceptOrganizationInviteService,
     toastService: ToastService,
-    private loginEmailService: LoginEmailService,
+    loginEmailService: LoginEmailService,
   ) {
     super(
       formValidationErrorService,
@@ -90,6 +72,7 @@ export class RegisterFormComponent extends BaseRegisterComponent implements OnIn
       auditService,
       dialogService,
       toastService,
+      loginEmailService,
     );
     super.modifyRegisterRequest = async (request: RegisterRequest) => {
       // Org invites are deep linked. Non-existent accounts are redirected to the register page.
@@ -115,20 +98,6 @@ export class RegisterFormComponent extends BaseRegisterComponent implements OnIn
     } else {
       this.characterMinimumMessage = this.i18nService.t("characterMinimum", this.minimumLength);
     }
-
-    /**
-     * If the user has a login email, set the email field to the login email.
-     */
-    this.loginEmailService.loginEmail$.pipe(takeUntil(this.destroy$)).subscribe((email) => {
-      if (email) {
-        this.formGroup.patchValue({ email });
-      }
-    });
-  }
-
-  ngOnDestroy() {
-    this.destroy$.next();
-    this.destroy$.complete();
   }
 
   async submit() {
