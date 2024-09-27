@@ -25,9 +25,4 @@ export class LoginSecondaryContentComponent {
 
   // TODO: remove when email verification flag is removed
   protected registerRoute$ = this.registerRouteService.registerRoute$();
-
-  // TODO-rr-bw: In the original login implementation, the "Create account" link
-  // also passes the email address to the registration page. We need to find a way to
-  // do this now that the "Create account" link is in a separate component as
-  // secondary content.
 }
