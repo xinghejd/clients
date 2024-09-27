@@ -1,8 +1,6 @@
 import { DIALOG_DATA, DialogConfig, DialogRef } from "@angular/cdk/dialog";
 import { CommonModule } from "@angular/common";
-import { Component, Inject, OnInit, EventEmitter, OnDestroy } from "@angular/core";
-import { Router } from "@angular/router";
-import { Subject } from "rxjs";
+import { Component, Inject, OnInit, EventEmitter } from "@angular/core";
 
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
@@ -10,8 +8,10 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
+import { ViewPasswordHistoryService } from "@bitwarden/common/vault/abstractions/view-password-history.service";
 import { CipherType } from "@bitwarden/common/vault/enums/cipher-type";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import { CollectionView } from "@bitwarden/common/vault/models/view/collection.view";
 import {
   AsyncActionsModule,
   DialogModule,
@@ -23,9 +23,21 @@ import { PremiumUpgradePromptService } from "../../../../../../libs/common/src/v
 import { CipherViewComponent } from "../../../../../../libs/vault/src/cipher-view/cipher-view.component";
 import { SharedModule } from "../../shared/shared.module";
 import { WebVaultPremiumUpgradePromptService } from "../services/web-premium-upgrade-prompt.service";
+import { WebViewPasswordHistoryService } from "../services/web-view-password-history.service";
 
 export interface ViewCipherDialogParams {
   cipher: CipherView;
+
+  /**
+   * Optional list of collections the cipher is assigned to. If none are provided, they will be loaded using the
+   * `CipherService` and the `collectionIds` property of the cipher.
+   */
+  collections?: CollectionView[];
+
+  /**
+   * If true, the edit button will be disabled in the dialog.
+   */
+  disableEdit?: boolean;
 }
 
 export enum ViewCipherDialogResult {
@@ -47,16 +59,16 @@ export interface ViewCipherDialogCloseResult {
   standalone: true,
   imports: [CipherViewComponent, CommonModule, AsyncActionsModule, DialogModule, SharedModule],
   providers: [
+    { provide: ViewPasswordHistoryService, useClass: WebViewPasswordHistoryService },
     { provide: PremiumUpgradePromptService, useClass: WebVaultPremiumUpgradePromptService },
   ],
 })
-export class ViewComponent implements OnInit, OnDestroy {
+export class ViewComponent implements OnInit {
   cipher: CipherView;
+  collections?: CollectionView[];
   onDeletedCipher = new EventEmitter<CipherView>();
   cipherTypeString: string;
   organization: Organization;
-
-  protected destroy$ = new Subject<void>();
 
   constructor(
     @Inject(DIALOG_DATA) public params: ViewCipherDialogParams,
@@ -68,7 +80,6 @@ export class ViewComponent implements OnInit, OnDestroy {
     private cipherService: CipherService,
     private toastService: ToastService,
     private organizationService: OrganizationService,
-    private router: Router,
   ) {}
 
   /**
@@ -76,18 +87,11 @@ export class ViewComponent implements OnInit, OnDestroy {
    */
   async ngOnInit() {
     this.cipher = this.params.cipher;
+    this.collections = this.params.collections;
     this.cipherTypeString = this.getCipherViewTypeString();
     if (this.cipher.organizationId) {
       this.organization = await this.organizationService.get(this.cipher.organizationId);
     }
-  }
-
-  /**
-   * Lifecycle hook for component destruction.
-   */
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
   }
 
   /**
@@ -124,7 +128,6 @@ export class ViewComponent implements OnInit, OnDestroy {
     }
 
     this.dialogRef.close({ action: ViewCipherDialogResult.Deleted });
-    await this.router.navigate(["/vault"]);
   };
 
   /**
@@ -144,13 +147,6 @@ export class ViewComponent implements OnInit, OnDestroy {
    */
   async edit(): Promise<void> {
     this.dialogRef.close({ action: ViewCipherDialogResult.Edited });
-    await this.router.navigate([], {
-      queryParams: {
-        itemId: this.cipher.id,
-        action: "edit",
-        organizationId: this.cipher.organizationId,
-      },
-    });
   }
 
   /**
