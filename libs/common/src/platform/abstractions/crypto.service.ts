@@ -15,9 +15,14 @@ import {
   UserPublicKey,
 } from "../../types/key";
 import { KeySuffixOptions, HashPurpose } from "../enums";
-import { EncArrayBuffer } from "../models/domain/enc-array-buffer";
 import { EncString } from "../models/domain/enc-string";
 import { SymmetricCryptoKey } from "../models/domain/symmetric-crypto-key";
+
+export class UserPrivateKeyDecryptionFailedError extends Error {
+  constructor() {
+    super("Failed to decrypt the user's private key.");
+  }
+}
 
 /**
  * An object containing all the users key needed to decrypt a users personal and organization vaults.
@@ -58,6 +63,20 @@ export abstract class CryptoService {
    * @param userId The desired user
    */
   abstract setUserKey(key: UserKey, userId?: string): Promise<void>;
+  /**
+   * Sets the provided user keys and stores any other necessary versions
+   * (such as auto, biometrics, or pin).
+   * Also sets the user's encrypted private key in storage and
+   * clears the decrypted private key from memory
+   * Note: does not clear the private key if null is provided
+   *
+   * @throws Error when userKey, encPrivateKey or userId is null
+   * @throws UserPrivateKeyDecryptionFailedError when the userKey cannot decrypt encPrivateKey
+   * @param userKey The user key to set
+   * @param encPrivateKey An encrypted private key
+   * @param userId The desired user
+   */
+  abstract setUserKeys(userKey: UserKey, encPrivateKey: string, userId: UserId): Promise<void>;
   /**
    * Gets the user key from memory and sets it again,
    * kicking off a refresh of any additional keys
@@ -143,7 +162,7 @@ export abstract class CryptoService {
    * @param userKeyMasterKey The master key encrypted user key to set
    * @param userId The desired user
    */
-  abstract setMasterKeyEncryptedUserKey(UserKeyMasterKey: string, userId?: string): Promise<void>;
+  abstract setMasterKeyEncryptedUserKey(UserKeyMasterKey: string, userId: string): Promise<void>;
   /**
    * @param password The user's master password that will be used to derive a master key if one isn't found
    * @param userId The desired user
@@ -353,37 +372,6 @@ export abstract class CryptoService {
    * @param userId The desired user
    */
   abstract clearDeprecatedKeys(keySuffix: KeySuffixOptions, userId?: string): Promise<void>;
-  /**
-   * @deprecated July 25 2022: Get the key you need from CryptoService (getKeyForUserEncryption or getOrgKey)
-   * and then call encryptService.encrypt
-   */
-  abstract encrypt(plainValue: string | Uint8Array, key?: SymmetricCryptoKey): Promise<EncString>;
-  /**
-   * @deprecated July 25 2022: Get the key you need from CryptoService (getKeyForUserEncryption or getOrgKey)
-   * and then call encryptService.encryptToBytes
-   */
-  abstract encryptToBytes(
-    plainValue: Uint8Array,
-    key?: SymmetricCryptoKey,
-  ): Promise<EncArrayBuffer>;
-  /**
-   * @deprecated July 25 2022: Get the key you need from CryptoService (getKeyForUserEncryption or getOrgKey)
-   * and then call encryptService.decryptToBytes
-   */
-  abstract decryptToBytes(encString: EncString, key?: SymmetricCryptoKey): Promise<Uint8Array>;
-  /**
-   * @deprecated July 25 2022: Get the key you need from CryptoService (getKeyForUserEncryption or getOrgKey)
-   * and then call encryptService.decryptToUtf8
-   */
-  abstract decryptToUtf8(encString: EncString, key?: SymmetricCryptoKey): Promise<string>;
-  /**
-   * @deprecated July 25 2022: Get the key you need from CryptoService (getKeyForUserEncryption or getOrgKey)
-   * and then call encryptService.decryptToBytes
-   */
-  abstract decryptFromBytes(
-    encBuffer: EncArrayBuffer,
-    key: SymmetricCryptoKey,
-  ): Promise<Uint8Array>;
 
   /**
    * Retrieves all the keys needed for decrypting Ciphers

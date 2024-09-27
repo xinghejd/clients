@@ -32,7 +32,7 @@ import { PowerMonitorMain } from "./main/power-monitor.main";
 import { TrayMain } from "./main/tray.main";
 import { UpdaterMain } from "./main/updater.main";
 import { WindowMain } from "./main/window.main";
-import { BiometricsService, BiometricsServiceAbstraction } from "./platform/main/biometric/index";
+import { BiometricsService, DesktopBiometricsService } from "./platform/main/biometric/index";
 import { ClipboardMain } from "./platform/main/clipboard.main";
 import { DesktopCredentialStorageListener } from "./platform/main/desktop-credential-storage-listener";
 import { MainCryptoFunctionService } from "./platform/main/main-crypto-function.service";
@@ -42,6 +42,7 @@ import { ElectronLogMainService } from "./platform/services/electron-log.main.se
 import { ElectronStorageService } from "./platform/services/electron-storage.service";
 import { EphemeralValueStorageService } from "./platform/services/ephemeral-value-storage.main.service";
 import { I18nMainService } from "./platform/services/i18n.main.service";
+import { SSOLocalhostCallbackService } from "./platform/services/sso-localhost-callback.service";
 import { ElectronMainMessagingService } from "./services/electron-main-messaging.service";
 import { isMacAppStore } from "./utils";
 
@@ -64,7 +65,7 @@ export class Main {
   menuMain: MenuMain;
   powerMonitorMain: PowerMonitorMain;
   trayMain: TrayMain;
-  biometricsService: BiometricsServiceAbstraction;
+  biometricsService: DesktopBiometricsService;
   nativeMessagingMain: NativeMessagingMain;
   clipboardMain: ClipboardMain;
   desktopAutofillSettingsService: DesktopAutofillSettingsService;
@@ -231,6 +232,7 @@ export class Main {
     sshAgent.init();
 
     new EphemeralValueStorageService();
+    new SSOLocalhostCallbackService(this.environmentService, this.messagingService);
   }
 
   bootstrap() {

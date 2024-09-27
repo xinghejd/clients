@@ -12,6 +12,7 @@ import { PolicyService } from "@bitwarden/common/admin-console/abstractions/poli
 import { OrganizationUserStatusType, PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { normalizeExpiryYearFormat } from "@bitwarden/common/autofill/utils";
 import { ClientType, EventType } from "@bitwarden/common/enums";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { UriMatchStrategy } from "@bitwarden/common/models/domain/domain-service";
@@ -92,8 +93,6 @@ export class AddEditComponent implements OnInit, OnDestroy {
   protected writeableCollections: CollectionView[];
   private personalOwnershipPolicyAppliesToActiveUser: boolean;
   private previousCipherId: string;
-
-  protected restrictProviderAccess = false;
 
   get fido2CredentialCreationDateValue(): string {
     const dateCreated = this.i18nService.t("dateCreated");
@@ -184,10 +183,6 @@ export class AddEditComponent implements OnInit, OnDestroy {
   }
 
   async ngOnInit() {
-    this.restrictProviderAccess = await this.configService.getFeatureFlag(
-      FeatureFlag.RestrictProviderAccess,
-    );
-
     this.policyService
       .policyAppliesToActiveUser$(PolicyType.PersonalOwnership)
       .pipe(
@@ -337,6 +332,16 @@ export class AddEditComponent implements OnInit, OnDestroy {
   async submit(): Promise<boolean> {
     if (this.cipher.isDeleted) {
       return this.restore();
+    }
+
+    // normalize card expiry year on save
+    if (this.cipher.type === this.cipherType.Card) {
+      this.cipher.card.expYear = normalizeExpiryYearFormat(this.cipher.card.expYear);
+    }
+
+    // trim whitespace from the TOTP field
+    if (this.cipher.type === this.cipherType.Login && this.cipher.login.totp) {
+      this.cipher.login.totp = this.cipher.login.totp.trim();
     }
 
     if (this.cipher.name == null || this.cipher.name === "") {
@@ -690,11 +695,11 @@ export class AddEditComponent implements OnInit, OnDestroy {
 
   protected saveCipher(cipher: Cipher) {
     const isNotClone = this.editMode && !this.cloneMode;
-    let orgAdmin = this.organization?.canEditAllCiphers(this.restrictProviderAccess);
+    let orgAdmin = this.organization?.canEditAllCiphers;
 
     // if a cipher is unassigned we want to check if they are an admin or have permission to edit any collection
     if (!cipher.collectionIds) {
-      orgAdmin = this.organization?.canEditUnassignedCiphers(this.restrictProviderAccess);
+      orgAdmin = this.organization?.canEditUnassignedCiphers;
     }
 
     return this.cipher.id == null
@@ -703,14 +708,14 @@ export class AddEditComponent implements OnInit, OnDestroy {
   }
 
   protected deleteCipher() {
-    const asAdmin = this.organization?.canEditAllCiphers(this.restrictProviderAccess);
+    const asAdmin = this.organization?.canEditAllCiphers;
     return this.cipher.isDeleted
       ? this.cipherService.deleteWithServer(this.cipher.id, asAdmin)
       : this.cipherService.softDeleteWithServer(this.cipher.id, asAdmin);
   }
 
   protected restoreCipher() {
-    const asAdmin = this.organization?.canEditAllCiphers(this.restrictProviderAccess);
+    const asAdmin = this.organization?.canEditAllCiphers;
     return this.cipherService.restoreWithServer(this.cipher.id, asAdmin);
   }
 

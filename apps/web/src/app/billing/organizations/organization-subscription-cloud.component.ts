@@ -16,12 +16,16 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { DialogService } from "@bitwarden/components";
+import { DialogService, ToastService } from "@bitwarden/components";
 
+import {
+  AdjustStorageDialogV2Component,
+  AdjustStorageDialogV2ResultType,
+} from "../shared/adjust-storage-dialog/adjust-storage-dialog-v2.component";
 import {
   AdjustStorageDialogResult,
   openAdjustStorageDialog,
-} from "../shared/adjust-storage.component";
+} from "../shared/adjust-storage-dialog/adjust-storage-dialog.component";
 import {
   OffboardingSurveyDialogResultType,
   openOffboardingSurvey,
@@ -71,6 +75,10 @@ export class OrganizationSubscriptionCloudComponent implements OnInit, OnDestroy
     FeatureFlag.EnableUpgradePasswordManagerSub,
   );
 
+  protected deprecateStripeSourcesAPI$ = this.configService.getFeatureFlag$(
+    FeatureFlag.AC2476_DeprecateStripeSourcesAPI,
+  );
+
   constructor(
     private apiService: ApiService,
     private platformUtilsService: PlatformUtilsService,
@@ -82,6 +90,7 @@ export class OrganizationSubscriptionCloudComponent implements OnInit, OnDestroy
     private dialogService: DialogService,
     private configService: ConfigService,
     private providerService: ProviderService,
+    private toastService: ToastService,
   ) {}
 
   async ngOnInit() {
@@ -344,6 +353,13 @@ export class OrganizationSubscriptionCloudComponent implements OnInit, OnDestroy
     );
   }
 
+  shownSelfHost(): boolean {
+    return (
+      this.sub?.plan.productTier !== ProductTierType.Teams &&
+      this.sub?.plan.productTier !== ProductTierType.Free
+    );
+  }
+
   cancelSubscription = async () => {
     const reference = openOffboardingSurvey(this.dialogService, {
       data: {
@@ -378,7 +394,11 @@ export class OrganizationSubscriptionCloudComponent implements OnInit, OnDestroy
 
     try {
       await this.organizationApiService.reinstate(this.organizationId);
-      this.platformUtilsService.showToast("success", null, this.i18nService.t("reinstated"));
+      this.toastService.showToast({
+        variant: "success",
+        title: null,
+        message: this.i18nService.t("reinstated"),
+      });
       // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
       // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.load();
@@ -402,12 +422,21 @@ export class OrganizationSubscriptionCloudComponent implements OnInit, OnDestroy
 
       const result = await lastValueFrom(reference.closed);
 
-      if (result === ChangePlanDialogResultType.Submitted) {
-        await this.load();
+      if (result === ChangePlanDialogResultType.Closed) {
+        return;
       }
+      await this.load();
     } else {
       this.showChangePlan = !this.showChangePlan;
     }
+  }
+
+  isSecretsManagerTrial(): boolean {
+    return (
+      this.sub?.subscription?.items?.some((item) =>
+        this.sub?.customerDiscount?.appliesTo?.includes(item.productId),
+      ) ?? false
+    );
   }
 
   closeChangePlan() {
@@ -444,19 +473,43 @@ export class OrganizationSubscriptionCloudComponent implements OnInit, OnDestroy
     this.load();
   }
 
+  calculateTotalAppliedDiscount(total: number) {
+    const discountedTotal = total / (1 - this.customerDiscount?.percentOff / 100);
+    return discountedTotal;
+  }
+
   adjustStorage = (add: boolean) => {
     return async () => {
-      const dialogRef = openAdjustStorageDialog(this.dialogService, {
-        data: {
-          storageGbPrice: this.storageGbPrice,
-          add: add,
-          organizationId: this.organizationId,
-          interval: this.billingInterval,
-        },
-      });
-      const result = await lastValueFrom(dialogRef.closed);
-      if (result === AdjustStorageDialogResult.Adjusted) {
-        await this.load();
+      const deprecateStripeSourcesAPI = await firstValueFrom(this.deprecateStripeSourcesAPI$);
+
+      if (deprecateStripeSourcesAPI) {
+        const dialogRef = AdjustStorageDialogV2Component.open(this.dialogService, {
+          data: {
+            price: this.storageGbPrice,
+            cadence: this.billingInterval,
+            type: add ? "Add" : "Remove",
+            organizationId: this.organizationId,
+          },
+        });
+
+        const result = await lastValueFrom(dialogRef.closed);
+
+        if (result === AdjustStorageDialogV2ResultType.Submitted) {
+          await this.load();
+        }
+      } else {
+        const dialogRef = openAdjustStorageDialog(this.dialogService, {
+          data: {
+            storageGbPrice: this.storageGbPrice,
+            add: add,
+            organizationId: this.organizationId,
+            interval: this.billingInterval,
+          },
+        });
+        const result = await lastValueFrom(dialogRef.closed);
+        if (result === AdjustStorageDialogResult.Adjusted) {
+          await this.load();
+        }
       }
     };
   };
@@ -475,11 +528,11 @@ export class OrganizationSubscriptionCloudComponent implements OnInit, OnDestroy
 
     try {
       await this.apiService.deleteRemoveSponsorship(this.organizationId);
-      this.platformUtilsService.showToast(
-        "success",
-        null,
-        this.i18nService.t("removeSponsorshipSuccess"),
-      );
+      this.toastService.showToast({
+        variant: "success",
+        title: null,
+        message: this.i18nService.t("removeSponsorshipSuccess"),
+      });
       await this.load();
     } catch (e) {
       this.logService.error(e);

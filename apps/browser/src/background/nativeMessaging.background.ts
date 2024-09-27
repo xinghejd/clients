@@ -6,6 +6,7 @@ import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authenticatio
 import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
 import { CryptoFunctionService } from "@bitwarden/common/platform/abstractions/crypto-function.service";
 import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
+import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -73,6 +74,7 @@ export class NativeMessagingBackground {
 
   constructor(
     private cryptoService: CryptoService,
+    private encryptService: EncryptService,
     private cryptoFunctionService: CryptoFunctionService,
     private runtimeBackground: RuntimeBackground,
     private messagingService: MessagingService,
@@ -87,7 +89,7 @@ export class NativeMessagingBackground {
       // Reload extension to activate nativeMessaging
       chrome.permissions.onAdded.addListener((permissions) => {
         if (permissions.permissions?.includes("nativeMessaging")) {
-          BrowserApi.reloadExtension(null);
+          BrowserApi.reloadExtension();
         }
       });
     }
@@ -227,7 +229,7 @@ export class NativeMessagingBackground {
       await this.secureCommunication();
     }
 
-    return await this.cryptoService.encrypt(JSON.stringify(message), this.sharedSecret);
+    return await this.encryptService.encrypt(JSON.stringify(message), this.sharedSecret);
   }
 
   getResponse(): Promise<any> {
@@ -273,7 +275,7 @@ export class NativeMessagingBackground {
     let message = rawMessage as ReceiveMessage;
     if (!this.platformUtilsService.isSafari()) {
       message = JSON.parse(
-        await this.cryptoService.decryptToUtf8(rawMessage as EncString, this.sharedSecret),
+        await this.encryptService.decryptToUtf8(rawMessage as EncString, this.sharedSecret),
       );
     }
 
@@ -285,7 +287,9 @@ export class NativeMessagingBackground {
     switch (message.command) {
       case "biometricUnlock": {
         if (
-          ["not enabled", "not supported", "not unlocked", "canceled"].includes(message.response)
+          ["not available", "not enabled", "not supported", "not unlocked", "canceled"].includes(
+            message.response,
+          )
         ) {
           this.rejecter(message.response);
           return;
@@ -350,6 +354,10 @@ export class NativeMessagingBackground {
           // eslint-disable-next-line @typescript-eslint/no-floating-promises
           this.runtimeBackground.processMessage({ command: "unlocked" });
         }
+        break;
+      }
+      case "biometricUnlockAvailable": {
+        this.resolver(message);
         break;
       }
       default:

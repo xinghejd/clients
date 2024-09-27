@@ -560,6 +560,18 @@
   "settings": {
     "message": "Ayarlar"
   },
+  "accountEmail": {
+    "message": "Hesap e-posta adresi"
+  },
+  "requestHint": {
+    "message": "İpucunu iste"
+  },
+  "requestPasswordHint": {
+    "message": "Parola ipucunu iste"
+  },
+  "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
+    "message": "Hesabınızın e-posta adresini girdiğinizde parola ipucunuz size gönderilecektir"
+  },
   "passwordHint": {
     "message": "Parola ipucu"
   },
@@ -602,6 +614,12 @@
   },
   "newAccountCreated": {
     "message": "Yeni hesabınız oluşturuldu! Şimdi giriş yapabilirsiniz."
+  },
+  "newAccountCreated2": {
+    "message": "Yeni hesabınız oluşturuldu."
+  },
+  "youHaveBeenLoggedIn": {
+    "message": "Oturum açtınız."
   },
   "masterPassSent": {
     "message": "Size ana parolanızın ipucunu içeren bir e-posta gönderdik."
@@ -924,6 +942,9 @@
   "vaultTimeout": {
     "message": "Kasa zaman aşımı"
   },
+  "vaultTimeout1": {
+    "message": "Zaman aşımı"
+  },
   "vaultTimeoutDesc": {
     "message": "Kasa zaman aşımı eyleminin ne zaman gerçekleştirileceğini seçin."
   },
@@ -1174,6 +1195,9 @@
   "premiumPurchaseAlert": {
     "message": "Premium üyeliği bitwarden.com web kasası üzerinden satın alabilirsiniz. Şimdi siteye gitmek ister misiniz?"
   },
+  "premiumPurchaseAlertV2": {
+    "message": "Bitwarden web uygulamasındaki hesap ayarlarınızdan Premium abonelik satın alabilirsiniz."
+  },
   "premiumCurrentMember": {
     "message": "Premium üyesiniz!"
   },
@@ -1275,6 +1299,9 @@
         "example": "Password"
       }
     }
+  },
+  "copySuccessful": {
+    "message": "Kopyalama başarılı"
   },
   "errorRefreshingAccessToken": {
     "message": "Access Token Refresh Error"
@@ -1543,8 +1570,8 @@
   "recommendedForSecurity": {
     "message": "Güvenliğiniz için önerilir."
   },
-  "lockWithMasterPassOnRestart": {
-    "message": "Yeniden başlatmada ana şifre ile kilitle"
+  "lockWithMasterPassOnRestart1": {
+    "message": "Yeniden başlatmada ana parola ile kilitle"
   },
   "deleteAccount": {
     "message": "Hesabı sil"
@@ -1621,7 +1648,7 @@
   },
   "lock": {
     "message": "Kilitle",
-    "description": "Verb form: to make secure or inaccesible by"
+    "description": "Verb form: to make secure or inaccessible by"
   },
   "trash": {
     "message": "Çöp kutusu",
@@ -1814,7 +1841,7 @@
     "message": "Tarayıcıda biyometriyi kullanmak için önce ayarlardan masaüstü biyometrisini ayarlamanız gerekir."
   },
   "biometricsManualSetupTitle": {
-    "message": "Autometic setup not available"
+    "message": "Automatic setup not available"
   },
   "biometricsManualSetupDesc": {
     "message": "Due to the installation method, biometrics support could not be automatically enabled. Would you like to open the documentation on how to do this manually?"
@@ -2075,8 +2102,8 @@
   "minutes": {
     "message": "Dakika"
   },
-  "vaultTimeoutPolicyInEffect": {
-    "message": "Kuruluş ilkeleriniz izin verilen maksimum kasa zaman aşımını $HOURS$ saat $MINUTES$ dakika olarak belirlemiş.",
+  "vaultTimeoutPolicyInEffect1": {
+    "message": "En fazla $HOURS$ saat $MINUTES$ dakika.",
     "placeholders": {
       "hours": {
         "content": "$1",
@@ -2824,13 +2851,13 @@
     "message": "Error connecting with the Duo service. Use a different two-step login method or contact Duo for assistance."
   },
   "launchDuoAndFollowStepsToFinishLoggingIn": {
-    "message": "Duo'yu başlatın ve oturum açmayı tamamlamak için adımları izleyin."
+    "message": "Duo'yu açın ve girişi tamamlamak için adımları izleyin."
   },
   "duoRequiredByOrgForAccount": {
     "message": "Hesabınız için Duo iki adımlı giriş gereklidir."
   },
   "launchDuo": {
-    "message": "Duo'yu tarayıcıda başlat"
+    "message": "Duo'yu tarayıcıda aç"
   },
   "importFormatError": {
     "message": "Veriler doğru biçimlendirilmemiş. Lütfen içe aktarma dosyanızı kontrol edin ve tekrar deneyin."
@@ -3049,5 +3076,17 @@
   },
   "textSends": {
     "message": "Metin Send'leri"
+  },
+  "allowScreenshots": {
+    "message": "Ekran kaydına izin ver"
+  },
+  "allowScreenshotsDesc": {
+    "message": "Bitwarden masaüstü uygulamasının ekran kaydının alınmasına izin ver."
+  },
+  "ssoError": {
+    "message": "SSO girişi için açık port bulunamadı."
+  },
+  "fileSavedToDevice": {
+    "message": "Dosya cihaza kaydedildi. Cihazınızın indirilenler klasöründen yönetebilirsiniz."
   }
 }

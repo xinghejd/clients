@@ -51,6 +51,7 @@ export class WindowMain {
     // Perform a hard reload of the render process by crashing it. This is suboptimal but ensures that all memory gets
     // cleared, as the process itself will be completely garbage collected.
     ipcMain.on("reload-process", async () => {
+      this.logService.info("Reloading render process");
       // User might have changed theme, ensure the window is updated.
       this.win.setBackgroundColor(await this.getBackgroundColor());
 
@@ -65,6 +66,14 @@ export class WindowMain {
       // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
       // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.session.clearCache();
+      this.logService.info("Render process reloaded");
+    });
+
+    this.desktopSettingsService.allowScreenshots$.subscribe((allowed) => {
+      if (this.win == null) {
+        return;
+      }
+      this.win.setContentProtection(!allowed);
     });
 
     ipcMain.on("window-focus", () => {
@@ -280,6 +289,14 @@ export class WindowMain {
         windowIsFocused: true,
       });
     });
+
+    firstValueFrom(this.desktopSettingsService.allowScreenshots$)
+      .then((allowScreenshots) => {
+        this.win.setContentProtection(!allowScreenshots);
+      })
+      .catch((e) => {
+        this.logService.error(e);
+      });
 
     if (this.createWindowCallback) {
       this.createWindowCallback(this.win);
