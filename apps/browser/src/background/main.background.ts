@@ -1240,7 +1240,10 @@ export default class MainBackground {
 
     this.userAutoUnlockKeyService = new UserAutoUnlockKeyService(this.cryptoService);
 
-    this.cipherAuthorizationService = new CipherAuthorizationService(this.collectionService);
+    this.cipherAuthorizationService = new CipherAuthorizationService(
+      this.collectionService,
+      this.organizationService,
+    );
   }
 
   async bootstrap() {
