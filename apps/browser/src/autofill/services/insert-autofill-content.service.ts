@@ -7,6 +7,7 @@ import {
   elementIsInputElement,
   elementIsSelectElement,
   elementIsTextAreaElement,
+  setElementStyles,
 } from "../utils";
 
 import { InsertAutofillContentService as InsertAutofillContentServiceInterface } from "./abstractions/insert-autofill-content.service";
@@ -14,6 +15,7 @@ import { CollectAutofillContentService } from "./collect-autofill-content.servic
 import DomElementVisibilityService from "./dom-element-visibility.service";
 
 class InsertAutofillContentService implements InsertAutofillContentServiceInterface {
+  private readonly filledElements: WeakMap<HTMLElement, Record<string, any>> = new Map();
   private readonly autofillInsertActions: AutofillInsertActions = {
     fill_by_opid: ({ opid, value }) => this.handleFillFieldByOpidAction(opid, value),
     click_on_opid: ({ opid }) => this.handleClickOnFieldByOpidAction(opid),
@@ -286,17 +288,63 @@ class InsertAutofillContentService implements InsertAutofillContentServiceInterf
    * @private
    */
   private triggerFillAnimationOnElement(element: FormFieldElement): void {
-    const skipAnimatingElement =
-      elementIsFillableFormField(element) &&
-      !new Set(["email", "text", "password", "number", "tel", "url"]).has(element?.type);
-
-    if (this.domElementVisibilityService.isElementHiddenByCss(element) || skipAnimatingElement) {
+    const prefersReducedMotion = !!globalThis.matchMedia(`(prefers-reduced-motion: reduce)`)
+      .matches;
+    if (prefersReducedMotion) {
       return;
     }
 
-    element.classList.add("com-bitwarden-browser-animated-fill");
-    setTimeout(() => element.classList.remove("com-bitwarden-browser-animated-fill"), 200);
+    const skipAnimatingElement =
+      elementIsInputElement(element) &&
+      !new Set(["email", "text", "password", "number", "tel", "url", "date"]).has(element?.type);
+    if (skipAnimatingElement || this.domElementVisibilityService.isElementHiddenByCss(element)) {
+      return;
+    }
+
+    if (!this.filledElements.has(element)) {
+      this.filledElements.set(element, {
+        transition: element.style.transition,
+        backgroundColor: element.style.backgroundColor,
+        textColor: element.style.color,
+        borderColor: element.style.borderColor,
+        outline: element.style.outline,
+      });
+    }
+
+    setElementStyles(
+      element,
+      {
+        transition:
+          "background-color 0.2s ease-out, color 0.2s ease-out, border-color 0.2s ease-out",
+        backgroundColor: "rgba(232, 240, 255, 1)",
+        color: "rgba(14, 55, 129, 1)",
+        borderColor: "rgba(23, 93, 220, 1)",
+        outline: "2px solid rgba(23, 93, 220, 0.7)",
+      },
+      true,
+    );
+    element.addEventListener(EVENTS.INPUT, this.resetElementStyles, { once: true });
   }
+
+  /**
+   * Reset the element styles to their original values upon user modification of the form field.
+   *
+   * @param event - The keyboard event that triggered the reset.
+   */
+  private resetElementStyles = (event: KeyboardEvent): void => {
+    const element = event.target as HTMLElement;
+    if (this.filledElements.has(element)) {
+      const { backgroundColor, textColor, borderColor, outline, transition } =
+        this.filledElements.get(element);
+      setElementStyles(element, {
+        backgroundColor: backgroundColor,
+        color: textColor,
+        borderColor: borderColor,
+        outline: outline,
+        transition: transition,
+      });
+    }
+  };
 
   /**
    * Simulates a click  event on the element.
