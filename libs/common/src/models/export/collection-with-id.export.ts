@@ -1,5 +1,6 @@
-import { Collection as CollectionDomain } from "../../vault/models/domain/collection";
-import { CollectionView } from "../../vault/models/view/collection.view";
+import { Collection as CollectionDomain } from "@bitwarden/admin-console/common";
+
+import { CollectionView } from "../../../../admin-console/src/common/collections/models/collection.view";
 
 import { CollectionExport } from "./collection.export";
 

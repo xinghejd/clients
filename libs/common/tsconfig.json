@@ -1,5 +1,12 @@
 {
   "extends": "../shared/tsconfig.libs",
-  "include": ["src", "spec", "./custom-matchers.d.ts"],
+  "include": [
+    "src",
+    "spec",
+    "./custom-matchers.d.ts",
+    "../admin-console/src/common/collections/models/collection.data.ts",
+    "../admin-console/src/common/collections/models/collection.view.ts",
+    "../admin-console/src/common/collections/models/collection.response.ts"
+  ],
   "exclude": ["node_modules", "dist"]
 }
