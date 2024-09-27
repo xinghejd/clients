@@ -50,7 +50,7 @@ import { MessagingService } from "@bitwarden/common/platform/abstractions/messag
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { SyncService } from "@bitwarden/common/platform/sync";
-import { OrganizationId } from "@bitwarden/common/types/guid";
+import { CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CollectionService } from "@bitwarden/common/vault/abstractions/collection.service";
 import { TotpService } from "@bitwarden/common/vault/abstractions/totp.service";
@@ -804,10 +804,7 @@ export class VaultComponent implements OnInit, OnDestroy {
       comp.organization = this.organization;
       comp.organizationId = this.organization.id;
       comp.cipherId = cipher?.id;
-
-      if (cipher) {
-        comp.canDeleteCipher = this.canDeleteCipher(cipher);
-      }
+      comp.collectionId = this.activeFilter.collectionId;
 
       comp.onSavedCipher.pipe(takeUntil(this.destroy$)).subscribe(() => {
         modal.close();
@@ -864,8 +861,8 @@ export class VaultComponent implements OnInit, OnDestroy {
       data: {
         cipher: cipher,
         collections: collections,
+        activeCollectionId: this.activeFilter.collectionId as CollectionId,
         disableEdit: !cipher.edit && !this.organization.canEditAllCiphers,
-        disableDelete: !this.canDeleteCipher(cipher),
       },
     });
 
@@ -1319,30 +1316,6 @@ export class VaultComponent implements OnInit, OnDestroy {
     const notProtected = !ciphers.find((cipher) => cipher.reprompt !== CipherRepromptType.None);
 
     return notProtected || (await this.passwordRepromptService.showPasswordPrompt());
-  }
-
-  private canDeleteCipher(cipher: CipherView) {
-    if (this.organization?.permissions.editAnyCollection) {
-      return true;
-    }
-
-    if (this.organization?.allowAdminAccessToAllCollectionItems && this.organization.isAdmin) {
-      return true;
-    }
-
-    const activeCollection = this.selectedCollection?.node;
-    if (activeCollection) {
-      return activeCollection.manage === true;
-    }
-
-    // If collectionIds is empty or null, it means the cipher is unassigned
-    if (!cipher.collectionIds || cipher.collectionIds.length === 0) {
-      return cipher.edit;
-    }
-
-    return this.allCollections
-      .filter((c) => cipher.collectionIds.includes(c.id))
-      .some((collection) => collection.manage);
   }
 
   private refresh() {

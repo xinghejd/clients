@@ -732,7 +732,6 @@ export class VaultComponent implements OnInit, OnDestroy {
   }
 
   async editCipherId(id: string, cloneMode?: boolean) {
-    let cipherView: CipherView | null = null;
     const cipher = await this.cipherService.get(id);
 
     if (
@@ -750,22 +749,12 @@ export class VaultComponent implements OnInit, OnDestroy {
       return;
     }
 
-    // Decrypt the cipher.
-    if (cipher) {
-      cipherView = await cipher.decrypt(
-        await this.cipherService.getKeyForCipherKeyDecryption(cipher, this.activeUserId),
-      );
-    }
-
     const [modal, childComponent] = await this.modalService.openViewRef(
       AddEditComponent,
       this.cipherAddEditModalRef,
       (comp) => {
         comp.cipherId = id;
-
-        if (cipherView) {
-          comp.canDeleteCipher = this.canDeleteCipher(cipherView);
-        }
+        comp.collectionId = this.selectedCollection?.node.id;
 
         comp.onSavedCipher.pipe(takeUntil(this.destroy$)).subscribe(() => {
           modal.close();
@@ -866,7 +855,10 @@ export class VaultComponent implements OnInit, OnDestroy {
 
     // Open the dialog.
     const dialogRef = openViewCipherDialog(this.dialogService, {
-      data: { cipher: cipherView, disableDelete: !this.canDeleteCipher(cipherView) },
+      data: {
+        cipher: cipherView,
+        activeCollectionId: this.selectedCollection?.node.id as CollectionId,
+      },
     });
 
     // Wait for the dialog to close.
@@ -1321,22 +1313,6 @@ export class VaultComponent implements OnInit, OnDestroy {
 
     const organization = this.allOrganizations.find((o) => o.id === cipher.organizationId);
     return organization.canEditAllCiphers;
-  }
-
-  private canDeleteCipher(cipher: CipherView) {
-    if (cipher.organizationId == null) {
-      return true;
-    }
-
-    const activeCollection = this.selectedCollection?.node;
-
-    if (activeCollection) {
-      return activeCollection.manage === true;
-    }
-
-    return this.allCollections
-      .filter((c) => cipher.collectionIds.includes(c.id))
-      .some((collection) => collection.manage);
   }
 
   private go(queryParams: any = null) {
