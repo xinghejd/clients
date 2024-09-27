@@ -4,12 +4,12 @@ import { LegacyMessageWrapper } from "../models/native-messaging/legacy-message-
 import { Message } from "../models/native-messaging/message";
 
 import { BiometricMessageHandlerService } from "./biometric-native-messaging.service";
-import { DDGMessageHandlerService } from "./ddg-message-handler.service";
+import { DuckDuckGoMessageHandlerService } from "./duckduckgo-message-handler.service";
 
 @Injectable()
 export class NativeMessagingService {
   constructor(
-    private ddgMessageHandler: DDGMessageHandlerService,
+    private duckduckgoMessageHandler: DuckDuckGoMessageHandlerService,
     private biometricMessageHandler: BiometricMessageHandlerService,
   ) {}
 
@@ -21,7 +21,7 @@ export class NativeMessagingService {
     const outerMessage = msg as Message;
     if (outerMessage.version) {
       // If there is a version, it is a using the protocol created for the DuckDuckGo integration
-      await this.ddgMessageHandler.handleMessage(outerMessage);
+      await this.duckduckgoMessageHandler.handleMessage(outerMessage);
       return;
     } else {
       await this.biometricMessageHandler.handleMessage(msg as LegacyMessageWrapper);

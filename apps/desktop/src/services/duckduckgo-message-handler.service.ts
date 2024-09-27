@@ -26,8 +26,8 @@ const HashAlgorithmForAsymmetricEncryption = "sha1";
 
 // This service handles messages using the protocol created for the DuckDuckGo integration.
 @Injectable()
-export class DDGMessageHandlerService {
-  private ddgSharedSecret: SymmetricCryptoKey;
+export class DuckDuckGoMessageHandlerService {
+  private duckduckgoSharedSecret: SymmetricCryptoKey;
 
   constructor(
     private stateService: StateService,
@@ -109,7 +109,7 @@ export class DDGMessageHandlerService {
       }
 
       const secret = await this.cryptoFunctionService.randomBytes(64);
-      this.ddgSharedSecret = new SymmetricCryptoKey(secret);
+      this.duckduckgoSharedSecret = new SymmetricCryptoKey(secret);
       const sharedKeyB64 = new SymmetricCryptoKey(secret).keyB64;
 
       await this.stateService.setDuckDuckGoSharedKey(sharedKeyB64);
@@ -166,7 +166,7 @@ export class DDGMessageHandlerService {
   }
 
   private async decryptPayload(message: EncryptedMessage): Promise<DecryptedCommandData> {
-    if (!this.ddgSharedSecret) {
+    if (!this.duckduckgoSharedSecret) {
       const storedKey = await this.stateService.getDuckDuckGoSharedKey();
       if (storedKey == null) {
         this.sendResponse({
@@ -178,13 +178,13 @@ export class DDGMessageHandlerService {
         });
         return;
       }
-      this.ddgSharedSecret = SymmetricCryptoKey.fromJSON({ keyB64: storedKey });
+      this.duckduckgoSharedSecret = SymmetricCryptoKey.fromJSON({ keyB64: storedKey });
     }
 
     try {
       let decryptedResult = await this.cryptoService.decryptToUtf8(
         message.encryptedCommand as EncString,
-        this.ddgSharedSecret,
+        this.duckduckgoSharedSecret,
       );
 
       decryptedResult = this.trimNullCharsFromMessage(decryptedResult);
@@ -206,7 +206,7 @@ export class DDGMessageHandlerService {
     originalMessage: EncryptedMessage,
     response: DecryptedCommandData,
   ) {
-    if (!this.ddgSharedSecret) {
+    if (!this.duckduckgoSharedSecret) {
       this.sendResponse({
         messageId: originalMessage.messageId,
         version: NativeMessagingVersion.Latest,
@@ -218,7 +218,7 @@ export class DDGMessageHandlerService {
       return;
     }
 
-    const encryptedPayload = await this.encryptPayload(response, this.ddgSharedSecret);
+    const encryptedPayload = await this.encryptPayload(response, this.duckduckgoSharedSecret);
 
     this.sendResponse({
       messageId: originalMessage.messageId,
