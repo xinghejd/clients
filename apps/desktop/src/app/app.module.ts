@@ -52,6 +52,9 @@ import { PasswordGeneratorHistoryComponent } from "./tools/password-generator-hi
 import { AddEditComponent as SendAddEditComponent } from "./tools/send/add-edit.component";
 import { SendComponent } from "./tools/send/send.component";
 
+import { SshKeyGeneratorComponent } from "@bitwarden/generator-components";
+import { SshKeyGeneratorDialogComponent } from "./tools/sshkey-generator.component";
+
 @NgModule({
   imports: [
     SharedModule,
@@ -62,6 +65,7 @@ import { SendComponent } from "./tools/send/send.component";
     CalloutModule,
     DeleteAccountComponent,
     UserVerificationComponent,
+    SshKeyGeneratorComponent,
   ],
   declarations: [
     AccessibilityCookieComponent,
@@ -100,6 +104,7 @@ import { SendComponent } from "./tools/send/send.component";
     VaultTimeoutInputComponent,
     ViewComponent,
     ViewCustomFieldsComponent,
+    SshKeyGeneratorDialogComponent,
   ],
   providers: [SshAgentService],
   bootstrap: [AppComponent],

@@ -1,8 +1,18 @@
 import { DatePipe } from "@angular/common";
-import { Component, NgZone, OnChanges, OnDestroy, OnInit, ViewChild } from "@angular/core";
+import {
+  Component,
+  NgZone,
+  OnChanges,
+  OnDestroy,
+  OnInit,
+  ViewChild,
+  ViewContainerRef,
+} from "@angular/core";
 import { NgForm } from "@angular/forms";
 import { sshagent as sshAgent } from "desktop_native/napi";
 
+import { ModalRef } from "@bitwarden/angular/components/modal/modal.ref";
+import { ModalService } from "@bitwarden/angular/services/modal.service";
 import { AddEditComponent as BaseAddEditComponent } from "@bitwarden/angular/vault/components/add-edit.component";
 import { AuditService } from "@bitwarden/common/abstractions/audit.service";
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
@@ -22,6 +32,7 @@ import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folde
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { DialogService, ToastService } from "@bitwarden/components";
 import { PasswordRepromptService } from "@bitwarden/vault";
+import { SshKeyGeneratorDialogComponent } from "../../../app/tools/sshkey-generator.component";
 
 const BroadcasterSubscriptionId = "AddEditComponent";
 
@@ -32,6 +43,10 @@ const BroadcasterSubscriptionId = "AddEditComponent";
 export class AddEditComponent extends BaseAddEditComponent implements OnInit, OnChanges, OnDestroy {
   @ViewChild("form")
   private form: NgForm;
+
+  @ViewChild("sshGenerator", { read: ViewContainerRef, static: true })
+  sshGeneratorModalRef: ViewContainerRef;
+  private modal: ModalRef = null;
 
   constructor(
     cipherService: CipherService,
@@ -53,6 +68,7 @@ export class AddEditComponent extends BaseAddEditComponent implements OnInit, On
     dialogService: DialogService,
     datePipe: DatePipe,
     configService: ConfigService,
+    private modalService: ModalService,
     private toastService: ToastService,
   ) {
     super(
@@ -143,6 +159,13 @@ export class AddEditComponent extends BaseAddEditComponent implements OnInit, On
   }
 
   async generateSshKey() {
+    const [modal, childComponent] = await this.modalService.openViewRef(
+      SshKeyGeneratorDialogComponent,
+      this.sshGeneratorModalRef,
+      (comp) => {},
+    );
+    this.modal = modal;
+
     const sshKey = await ipc.platform.sshAgent.generateKey("ed25519");
     this.cipher.sshKey.privateKey = sshKey.privateKey;
     this.cipher.sshKey.publicKey = sshKey.publicKey;

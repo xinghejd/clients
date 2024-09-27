@@ -64,6 +64,8 @@ import { GeneratorComponent } from "./tools/generator.component";
 import { ImportDesktopComponent } from "./tools/import/import-desktop.component";
 import { PasswordGeneratorHistoryComponent } from "./tools/password-generator-history.component";
 
+import { SshAgentService } from "../platform/services/ssh-agent.service";
+
 const BroadcasterSubscriptionId = "AppComponent";
 const IdleTimeout = 60000 * 10; // 10 minutes
 const SyncInterval = 6 * 60 * 60 * 1000; // 6 hours
@@ -79,6 +81,7 @@ const SyncInterval = 6 * 60 * 60 * 1000; // 6 hours
     <ng-template #exportVault></ng-template>
     <ng-template #appGenerator></ng-template>
     <ng-template #loginApproval></ng-template>
+    <ng-template #appSshGenerator></ng-template>
     <app-header></app-header>
 
     <div id="container">
@@ -102,6 +105,8 @@ export class AppComponent implements OnInit, OnDestroy {
   generatorModalRef: ViewContainerRef;
   @ViewChild("loginApproval", { read: ViewContainerRef, static: true })
   loginApprovalModalRef: ViewContainerRef;
+  @ViewChild("appSshGenerator", { read: ViewContainerRef, static: true })
+  sshGeneratorModalRef: ViewContainerRef;
 
   loading = false;
 
@@ -150,6 +155,7 @@ export class AppComponent implements OnInit, OnDestroy {
     private stateEventRunnerService: StateEventRunnerService,
     private providerService: ProviderService,
     private accountService: AccountService,
+    private sshAgentService: SshAgentService,
   ) {}
 
   ngOnInit() {
