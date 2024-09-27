@@ -9,8 +9,8 @@
     'tw-min-h-[calc(100vh-54px)]': clientType === 'desktop',
   }"
 >
-  <a [routerLink]="['/login']" class="tw-w-[128px] [&>*]:tw-align-top">
-    <bit-icon *ngIf="!hideLogo" [icon]="logo"></bit-icon>
+  <a *ngIf="!hideLogo" [routerLink]="['/login']" class="tw-w-[128px] [&>*]:tw-align-top">
+    <bit-icon [icon]="logo"></bit-icon>
   </a>
 
   <div class="tw-text-center">
