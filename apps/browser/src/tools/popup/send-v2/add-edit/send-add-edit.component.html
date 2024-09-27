@@ -1,0 +1,28 @@
+<popup-page>
+  <popup-header slot="header" [pageTitle]="headerText" showBackButton></popup-header>
+
+  <tools-send-form
+    formId="sendForm"
+    [config]="config"
+    (sendSaved)="onSendSaved()"
+    [submitBtn]="submitBtn"
+  >
+  </tools-send-form>
+
+  <send-file-popout-dialog-container [config]="config"></send-file-popout-dialog-container>
+
+  <popup-footer slot="footer">
+    <button bitButton type="submit" form="sendForm" buttonType="primary" #submitBtn>
+      {{ "save" | i18n }}
+    </button>
+    <button
+      *ngIf="config?.mode !== 'add'"
+      type="button"
+      buttonType="danger"
+      class="tw-ml-auto bwi-lg"
+      bitIconButton="bwi-trash"
+      [bitAction]="deleteSend"
+      appA11yTitle="{{ 'delete' | i18n }}"
+    ></button>
+  </popup-footer>
+</popup-page>

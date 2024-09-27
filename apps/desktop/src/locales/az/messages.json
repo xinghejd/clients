@@ -560,6 +560,18 @@
   "settings": {
     "message": "Ayarlar"
   },
+  "accountEmail": {
+    "message": "Hesab e-poçtu"
+  },
+  "requestHint": {
+    "message": "İpucu tələb et"
+  },
+  "requestPasswordHint": {
+    "message": "Parol ipucusu tələb et"
+  },
+  "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
+    "message": "Hesabınızın e-poçt ünvanını daxil edin və parolunuz üçün ipucu sizə göndəriləcək"
+  },
   "passwordHint": {
     "message": "Parol məsləhəti"
   },
@@ -602,6 +614,12 @@
   },
   "newAccountCreated": {
     "message": "Yeni hesabınız yaradıldı! İndi giriş edə bilərsiniz."
+  },
+  "newAccountCreated2": {
+    "message": "Yeni hesabınız yaradıldı!"
+  },
+  "youHaveBeenLoggedIn": {
+    "message": "Giriş etdiniz!"
   },
   "masterPassSent": {
     "message": "Ana parol məsləhətini ehtiva edən bir e-poçt göndərdik."
@@ -859,7 +877,7 @@
     "message": "Bizi izləyin"
   },
   "syncVault": {
-    "message": "Anbarı eyniləşdir"
+    "message": "Anbarı sinxronlaşdır"
   },
   "changeMasterPass": {
     "message": "Ana parolu dəyişdir"
@@ -888,10 +906,10 @@
     "message": "Brauzer uzantısını al"
   },
   "syncingComplete": {
-    "message": "Eyniləşdirmə tamamlandı"
+    "message": "Sinxr tamamlandı"
   },
   "syncingFailed": {
-    "message": "Uğursuz eyniləşdirmə"
+    "message": "Sinxr uğursuz oldu"
   },
   "yourVaultIsLocked": {
     "message": "Anbarınız kilidlənib. Davam etmək üçün kimliyinizi doğrulayın."
@@ -922,10 +940,13 @@
     "message": "İki mərhələli giriş"
   },
   "vaultTimeout": {
-    "message": "Anbara müraciət bitəcək"
+    "message": "Anbar vaxtının bitməsi"
+  },
+  "vaultTimeout1": {
+    "message": "Vaxt bitmə"
   },
   "vaultTimeoutDesc": {
-    "message": "Anbara müraciətin bitəcəyi vaxtı seçin və seçilən əməliyyatı icra edin."
+    "message": "Anbarın vaxt bitmə əməliyyatını nə vaxt icra edəcəyini seçin."
   },
   "immediately": {
     "message": "Dərhal"
@@ -1174,6 +1195,9 @@
   "premiumPurchaseAlert": {
     "message": "Premium üzvlüyü bitwarden.com veb anbarında satın ala bilərsiniz. İndi saytı ziyarət etmək istəyirsiniz?"
   },
+  "premiumPurchaseAlertV2": {
+    "message": "Bitwarden veb tətbiqindəki hesab ayarlarınızda Premium satın ala bilərsiniz."
+  },
   "premiumCurrentMember": {
     "message": "Premium üzvsünüz!"
   },
@@ -1275,6 +1299,9 @@
         "example": "Password"
       }
     }
+  },
+  "copySuccessful": {
+    "message": "Uğurla kopyalandı"
   },
   "errorRefreshingAccessToken": {
     "message": "Müraciət tokeni təzələmə xətası"
@@ -1543,7 +1570,7 @@
   "recommendedForSecurity": {
     "message": "Güvənlik üçün tövsiyə olunur."
   },
-  "lockWithMasterPassOnRestart": {
+  "lockWithMasterPassOnRestart1": {
     "message": "Yenidən başladılanda ana parol ilə kilidlə"
   },
   "deleteAccount": {
@@ -1608,20 +1635,20 @@
     "message": "Bir və ya daha çox təşkilat siyasətləri yaradıcı seçimlərinizə təsir edir."
   },
   "vaultTimeoutAction": {
-    "message": "Anbara müraciət vaxtının bitmə əməliyyatı"
+    "message": "Anbar vaxtının bitmə əməliyyatı"
   },
   "vaultTimeoutActionLockDesc": {
-    "message": "Kilidli bir anbar, təkrar müraciət etmək üçün ana parolunuzu yenidən yazmağınızı tələb edir."
+    "message": "Anbarınıza təkrar müraciət etmək üçün ana parol və ya digər kilid açma üsulu tələb olunur."
   },
   "vaultTimeoutActionLogOutDesc": {
-    "message": "Anbarınıza yenidən müraciət etmək üçün təkrar kimlik doğrulama tələb olunur."
+    "message": "Anbarınıza təkrar müraciət etmək üçün təkrar kimlik doğrulama tələb olunur."
   },
   "unlockMethodNeededToChangeTimeoutActionDesc": {
     "message": "Anbar vaxt bitməsi əməliyyatınızı dəyişdirmək üçün bir kilid açma üsulu quraşdırın."
   },
   "lock": {
     "message": "Kilidlə",
-    "description": "Verb form: to make secure or inaccesible by"
+    "description": "Verb form: to make secure or inaccessible by"
   },
   "trash": {
     "message": "Tullantı qutusu",
@@ -2075,8 +2102,8 @@
   "minutes": {
     "message": "Dəqiqə"
   },
-  "vaultTimeoutPolicyInEffect": {
-    "message": "Təşkilatınızın siyasətləri, anbarınızın vaxt bitişinə təsir edir. Anbar vaxt bitişi üçün icazə verilən maksimum vaxt $HOURS$ saat $MINUTES$ dəqiqədir",
+  "vaultTimeoutPolicyInEffect1": {
+    "message": "Maksimum $HOURS$ saat və $MINUTES$ dəqiqə.",
     "placeholders": {
       "hours": {
         "content": "$1",
@@ -3049,5 +3076,17 @@
   },
   "textSends": {
     "message": "Mətn \"Send\"ləri"
+  },
+  "allowScreenshots": {
+    "message": "Ekranı çəkməyə icazə ver"
+  },
+  "allowScreenshotsDesc": {
+    "message": "Bitwarden masaüstü tətbiqinin ekranını çəkməyə icazə ver."
+  },
+  "ssoError": {
+    "message": "SSO giriş üçün açıq port tapıla bilmədi."
+  },
+  "fileSavedToDevice": {
+    "message": "Fayl cihazda saxlanıldı. Endirilənləri cihazınızdan idarə edin."
   }
 }

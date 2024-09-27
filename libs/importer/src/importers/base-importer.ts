@@ -1,5 +1,6 @@
 import * as papa from "papaparse";
 
+import { normalizeExpiryYearFormat } from "@bitwarden/common/autofill/utils";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { ConsoleLogService } from "@bitwarden/common/platform/services/console-log.service";
@@ -263,7 +264,8 @@ export abstract class BaseImporter {
 
     cipher.card.expMonth = expiryMatch.groups.month;
     const year: string = expiryMatch.groups.year;
-    cipher.card.expYear = year.length === 2 ? "20" + year : year;
+    cipher.card.expYear = normalizeExpiryYearFormat(year);
+
     return true;
   }
 

@@ -1,6 +1,7 @@
 import { APP_INITIALIZER, NgModule } from "@angular/core";
 import { Subject, merge } from "rxjs";
 
+import { OrganizationUserApiService } from "@bitwarden/admin-console/common";
 import { SafeProvider, safeProvider } from "@bitwarden/angular/platform/utils/safe-provider";
 import {
   SECURE_STORAGE,
@@ -26,7 +27,6 @@ import {
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { VaultTimeoutSettingsService } from "@bitwarden/common/abstractions/vault-timeout/vault-timeout-settings.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
-import { OrganizationUserService } from "@bitwarden/common/admin-console/abstractions/organization-user/organization-user.service";
 import { PolicyService as PolicyServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { AccountService as AccountServiceAbstraction } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService as AuthServiceAbstraction } from "@bitwarden/common/auth/abstractions/auth.service";
@@ -56,6 +56,7 @@ import { StateService as StateServiceAbstraction } from "@bitwarden/common/platf
 import { AbstractStorageService } from "@bitwarden/common/platform/abstractions/storage.service";
 import { SystemService as SystemServiceAbstraction } from "@bitwarden/common/platform/abstractions/system.service";
 import { BiometricStateService } from "@bitwarden/common/platform/biometrics/biometric-state.service";
+import { BiometricsService } from "@bitwarden/common/platform/biometrics/biometric.service";
 import { Message, MessageListener, MessageSender } from "@bitwarden/common/platform/messaging";
 // eslint-disable-next-line no-restricted-imports -- Used for dependency injection
 import { SubjectMessageSender } from "@bitwarden/common/platform/messaging/internal";
@@ -65,6 +66,7 @@ import { SystemService } from "@bitwarden/common/platform/services/system.servic
 import { GlobalStateProvider, StateProvider } from "@bitwarden/common/platform/state";
 // eslint-disable-next-line import/no-restricted-paths -- Implementation for memory storage
 import { MemoryStorageService as MemoryStorageServiceForStateProviders } from "@bitwarden/common/platform/state/storage/memory-storage.service";
+import { ThemeStateService } from "@bitwarden/common/platform/theming/theme-state.service";
 import { VaultTimeoutStringType } from "@bitwarden/common/types/vault-timeout.type";
 import { CipherService as CipherServiceAbstraction } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { DialogService } from "@bitwarden/components";
@@ -72,6 +74,7 @@ import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legac
 
 import { DesktopAutofillSettingsService } from "../../autofill/services/desktop-autofill-settings.service";
 import { DesktopSettingsService } from "../../platform/services/desktop-settings.service";
+import { ElectronBiometricsService } from "../../platform/services/electron-biometrics.service";
 import { ElectronCryptoService } from "../../platform/services/electron-crypto.service";
 import { ElectronLogRendererService } from "../../platform/services/electron-log.renderer.service";
 import {
@@ -91,6 +94,7 @@ import { SearchBarService } from "../layout/search/search-bar.service";
 
 import { DesktopFileDownloadService } from "./desktop-file-download.service";
 import { DesktopSetPasswordJitService } from "./desktop-set-password-jit.service";
+import { DesktopThemeStateService } from "./desktop-theme.service";
 import { InitService } from "./init.service";
 import { NativeMessagingManifestService } from "./native-messaging-manifest.service";
 import { RendererCryptoFunctionService } from "./renderer-crypto-function.service";
@@ -104,6 +108,11 @@ const RELOAD_CALLBACK = new SafeInjectionToken<() => any>("RELOAD_CALLBACK");
  */
 const safeProviders: SafeProvider[] = [
   safeProvider(InitService),
+  safeProvider({
+    provide: BiometricsService,
+    useClass: ElectronBiometricsService,
+    deps: [],
+  }),
   safeProvider(NativeMessagingService),
   safeProvider(SearchBarService),
   safeProvider(DialogService),
@@ -206,6 +215,11 @@ const safeProviders: SafeProvider[] = [
     deps: [],
   }),
   safeProvider({
+    provide: ThemeStateService,
+    useClass: DesktopThemeStateService,
+    deps: [GlobalStateProvider],
+  }),
+  safeProvider({
     provide: EncryptedMessageHandlerService,
     deps: [
       AccountServiceAbstraction,
@@ -220,7 +234,7 @@ const safeProviders: SafeProvider[] = [
     provide: NativeMessageHandlerService,
     deps: [
       StateServiceAbstraction,
-      CryptoServiceAbstraction,
+      EncryptService,
       CryptoFunctionServiceAbstraction,
       MessagingServiceAbstraction,
       EncryptedMessageHandlerService,
@@ -278,7 +292,7 @@ const safeProviders: SafeProvider[] = [
       KdfConfigService,
       InternalMasterPasswordServiceAbstraction,
       OrganizationApiServiceAbstraction,
-      OrganizationUserService,
+      OrganizationUserApiService,
       InternalUserDecryptionOptionsServiceAbstraction,
     ],
   }),

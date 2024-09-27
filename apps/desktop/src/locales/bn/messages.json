@@ -560,6 +560,18 @@
   "settings": {
     "message": "সেটিংস"
   },
+  "accountEmail": {
+    "message": "Account email"
+  },
+  "requestHint": {
+    "message": "Request hint"
+  },
+  "requestPasswordHint": {
+    "message": "Request password hint"
+  },
+  "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
+    "message": "Enter your account email address and your password hint will be sent to you"
+  },
   "passwordHint": {
     "message": "পাসওয়ার্ড ইঙ্গিত"
   },
@@ -602,6 +614,12 @@
   },
   "newAccountCreated": {
     "message": "আপনার নতুন অ্যাকাউন্ট তৈরি করা হয়েছে! আপনি এখন প্রবেশ করতে পারেন।"
+  },
+  "newAccountCreated2": {
+    "message": "Your new account has been created!"
+  },
+  "youHaveBeenLoggedIn": {
+    "message": "You have been logged in!"
   },
   "masterPassSent": {
     "message": "আমরা আপনাকে আপনার মূল পাসওয়ার্ডের ইঙ্গিতসহ একটি ইমেল প্রেরণ করেছি।"
@@ -924,6 +942,9 @@
   "vaultTimeout": {
     "message": "ভল্টের সময়সীমা"
   },
+  "vaultTimeout1": {
+    "message": "Timeout"
+  },
   "vaultTimeoutDesc": {
     "message": "Choose when your vault will take the vault timeout action."
   },
@@ -1174,6 +1195,9 @@
   "premiumPurchaseAlert": {
     "message": "আপনি bitwarden.com ওয়েব ভল্টে প্রিমিয়াম সদস্যতা কিনতে পারেন। আপনি কি এখনই ওয়েবসাইটটি দেখতে চান?"
   },
+  "premiumPurchaseAlertV2": {
+    "message": "You can purchase Premium from your account settings on the Bitwarden web app."
+  },
   "premiumCurrentMember": {
     "message": "আপনি প্রিমিয়াম সদস্য!"
   },
@@ -1275,6 +1299,9 @@
         "example": "Password"
       }
     }
+  },
+  "copySuccessful": {
+    "message": "Copy Successful"
   },
   "errorRefreshingAccessToken": {
     "message": "Access Token Refresh Error"
@@ -1543,7 +1570,7 @@
   "recommendedForSecurity": {
     "message": "Recommended for security."
   },
-  "lockWithMasterPassOnRestart": {
+  "lockWithMasterPassOnRestart1": {
     "message": "Lock with master password on restart"
   },
   "deleteAccount": {
@@ -1621,7 +1648,7 @@
   },
   "lock": {
     "message": "Lock",
-    "description": "Verb form: to make secure or inaccesible by"
+    "description": "Verb form: to make secure or inaccessible by"
   },
   "trash": {
     "message": "আবর্জনা",
@@ -1814,7 +1841,7 @@
     "message": "ব্রাউজার বায়োমেট্রিক্সের জন্য প্রথমে সেটিংসে ডেস্কটপ বায়োমেট্রিক সক্ষম করা প্রয়োজন।"
   },
   "biometricsManualSetupTitle": {
-    "message": "Autometic setup not available"
+    "message": "Automatic setup not available"
   },
   "biometricsManualSetupDesc": {
     "message": "Due to the installation method, biometrics support could not be automatically enabled. Would you like to open the documentation on how to do this manually?"
@@ -2075,8 +2102,8 @@
   "minutes": {
     "message": "Minutes"
   },
-  "vaultTimeoutPolicyInEffect": {
-    "message": "Your organization policies have set your maximum allowed vault timeout to $HOURS$ hour(s) and $MINUTES$ minute(s).",
+  "vaultTimeoutPolicyInEffect1": {
+    "message": "$HOURS$ hour(s) and $MINUTES$ minute(s) maximum.",
     "placeholders": {
       "hours": {
         "content": "$1",
@@ -3049,5 +3076,17 @@
   },
   "textSends": {
     "message": "Text Sends"
+  },
+  "allowScreenshots": {
+    "message": "Allow screen capture"
+  },
+  "allowScreenshotsDesc": {
+    "message": "Allow screen capture of the Bitwarden desktop application."
+  },
+  "ssoError": {
+    "message": "No free ports could be found for the sso login."
+  },
+  "fileSavedToDevice": {
+    "message": "File saved to device. Manage from your device downloads."
   }
 }

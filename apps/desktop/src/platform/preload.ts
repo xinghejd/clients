@@ -12,7 +12,7 @@ import {
   UnencryptedMessageResponse,
 } from "../models/native-messaging";
 import { BiometricMessage, BiometricAction } from "../types/biometric-message";
-import { isDev, isFlatpak, isMacAppStore, isSnapStore, isWindowsStore } from "../utils";
+import { isAppImage, isDev, isFlatpak, isMacAppStore, isSnapStore, isWindowsStore } from "../utils";
 
 import { ClipboardWriteMessage } from "./types/clipboard";
 
@@ -141,6 +141,12 @@ const ephemeralStore = {
     ipcRenderer.invoke("deleteEphemeralValue", key),
 };
 
+const localhostCallbackService = {
+  openSsoPrompt: (codeChallenge: string, state: string): Promise<void> => {
+    return ipcRenderer.invoke("openSsoPrompt", { codeChallenge, state });
+  },
+};
+
 export default {
   versions: {
     app: (): Promise<string> => ipcRenderer.invoke("appVersion"),
@@ -151,6 +157,7 @@ export default {
   isWindowsStore: isWindowsStore(),
   isFlatpak: isFlatpak(),
   isSnapStore: isSnapStore(),
+  isAppImage: isAppImage(),
   reloadProcess: () => ipcRenderer.send("reload-process"),
   focusWindow: () => ipcRenderer.send("window-focus"),
   hideWindow: () => ipcRenderer.send("window-hide"),
@@ -204,6 +211,7 @@ export default {
   nativeMessaging,
   crypto,
   ephemeralStore,
+  localhostCallbackService,
 };
 
 function deviceType(): DeviceType {

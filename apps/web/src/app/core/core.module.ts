@@ -1,6 +1,7 @@
 import { CommonModule } from "@angular/common";
 import { APP_INITIALIZER, NgModule, Optional, SkipSelf } from "@angular/core";
 
+import { OrganizationUserApiService } from "@bitwarden/admin-console/common";
 import { SafeProvider, safeProvider } from "@bitwarden/angular/platform/utils/safe-provider";
 import {
   SECURE_STORAGE,
@@ -24,7 +25,6 @@ import {
 import { InternalUserDecryptionOptionsServiceAbstraction } from "@bitwarden/auth/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
-import { OrganizationUserService } from "@bitwarden/common/admin-console/abstractions/organization-user/organization-user.service";
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { AccountApiService as AccountApiServiceAbstraction } from "@bitwarden/common/auth/abstractions/account-api.service";
@@ -32,6 +32,8 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { KdfConfigService } from "@bitwarden/common/auth/abstractions/kdf-config.service";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/auth/abstractions/master-password.service.abstraction";
 import { ClientType } from "@bitwarden/common/enums";
+import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { CryptoService as CryptoServiceAbstraction } from "@bitwarden/common/platform/abstractions/crypto.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { FileDownloadService } from "@bitwarden/common/platform/abstractions/file-download/file-download.service";
@@ -39,7 +41,9 @@ import { I18nService as I18nServiceAbstraction } from "@bitwarden/common/platfor
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService as PlatformUtilsServiceAbstraction } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { AbstractStorageService } from "@bitwarden/common/platform/abstractions/storage.service";
+import { BiometricsService } from "@bitwarden/common/platform/biometrics/biometric.service";
 import { ThemeType } from "@bitwarden/common/platform/enums";
+import { AppIdService as DefaultAppIdService } from "@bitwarden/common/platform/services/app-id.service";
 import { MemoryStorageService } from "@bitwarden/common/platform/services/memory-storage.service";
 // eslint-disable-next-line import/no-restricted-paths -- Implementation for memory storage
 import { MigrationBuilderService } from "@bitwarden/common/platform/services/migration-builder.service";
@@ -61,6 +65,7 @@ import { WebSetPasswordJitService, WebRegistrationFinishService } from "../auth"
 import { AcceptOrganizationInviteService } from "../auth/organization-invite/accept-organization.service";
 import { HtmlStorageService } from "../core/html-storage.service";
 import { I18nService } from "../core/i18n.service";
+import { WebBiometricsService } from "../platform/web-biometric.service";
 import { WebEnvironmentService } from "../platform/web-environment.service";
 import { WebMigrationRunner } from "../platform/web-migration-runner";
 import { WebStorageServiceProvider } from "../platform/web-storage-service.provider";
@@ -164,11 +169,16 @@ const safeProviders: SafeProvider[] = [
     deps: [WINDOW, StateProvider, AccountService],
   }),
   safeProvider({
+    provide: BiometricsService,
+    useClass: WebBiometricsService,
+    deps: [],
+  }),
+  safeProvider({
     provide: ThemeStateService,
-    useFactory: (globalStateProvider: GlobalStateProvider) =>
+    useFactory: (globalStateProvider: GlobalStateProvider, configService: ConfigService) =>
       // Web chooses to have Light as the default theme
-      new DefaultThemeStateService(globalStateProvider, ThemeType.Light),
-    deps: [GlobalStateProvider],
+      new DefaultThemeStateService(globalStateProvider, configService, ThemeType.Light),
+    deps: [GlobalStateProvider, ConfigService],
   }),
   safeProvider({
     provide: CLIENT_TYPE,
@@ -196,9 +206,14 @@ const safeProviders: SafeProvider[] = [
       KdfConfigService,
       InternalMasterPasswordServiceAbstraction,
       OrganizationApiServiceAbstraction,
-      OrganizationUserService,
+      OrganizationUserApiService,
       InternalUserDecryptionOptionsServiceAbstraction,
     ],
+  }),
+  safeProvider({
+    provide: AppIdService,
+    useClass: DefaultAppIdService,
+    deps: [OBSERVABLE_DISK_LOCAL_STORAGE, LogService],
   }),
 ];
 

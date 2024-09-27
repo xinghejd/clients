@@ -14,7 +14,7 @@
     "message": "Identifícate o crea una nueva cuenta para acceder a tu caja fuerte."
   },
   "inviteAccepted": {
-    "message": "Invitation accepted"
+    "message": "Invitación aceptada"
   },
   "createAccount": {
     "message": "Crear cuenta"
@@ -24,9 +24,6 @@
   },
   "finishCreatingYourAccountBySettingAPassword": {
     "message": "Termina de crear tu cuenta estableciendo una contraseña"
-  },
-  "login": {
-    "message": "Iniciar sesión"
   },
   "enterpriseSingleSignOn": {
     "message": "Inicio de sesión único empresarial"
@@ -72,10 +69,10 @@
     "message": "Pista de contraseña maestra (opcional)"
   },
   "joinOrganization": {
-    "message": "Join organization"
+    "message": "Incorporarse a la organización"
   },
   "finishJoiningThisOrganizationBySettingAMasterPassword": {
-    "message": "Finish joining this organization by setting a master password."
+    "message": "Termine de unirse a esta organización estableciendo una contraseña maestra."
   },
   "tab": {
     "message": "Pestaña"
@@ -117,19 +114,34 @@
     "message": "Copiar código de seguridad"
   },
   "copyName": {
-    "message": "Copy name"
+    "message": "Copiar nombre"
   },
   "copyCompany": {
-    "message": "Copy company"
+    "message": "Copiar empresa"
   },
   "copySSN": {
-    "message": "Copy Social Security number"
+    "message": "Copiar número de seguro social"
   },
   "copyPassportNumber": {
-    "message": "Copy passport number"
+    "message": "Copiar número de pasaporte"
   },
   "copyLicenseNumber": {
-    "message": "Copy license number"
+    "message": "Copiar número de licencia"
+  },
+  "copyCustomField": {
+    "message": "Copy $FIELD$",
+    "placeholders": {
+      "field": {
+        "content": "$1",
+        "example": "Custom field label"
+      }
+    }
+  },
+  "copyWebsite": {
+    "message": "Copy website"
+  },
+  "copyNotes": {
+    "message": "Copy notes"
   },
   "autoFill": {
     "message": "Autorrellenar"
@@ -181,6 +193,18 @@
   },
   "addItem": {
     "message": "Añadir elemento"
+  },
+  "accountEmail": {
+    "message": "Account email"
+  },
+  "requestHint": {
+    "message": "Request hint"
+  },
+  "requestPasswordHint": {
+    "message": "Request password hint"
+  },
+  "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
+    "message": "Enter your account email address and your password hint will be sent to you"
   },
   "passwordHint": {
     "message": "Pista de contraseña"
@@ -305,22 +329,22 @@
     "message": "Editar carpeta"
   },
   "newFolder": {
-    "message": "New folder"
+    "message": "Carpeta nueva"
   },
   "folderName": {
-    "message": "Folder name"
+    "message": "Nombre de carpeta"
   },
   "folderHintText": {
     "message": "Nest a folder by adding the parent folder's name followed by a “/”. Example: Social/Forums"
   },
   "noFoldersAdded": {
-    "message": "No folders added"
+    "message": "Ninguna carpeta añadida"
   },
   "createFoldersToOrganize": {
     "message": "Create folders to organize your vault items"
   },
   "deleteFolderPermanently": {
-    "message": "Are you sure you want to permanently delete this folder?"
+    "message": "¿Confirma que quiere eliminar permanentemente esta carpeta?"
   },
   "deleteFolder": {
     "message": "Eliminar carpeta"
@@ -387,16 +411,56 @@
     "message": "Longitud mínima de contraseña"
   },
   "uppercase": {
-    "message": "Mayúsculas (A-Z)"
+    "message": "Mayúsculas (A-Z)",
+    "description": "deprecated. Use uppercaseLabel instead."
   },
   "lowercase": {
-    "message": "Minúsculas (a-z)"
+    "message": "Minúsculas (a-z)",
+    "description": "deprecated. Use lowercaseLabel instead."
   },
   "numbers": {
-    "message": "Números (0-9)"
+    "message": "Números (0-9)",
+    "description": "deprecated. Use numbersLabel instead."
   },
   "specialCharacters": {
-    "message": "Caracteres especiales (!@#$%^&*)"
+    "message": "Caracteres especiales (!@#$%^&*)",
+    "description": "deprecated. Use specialCharactersLabel instead."
+  },
+  "include": {
+    "message": "Incluir",
+    "description": "Card header for password generator include block"
+  },
+  "uppercaseDescription": {
+    "message": "Incluir letras mayúsculas",
+    "description": "Tooltip for the password generator uppercase character checkbox"
+  },
+  "uppercaseLabel": {
+    "message": "A-Z",
+    "description": "Label for the password generator uppercase character checkbox"
+  },
+  "lowercaseDescription": {
+    "message": "Incluir letras minúsculas",
+    "description": "Full description for the password generator lowercase character checkbox"
+  },
+  "lowercaseLabel": {
+    "message": "a-z",
+    "description": "Label for the password generator lowercase character checkbox"
+  },
+  "numbersDescription": {
+    "message": "Incluir números",
+    "description": "Full description for the password generator numbers checkbox"
+  },
+  "numbersLabel": {
+    "message": "0-9",
+    "description": "Label for the password generator numbers checkbox"
+  },
+  "specialCharactersDescription": {
+    "message": "Incluir caracteres especiales",
+    "description": "Full description for the password generator special characters checkbox"
+  },
+  "specialCharactersLabel": {
+    "message": "!@#$%^&*",
+    "description": "Label for the password generator special characters checkbox"
   },
   "numWords": {
     "message": "Número de palabras"
@@ -418,7 +482,16 @@
     "message": "Mínimo de caracteres especiales"
   },
   "avoidAmbChar": {
-    "message": "Evitar caracteres ambiguos"
+    "message": "Evitar caracteres ambiguos",
+    "description": "deprecated. Use avoidAmbiguous instead."
+  },
+  "avoidAmbiguous": {
+    "message": "Evitar caracteres ambiguos",
+    "description": "Label for the avoid ambiguous characters checkbox."
+  },
+  "generatorPolicyInEffect": {
+    "message": "Enterprise policy requirements have been applied to your generator options.",
+    "description": "Indicates that a policy limits the credential generator screen."
   },
   "searchVault": {
     "message": "Buscar en caja fuerte"
@@ -461,6 +534,9 @@
   },
   "notes": {
     "message": "Notas"
+  },
+  "privateNote": {
+    "message": "Private note"
   },
   "note": {
     "message": "Nota"
@@ -507,6 +583,9 @@
   "sessionTimeoutHeader": {
     "message": "Tiempo de sesión agotado"
   },
+  "vaultTimeoutHeader": {
+    "message": "Vault timeout"
+  },
   "otherOptions": {
     "message": "Otras opciones"
   },
@@ -546,6 +625,9 @@
   },
   "vaultTimeout": {
     "message": "Tiempo de espera de la caja fuerte"
+  },
+  "vaultTimeout1": {
+    "message": "Timeout"
   },
   "lockNow": {
     "message": "Bloquear"
@@ -641,6 +723,12 @@
   "newAccountCreated": {
     "message": "¡Tu nueva cuenta ha sido creada! Ahora puedes acceder."
   },
+  "newAccountCreated2": {
+    "message": "Your new account has been created!"
+  },
+  "youHaveBeenLoggedIn": {
+    "message": "You have been logged in!"
+  },
   "youSuccessfullyLoggedIn": {
     "message": "Accedió correctamente a su cuenta"
   },
@@ -706,19 +794,19 @@
     "message": "Tu sesión ha expirado."
   },
   "logIn": {
-    "message": "Log in"
+    "message": "Acceder"
   },
   "restartRegistration": {
-    "message": "Restart registration"
+    "message": "Reiniciar registro"
   },
   "expiredLink": {
-    "message": "Expired link"
+    "message": "Enlace caducado"
   },
   "pleaseRestartRegistrationOrTryLoggingIn": {
-    "message": "Please restart registration or try logging in."
+    "message": "Reinicie el registro o pruebe a acceder a su cuenta."
   },
   "youMayAlreadyHaveAnAccount": {
-    "message": "You may already have an account"
+    "message": "Puede que ya tenga una cuenta"
   },
   "logOutConfirmation": {
     "message": "¿Estás seguro de querer cerrar la sesión?"
@@ -740,6 +828,12 @@
   },
   "twoStepLoginConfirmation": {
     "message": "La autenticación en dos pasos hace que tu cuenta sea mucho más segura, requiriendo que introduzcas un código de seguridad de una aplicación de autenticación cada vez que accedes. La autenticación en dos pasos puede ser habilitada en la caja fuerte web de bitwarden.com. ¿Quieres visitar ahora el sitio web?"
+  },
+  "twoStepLoginConfirmationContent": {
+    "message": "Make your account more secure by setting up two-step login in the Bitwarden web app."
+  },
+  "twoStepLoginConfirmationTitle": {
+    "message": "Continue to web app?"
   },
   "editedFolder": {
     "message": "Carpeta editada"
@@ -782,7 +876,7 @@
     "message": "Nueva URI"
   },
   "addDomain": {
-    "message": "Add domain",
+    "message": "Añadir dominio",
     "description": "'Domain' here refers to an internet domain name (e.g. 'bitwarden.com') and the message in whole described the act of putting a domain value into the context."
   },
   "addedItem": {
@@ -844,7 +938,7 @@
     "message": "Listar los elementos de tarjetas en la página para facilitar el auto-rellenado."
   },
   "showIdentitiesInVaultView": {
-    "message": "Show identifies as Autofill suggestions on Vault view"
+    "message": "Show identities as Autofill suggestions on Vault view"
   },
   "showIdentitiesCurrentTab": {
     "message": "Mostrar las identidades en la página"
@@ -1049,6 +1143,9 @@
   "file": {
     "message": "Archivo"
   },
+  "fileToShare": {
+    "message": "File to share"
+  },
   "selectFile": {
     "message": "Selecciona un archivo."
   },
@@ -1083,7 +1180,7 @@
     "message": "1 GB de espacio cifrado en disco para adjuntos."
   },
   "premiumSignUpEmergency": {
-    "message": "Emergency access"
+    "message": "Acceso de emergencia."
   },
   "premiumSignUpTwoStepOptions": {
     "message": "Opciones de inicio de sesión con autenticación de dos pasos propietarios como YubiKey y Duo."
@@ -1115,8 +1212,20 @@
   "premiumCurrentMemberThanks": {
     "message": "Gracias por apoyar el desarrollo de Bitwarden."
   },
+  "premiumFeatures": {
+    "message": "Upgrade to Premium and receive:"
+  },
   "premiumPrice": {
     "message": "¡Todo por solo %price% /año!",
+    "placeholders": {
+      "price": {
+        "content": "$1",
+        "example": "$10"
+      }
+    }
+  },
+  "premiumPriceV2": {
+    "message": "All for just $PRICE$ per year!",
     "placeholders": {
       "price": {
         "content": "$1",
@@ -1736,6 +1845,15 @@
   "noPasswordsInList": {
     "message": "No hay contraseñas que listar."
   },
+  "clearHistory": {
+    "message": "Clear history"
+  },
+  "noPasswordsToShow": {
+    "message": "No passwords to show"
+  },
+  "noRecentlyGeneratedPassword": {
+    "message": "You haven't generated a password recently"
+  },
   "remove": {
     "message": "Eliminar"
   },
@@ -1794,8 +1912,17 @@
   "unlockWithPin": {
     "message": "Desbloquear con PIN"
   },
+  "setYourPinTitle": {
+    "message": "Set PIN"
+  },
+  "setYourPinButton": {
+    "message": "Set PIN"
+  },
   "setYourPinCode": {
     "message": "Establece tu código PIN para desbloquear Bitwarden. Tus ajustes de PIN se reiniciarán si alguna vez cierras tu sesión completamente de la aplicación."
+  },
+  "setYourPinCode1": {
+    "message": "Your PIN will be used to unlock Bitwarden instead of your master password. Your PIN will reset if you ever fully log out of Bitwarden."
   },
   "pinRequired": {
     "message": "Código PIN requerido."
@@ -1818,6 +1945,9 @@
   "lockWithMasterPassOnRestart": {
     "message": "Bloquear con contraseña maestra al reiniciar el navegador"
   },
+  "lockWithMasterPassOnRestart1": {
+    "message": "Require master password on browser restart"
+  },
   "selectOneCollection": {
     "message": "Debes seleccionar al menos una colección."
   },
@@ -1831,16 +1961,16 @@
     "message": "Una o más políticas de la organización están afectando la configuración del generador"
   },
   "passwordGenerator": {
-    "message": "Password generator"
+    "message": "Generador de contraseñas"
   },
   "usernameGenerator": {
-    "message": "Username generator"
+    "message": "Generador de nombres de usuario"
   },
   "useThisPassword": {
-    "message": "Use this password"
+    "message": "Usar esta contraseña"
   },
   "useThisUsername": {
-    "message": "Use this username"
+    "message": "Usar este nombre de usuario"
   },
   "securePasswordGenerated": {
     "message": "Secure password generated! Don't forget to also update your password on the website."
@@ -1856,9 +1986,12 @@
   "vaultTimeoutAction": {
     "message": "Acción de tiempo de espera de la caja fuerte"
   },
+  "vaultTimeoutAction1": {
+    "message": "Timeout action"
+  },
   "lock": {
     "message": "Bloquear",
-    "description": "Verb form: to make secure or inaccesible by"
+    "description": "Verb form: to make secure or inaccessible by"
   },
   "trash": {
     "message": "Papelera",
@@ -2050,11 +2183,11 @@
   "nativeMessagingWrongUserTitle": {
     "message": "Las cuentas son distintas"
   },
-  "nativeMessagingWrongUserKeyDesc": {
-    "message": "Biometric unlock failed. The biometric secret key failed to unlock the vault. Please try to set up biometrics again."
-  },
   "nativeMessagingWrongUserKeyTitle": {
     "message": "Biometric key missmatch"
+  },
+  "nativeMessagingWrongUserKeyDesc": {
+    "message": "Biometric unlock failed. The biometric secret key failed to unlock the vault. Please try to set up biometrics again."
   },
   "biometricsNotEnabledTitle": {
     "message": "Biometría deshabilitada"
@@ -2073,6 +2206,12 @@
   },
   "biometricsNotUnlockedDesc": {
     "message": "Por favor, desbloquea a este usuario en la aplicación de escritorio e inténtalo de nuevo."
+  },
+  "biometricsNotAvailableTitle": {
+    "message": "Desbloqueo biométrico no disponible"
+  },
+  "biometricsNotAvailableDesc": {
+    "message": "El desbloqueo biométrico no está disponible actualmente. Inténtelo de nuevo más tarde."
   },
   "biometricsFailedTitle": {
     "message": "Fallo de biométrica"
@@ -2102,7 +2241,7 @@
     "message": "Una política organizacional ha bloqueado la importación de elementos a su caja fuerte personal."
   },
   "domainsTitle": {
-    "message": "Domains",
+    "message": "Dominios",
     "description": "A category title describing the concept of web domains"
   },
   "excludedDomains": {
@@ -2135,8 +2274,29 @@
   "excludedDomainsSavedSuccess": {
     "message": "Excluded domain changes saved"
   },
+  "limitSendViews": {
+    "message": "Limit views"
+  },
+  "limitSendViewsHint": {
+    "message": "No one can view this Send after the limit is reached.",
+    "description": "Displayed under the limit views field on Send"
+  },
+  "limitSendViewsCount": {
+    "message": "$ACCESSCOUNT$ views left",
+    "description": "Displayed under the limit views field on Send",
+    "placeholders": {
+      "accessCount": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
   "send": {
     "message": "Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendDetails": {
+    "message": "Send details",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "searchSends": {
@@ -2150,12 +2310,18 @@
   "sendTypeText": {
     "message": "Texto"
   },
+  "sendTypeTextToShare": {
+    "message": "Text to share"
+  },
   "sendTypeFile": {
     "message": "Archivo"
   },
   "allSends": {
     "message": "Todos los Sends",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "hideTextByDefault": {
+    "message": "Hide text by default"
   },
   "maxAccessCountReached": {
     "message": "Número máximo de accesos alcanzado",
@@ -2171,7 +2337,7 @@
     "message": "Protegido por contraseña"
   },
   "copyLink": {
-    "message": "Copy link"
+    "message": "Copiar enlace"
   },
   "copySendLink": {
     "message": "Copiar enlace Send",
@@ -2230,6 +2396,10 @@
     "message": "El Send se eliminará permanentemente en la fecha y hora especificadas.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "deletionDateDescV2": {
+    "message": "The Send will be permanently deleted on this date.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
   "expirationDate": {
     "message": "Fecha de caducidad"
   },
@@ -2261,6 +2431,10 @@
   },
   "sendPasswordDesc": {
     "message": "Opcionalmente se requiere una contraseña para que los usuarios accedan a este Send.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendPasswordDescV2": {
+    "message": "Require this password to view the Send.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendNotesDesc": {
@@ -2368,6 +2542,9 @@
   "hideEmail": {
     "message": "Ocultar mi dirección de correo electrónico a los destinatarios."
   },
+  "hideYourEmail": {
+    "message": "Hide your email address from viewers."
+  },
   "sendOptionsPolicyInEffect": {
     "message": "Una o más políticas de organización están afectando sus opciones del Send."
   },
@@ -2435,8 +2612,37 @@
   "minutes": {
     "message": "Minutos"
   },
+  "vaultTimeoutPolicyAffectingOptions": {
+    "message": "Enterprise policy requirements have been applied to your timeout options"
+  },
   "vaultTimeoutPolicyInEffect": {
     "message": "Las políticas de tu organización están afectando al tiempo de espera de tu caja fuerte. El tiempo máximo de espera de la caja fuerte es de $HOURS$ hora(s) y $MINUTES$ minuto(s)",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "vaultTimeoutPolicyInEffect1": {
+    "message": "$HOURS$ hour(s) and $MINUTES$ minute(s) maximum.",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      },
+      "minutes": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "vaultTimeoutPolicyMaximumError": {
+    "message": "Timeout exceeds the restriction set by your organization: $HOURS$ hour(s) and $MINUTES$ minute(s) maximum",
     "placeholders": {
       "hours": {
         "content": "$1",
@@ -2858,10 +3064,10 @@
     "message": "Autofill shortcut"
   },
   "autofillKeyboardShortcutUpdateLabel": {
-    "message": "Change shortcut"
+    "message": "Cambiar atajo"
   },
   "autofillKeyboardManagerShortcutsLabel": {
-    "message": "Manage shortcuts"
+    "message": "Gestionar atajos"
   },
   "autofillShortcut": {
     "message": "Atajo de teclado para autocompletar"
@@ -3214,7 +3420,7 @@
     "description": "Screen reader text (aria-label) for new card button within inline menu"
   },
   "newIdentity": {
-    "message": "New identity",
+    "message": "Identidad nueva",
     "description": "Button text to display within inline menu when there are no matching items on an identity field"
   },
   "addNewIdentityItemAria": {
@@ -3338,7 +3544,7 @@
     "message": "Contraseña de archivo no válida. Por favor utilice la contraseña que introdujo cuando creó el archivo de exportación."
   },
   "destination": {
-    "message": "Destination"
+    "message": "Destino"
   },
   "learnAboutImportOptions": {
     "message": "Aprende sobre tus opciones de importación"
@@ -3411,8 +3617,8 @@
   "passkeyFeatureIsNotImplementedForAccountsWithoutMasterPassword": {
     "message": "Verificación requerida por el sitio inicial. Esta característica aún no está implementada para cuentas sin contraseña maestra."
   },
-  "logInWithPasskey": {
-    "message": "¿Iniciar sesión con clave de acceso?"
+  "logInWithPasskeyQuestion": {
+    "message": "Log in with passkey?"
   },
   "passkeyAlreadyExists": {
     "message": "Ya existe una clave de acceso para esta aplicación."
@@ -3423,6 +3629,9 @@
   "noMatchingPasskeyLogin": {
     "message": "No tiene un inicio de sesión que coincida para este sitio."
   },
+  "noMatchingLoginsForSite": {
+    "message": "No matching logins for this site"
+  },
   "confirm": {
     "message": "Confirmar"
   },
@@ -3432,8 +3641,11 @@
   "savePasskeyNewLogin": {
     "message": "Guardar clave de acceso como nuevo inicio de sesión"
   },
-  "choosePasskey": {
-    "message": "Elija un inicio de sesión para guardar esta clave de acceso"
+  "chooseCipherForPasskeySave": {
+    "message": "Choose a login to save this passkey to"
+  },
+  "chooseCipherForPasskeyAuth": {
+    "message": "Choose a passkey to log in with"
   },
   "passkeyItem": {
     "message": "Elemento de clave de acceso"
@@ -3630,8 +3842,16 @@
     "message": "¡Credenciales guardadas con éxito!",
     "description": "Notification message for when saving credentials has succeeded."
   },
+  "passwordSaved": {
+    "message": "Password saved!",
+    "description": "Notification message for when saving credentials has succeeded."
+  },
   "updateCipherAttemptSuccess": {
     "message": "¡Credenciales actualizadas con éxito!",
+    "description": "Notification message for when updating credentials has succeeded."
+  },
+  "passwordUpdated": {
+    "message": "Password updated!",
     "description": "Notification message for when updating credentials has succeeded."
   },
   "saveCipherAttemptFailed": {
@@ -3960,6 +4180,12 @@
   "autoFillOnPageLoad": {
     "message": "Autofill on page load?"
   },
+  "cardExpiredTitle": {
+    "message": "Expired card"
+  },
+  "cardExpiredMessage": {
+    "message": "If you've renewed it, update the card's information"
+  },
   "cardDetails": {
     "message": "Datos de la tarjeta"
   },
@@ -3972,6 +4198,9 @@
       }
     }
   },
+  "enableAnimations": {
+    "message": "Activar animaciones"
+  },
   "addAccount": {
     "message": "Añadir cuenta"
   },
@@ -3979,14 +4208,14 @@
     "message": "Cargando"
   },
   "data": {
-    "message": "Data"
+    "message": "Datos"
   },
   "passkeys": {
     "message": "Passkeys",
     "description": "A section header for a list of passkeys."
   },
   "passwords": {
-    "message": "Passwords",
+    "message": "Contraseñas",
     "description": "A section header for a list of passwords."
   },
   "logInWithPasskeyAriaLabel": {
@@ -4015,16 +4244,16 @@
     }
   },
   "addField": {
-    "message": "Add field"
+    "message": "Añadir campo"
   },
   "add": {
-    "message": "Add"
+    "message": "Añadir"
   },
   "fieldType": {
-    "message": "Field type"
+    "message": "Tipo de campo"
   },
   "fieldLabel": {
-    "message": "Field label"
+    "message": "Etiqueta de campo"
   },
   "textHelpText": {
     "message": "Use text fields for data like security questions"
@@ -4185,7 +4414,7 @@
     }
   },
   "itemLocation": {
-    "message": "Item Location"
+    "message": "Ubicación del elemento"
   },
   "fileSends": {
     "message": "File Sends"
@@ -4194,13 +4423,13 @@
     "message": "Text Sends"
   },
   "bitwardenNewLook": {
-    "message": "Bitwarden has a new look!"
+    "message": "Bitwarden tiene un aspecto nuevo."
   },
   "bitwardenNewLookDesc": {
     "message": "It's easier and more intuitive than ever to autofill and search from the Vault tab. Take a look around!"
   },
   "accountActions": {
-    "message": "Account actions"
+    "message": "Acciones de cuenta"
   },
   "showNumberOfAutofillSuggestions": {
     "message": "Show number of login autofill suggestions on extension icon"
@@ -4210,5 +4439,44 @@
   },
   "enterprisePolicyRequirementsApplied": {
     "message": "Enterprise policy requirements have been applied to this setting"
+  },
+  "retry": {
+    "message": "Retry"
+  },
+  "vaultCustomTimeoutMinimum": {
+    "message": "Minimum custom timeout is 1 minute."
+  },
+  "additionalContentAvailable": {
+    "message": "Additional content is available"
+  },
+  "fileSavedToDevice": {
+    "message": "File saved to device. Manage from your device downloads."
+  },
+  "showCharacterCount": {
+    "message": "Show character count"
+  },
+  "hideCharacterCount": {
+    "message": "Hide character count"
+  },
+  "itemsInTrash": {
+    "message": "Elementos en la papelera"
+  },
+  "noItemsInTrash": {
+    "message": "Ningún elemento en la papelera"
+  },
+  "noItemsInTrashDesc": {
+    "message": "Los elementos que elimine aparecerán aquí y se eliminarán permanentemente al cabo de 30 días"
+  },
+  "trashWarning": {
+    "message": "Los elementos que permanezcan más de 30 días en la papelera se eliminarán de forma automática"
+  },
+  "restore": {
+    "message": "Restaurar"
+  },
+  "deleteForever": {
+    "message": "Eliminar para siempre"
+  },
+  "noEditPermissions": {
+    "message": "No tiene permiso de editar este elemento"
   }
 }
