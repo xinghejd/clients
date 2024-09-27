@@ -101,7 +101,7 @@ export class ViewComponent extends BaseViewComponent implements OnInit, OnDestro
     datePipe: DatePipe,
     accountService: AccountService,
     billingAccountProfileStateService: BillingAccountProfileStateService,
-    cipherAuthorizationServiceAbstraction: CipherAuthorizationServiceAbstraction,
+    cipherAuthorizationService: CipherAuthorizationServiceAbstraction,
   ) {
     super(
       cipherService,
@@ -126,7 +126,7 @@ export class ViewComponent extends BaseViewComponent implements OnInit, OnDestro
       datePipe,
       accountService,
       billingAccountProfileStateService,
-      cipherAuthorizationServiceAbstraction,
+      cipherAuthorizationService,
     );
   }
 

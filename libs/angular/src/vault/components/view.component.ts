@@ -107,7 +107,7 @@ export class ViewComponent implements OnDestroy, OnInit {
     protected datePipe: DatePipe,
     protected accountService: AccountService,
     private billingAccountProfileStateService: BillingAccountProfileStateService,
-    private cipherAuthorizationServiceAbstraction: CipherAuthorizationServiceAbstraction,
+    private cipherAuthorizationService: CipherAuthorizationServiceAbstraction,
   ) {}
 
   ngOnInit() {
@@ -147,7 +147,7 @@ export class ViewComponent implements OnDestroy, OnInit {
     );
     this.showPremiumRequiredTotp =
       this.cipher.login.totp && !this.canAccessPremium && !this.cipher.organizationUseTotp;
-    this.canDeleteCipher$ = this.cipherAuthorizationServiceAbstraction.canDeleteCipher$(
+    this.canDeleteCipher$ = this.cipherAuthorizationService.canDeleteCipher$(
       this.cipher,
       this.collectionId as CollectionId,
     );

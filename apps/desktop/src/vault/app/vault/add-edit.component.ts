@@ -51,7 +51,7 @@ export class AddEditComponent extends BaseAddEditComponent implements OnInit, On
     dialogService: DialogService,
     datePipe: DatePipe,
     configService: ConfigService,
-    cipherAuthorizationServiceAbstraction: CipherAuthorizationServiceAbstraction,
+    cipherAuthorizationService: CipherAuthorizationServiceAbstraction,
   ) {
     super(
       cipherService,
@@ -72,7 +72,7 @@ export class AddEditComponent extends BaseAddEditComponent implements OnInit, On
       window,
       datePipe,
       configService,
-      cipherAuthorizationServiceAbstraction,
+      cipherAuthorizationService,
     );
   }
 

@@ -21,7 +21,7 @@ import { MessagingService } from "@bitwarden/common/platform/abstractions/messag
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
-import { UserId } from "@bitwarden/common/types/guid";
+import { CollectionId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CollectionService } from "@bitwarden/common/vault/abstractions/collection.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
@@ -123,7 +123,7 @@ export class AddEditComponent implements OnInit, OnDestroy {
     protected win: Window,
     protected datePipe: DatePipe,
     protected configService: ConfigService,
-    protected cipherAuthorizationServiceAbstraction: CipherAuthorizationServiceAbstraction,
+    protected cipherAuthorizationService: CipherAuthorizationServiceAbstraction,
   ) {
     this.typeOptions = [
       { name: i18nService.t("typeLogin"), value: CipherType.Login },
@@ -323,8 +323,9 @@ export class AddEditComponent implements OnInit, OnDestroy {
       this.cipher.login.autofillOnPageLoad = this.autofillOnPageLoadOptions[2].value;
     }
 
-    this.canDeleteCipher$ = this.cipherAuthorizationServiceAbstraction.canDeleteCipher$(
+    this.canDeleteCipher$ = this.cipherAuthorizationService.canDeleteCipher$(
       this.cipher,
+      this.collectionId as CollectionId,
     );
   }
 
