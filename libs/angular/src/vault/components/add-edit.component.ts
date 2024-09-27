@@ -49,6 +49,7 @@ export class AddEditComponent implements OnInit, OnDestroy {
   @Input() type: CipherType;
   @Input() collectionIds: string[];
   @Input() organizationId: string = null;
+  @Input() canDeleteCipher: boolean = false;
   @Input() collectionId: string = null;
   @Output() onSavedCipher = new EventEmitter<CipherView>();
   @Output() onDeletedCipher = new EventEmitter<CipherView>();
