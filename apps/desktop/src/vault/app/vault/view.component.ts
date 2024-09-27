@@ -29,6 +29,7 @@ import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.servi
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { TotpService } from "@bitwarden/common/vault/abstractions/totp.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import { CipherAuthorizationServiceAbstraction } from "@bitwarden/common/vault/services/cipher-authorization.service";
 import { DialogService } from "@bitwarden/components";
 import { PasswordRepromptService } from "@bitwarden/vault";
 
@@ -64,6 +65,7 @@ export class ViewComponent extends BaseViewComponent implements OnInit, OnDestro
     datePipe: DatePipe,
     billingAccountProfileStateService: BillingAccountProfileStateService,
     accountService: AccountService,
+    cipherAuthorizationServiceAbstraction: CipherAuthorizationServiceAbstraction,
   ) {
     super(
       cipherService,
@@ -88,6 +90,7 @@ export class ViewComponent extends BaseViewComponent implements OnInit, OnDestro
       datePipe,
       accountService,
       billingAccountProfileStateService,
+      cipherAuthorizationServiceAbstraction,
     );
   }
   ngOnInit() {

@@ -9,7 +9,7 @@ import {
   OnInit,
   Output,
 } from "@angular/core";
-import { firstValueFrom, map } from "rxjs";
+import { firstValueFrom, map, Observable } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AuditService } from "@bitwarden/common/abstractions/audit.service";
@@ -27,6 +27,7 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { EncArrayBuffer } from "@bitwarden/common/platform/models/domain/enc-array-buffer";
+import { CollectionId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { TotpService } from "@bitwarden/common/vault/abstractions/totp.service";
@@ -36,6 +37,7 @@ import { Launchable } from "@bitwarden/common/vault/interfaces/launchable";
 import { AttachmentView } from "@bitwarden/common/vault/models/view/attachment.view";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
+import { CipherAuthorizationServiceAbstraction } from "@bitwarden/common/vault/services/cipher-authorization.service";
 import { DialogService } from "@bitwarden/components";
 import { PasswordRepromptService } from "@bitwarden/vault";
 
@@ -44,12 +46,14 @@ const BroadcasterSubscriptionId = "ViewComponent";
 @Directive()
 export class ViewComponent implements OnDestroy, OnInit {
   @Input() cipherId: string;
+  @Input() collectionId: string;
   @Output() onEditCipher = new EventEmitter<CipherView>();
   @Output() onCloneCipher = new EventEmitter<CipherView>();
   @Output() onShareCipher = new EventEmitter<CipherView>();
   @Output() onDeletedCipher = new EventEmitter<CipherView>();
   @Output() onRestoredCipher = new EventEmitter<CipherView>();
 
+  canDeleteCipher$: Observable<boolean>;
   cipher: CipherView;
   showPassword: boolean;
   showPasswordCount: boolean;
@@ -103,6 +107,7 @@ export class ViewComponent implements OnDestroy, OnInit {
     protected datePipe: DatePipe,
     protected accountService: AccountService,
     private billingAccountProfileStateService: BillingAccountProfileStateService,
+    private cipherAuthorizationServiceAbstraction: CipherAuthorizationServiceAbstraction,
   ) {}
 
   ngOnInit() {
@@ -142,6 +147,10 @@ export class ViewComponent implements OnDestroy, OnInit {
     );
     this.showPremiumRequiredTotp =
       this.cipher.login.totp && !this.canAccessPremium && !this.cipher.organizationUseTotp;
+    this.canDeleteCipher$ = this.cipherAuthorizationServiceAbstraction.canDeleteCipher$(
+      this.cipher,
+      this.collectionId as CollectionId,
+    );
 
     if (this.cipher.folderId) {
       this.folder = await (

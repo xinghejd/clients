@@ -25,6 +25,7 @@ import { TotpService as TotpServiceAbstraction } from "@bitwarden/common/vault/a
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
 import { LoginUriView } from "@bitwarden/common/vault/models/view/login-uri.view";
+import { CipherAuthorizationServiceAbstraction } from "@bitwarden/common/vault/services/cipher-authorization.service";
 import { DialogService } from "@bitwarden/components";
 import { PasswordRepromptService } from "@bitwarden/vault";
 
@@ -100,6 +101,7 @@ export class ViewComponent extends BaseViewComponent implements OnInit, OnDestro
     datePipe: DatePipe,
     accountService: AccountService,
     billingAccountProfileStateService: BillingAccountProfileStateService,
+    cipherAuthorizationServiceAbstraction: CipherAuthorizationServiceAbstraction,
   ) {
     super(
       cipherService,
@@ -124,6 +126,7 @@ export class ViewComponent extends BaseViewComponent implements OnInit, OnDestro
       datePipe,
       accountService,
       billingAccountProfileStateService,
+      cipherAuthorizationServiceAbstraction,
     );
   }
 
@@ -140,7 +143,13 @@ export class ViewComponent extends BaseViewComponent implements OnInit, OnDestro
     this.route.queryParams.pipe(first()).subscribe(async (params) => {
       if (params.cipherId) {
         this.cipherId = params.cipherId;
-      } else {
+      }
+
+      if (params.collectionId) {
+        this.collectionId = params.collectionId;
+      }
+
+      if (!params.cipherId) {
         // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
         // eslint-disable-next-line @typescript-eslint/no-floating-promises
         this.close();
@@ -194,7 +203,12 @@ export class ViewComponent extends BaseViewComponent implements OnInit, OnDestro
     // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
     this.router.navigate(["/edit-cipher"], {
-      queryParams: { cipherId: this.cipher.id, type: this.cipher.type, isNew: false },
+      queryParams: {
+        cipherId: this.cipher.id,
+        type: this.cipher.type,
+        isNew: false,
+        collectionId: this.collectionId,
+      },
     });
     return true;
   }

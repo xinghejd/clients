@@ -36,6 +36,7 @@ import { IdentityView } from "@bitwarden/common/vault/models/view/identity.view"
 import { LoginUriView } from "@bitwarden/common/vault/models/view/login-uri.view";
 import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
 import { SecureNoteView } from "@bitwarden/common/vault/models/view/secure-note.view";
+import { CipherAuthorizationServiceAbstraction } from "@bitwarden/common/vault/services/cipher-authorization.service";
 import { normalizeExpiryYearFormat } from "@bitwarden/common/vault/utils";
 import { DialogService } from "@bitwarden/components";
 import { PasswordRepromptService } from "@bitwarden/vault";
@@ -48,7 +49,7 @@ export class AddEditComponent implements OnInit, OnDestroy {
   @Input() type: CipherType;
   @Input() collectionIds: string[];
   @Input() organizationId: string = null;
-  @Input() canDeleteCipher: boolean = false;
+  @Input() collectionId: string = null;
   @Output() onSavedCipher = new EventEmitter<CipherView>();
   @Output() onDeletedCipher = new EventEmitter<CipherView>();
   @Output() onRestoredCipher = new EventEmitter<CipherView>();
@@ -58,6 +59,8 @@ export class AddEditComponent implements OnInit, OnDestroy {
   @Output() onEditCollections = new EventEmitter<CipherView>();
   @Output() onGeneratePassword = new EventEmitter();
   @Output() onGenerateUsername = new EventEmitter();
+
+  canDeleteCipher$: Observable<boolean>;
 
   editMode = false;
   cipher: CipherView;
@@ -120,6 +123,7 @@ export class AddEditComponent implements OnInit, OnDestroy {
     protected win: Window,
     protected datePipe: DatePipe,
     protected configService: ConfigService,
+    protected cipherAuthorizationServiceAbstraction: CipherAuthorizationServiceAbstraction,
   ) {
     this.typeOptions = [
       { name: i18nService.t("typeLogin"), value: CipherType.Login },
@@ -318,6 +322,10 @@ export class AddEditComponent implements OnInit, OnDestroy {
     if (this.reprompt) {
       this.cipher.login.autofillOnPageLoad = this.autofillOnPageLoadOptions[2].value;
     }
+
+    this.canDeleteCipher$ = this.cipherAuthorizationServiceAbstraction.canDeleteCipher$(
+      this.cipher,
+    );
   }
 
   async submit(): Promise<boolean> {
