@@ -280,7 +280,7 @@
         (click)="manageBillingSync()"
         *ngIf="canManageBillingSync"
       >
-        {{ (hasBillingSyncToken ? "setUpBillingSync" : "viewBillingToken") | i18n }}
+        {{ (hasBillingSyncToken ? "manageBillingTokenSync" : "viewBillingToken") | i18n }}
       </button>
     </div>
     <ng-container *ngIf="userOrg.canEditSubscription">
