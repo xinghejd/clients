@@ -61,8 +61,8 @@ export class MainBiometricsService extends DesktopBiometricsService {
    */
   async getBiometricsStatus(): Promise<BiometricsStatus> {
     if (!(await this.osBiometricsService.isBiometricsAvailable())) {
-      if (await this.osBiometricsService.osBiometricsNeedsSetup()) {
-        if (await this.osBiometricsService.osBiometricsCanAutoSetup()) {
+      if (await this.osBiometricsService.needsSetup()) {
+        if (await this.osBiometricsService.canAutoSetup()) {
           return BiometricsStatus.AutoSetupNeeded;
         } else {
           return BiometricsStatus.ManualSetupNeeded;
@@ -106,7 +106,7 @@ export class MainBiometricsService extends DesktopBiometricsService {
   }
 
   async setupBiometrics(): Promise<void> {
-    return await this.osBiometricsService.osBiometricsSetup();
+    return await this.osBiometricsService.setupBiometrics();
   }
 
   async setClientKeyHalfForUser(userId: UserId, value: string): Promise<void> {

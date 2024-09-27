@@ -73,13 +73,13 @@ export default class OsBiometricsServiceMac implements OsBiometricService {
     }
   }
 
-  async osBiometricsNeedsSetup() {
+  async needsSetup() {
     return false;
   }
 
-  async osBiometricsCanAutoSetup(): Promise<boolean> {
+  async canAutoSetup(): Promise<boolean> {
     return false;
   }
 
-  async osBiometricsSetup(): Promise<void> {}
+  async setupBiometrics(): Promise<void> {}
 }

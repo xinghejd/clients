@@ -108,12 +108,12 @@ export default class OsBiometricsServiceLinux implements OsBiometricService {
     return (await passwords.isAvailable()) && !isSnapStore();
   }
 
-  async osBiometricsNeedsSetup(): Promise<boolean> {
+  async needsSetup(): Promise<boolean> {
     // check whether the polkit policy is loaded via dbus call to polkit
     return !(await biometrics.available());
   }
 
-  async osBiometricsCanAutoSetup(): Promise<boolean> {
+  async canAutoSetup(): Promise<boolean> {
     // We cannot auto setup on snap or flatpak since the filesystem is sandboxed.
     // The user needs to manually set up the polkit policy outside of the sandbox
     // since we allow access to polkit via dbus for the sandboxed clients, the authentication works from
@@ -121,7 +121,7 @@ export default class OsBiometricsServiceLinux implements OsBiometricService {
     return isLinux() && !isSnapStore() && !isFlatpak();
   }
 
-  async osBiometricsSetup(): Promise<void> {
+  async setupBiometrics(): Promise<void> {
     const process = spawn("pkexec", [
       "bash",
       "-c",
