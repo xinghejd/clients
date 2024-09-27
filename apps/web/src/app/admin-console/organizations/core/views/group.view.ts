@@ -8,7 +8,6 @@ export class GroupView implements View {
   id: string;
   organizationId: string;
   name: string;
-  accessAll: boolean;
   externalId: string;
   collections: CollectionAccessSelectionView[] = [];
   members: string[] = [];

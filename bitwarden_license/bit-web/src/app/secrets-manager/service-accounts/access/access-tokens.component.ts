@@ -12,7 +12,7 @@ import {
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { DialogService } from "@bitwarden/components";
+import { DialogService, ToastService } from "@bitwarden/components";
 import { openUserVerificationPrompt } from "@bitwarden/web-vault/app/auth/shared/components/user-verification";
 
 import { ServiceAccountView } from "../../models/view/service-account.view";
@@ -38,7 +38,8 @@ export class AccessTokenComponent implements OnInit, OnDestroy {
     private dialogService: DialogService,
     private platformUtilsService: PlatformUtilsService,
     private i18nService: I18nService,
-    private serviceAccountService: ServiceAccountService
+    private serviceAccountService: ServiceAccountService,
+    private toastService: ToastService,
   ) {}
 
   ngOnInit() {
@@ -46,8 +47,8 @@ export class AccessTokenComponent implements OnInit, OnDestroy {
       startWith(null),
       combineLatestWith(this.route.params),
       switchMap(async ([_, params]) =>
-        this.accessService.getAccessTokens(params.organizationId, params.serviceAccountId)
-      )
+        this.accessService.getAccessTokens(params.organizationId, params.serviceAccountId),
+      ),
     );
 
     this.serviceAccountService.serviceAccount$
@@ -57,10 +58,10 @@ export class AccessTokenComponent implements OnInit, OnDestroy {
         switchMap(([_, params]) =>
           this.serviceAccountService.getByServiceAccountId(
             params.serviceAccountId,
-            params.organizationId
-          )
+            params.organizationId,
+          ),
         ),
-        takeUntil(this.destroy$)
+        takeUntil(this.destroy$),
       )
       .subscribe((serviceAccountView) => {
         this.serviceAccountView = serviceAccountView;
@@ -74,11 +75,11 @@ export class AccessTokenComponent implements OnInit, OnDestroy {
 
   protected async revoke(tokens: AccessTokenView[]) {
     if (!tokens?.length) {
-      this.platformUtilsService.showToast(
-        "error",
-        null,
-        this.i18nService.t("noAccessTokenSelected")
-      );
+      this.toastService.showToast({
+        variant: "error",
+        title: null,
+        message: this.i18nService.t("noAccessTokenSelected"),
+      });
       return;
     }
 
@@ -88,16 +89,20 @@ export class AccessTokenComponent implements OnInit, OnDestroy {
 
     await this.accessService.revokeAccessTokens(
       this.serviceAccountView.id,
-      tokens.map((t) => t.id)
+      tokens.map((t) => t.id),
     );
 
-    this.platformUtilsService.showToast("success", null, this.i18nService.t("accessTokenRevoked"));
+    this.toastService.showToast({
+      variant: "success",
+      title: null,
+      message: this.i18nService.t("accessTokenRevoked"),
+    });
   }
 
   protected openNewAccessTokenDialog() {
     AccessTokenCreateDialogComponent.openNewAccessTokenDialog(
       this.dialogService,
-      this.serviceAccountView
+      this.serviceAccountView,
     );
   }
 

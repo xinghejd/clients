@@ -4,6 +4,7 @@ import { firstValueFrom, map, Observable, Subject, takeUntil } from "rxjs";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { OrganizationUserStatusType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -35,7 +36,8 @@ export class ShareComponent implements OnInit, OnDestroy {
     protected i18nService: I18nService,
     protected cipherService: CipherService,
     private logService: LogService,
-    protected organizationService: OrganizationService
+    protected organizationService: OrganizationService,
+    protected accountService: AccountService,
   ) {}
 
   async ngOnInit() {
@@ -56,21 +58,23 @@ export class ShareComponent implements OnInit, OnDestroy {
         return orgs
           .filter((o) => o.enabled && o.status === OrganizationUserStatusType.Confirmed)
           .sort(Utils.getSortFunction(this.i18nService, "name"));
-      })
+      }),
     );
 
     this.organizations$.pipe(takeUntil(this._destroy)).subscribe((orgs) => {
       if (this.organizationId == null && orgs.length > 0) {
         this.organizationId = orgs[0].id;
+        this.filterCollections();
       }
     });
 
     const cipherDomain = await this.cipherService.get(this.cipherId);
-    this.cipher = await cipherDomain.decrypt(
-      await this.cipherService.getKeyForCipherKeyDecryption(cipherDomain)
+    const activeUserId = await firstValueFrom(
+      this.accountService.activeAccount$.pipe(map((a) => a?.id)),
     );
-
-    this.filterCollections();
+    this.cipher = await cipherDomain.decrypt(
+      await this.cipherService.getKeyForCipherKeyDecryption(cipherDomain, activeUserId),
+    );
   }
 
   filterCollections() {
@@ -79,7 +83,7 @@ export class ShareComponent implements OnInit, OnDestroy {
       this.collections = [];
     } else {
       this.collections = this.writeableCollections.filter(
-        (c) => c.organizationId === this.organizationId
+        (c) => c.organizationId === this.organizationId,
       );
     }
   }
@@ -90,14 +94,17 @@ export class ShareComponent implements OnInit, OnDestroy {
       this.platformUtilsService.showToast(
         "error",
         this.i18nService.t("errorOccurred"),
-        this.i18nService.t("selectOneCollection")
+        this.i18nService.t("selectOneCollection"),
       );
       return;
     }
 
     const cipherDomain = await this.cipherService.get(this.cipherId);
+    const activeUserId = await firstValueFrom(
+      this.accountService.activeAccount$.pipe(map((a) => a?.id)),
+    );
     const cipherView = await cipherDomain.decrypt(
-      await this.cipherService.getKeyForCipherKeyDecryption(cipherDomain)
+      await this.cipherService.getKeyForCipherKeyDecryption(cipherDomain, activeUserId),
     );
     const orgs = await firstValueFrom(this.organizations$);
     const orgName =
@@ -105,13 +112,13 @@ export class ShareComponent implements OnInit, OnDestroy {
 
     try {
       this.formPromise = this.cipherService
-        .shareWithServer(cipherView, this.organizationId, selectedCollectionIds)
+        .shareWithServer(cipherView, this.organizationId, selectedCollectionIds, activeUserId)
         .then(async () => {
           this.onSharedCipher.emit();
           this.platformUtilsService.showToast(
             "success",
             null,
-            this.i18nService.t("movedItemToOrg", cipherView.name, orgName)
+            this.i18nService.t("movedItemToOrg", cipherView.name, orgName),
           );
         });
       await this.formPromise;

@@ -1,6 +1,7 @@
+import { ScrollingModule } from "@angular/cdk/scrolling";
 import { NgModule } from "@angular/core";
 
-import { PasswordCalloutComponent } from "@bitwarden/auth";
+import { PasswordCalloutComponent } from "@bitwarden/auth/angular";
 
 import { LooseComponentsModule } from "../../../shared";
 import { SharedOrganizationModule } from "../shared";
@@ -13,7 +14,7 @@ import { BulkStatusComponent } from "./components/bulk/bulk-status.component";
 import { UserDialogModule } from "./components/member-dialog";
 import { ResetPasswordComponent } from "./components/reset-password.component";
 import { MembersRoutingModule } from "./members-routing.module";
-import { PeopleComponent } from "./people.component";
+import { MembersComponent } from "./members.component";
 
 @NgModule({
   imports: [
@@ -22,6 +23,7 @@ import { PeopleComponent } from "./people.component";
     MembersRoutingModule,
     UserDialogModule,
     PasswordCalloutComponent,
+    ScrollingModule,
   ],
   declarations: [
     BulkConfirmComponent,
@@ -29,7 +31,7 @@ import { PeopleComponent } from "./people.component";
     BulkRemoveComponent,
     BulkRestoreRevokeComponent,
     BulkStatusComponent,
-    PeopleComponent,
+    MembersComponent,
     ResetPasswordComponent,
   ],
 })

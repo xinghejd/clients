@@ -3,8 +3,9 @@ import { FormBuilder, FormGroup, Validators } from "@angular/forms";
 import { Subject, startWith, takeUntil } from "rxjs";
 
 import { ControlsOf } from "@bitwarden/angular/types/controls-of";
+import { ProductTierType } from "@bitwarden/common/billing/enums";
+import { BillingCustomerDiscount } from "@bitwarden/common/billing/models/response/organization-subscription.response";
 import { PlanResponse } from "@bitwarden/common/billing/models/response/plan.response";
-import { ProductType } from "@bitwarden/common/enums";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
 import { SecretsManagerLogo } from "../../layouts/secrets-manager-logo";
@@ -16,7 +17,7 @@ export interface SecretsManagerSubscription {
 }
 
 export const secretsManagerSubscribeFormFactory = (
-  formBuilder: FormBuilder
+  formBuilder: FormBuilder,
 ): FormGroup<ControlsOf<SecretsManagerSubscription>> =>
   formBuilder.group({
     enabled: [false],
@@ -36,9 +37,10 @@ export class SecretsManagerSubscribeComponent implements OnInit, OnDestroy {
   @Input() upgradeOrganization: boolean;
   @Input() showSubmitButton = false;
   @Input() selectedPlan: PlanResponse;
+  @Input() customerDiscount: BillingCustomerDiscount;
 
   logo = SecretsManagerLogo;
-  productTypes = ProductType;
+  productTypes = ProductTierType;
 
   private destroy$ = new Subject<void>();
 
@@ -63,42 +65,52 @@ export class SecretsManagerSubscribeComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
+  discountPrice = (price: number) => {
+    const discount =
+      !!this.customerDiscount && this.customerDiscount.active
+        ? price * (this.customerDiscount.percentOff / 100)
+        : 0;
+
+    return price - discount;
+  };
+
   get product() {
-    return this.selectedPlan.product;
+    return this.selectedPlan.productTier;
   }
 
   get planName() {
     switch (this.product) {
-      case ProductType.Free:
+      case ProductTierType.Free:
         return this.i18nService.t("free2PersonOrganization");
-      case ProductType.Teams:
+      case ProductTierType.Teams:
+      case ProductTierType.TeamsStarter:
         return this.i18nService.t("planNameTeams");
-      case ProductType.Enterprise:
+      case ProductTierType.Enterprise:
         return this.i18nService.t("planNameEnterprise");
     }
   }
 
   get serviceAccountsIncluded() {
-    return this.selectedPlan.baseServiceAccount;
+    return this.selectedPlan.SecretsManager.baseServiceAccount;
   }
 
   get monthlyCostPerServiceAccount() {
     return this.selectedPlan.isAnnual
-      ? this.selectedPlan.additionalPricePerServiceAccount / 12
-      : this.selectedPlan.additionalPricePerServiceAccount;
+      ? this.discountPrice(this.selectedPlan.SecretsManager.additionalPricePerServiceAccount) / 12
+      : this.discountPrice(this.selectedPlan.SecretsManager.additionalPricePerServiceAccount);
   }
 
   get maxUsers() {
-    return this.selectedPlan.maxUsers;
+    return this.selectedPlan.SecretsManager.maxSeats;
   }
 
   get maxProjects() {
-    return this.selectedPlan.maxProjects;
+    return this.selectedPlan.SecretsManager.maxProjects;
   }
 
   get monthlyCostPerUser() {
     return this.selectedPlan.isAnnual
-      ? this.selectedPlan.seatPrice / 12
-      : this.selectedPlan.seatPrice;
+      ? this.discountPrice(this.selectedPlan.SecretsManager.seatPrice) / 12
+      : this.discountPrice(this.selectedPlan.SecretsManager.seatPrice);
   }
 }

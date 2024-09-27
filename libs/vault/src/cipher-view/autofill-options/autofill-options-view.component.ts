@@ -1,0 +1,39 @@
+import { CommonModule } from "@angular/common";
+import { Component, Input } from "@angular/core";
+
+import { JslibModule } from "@bitwarden/angular/jslib.module";
+import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { LoginUriView } from "@bitwarden/common/vault/models/view/login-uri.view";
+import {
+  CardComponent,
+  FormFieldModule,
+  IconButtonModule,
+  SectionComponent,
+  SectionHeaderComponent,
+  TypographyModule,
+} from "@bitwarden/components";
+
+@Component({
+  selector: "app-autofill-options-view",
+  templateUrl: "autofill-options-view.component.html",
+  standalone: true,
+  imports: [
+    CommonModule,
+    JslibModule,
+    CardComponent,
+    SectionComponent,
+    SectionHeaderComponent,
+    TypographyModule,
+    FormFieldModule,
+    IconButtonModule,
+  ],
+})
+export class AutofillOptionsViewComponent {
+  @Input() loginUris: LoginUriView[];
+
+  constructor(private platformUtilsService: PlatformUtilsService) {}
+
+  openWebsite(selectedUri: string) {
+    this.platformUtilsService.launchUri(selectedUri);
+  }
+}

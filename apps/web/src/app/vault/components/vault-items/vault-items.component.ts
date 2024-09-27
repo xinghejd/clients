@@ -32,13 +32,21 @@ export class VaultItemsComponent {
   @Input() showCollections: boolean;
   @Input() showGroups: boolean;
   @Input() useEvents: boolean;
-  @Input() cloneableOrganizationCiphers: boolean;
   @Input() showPremiumFeatures: boolean;
   @Input() showBulkMove: boolean;
   @Input() showBulkTrashOptions: boolean;
+  // Encompasses functionality only available from the organization vault context
+  @Input() showAdminActions = false;
   @Input() allOrganizations: Organization[] = [];
   @Input() allCollections: CollectionView[] = [];
   @Input() allGroups: GroupView[] = [];
+  @Input() showBulkEditCollectionAccess = false;
+  @Input() showBulkAddToCollections = false;
+  @Input() showPermissionsColumn = false;
+  @Input() viewingOrgVault: boolean;
+  @Input() addAccessStatus: number;
+  @Input() addAccessToggle: boolean;
+  @Input() vaultBulkManagementActionEnabled = false;
 
   private _ciphers?: CipherView[] = [];
   @Input() get ciphers(): CipherView[] {
@@ -84,6 +92,24 @@ export class VaultItemsComponent {
     );
   }
 
+  get disableMenu() {
+    return (
+      this.vaultBulkManagementActionEnabled &&
+      !this.bulkMoveAllowed &&
+      !this.showAssignToCollections() &&
+      !this.showDelete()
+    );
+  }
+
+  get bulkAssignToCollectionsAllowed() {
+    return this.showBulkAddToCollections && this.ciphers.length > 0;
+  }
+
+  // Use new bulk management delete if vaultBulkManagementActionEnabled feature flag is enabled
+  get deleteAllowed() {
+    return this.vaultBulkManagementActionEnabled ? this.showDelete() : true;
+  }
+
   protected canEditCollection(collection: CollectionView): boolean {
     // Only allow allow deletion if collection editing is enabled and not deleting "Unassigned"
     if (collection.id === Unassigned) {
@@ -91,6 +117,7 @@ export class VaultItemsComponent {
     }
 
     const organization = this.allOrganizations.find((o) => o.id === collection.organizationId);
+
     return collection.canEdit(organization);
   }
 
@@ -101,7 +128,13 @@ export class VaultItemsComponent {
     }
 
     const organization = this.allOrganizations.find((o) => o.id === collection.organizationId);
+
     return collection.canDelete(organization);
+  }
+
+  protected canViewCollectionInfo(collection: CollectionView) {
+    const organization = this.allOrganizations.find((o) => o.id === collection.organizationId);
+    return collection.canViewCollectionInfo(organization);
   }
 
   protected toggleAll() {
@@ -148,17 +181,149 @@ export class VaultItemsComponent {
     });
   }
 
+  protected canClone(vaultItem: VaultItem) {
+    if (vaultItem.cipher.organizationId == null) {
+      return true;
+    }
+
+    const org = this.allOrganizations.find((o) => o.id === vaultItem.cipher.organizationId);
+
+    // Admins and custom users can always clone in the Org Vault
+    if (this.viewingOrgVault && (org.isAdmin || org.permissions.editAnyCollection)) {
+      return true;
+    }
+
+    // Check if the cipher belongs to a collection with canManage permission
+    const orgCollections = this.allCollections.filter((c) => c.organizationId === org.id);
+
+    for (const collection of orgCollections) {
+      if (vaultItem.cipher.collectionIds.includes(collection.id) && collection.manage) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  protected canEditCipher(cipher: CipherView) {
+    if (cipher.organizationId == null) {
+      return true;
+    }
+
+    const organization = this.allOrganizations.find((o) => o.id === cipher.organizationId);
+    return (organization.canEditAllCiphers && this.viewingOrgVault) || cipher.edit;
+  }
+
   private refreshItems() {
     const collections: VaultItem[] = this.collections.map((collection) => ({ collection }));
     const ciphers: VaultItem[] = this.ciphers.map((cipher) => ({ cipher }));
     const items: VaultItem[] = [].concat(collections).concat(ciphers);
 
     this.selection.clear();
+
+    // Every item except for the Unassigned collection is selectable, individual bulk actions check the user's permission
     this.editableItems = items.filter(
       (item) =>
         item.cipher !== undefined ||
-        (item.collection !== undefined && this.canDeleteCollection(item.collection))
+        (item.collection !== undefined && item.collection.id !== Unassigned),
     );
+
     this.dataSource.data = items;
+  }
+
+  protected bulkEditCollectionAccess() {
+    this.event({
+      type: "bulkEditCollectionAccess",
+      items: this.selection.selected
+        .filter((item) => item.collection !== undefined)
+        .map((item) => item.collection),
+    });
+  }
+
+  protected assignToCollections() {
+    this.event({
+      type: "assignToCollections",
+      items: this.selection.selected
+        .filter((item) => item.cipher !== undefined)
+        .map((item) => item.cipher),
+    });
+  }
+
+  protected showAssignToCollections(): boolean {
+    if (!this.showBulkMove) {
+      return false;
+    }
+
+    if (this.selection.selected.length === 0) {
+      return true;
+    }
+
+    const hasPersonalItems = this.hasPersonalItems();
+    const uniqueCipherOrgIds = this.getUniqueOrganizationIds();
+
+    // Return false if items are from different organizations
+    if (uniqueCipherOrgIds.size > 1) {
+      return false;
+    }
+
+    // If all items are personal, return based on personal items
+    if (uniqueCipherOrgIds.size === 0) {
+      return hasPersonalItems;
+    }
+
+    const [orgId] = uniqueCipherOrgIds;
+    const organization = this.allOrganizations.find((o) => o.id === orgId);
+
+    const canEditOrManageAllCiphers = organization?.canEditAllCiphers && this.viewingOrgVault;
+
+    const collectionNotSelected =
+      this.selection.selected.filter((item) => item.collection).length === 0;
+
+    return (canEditOrManageAllCiphers || this.allCiphersHaveEditAccess()) && collectionNotSelected;
+  }
+
+  protected showDelete(): boolean {
+    if (this.selection.selected.length === 0) {
+      return true;
+    }
+
+    const hasPersonalItems = this.hasPersonalItems();
+    const uniqueCipherOrgIds = this.getUniqueOrganizationIds();
+    const organizations = Array.from(uniqueCipherOrgIds, (orgId) =>
+      this.allOrganizations.find((o) => o.id === orgId),
+    );
+
+    const canEditOrManageAllCiphers =
+      organizations.length > 0 && organizations.every((org) => org?.canEditAllCiphers);
+
+    const canDeleteCollections = this.selection.selected
+      .filter((item) => item.collection)
+      .every((item) => item.collection && this.canDeleteCollection(item.collection));
+
+    const userCanDeleteAccess =
+      (canEditOrManageAllCiphers || this.allCiphersHaveEditAccess()) && canDeleteCollections;
+
+    if (
+      userCanDeleteAccess ||
+      (hasPersonalItems && (!uniqueCipherOrgIds.size || userCanDeleteAccess))
+    ) {
+      return true;
+    }
+
+    return false;
+  }
+
+  private hasPersonalItems(): boolean {
+    return this.selection.selected.some(({ cipher }) => cipher?.organizationId === null);
+  }
+
+  private allCiphersHaveEditAccess(): boolean {
+    return this.selection.selected
+      .filter(({ cipher }) => cipher)
+      .every(({ cipher }) => cipher?.edit);
+  }
+
+  private getUniqueOrganizationIds(): Set<string> {
+    return new Set(this.selection.selected.flatMap((i) => i.cipher?.organizationId ?? []));
   }
 }

@@ -1,8 +1,8 @@
 import { Jsonify, Opaque } from "type-fest";
 
-import { EncryptionType, EXPECTED_NUM_PARTS_BY_ENCRYPTION_TYPE } from "../../../enums";
-import { Utils } from "../../../platform/misc/utils";
+import { EncryptionType, EXPECTED_NUM_PARTS_BY_ENCRYPTION_TYPE } from "../../enums";
 import { Encrypted } from "../../interfaces/encrypted";
+import { Utils } from "../../misc/utils";
 
 import { SymmetricCryptoKey } from "./symmetric-crypto-key";
 
@@ -18,7 +18,7 @@ export class EncString implements Encrypted {
     encryptedStringOrType: string | EncryptionType,
     data?: string,
     iv?: string,
-    mac?: string
+    mac?: string,
   ) {
     if (data != null) {
       this.initFromData(encryptedStringOrType as EncryptionType, data, iv, mac);
@@ -40,7 +40,7 @@ export class EncString implements Encrypted {
   }
 
   toJSON() {
-    return this.encryptedString;
+    return this.encryptedString as string;
   }
 
   static fromJSON(obj: Jsonify<EncString>): EncString {
@@ -76,6 +76,7 @@ export class EncString implements Encrypted {
     }
 
     const { encType, encPieces } = EncString.parseEncryptedString(this.encryptedString);
+
     this.encryptionType = encType;
 
     if (encPieces.length !== EXPECTED_NUM_PARTS_BY_ENCRYPTION_TYPE[encType]) {
@@ -97,6 +98,11 @@ export class EncString implements Encrypted {
       case EncryptionType.Rsa2048_OaepSha1_B64:
         this.data = encPieces[0];
         break;
+      case EncryptionType.Rsa2048_OaepSha256_HmacSha256_B64:
+      case EncryptionType.Rsa2048_OaepSha1_HmacSha256_B64:
+        this.data = encPieces[0];
+        this.mac = encPieces[1];
+        break;
       default:
         return;
     }
@@ -115,7 +121,7 @@ export class EncString implements Encrypted {
         encType = parseInt(headerPieces[0], null);
         encPieces = headerPieces[1].split("|");
       } catch (e) {
-        return;
+        return { encType: NaN, encPieces: [] };
       }
     } else {
       encPieces = encryptedString.split("|");
@@ -132,7 +138,15 @@ export class EncString implements Encrypted {
   }
 
   static isSerializedEncString(s: string): boolean {
+    if (s == null) {
+      return false;
+    }
+
     const { encType, encPieces } = this.parseEncryptedString(s);
+
+    if (isNaN(encType) || encPieces.length === 0) {
+      return false;
+    }
 
     return EXPECTED_NUM_PARTS_BY_ENCRYPTION_TYPE[encType] === encPieces.length;
   }
