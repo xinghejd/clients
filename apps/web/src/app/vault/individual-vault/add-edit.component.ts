@@ -24,6 +24,7 @@ import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folde
 import { TotpService } from "@bitwarden/common/vault/abstractions/totp.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { Launchable } from "@bitwarden/common/vault/interfaces/launchable";
+import { CipherAuthorizationServiceAbstraction } from "@bitwarden/common/vault/services/cipher-authorization.service";
 import { isCardExpired } from "@bitwarden/common/vault/utils";
 import { DialogService } from "@bitwarden/components";
 import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legacy";
@@ -71,6 +72,7 @@ export class AddEditComponent extends BaseAddEditComponent implements OnInit, On
     datePipe: DatePipe,
     configService: ConfigService,
     private billingAccountProfileStateService: BillingAccountProfileStateService,
+    cipherAuthorizationService: CipherAuthorizationServiceAbstraction,
   ) {
     super(
       cipherService,
@@ -91,6 +93,7 @@ export class AddEditComponent extends BaseAddEditComponent implements OnInit, On
       window,
       datePipe,
       configService,
+      cipherAuthorizationService,
     );
   }
 
