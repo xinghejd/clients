@@ -2556,6 +2556,11 @@ export default class AutofillService implements AutofillServiceInterface {
         return;
       }
 
+      // We want to avoid treating TOTP fields as password fields
+      if (AutofillService.fieldIsFuzzyMatch(f, AutoFillConstants.TotpFieldNames)) {
+        return;
+      }
+
       const isLikePassword = () => {
         if (f.type !== "text") {
           return false;
