@@ -23,6 +23,7 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { ThemeType } from "@bitwarden/common/platform/enums/theme-type.enum";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { ThemeStateService } from "@bitwarden/common/platform/theming/theme-state.service";
 import { UserId } from "@bitwarden/common/types/guid";
 import {
@@ -37,7 +38,6 @@ import { DesktopAutofillSettingsService } from "../../autofill/services/desktop-
 import { DesktopBiometricsService } from "../../key-management/biometrics/desktop.biometrics.service";
 import { DesktopSettingsService } from "../../platform/services/desktop-settings.service";
 import { NativeMessagingManifestService } from "../services/native-messaging-manifest.service";
-import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 
 @Component({
   selector: "app-settings",
@@ -523,7 +523,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
         activeUserId,
         (userKey as SymmetricCryptoKey).keyB64,
       );
-      this.cryptoService.refreshAdditionalKeys();
+      await this.cryptoService.refreshAdditionalKeys();
 
       // Validate the key is stored in case biometrics fail.
       const biometricSet =
