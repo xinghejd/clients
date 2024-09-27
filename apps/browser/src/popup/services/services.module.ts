@@ -308,7 +308,7 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: AbstractStorageService,
     useClass: BrowserLocalStorageService,
-    deps: [],
+    deps: [LogService],
   }),
   safeProvider({
     provide: AutofillServiceAbstraction,

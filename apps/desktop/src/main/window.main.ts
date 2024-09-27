@@ -69,6 +69,13 @@ export class WindowMain {
       this.logService.info("Render process reloaded");
     });
 
+    this.desktopSettingsService.allowScreenshots$.subscribe((allowed) => {
+      if (this.win == null) {
+        return;
+      }
+      this.win.setContentProtection(!allowed);
+    });
+
     return new Promise<void>((resolve, reject) => {
       try {
         if (!isMacAppStore() && !isSnapStore()) {
@@ -270,6 +277,14 @@ export class WindowMain {
       });
     });
 
+    firstValueFrom(this.desktopSettingsService.allowScreenshots$)
+      .then((allowScreenshots) => {
+        this.win.setContentProtection(!allowScreenshots);
+      })
+      .catch((e) => {
+        this.logService.error(e);
+      });
+
     if (this.createWindowCallback) {
       this.createWindowCallback(this.win);
     }
@@ -308,7 +323,7 @@ export class WindowMain {
   }
 
   private async updateWindowState(configKey: string, win: BrowserWindow) {
-    if (win == null) {
+    if (win == null || win.isDestroyed()) {
       return;
     }
 

@@ -69,6 +69,7 @@ import { SystemService } from "@bitwarden/common/platform/services/system.servic
 import { GlobalStateProvider, StateProvider } from "@bitwarden/common/platform/state";
 // eslint-disable-next-line import/no-restricted-paths -- Implementation for memory storage
 import { MemoryStorageService as MemoryStorageServiceForStateProviders } from "@bitwarden/common/platform/state/storage/memory-storage.service";
+import { ThemeStateService } from "@bitwarden/common/platform/theming/theme-state.service";
 import { VaultTimeoutStringType } from "@bitwarden/common/types/vault-timeout.type";
 import { CipherService as CipherServiceAbstraction } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { DialogService } from "@bitwarden/components";
@@ -97,6 +98,7 @@ import { SearchBarService } from "../layout/search/search-bar.service";
 
 import { DesktopFileDownloadService } from "./desktop-file-download.service";
 import { DesktopSetPasswordJitService } from "./desktop-set-password-jit.service";
+import { DesktopThemeStateService } from "./desktop-theme.service";
 import { InitService } from "./init.service";
 import { NativeMessagingManifestService } from "./native-messaging-manifest.service";
 import { RendererCryptoFunctionService } from "./renderer-crypto-function.service";
@@ -217,6 +219,11 @@ const safeProviders: SafeProvider[] = [
     deps: [],
   }),
   safeProvider({
+    provide: ThemeStateService,
+    useClass: DesktopThemeStateService,
+    deps: [GlobalStateProvider],
+  }),
+  safeProvider({
     provide: EncryptedMessageHandlerService,
     deps: [
       AccountServiceAbstraction,
@@ -231,7 +238,7 @@ const safeProviders: SafeProvider[] = [
     provide: NativeMessageHandlerService,
     deps: [
       StateServiceAbstraction,
-      CryptoServiceAbstraction,
+      EncryptService,
       CryptoFunctionServiceAbstraction,
       MessagingServiceAbstraction,
       EncryptedMessageHandlerService,
