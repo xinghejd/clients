@@ -1167,7 +1167,7 @@ export default class MainBackground {
 
       const contextMenuClickedHandler = new ContextMenuClickedHandler(
         (options) => this.platformUtilsService.copyToClipboard(options.text),
-        async (_tab) => this.generatePasswordToClipboard(),
+        async () => this.generatePasswordToClipboard(),
         async (tab, cipher) => {
           this.loginToAutoFill = cipher;
           if (tab == null) {
