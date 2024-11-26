@@ -15,12 +15,10 @@ import { InternalPolicyService } from "@bitwarden/common/admin-console/abstracti
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { DeviceTrustServiceAbstraction } from "@bitwarden/common/auth/abstractions/device-trust.service.abstraction";
-import { KdfConfigService } from "@bitwarden/common/auth/abstractions/kdf-config.service";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/auth/abstractions/master-password.service.abstraction";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { FakeMasterPasswordService } from "@bitwarden/common/auth/services/master-password/fake-master-password.service";
 import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
-import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -34,6 +32,8 @@ import { UserId } from "@bitwarden/common/types/guid";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { DialogService, ToastService } from "@bitwarden/components";
 import {
+  KdfConfigService,
+  KeyService,
   BiometricsService as AbstractBiometricService,
   BiometricStateService,
 } from "@bitwarden/key-management";
@@ -106,8 +106,8 @@ describe("LockComponent", () => {
           useValue: messagingServiceMock,
         },
         {
-          provide: CryptoService,
-          useValue: mock<CryptoService>(),
+          provide: KeyService,
+          useValue: mock<KeyService>(),
         },
         {
           provide: VaultTimeoutService,

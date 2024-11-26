@@ -26,6 +26,9 @@
   "typeSecureNote": {
     "message": "安全笔记"
   },
+  "typeSshKey": {
+    "message": "SSH 密钥"
+  },
   "folders": {
     "message": "文件夹"
   },
@@ -59,6 +62,9 @@
         "example": "Company Name"
       }
     }
+  },
+  "welcomeBack": {
+    "message": "欢迎回来"
   },
   "moveToOrgDesc": {
     "message": "选择一个您想将此项目移至的组织。移动到组织会将该项目的所有权转让给该组织。移动后，您将不再是此项目的直接所有者。"
@@ -174,6 +180,48 @@
   "address": {
     "message": "地址"
   },
+  "sshPrivateKey": {
+    "message": "私钥"
+  },
+  "sshPublicKey": {
+    "message": "公钥"
+  },
+  "sshFingerprint": {
+    "message": "指纹"
+  },
+  "sshKeyAlgorithm": {
+    "message": "密钥类型"
+  },
+  "sshKeyAlgorithmED25519": {
+    "message": "ED25519"
+  },
+  "sshKeyAlgorithmRSA2048": {
+    "message": "RSA 2048-Bit"
+  },
+  "sshKeyAlgorithmRSA3072": {
+    "message": "RSA 3072-Bit"
+  },
+  "sshKeyAlgorithmRSA4096": {
+    "message": "RSA 4096-Bit"
+  },
+  "sshKeyGenerated": {
+    "message": "生成了新的 SSH 密钥"
+  },
+  "sshAgentUnlockRequired": {
+    "message": "请解锁您的密码库以批准 SSH 密钥请求。"
+  },
+  "sshAgentUnlockTimeout": {
+    "message": "SSH 密钥请求已超时。"
+  },
+  "enableSshAgent": {
+    "message": "启用 SSH 代理"
+  },
+  "enableSshAgentDesc": {
+    "message": "启用 SSH 代理以直接从您的 Bitwarden 密码库签署 SSH 请求。"
+  },
+  "enableSshAgentHelp": {
+    "message": "SSH 代理是一个针对开发者的服务，允许您直接从 Bitwarden 密码库签署 SSH 请求。"
+  },
   "premiumRequired": {
     "message": "需要高级版"
   },
@@ -258,6 +306,9 @@
   },
   "generatePassword": {
     "message": "生成密码"
+  },
+  "generatePassphrase": {
+    "message": "生成密码短语"
   },
   "type": {
     "message": "类型"
@@ -393,6 +444,16 @@
   },
   "copyPassword": {
     "message": "复制密码"
+  },
+  "regenerateSshKey": {
+    "message": "重新生成 SSH 密钥"
+  },
+  "copySshPrivateKey": {
+    "message": "复制 SSH 私钥"
+  },
+  "copyPassphrase": {
+    "message": "复制密码短语",
+    "description": "Copy passphrase to clipboard"
   },
   "copyUri": {
     "message": "复制 URI"
@@ -547,6 +608,9 @@
   "createAccount": {
     "message": "创建账户"
   },
+  "newToBitwarden": {
+    "message": "您是 Bitwarden 新手吗？"
+  },
   "setAStrongPassword": {
     "message": "设置强密码"
   },
@@ -555,6 +619,18 @@
   },
   "logIn": {
     "message": "登录"
+  },
+  "logInToBitwarden": {
+    "message": "登录到 Bitwarden"
+  },
+  "logInWithPasskey": {
+    "message": "使用通行密钥登录"
+  },
+  "loginWithDevice": {
+    "message": "使用设备登录"
+  },
+  "useSingleSignOn": {
+    "message": "使用单点登录"
   },
   "submit": {
     "message": "提交"
@@ -827,6 +903,10 @@
   },
   "baseUrl": {
     "message": "服务器 URL"
+  },
+  "selfHostBaseUrl": {
+    "message": "自托管服务器 URL",
+    "description": "Label for field requesting a self-hosted integration service URL"
   },
   "apiUrl": {
     "message": "API 服务器 URL"
@@ -1217,6 +1297,9 @@
   "copyNumber": {
     "message": "复制号码",
     "description": "Copy credit card number"
+  },
+  "copyEmail": {
+    "message": "复制电子邮件地址"
   },
   "copySecurityCode": {
     "message": "复制安全码",
@@ -1650,6 +1733,12 @@
   },
   "deleteAccountWarning": {
     "message": "删除账户是永久性操作，无法撤销！"
+  },
+  "cannotDeleteAccount": {
+    "message": "无法删除账户"
+  },
+  "cannotDeleteAccountDesc": {
+    "message": "此操作无法完成，因为您的账户归组织所有。请联系您的组织管理员获取详细信息。"
   },
   "accountDeleted": {
     "message": "账户已删除"
@@ -2352,6 +2441,43 @@
   "generateUsername": {
     "message": "生成用户名"
   },
+  "generateEmail": {
+    "message": "生成电子邮件地址"
+  },
+  "spinboxBoundariesHint": {
+    "message": "值必须在 $MIN$ 和 $MAX$ 之间。",
+    "description": "Explains spin box minimum and maximum values to the user",
+    "placeholders": {
+      "min": {
+        "content": "$1",
+        "example": "8"
+      },
+      "max": {
+        "content": "$2",
+        "example": "128"
+      }
+    }
+  },
+  "passwordLengthRecommendationHint": {
+    "message": " 使用 $RECOMMENDED$ 或更多个字符生成强大的密码。",
+    "description": "Appended to `spinboxBoundariesHint` to recommend a length to the user. This must include any language-specific 'sentence' separator characters (e.g. a space in english).",
+    "placeholders": {
+      "recommended": {
+        "content": "$1",
+        "example": "14"
+      }
+    }
+  },
+  "passphraseNumWordsRecommendationHint": {
+    "message": " 使用 $RECOMMENDED$ 或更多个单词生成强大的密码短语。",
+    "description": "Appended to `spinboxBoundariesHint` to recommend a number of words to the user. This must include any language-specific 'sentence' separator characters (e.g. a space in english).",
+    "placeholders": {
+      "recommended": {
+        "content": "$1",
+        "example": "6"
+      }
+    }
+  },
   "usernameType": {
     "message": "用户名类型"
   },
@@ -2394,6 +2520,14 @@
   },
   "forwardedEmailDesc": {
     "message": "使用外部转发服务生成一个电子邮件别名。"
+  },
+  "forwarderDomainName": {
+    "message": "电子邮件域名",
+    "description": "Labels the domain name email forwarder service option"
+  },
+  "forwarderDomainNameHint": {
+    "message": "选择一个所选服务支持的域名",
+    "description": "Guidance provided for email forwarding services that support multiple email domains."
   },
   "forwarderError": {
     "message": "$SERVICENAME$ 错误：$ERRORMESSAGE$",
@@ -2740,9 +2874,6 @@
   "eu": {
     "message": "欧盟",
     "description": "European Union"
-  },
-  "loggingInOn": {
-    "message": "登录到"
   },
   "selfHostedServer": {
     "message": "自托管"
@@ -3162,14 +3293,38 @@
   "textSends": {
     "message": "文本 Send"
   },
-  "allowScreenshots": {
-    "message": "允许截屏"
-  },
-  "allowScreenshotsDesc": {
-    "message": "允许对 Bitwarden 桌面应用程序截屏。"
-  },
   "ssoError": {
     "message": "找不到用于 SSO 登录的可用端口。"
+  },
+  "authorize": {
+    "message": "批准"
+  },
+  "deny": {
+    "message": "拒绝"
+  },
+  "sshkeyApprovalTitle": {
+    "message": "确认 SSH 密钥使用"
+  },
+  "sshkeyApprovalMessageInfix": {
+    "message": "正在请求访问"
+  },
+  "unknownApplication": {
+    "message": "某个应用程序"
+  },
+  "sshKeyPasswordUnsupported": {
+    "message": "尚不支持导入受密码保护的 SSH 密钥"
+  },
+  "invalidSshKey": {
+    "message": "此 SSH 密钥无效"
+  },
+  "sshKeyTypeUnsupported": {
+    "message": "不支持此 SSH 密钥类型"
+  },
+  "importSshKeyFromClipboard": {
+    "message": "从剪贴板导入密钥"
+  },
+  "sshKeyPasted": {
+    "message": "SSH 密钥导入成功"
   },
   "fileSavedToDevice": {
     "message": "文件已保存到设备。可以在设备下载中进行管理。"

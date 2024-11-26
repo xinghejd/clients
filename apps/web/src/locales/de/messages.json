@@ -2,11 +2,29 @@
   "allApplications": {
     "message": "Alle Anwendungen"
   },
-  "priorityApplications": {
-    "message": "Vorrangige Anwendungen"
+  "criticalApplications": {
+    "message": "Kritische Anwendungen"
   },
   "accessIntelligence": {
     "message": "Access Intelligence"
+  },
+  "riskInsights": {
+    "message": "Risiko-Überblick"
+  },
+  "passwordRisk": {
+    "message": "Passwort-Risiko"
+  },
+  "reviewAtRiskPasswords": {
+    "message": "Überprüfe gefährdete Passwörter (schwach, kompromittiert oder wiederverwendet) in allen Anwendungen. Wähle deine kritischsten Anwendungen aus, um die Sicherheitsmaßnahmen für deine Benutzer zu priorisieren, um gefährdete Passwörter zu beseitigen."
+  },
+  "dataLastUpdated": {
+    "message": "Daten zuletzt aktualisiert: $DATE$",
+    "placeholders": {
+      "date": {
+        "content": "$1",
+        "example": "2021-01-01"
+      }
+    }
   },
   "notifiedMembers": {
     "message": "Benachrichtigte Mitglieder"
@@ -20,8 +38,11 @@
       }
     }
   },
-  "priorityApplicationsWithCount": {
-    "message": "Vorrangige Anwendungen ($COUNT$)",
+  "createNewLoginItem": {
+    "message": "Neuen Zugangsdaten-Eintrag erstellen"
+  },
+  "criticalApplicationsWithCount": {
+    "message": "Kritische Anwendungen ($COUNT$)",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -38,14 +59,47 @@
       }
     }
   },
+  "noAppsInOrgTitle": {
+    "message": "Keine Anwendungen in $ORG NAME$ gefunden",
+    "placeholders": {
+      "org name": {
+        "content": "$1",
+        "example": "Company Name"
+      }
+    }
+  },
+  "noAppsInOrgDescription": {
+    "message": "Während Benutzer Zugangsdaten speichern, werden hier Anwendungen angezeigt, die alle gefährdeten Passwörter anzeigen. Markiere kritische Anwendungen und benachrichtige Benutzer, um Passwörter zu ändern."
+  },
+  "noCriticalAppsTitle": {
+    "message": "Du hast keine Anwendungen als kritisch markiert"
+  },
+  "noCriticalAppsDescription": {
+    "message": "Wähle deine wichtigsten Anwendungen aus, um gefährdete Passwörter zu ermitteln, und benachrichtige die Benutzer, damit sie diese Passwörter ändern."
+  },
+  "markCriticalApps": {
+    "message": "Kritische Anwendungen markieren"
+  },
+  "markAppAsCritical": {
+    "message": "Anwendung als kritisch markieren"
+  },
+  "appsMarkedAsCritical": {
+    "message": "Als kritisch markierte Anwendungen"
+  },
   "application": {
     "message": "Anwendung"
   },
   "atRiskPasswords": {
     "message": "Risikoreiche Passwörter"
   },
+  "requestPasswordChange": {
+    "message": "Passwortänderung anfordern"
+  },
   "totalPasswords": {
     "message": "Passwörter insgesamt"
+  },
+  "searchApps": {
+    "message": "Anwendungen suchen"
   },
   "atRiskMembers": {
     "message": "Risikoreiche Mitglieder"
@@ -405,6 +459,9 @@
   "generatePassword": {
     "message": "Passwort generieren"
   },
+  "generatePassphrase": {
+    "message": "Passphrase generieren"
+  },
   "checkPassword": {
     "message": "Überprüfen ob ihr Kennwort kompromittiert ist."
   },
@@ -504,6 +561,9 @@
   },
   "typeSecureNote": {
     "message": "Sichere Notiz"
+  },
+  "typeSshKey": {
+    "message": "SSH-Schlüssel"
   },
   "typeLoginPlural": {
     "message": "Zugangsdaten"
@@ -662,6 +722,10 @@
   "copyPassword": {
     "message": "Passwort kopieren",
     "description": "Copy password to clipboard"
+  },
+  "copyPassphrase": {
+    "message": "Passphrase kopieren",
+    "description": "Copy passphrase to clipboard"
   },
   "passwordCopied": {
     "message": "Passwort kopiert"
@@ -920,6 +984,9 @@
   "loginWithDeviceEnabledNote": {
     "message": "Die Anmeldung über ein Gerät muss in den Einstellungen der Bitwarden App eingerichtet werden. Benötigst du eine andere Option?"
   },
+  "needAnotherOptionV1": {
+    "message": "Need another option?"
+  },
   "loginWithMasterPassword": {
     "message": "Mit Master-Passwort anmelden"
   },
@@ -932,8 +999,14 @@
   "useADifferentLogInMethod": {
     "message": "Eine andere Anmeldemethode verwenden"
   },
-  "loginWithPasskey": {
+  "logInWithPasskey": {
     "message": "Mit Passkey anmelden"
+  },
+  "useSingleSignOn": {
+    "message": "Single Sign-on verwenden"
+  },
+  "welcomeBack": {
+    "message": "Willkommen zurück"
   },
   "invalidPasskeyPleaseTryAgain": {
     "message": "Ungültiger Passkey. Bitte versuche es erneut."
@@ -1016,6 +1089,9 @@
   "createAccount": {
     "message": "Konto erstellen"
   },
+  "newToBitwarden": {
+    "message": "Neu bei Bitwarden?"
+  },
   "setAStrongPassword": {
     "message": "Lege ein starkes Passwort fest"
   },
@@ -1030,6 +1106,9 @@
   },
   "logIn": {
     "message": "Anmelden"
+  },
+  "logInToBitwarden": {
+    "message": "Bei Bitwarden anmelden"
   },
   "verifyIdentity": {
     "message": "Verifiziere deine Identität"
@@ -1225,6 +1304,12 @@
   },
   "notificationSentDevice": {
     "message": "Eine Benachrichtigung wurde an dein Gerät gesendet."
+  },
+  "aNotificationWasSentToYourDevice": {
+    "message": "Eine Benachrichtigung wurde an dein Gerät gesendet"
+  },
+  "makeSureYourAccountIsUnlockedAndTheFingerprintEtc": {
+    "message": "Make sure your account is unlocked and the fingerprint phrase matches on the other device"
   },
   "versionNumber": {
     "message": "Version $VERSION_NUMBER$",
@@ -1537,38 +1622,6 @@
   "specialCharacters": {
     "message": "Sonderzeichen (!@#$%^&*)"
   },
-  "uppercaseDescription": {
-    "message": "Großbuchstaben einschließen",
-    "description": "Tooltip for the password generator uppercase character checkbox"
-  },
-  "uppercaseLabel": {
-    "message": "A-Z",
-    "description": "Label for the password generator uppercase character checkbox"
-  },
-  "lowercaseDescription": {
-    "message": "Kleinbuchstaben einschließen",
-    "description": "Full description for the password generator lowercase character checkbox"
-  },
-  "lowercaseLabel": {
-    "message": "a-z",
-    "description": "Label for the password generator lowercase character checkbox"
-  },
-  "numbersDescription": {
-    "message": "Ziffern einschließen",
-    "description": "Full description for the password generator numbers checkbox"
-  },
-  "numbersLabel": {
-    "message": "0-9",
-    "description": "Label for the password generator numbers checkbox"
-  },
-  "specialCharactersDescription": {
-    "message": "Sonderzeichen einschließen",
-    "description": "Full description for the password generator special characters checkbox"
-  },
-  "specialCharactersLabel": {
-    "message": "!@#$%^&*",
-    "description": "Label for the password generator special characters checkbox"
-  },
   "numWords": {
     "message": "Anzahl der Wörter"
   },
@@ -1699,6 +1752,9 @@
   "dangerZoneDesc": {
     "message": "Vorsicht, diese Aktionen sind nicht umkehrbar!"
   },
+  "dangerZoneDescSingular": {
+    "message": "Vorsicht, diese Aktion ist nicht mehr rückgängig zu machen!"
+  },
   "deauthorizeSessions": {
     "message": "Sitzungen abmelden"
   },
@@ -1710,6 +1766,15 @@
   },
   "sessionsDeauthorized": {
     "message": "Alle Sitzungen wurden abgemeldet"
+  },
+  "accountIsManagedMessage": {
+    "message": "Dieses Konto wird von $ORGANIZATIONNAME$ verwaltet",
+    "placeholders": {
+      "organizationName": {
+        "content": "$1",
+        "example": "Organization"
+      }
+    }
   },
   "purgeVault": {
     "message": "Tresor leeren"
@@ -3331,6 +3396,9 @@
       }
     }
   },
+  "viewAllLogInOptions": {
+    "message": "View all log in options"
+  },
   "viewAllLoginOptions": {
     "message": "Alle Anmeldeoptionen anzeigen"
   },
@@ -3783,6 +3851,55 @@
   },
   "updateBrowserDesc": {
     "message": "Du verwendest einen nicht unterstützten Webbrowser. Der Web-Tresor funktioniert möglicherweise nicht richtig."
+  },
+  "freeTrialEndPrompt": {
+    "message": "Deine kostenlose Testversion endet in $COUNT$ Tagen. Um dein Abonnement zu behalten,",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "You must set up 2FA on your user account before you can join this organization."
+      }
+    }
+  },
+  "freeTrialEndPromptAboveTwoDays": {
+    "message": "$ORGANIZATION$, deine kostenlose Testversion endet in $COUNT$ Tagen. Um dein Abonnement zu behalten,",
+    "placeholders": {
+      "count": {
+        "content": "$2",
+        "example": "organization name"
+      },
+      "organization": {
+        "content": "$1",
+        "example": "remaining days"
+      }
+    }
+  },
+  "freeTrialEndPromptForOneDay": {
+    "message": "$ORGANIZATION$, deine kostenlose Testversion endet morgen. Um dein Abonnement zu behalten,",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "organization name"
+      }
+    }
+  },
+  "freeTrialEndPromptForOneDayNoOrgName": {
+    "message": "Deine kostenlose Testversion endet morgen. Um dein Abonnement zu behalten,"
+  },
+  "freeTrialEndPromptForLessThanADay": {
+    "message": "$ORGANIZATION$, deine kostenlose Testversion endet heute. Um dein Abonnement zu behalten,",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "organization name"
+      }
+    }
+  },
+  "freeTrialEndingSoonWithoutOrgName": {
+    "message": "Deine kostenlose Testversion endet heute. Um dein Abonnement zu behalten,"
+  },
+  "routeToPaymentMethodTrigger": {
+    "message": "füge eine Zahlungsmethode hinzu."
   },
   "joinOrganization": {
     "message": "Organisation beitreten"
@@ -4338,6 +4455,9 @@
     "message": "Keine Aufforderung zur Überprüfung von Fingerabdruck-Phrasen für eingeladene Benutzer (nicht empfohlen)",
     "description": "A 'fingerprint phrase' is a unique word phrase (similar to a passphrase) that a user can use to authenticate their public key with another user, for the purposes of sharing."
   },
+  "youWillBeNotifiedOnceTheRequestIsApproved": {
+    "message": "You will be notified once the request is approved"
+  },
   "free": {
     "message": "Free",
     "description": "Free, as in 'Free beer'"
@@ -4635,11 +4755,17 @@
   "singleOrgDesc": {
     "message": "Benutzern verbieten, anderen Organisationen beizutreten."
   },
+  "singleOrgPolicyDesc": {
+    "message": "Verbiete Mitgliedern den Beitritt zu anderen Organisationen. Diese Richtlinie ist für Organisationen erforderlich, die die Domain-Verifizierung aktiviert haben."
+  },
   "singleOrgBlockCreateMessage": {
     "message": "Deine aktuelle Organisation hat eine Richtlinie, die es dir nicht erlaubt, mehr als einer Organisation beizutreten. Bitte kontaktiere die Administratoren deiner Organisation oder melden dich mit einem anderen Bitwarden-Konto an."
   },
   "singleOrgPolicyWarning": {
     "message": "Organisationsmitglieder, die nicht Eigentümer oder Administratoren sind und bereits Mitglied einer anderen Organisation sind, werden aus deiner Organisation entfernt."
+  },
+  "singleOrgPolicyMemberWarning": {
+    "message": "Nicht-konforme Mitglieder werden in den Widerrufen-Status versetzt, bis sie alle anderen Organisationen verlassen. Administratoren sind ausgenommen und können Mitglieder wieder aufnehmen, sobald die Anforderungen erfüllt sind."
   },
   "requireSso": {
     "message": "Single Sign-on-Authentifizierung erfordern"
@@ -5215,7 +5341,7 @@
     "message": "Öffne deine Organisations-"
   },
   "usingTheMenuSelect": {
-    "message": "Using the menu, select"
+    "message": "Wählen Sie das Menü aus"
   },
   "toGrantAccessToSelectedMembers": {
     "message": "um Zugriff auf ausgewählte Mitglieder zu gewähren."
@@ -6265,6 +6391,9 @@
   "idpSingleSignOnServiceUrlRequired": {
     "message": "Erforderlich, wenn die Entitäts-ID keine URL ist."
   },
+  "offerNoLongerValid": {
+    "message": "This offer is no longer valid. Contact your organization administrators for more information."
+  },
   "openIdOptionalCustomizations": {
     "message": "Optionale Anpassungen"
   },
@@ -6353,6 +6482,43 @@
   },
   "generateUsername": {
     "message": "Benutzername generieren"
+  },
+  "generateEmail": {
+    "message": "E-Mail generieren"
+  },
+  "spinboxBoundariesHint": {
+    "message": "Wert muss zwischen $MIN$ und $MAX$ liegen.",
+    "description": "Explains spin box minimum and maximum values to the user",
+    "placeholders": {
+      "min": {
+        "content": "$1",
+        "example": "8"
+      },
+      "max": {
+        "content": "$2",
+        "example": "128"
+      }
+    }
+  },
+  "passwordLengthRecommendationHint": {
+    "message": " Benutze $RECOMMENDED$ oder mehr Zeichen um ein starkes Passwort zu generieren.",
+    "description": "Appended to `spinboxBoundariesHint` to recommend a length to the user. This must include any language-specific 'sentence' separator characters (e.g. a space in english).",
+    "placeholders": {
+      "recommended": {
+        "content": "$1",
+        "example": "14"
+      }
+    }
+  },
+  "passphraseNumWordsRecommendationHint": {
+    "message": " Use $RECOMMENDED$ words or more to generate a strong passphrase.",
+    "description": "Appended to `spinboxBoundariesHint` to recommend a number of words to the user. This must include any language-specific 'sentence' separator characters (e.g. a space in english).",
+    "placeholders": {
+      "recommended": {
+        "content": "$1",
+        "example": "6"
+      }
+    }
   },
   "usernameType": {
     "message": "Benutzernamenstyp"
@@ -6458,6 +6624,14 @@
   },
   "forwardedEmailDesc": {
     "message": "Generiere ein E-Mail-Alias mit einem externen Weiterleitungsdienst."
+  },
+  "forwarderDomainName": {
+    "message": "E-Mail-Domain",
+    "description": "Labels the domain name email forwarder service option"
+  },
+  "forwarderDomainNameHint": {
+    "message": "Wähle eine Domain aus, die vom ausgewählten Dienst unterstützt wird",
+    "description": "Guidance provided for email forwarding services that support multiple email domains."
   },
   "forwarderError": {
     "message": "$SERVICENAME$ Fehler: $ERRORMESSAGE$",
@@ -7877,8 +8051,17 @@
   "loginInitiated": {
     "message": "Anmeldung eingeleitet"
   },
+  "rememberThisDeviceToMakeFutureLoginsSeamless": {
+    "message": "Remember this device to make future logins seamless"
+  },
   "deviceApprovalRequired": {
     "message": "Geräte-Genehmigung erforderlich. Wähle unten eine Genehmigungsoption aus:"
+  },
+  "deviceApprovalRequiredV2": {
+    "message": "Device approval required"
+  },
+  "selectAnApprovalOptionBelow": {
+    "message": "Select an approval option below"
   },
   "rememberThisDevice": {
     "message": "Dieses Gerät merken"
@@ -8109,6 +8292,9 @@
   "userEmailMissing": {
     "message": "E-Mail-Adresse des Benutzers fehlt"
   },
+  "activeUserEmailNotFoundLoggingYouOut": {
+    "message": "Active user email not found. Logging you out."
+  },
   "deviceTrusted": {
     "message": "Gerät wird vertraut"
   },
@@ -8208,10 +8394,10 @@
     "message": "Sammlungserstellung und -löschung auf Eigentümer und Administratoren beschränken"
   },
   "limitCollectionCreationDesc": {
-    "message": "Begrenze die Erstellung von Sammlungen auf Besitzer und Administratoren"
+    "message": "Das Erstellen von Sammlungen auf Eigentümer und Administratoren beschränken"
   },
   "limitCollectionDeletionDesc": {
-    "message": "Begrenze das Löschen von Sammlungen auf Besitzer und Administratoren"
+    "message": "Das Löschen von Sammlungen auf Eigentümer und Administratoren beschränken"
   },
   "allowAdminAccessToAllCollectionItemsDesc": {
     "message": "Besitzer und Administratoren können alle Sammlungen und Einträge verwalten"
@@ -8257,6 +8443,10 @@
   },
   "baseUrl": {
     "message": "Server-URL"
+  },
+  "selfHostBaseUrl": {
+    "message": "Selbst gehostete Server-URL",
+    "description": "Label for field requesting a self-hosted integration service URL"
   },
   "aliasDomain": {
     "message": "Alias-Domain"
@@ -8356,7 +8546,7 @@
   },
   "addAPaymentMethod": {
     "message": "füge eine Zahlungsmethode hinzu",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'To maintain your subscription for $ORG$, add a payment method.'"
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'To maintain your subscription for $ORG$, add a payment method'"
   },
   "organizationInformation": {
     "message": "Organisationsinformationen"
@@ -8929,6 +9119,12 @@
   "providerPlan": {
     "message": "Verwalteter Dienstanbieter"
   },
+  "managedServiceProvider": {
+    "message": "Verwalteter Dienstanbieter"
+  },
+  "multiOrganizationEnterprise": {
+    "message": "Unternehmen mit mehreren Organisationen"
+  },
   "orgSeats": {
     "message": "Benutzerplätze der Organisation"
   },
@@ -8984,7 +9180,7 @@
     "message": "Geheimnis anzeigen"
   },
   "noClients": {
-    "message": "There are no clients to list"
+    "message": "Keine Ereignisse vorhanden."
   },
   "providerBillingEmailHint": {
     "message": "Diese E-Mail-Adresse wird alle Rechnungen erhalten, die diesen Anbieter betreffen",
@@ -9099,7 +9295,7 @@
     "description": "The status of an invoice."
   },
   "clientDetails": {
-    "message": "Client details"
+    "message": "Kundendetails"
   },
   "downloadCSV": {
     "message": "CSV-Datei herunterladen"
@@ -9245,7 +9441,7 @@
     "message": "Text-Sends"
   },
   "includesXMembers": {
-    "message": "for $COUNT$ member",
+    "message": "für $COUNT$ Mitglied",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -9331,6 +9527,30 @@
   "additionalStorageGbMessage": {
     "message": "GB zusätzlicher Speicher"
   },
+  "sshKeyAlgorithm": {
+    "message": "Schlüsselalgorithmus"
+  },
+  "sshKeyFingerprint": {
+    "message": "Fingerabdruck"
+  },
+  "sshKeyPrivateKey": {
+    "message": "Privater Schlüssel"
+  },
+  "sshKeyPublicKey": {
+    "message": "Öffentlicher Schlüssel"
+  },
+  "sshKeyAlgorithmED25519": {
+    "message": "ED25519"
+  },
+  "sshKeyAlgorithmRSA2048": {
+    "message": "RSA 2048-Bit"
+  },
+  "sshKeyAlgorithmRSA3072": {
+    "message": "RSA 3072-Bit"
+  },
+  "sshKeyAlgorithmRSA4096": {
+    "message": "RSA 4096-Bit"
+  },
   "premiumAccounts": {
     "message": "6 Premium-Konten"
   },
@@ -9411,7 +9631,39 @@
     "message": "Verwende ein verknüpftes Feld, wenn du Probleme mit dem automatischen Ausfüllen einer bestimmten Website hast."
   },
   "linkedLabelHelpText": {
-    "message": "Gib die HTML ID des Felds, Name, Aria-Label oder einen Platzhalter ein."
+    "message": "Gib die HTML-ID des Felds, Name, Aria-Label oder einen Platzhalter ein."
+  },
+  "uppercaseDescription": {
+    "message": "Großbuchstaben einschließen",
+    "description": "Tooltip for the password generator uppercase character checkbox"
+  },
+  "uppercaseLabel": {
+    "message": "A-Z",
+    "description": "Label for the password generator uppercase character checkbox"
+  },
+  "lowercaseDescription": {
+    "message": "Kleinbuchstaben einschließen",
+    "description": "Full description for the password generator lowercase character checkbox"
+  },
+  "lowercaseLabel": {
+    "message": "a-z",
+    "description": "Label for the password generator lowercase character checkbox"
+  },
+  "numbersDescription": {
+    "message": "Ziffern einschließen",
+    "description": "Full description for the password generator numbers checkbox"
+  },
+  "numbersLabel": {
+    "message": "0-9",
+    "description": "Label for the password generator numbers checkbox"
+  },
+  "specialCharactersDescription": {
+    "message": "Sonderzeichen einschließen",
+    "description": "Full description for the password generator special characters checkbox"
+  },
+  "specialCharactersLabel": {
+    "message": "!@#$%^&*",
+    "description": "Label for the password generator special characters checkbox"
   },
   "addAttachment": {
     "message": "Anhang hinzufügen"
@@ -9421,5 +9673,104 @@
   },
   "permanentlyDeleteAttachmentConfirmation": {
     "message": "Bist du sicher, dass du diesen Anhang dauerhaft löschen möchtest?"
+  },
+  "manageSubscriptionFromThe": {
+    "message": "verwalten",
+    "description": "This represents the beginning of a sentence. The full sentence will be 'Manage subscription from the Provider Portal', but 'Provider Portal' will be a link and thus cannot be included in the translation file."
+  },
+  "toHostBitwardenOnYourOwnServer": {
+    "message": "Um Bitwarden auf deinem eigenen Server zu hosten, must du deine Lizenzdatei hochladen. Um Free Families-Tarife und erweiterte Abrechnungsmöglichkeiten für deine selbst gehostete Organisation anzubieten, musst du die automatische Synchronisierung für deine selbst gehostete Organisation einrichten."
+  },
+  "selfHostingTitleProper": {
+    "message": "Selbst gehostet"
+  },
+  "verified-domain-single-org-warning": {
+    "message": "Die Domain-Verifizierung aktiviert die Richtlinie für einzelne Organisationen."
+  },
+  "single-org-revoked-user-warning": {
+    "message": "Nicht konforme Mitglieder werden gesperrt. Administratoren können Mitglieder wieder aufnehmen, sobald sie alle anderen Organisationen verlassen."
+  },
+  "deleteOrganizationUser": {
+    "message": "$NAME$ löschen",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "John Doe"
+      },
+      "description": "Title for the delete organization user dialog"
+    }
+  },
+  "deleteOrganizationUserWarning": {
+    "message": "Wenn ein Mitglied gelöscht wird, werden sein Bitwarden-Konto und persönlichen Tresor-Daten dauerhaft gelöscht. Sammlungs-Daten bleiben in der Organisation. Um sie wiederherzustellen, müssen diese ein Konto erstellen und den Onboarding-Prozess erneut durchlaufen.",
+    "description": "Warning for the delete organization user dialog"
+  },
+  "organizationUserDeleted": {
+    "message": "$NAME$ gelöscht",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "John Doe"
+      }
+    }
+  },
+  "organizationUserDeletedDesc": {
+    "message": "Der Benutzer wurde aus der Organisation entfernt und alle zugehörigen Benutzerdaten wurden gelöscht."
+  },
+  "deletedUserId": {
+    "message": "Gelöschter Benutzer $ID$ - ein Eigentümer / Administrator hat das Benutzerkonto gelöscht",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "First 8 Character of a GUID"
+      }
+    }
+  },
+  "userLeftOrganization": {
+    "message": "Benutzer $ID$ hat die Organisation verlassen",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "First 8 Character of a GUID"
+      }
+    }
+  },
+  "suspendedOrganizationTitle": {
+    "message": "$ORGANIZATION$ ist gesperrt",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme c"
+      }
+    }
+  },
+  "suspendedUserOrgMessage": {
+    "message": "Kontaktiere deinen Organisationseigentümer für Hilfe."
+  },
+  "suspendedOwnerOrgMessage": {
+    "message": "Um wieder Zugriff zu deiner Organisation zu erhalten, füge eine Zahlungsmethode hinzu."
+  },
+  "deleteMembers": {
+    "message": "Mitglieder löschen"
+  },
+  "noSelectedMembersApplicable": {
+    "message": "Diese Aktion ist auf keine der ausgewählten Mitglieder anwendbar."
+  },
+  "deletedSuccessfully": {
+    "message": "Erfolgreich gelöscht"
+  },
+  "freeFamiliesSponsorship": {
+    "message": "Remove Free Bitwarden Families sponsorship"
+  },
+  "freeFamiliesSponsorshipPolicyDesc": {
+    "message": "Do not allow members to redeem a Families plan through this organization."
+  },
+  "verifyBankAccountWithStatementDescriptorWarning": {
+    "message": "Payment with a bank account is only available to customers in the United States. You will be required to verify your bank account. We will make a micro-deposit within the next 1-2 business days. Enter the statement descriptor code from this deposit on the organization's billing page to verify the bank account. Failure to verify the bank account will result in a missed payment and your subscription being suspended."
+  },
+  "verifyBankAccountWithStatementDescriptorInstructions": {
+    "message": "We have made a micro-deposit to your bank account (this may take 1-2 business days). Enter the six-digit code starting with 'SM' found on the deposit description. Failure to verify the bank account will result in a missed payment and your subscription being suspended."
+  },
+  "descriptorCode": {
+    "message": "Descriptor code"
   }
 }

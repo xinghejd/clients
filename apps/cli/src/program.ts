@@ -1,5 +1,6 @@
 import * as chalk from "chalk";
 import { program, Command, OptionValues } from "commander";
+import { firstValueFrom } from "rxjs";
 
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 
@@ -103,6 +104,14 @@ export class Program extends BaseProgram {
     });
 
     program
+      .command("sdk-version")
+      .description("Print the SDK version.")
+      .action(async () => {
+        const sdkVersion = await firstValueFrom(this.serviceContainer.sdkService.version$);
+        writeLn(sdkVersion, true);
+      });
+
+    program
       .command("login [email] [password]")
       .description("Log into a user account.")
       .option("--method <method>", "Two-step login method.")
@@ -150,7 +159,7 @@ export class Program extends BaseProgram {
             this.serviceContainer.passwordStrengthService,
             this.serviceContainer.platformUtilsService,
             this.serviceContainer.accountService,
-            this.serviceContainer.cryptoService,
+            this.serviceContainer.keyService,
             this.serviceContainer.policyService,
             this.serviceContainer.twoFactorService,
             this.serviceContainer.syncService,
@@ -258,7 +267,7 @@ export class Program extends BaseProgram {
           const command = new UnlockCommand(
             this.serviceContainer.accountService,
             this.serviceContainer.masterPasswordService,
-            this.serviceContainer.cryptoService,
+            this.serviceContainer.keyService,
             this.serviceContainer.userVerificationService,
             this.serviceContainer.cryptoFunctionService,
             this.serviceContainer.logService,

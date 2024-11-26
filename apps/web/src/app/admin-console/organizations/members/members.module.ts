@@ -7,9 +7,10 @@ import { PasswordCalloutComponent } from "@bitwarden/auth/angular";
 import { LooseComponentsModule } from "../../../shared";
 import { SharedOrganizationModule } from "../shared";
 
-import { BulkConfirmComponent } from "./components/bulk/bulk-confirm.component";
+import { BulkConfirmDialogComponent } from "./components/bulk/bulk-confirm-dialog.component";
+import { BulkDeleteDialogComponent } from "./components/bulk/bulk-delete-dialog.component";
 import { BulkEnableSecretsManagerDialogComponent } from "./components/bulk/bulk-enable-sm-dialog.component";
-import { BulkRemoveComponent } from "./components/bulk/bulk-remove.component";
+import { BulkRemoveDialogComponent } from "./components/bulk/bulk-remove-dialog.component";
 import { BulkRestoreRevokeComponent } from "./components/bulk/bulk-restore-revoke.component";
 import { BulkStatusComponent } from "./components/bulk/bulk-status.component";
 import { UserDialogModule } from "./components/member-dialog";
@@ -28,13 +29,14 @@ import { MembersComponent } from "./members.component";
     PasswordStrengthV2Component,
   ],
   declarations: [
-    BulkConfirmComponent,
+    BulkConfirmDialogComponent,
     BulkEnableSecretsManagerDialogComponent,
-    BulkRemoveComponent,
+    BulkRemoveDialogComponent,
     BulkRestoreRevokeComponent,
     BulkStatusComponent,
     MembersComponent,
     ResetPasswordComponent,
+    BulkDeleteDialogComponent,
   ],
 })
 export class MembersModule {}

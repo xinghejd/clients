@@ -26,6 +26,9 @@
   "typeSecureNote": {
     "message": "Veilige notitie"
   },
+  "typeSshKey": {
+    "message": "SSH-sleutel"
+  },
   "folders": {
     "message": "Mappen"
   },
@@ -59,6 +62,9 @@
         "example": "Company Name"
       }
     }
+  },
+  "welcomeBack": {
+    "message": "Welkom terug"
   },
   "moveToOrgDesc": {
     "message": "Kies een organisatie waarnaar je dit item wilt verplaatsen. Door het verplaatsen krijgt de organisatie de eigendomsrechten van het item. Je bent niet langer de directe eigenaar meer van het item als het is verplaatst."
@@ -174,6 +180,48 @@
   "address": {
     "message": "Adres"
   },
+  "sshPrivateKey": {
+    "message": "Privésleutel"
+  },
+  "sshPublicKey": {
+    "message": "Publieke sleutel"
+  },
+  "sshFingerprint": {
+    "message": "Vingerafdruk"
+  },
+  "sshKeyAlgorithm": {
+    "message": "Sleuteltype"
+  },
+  "sshKeyAlgorithmED25519": {
+    "message": "ED25519"
+  },
+  "sshKeyAlgorithmRSA2048": {
+    "message": "RSA 2048-bit"
+  },
+  "sshKeyAlgorithmRSA3072": {
+    "message": "RSA 3072-bit"
+  },
+  "sshKeyAlgorithmRSA4096": {
+    "message": "RSA 4096-bit"
+  },
+  "sshKeyGenerated": {
+    "message": "Nieuwe SSH-sleutel gegenereerd"
+  },
+  "sshAgentUnlockRequired": {
+    "message": "Ontgrendel je kluis voor het goedkeuren van het SSH-sleutelverzoek."
+  },
+  "sshAgentUnlockTimeout": {
+    "message": "Time-out SSH-sleutelaanvraag."
+  },
+  "enableSshAgent": {
+    "message": "SSH-agent inschakelen"
+  },
+  "enableSshAgentDesc": {
+    "message": "Schakel de SSH-agent in om SSH-verzoeken rechtstreeks vanuit je Bitwarden-kluis te ondertekenen."
+  },
+  "enableSshAgentHelp": {
+    "message": "De SSH-agent is een dienst gericht op ontwikkelaars waarmee je SSH-verzoeken rechtstreeks vanuit je Bitwarden-kluis kunt ondertekenen."
+  },
   "premiumRequired": {
     "message": "Premium vereist"
   },
@@ -258,6 +306,9 @@
   },
   "generatePassword": {
     "message": "Genereer wachtwoord"
+  },
+  "generatePassphrase": {
+    "message": "Wachtwoordzin genereren"
   },
   "type": {
     "message": "Categorie"
@@ -393,6 +444,16 @@
   },
   "copyPassword": {
     "message": "Kopieer wachtwoord"
+  },
+  "regenerateSshKey": {
+    "message": "SSH-sleutel opnieuw genereren"
+  },
+  "copySshPrivateKey": {
+    "message": "Privésleutel kopiëren"
+  },
+  "copyPassphrase": {
+    "message": "Wachtwoordzin kopiëren",
+    "description": "Copy passphrase to clipboard"
   },
   "copyUri": {
     "message": "URI kopiëren"
@@ -547,6 +608,9 @@
   "createAccount": {
     "message": "Maak een account aan"
   },
+  "newToBitwarden": {
+    "message": "Nieuw bij Bitwarden?"
+  },
   "setAStrongPassword": {
     "message": "Stel een sterk wachtwoord in"
   },
@@ -555,6 +619,18 @@
   },
   "logIn": {
     "message": "Log in"
+  },
+  "logInToBitwarden": {
+    "message": "Inloggen op Bitwarden"
+  },
+  "logInWithPasskey": {
+    "message": "Inloggen met passkey"
+  },
+  "loginWithDevice": {
+    "message": "Inloggen met apparaat"
+  },
+  "useSingleSignOn": {
+    "message": "Single sign-on gebruiken"
   },
   "submit": {
     "message": "Opslaan"
@@ -827,6 +903,10 @@
   },
   "baseUrl": {
     "message": "Server-URL"
+  },
+  "selfHostBaseUrl": {
+    "message": "URL zelfgehoste server",
+    "description": "Label for field requesting a self-hosted integration service URL"
   },
   "apiUrl": {
     "message": "API server-URL"
@@ -1217,6 +1297,9 @@
   "copyNumber": {
     "message": "Nummer kopiëren",
     "description": "Copy credit card number"
+  },
+  "copyEmail": {
+    "message": "E-mail kopiëren"
   },
   "copySecurityCode": {
     "message": "Beveiligingscode kopiëren",
@@ -1650,6 +1733,12 @@
   },
   "deleteAccountWarning": {
     "message": "Het verwijderen van je account is definitief. Je kunt dit niet ongedaan maken."
+  },
+  "cannotDeleteAccount": {
+    "message": "Kan account niet verwijderen"
+  },
+  "cannotDeleteAccountDesc": {
+    "message": "Je kunt deze actie niet afronden omdat je account eigendom is van een organisatie. Neem contact op met de beheerder van je organisatie voor details."
   },
   "accountDeleted": {
     "message": "Account verwijderd"
@@ -2352,6 +2441,43 @@
   "generateUsername": {
     "message": "Gebruikersnamen genereren"
   },
+  "generateEmail": {
+    "message": "E-mailadres genereren"
+  },
+  "spinboxBoundariesHint": {
+    "message": "Waarde moet tussen $MIN$ en $MAX$ liggen.",
+    "description": "Explains spin box minimum and maximum values to the user",
+    "placeholders": {
+      "min": {
+        "content": "$1",
+        "example": "8"
+      },
+      "max": {
+        "content": "$2",
+        "example": "128"
+      }
+    }
+  },
+  "passwordLengthRecommendationHint": {
+    "message": " Gebruik $RECOMMENDED$ tekens of meer om een sterk wachtwoord te genereren.",
+    "description": "Appended to `spinboxBoundariesHint` to recommend a length to the user. This must include any language-specific 'sentence' separator characters (e.g. a space in english).",
+    "placeholders": {
+      "recommended": {
+        "content": "$1",
+        "example": "14"
+      }
+    }
+  },
+  "passphraseNumWordsRecommendationHint": {
+    "message": " Gebruik $RECOMMENDED$ woorden of meer om een sterke wachtwoordzin te genereren.",
+    "description": "Appended to `spinboxBoundariesHint` to recommend a number of words to the user. This must include any language-specific 'sentence' separator characters (e.g. a space in english).",
+    "placeholders": {
+      "recommended": {
+        "content": "$1",
+        "example": "6"
+      }
+    }
+  },
   "usernameType": {
     "message": "Type gebruikersnaam"
   },
@@ -2394,6 +2520,14 @@
   },
   "forwardedEmailDesc": {
     "message": "Genereer een e-mailalias met een externe doorstuurservice."
+  },
+  "forwarderDomainName": {
+    "message": "E-maildomein",
+    "description": "Labels the domain name email forwarder service option"
+  },
+  "forwarderDomainNameHint": {
+    "message": "Kies een domein dat wordt ondersteund door de geselecteerde dienst",
+    "description": "Guidance provided for email forwarding services that support multiple email domains."
   },
   "forwarderError": {
     "message": "$SERVICENAME$ fout: $ERRORMESSAGE$",
@@ -2740,9 +2874,6 @@
   "eu": {
     "message": "EU",
     "description": "European Union"
-  },
-  "loggingInOn": {
-    "message": "Inloggen op"
   },
   "selfHostedServer": {
     "message": "zelfgehost"
@@ -3162,14 +3293,38 @@
   "textSends": {
     "message": "Tekst-Sends"
   },
-  "allowScreenshots": {
-    "message": "Schermopname toestaan"
-  },
-  "allowScreenshotsDesc": {
-    "message": "Schermopnames van de Bitwarden-desktopapplicatie toestaan."
-  },
   "ssoError": {
     "message": "Er zijn geen vrije poorten gevonden voor de sso-login."
+  },
+  "authorize": {
+    "message": "Autoriseren"
+  },
+  "deny": {
+    "message": "Afwijzen"
+  },
+  "sshkeyApprovalTitle": {
+    "message": "Gebruik SSH-sleutel bevestigen"
+  },
+  "sshkeyApprovalMessageInfix": {
+    "message": "vraagt toegang tot"
+  },
+  "unknownApplication": {
+    "message": "Een applicatie"
+  },
+  "sshKeyPasswordUnsupported": {
+    "message": "Importeren van met wachtwoord beveiligde SSH-sleutels wordt nog niet ondersteund"
+  },
+  "invalidSshKey": {
+    "message": "De SSH-sleutel is ongeldig"
+  },
+  "sshKeyTypeUnsupported": {
+    "message": "Het type SSH-sleutel is niet ondersteund"
+  },
+  "importSshKeyFromClipboard": {
+    "message": "Sleutel van klembord importeren"
+  },
+  "sshKeyPasted": {
+    "message": "SSH-sleutel succesvol geïmporteerd"
   },
   "fileSavedToDevice": {
     "message": "Bestand op apparaat opgeslagen. Beheer vanaf de downloads op je apparaat."

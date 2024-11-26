@@ -1,18 +1,36 @@
 {
   "allApplications": {
-    "message": "All applications"
+    "message": "所有应用程序"
   },
-  "priorityApplications": {
-    "message": "Priority applications"
+  "criticalApplications": {
+    "message": "关键应用程序"
   },
   "accessIntelligence": {
     "message": "Access Intelligence"
   },
+  "riskInsights": {
+    "message": "风险洞察"
+  },
+  "passwordRisk": {
+    "message": "密码风险"
+  },
+  "reviewAtRiskPasswords": {
+    "message": "跨应用程序审查有风险的密码（弱密码、暴露的密码或重复使用的密码）。选择最关键的应用程序，优先为用户采取安全措施，以解决密码风险问题。"
+  },
+  "dataLastUpdated": {
+    "message": "数据最后更新于：$DATE$",
+    "placeholders": {
+      "date": {
+        "content": "$1",
+        "example": "2021-01-01"
+      }
+    }
+  },
   "notifiedMembers": {
-    "message": "Notified members"
+    "message": "已通知的成员"
   },
   "allApplicationsWithCount": {
-    "message": "All applications ($COUNT$)",
+    "message": "所有应用程序（$COUNT$）",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -20,8 +38,11 @@
       }
     }
   },
-  "priorityApplicationsWithCount": {
-    "message": "Priority applications ($COUNT$)",
+  "createNewLoginItem": {
+    "message": "创建新的登录项目"
+  },
+  "criticalApplicationsWithCount": {
+    "message": "关键应用程序（$COUNT$）",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -30,7 +51,7 @@
     }
   },
   "notifiedMembersWithCount": {
-    "message": "Notified members ($COUNT$)",
+    "message": "已通知的成员（$COUNT$）",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -38,26 +59,59 @@
       }
     }
   },
+  "noAppsInOrgTitle": {
+    "message": "在 $ORG NAME$ 中未发现任何应用程序",
+    "placeholders": {
+      "org name": {
+        "content": "$1",
+        "example": "Company Name"
+      }
+    }
+  },
+  "noAppsInOrgDescription": {
+    "message": "当用户保存登录信息时，应用程序会出现在这里，显示所有有风险的密码。标记关键应用程序并通知用户更新密码。"
+  },
+  "noCriticalAppsTitle": {
+    "message": "您未将任何应用程序标记为关键"
+  },
+  "noCriticalAppsDescription": {
+    "message": "选择最关键的应用程序来发现有风险的密码，并通知用户更改这些密码。"
+  },
+  "markCriticalApps": {
+    "message": "标记关键应用程序"
+  },
+  "markAppAsCritical": {
+    "message": "标记应用程序为关键"
+  },
+  "appsMarkedAsCritical": {
+    "message": "应用程序已标记为关键"
+  },
   "application": {
-    "message": "Application"
+    "message": "应用程序"
   },
   "atRiskPasswords": {
-    "message": "At-risk passwords"
+    "message": "有风险的密码"
+  },
+  "requestPasswordChange": {
+    "message": "请求更改密码"
   },
   "totalPasswords": {
-    "message": "Total passwords"
+    "message": "总的密码"
+  },
+  "searchApps": {
+    "message": "搜索应用程序"
   },
   "atRiskMembers": {
-    "message": "At-risk members"
+    "message": "有风险的成员"
   },
   "totalMembers": {
-    "message": "Total members"
+    "message": "总的成员"
   },
   "atRiskApplications": {
-    "message": "At-risk applications"
+    "message": "有风险的应用程序"
   },
   "totalApplications": {
-    "message": "Total applications"
+    "message": "总的应用程序"
   },
   "whatTypeOfItem": {
     "message": "这是什么类型的项目？"
@@ -405,6 +459,9 @@
   "generatePassword": {
     "message": "生成密码"
   },
+  "generatePassphrase": {
+    "message": "生成密码短语"
+  },
   "checkPassword": {
     "message": "检查密码是否已暴露。"
   },
@@ -504,6 +561,9 @@
   },
   "typeSecureNote": {
     "message": "安全笔记"
+  },
+  "typeSshKey": {
+    "message": "SSH 密钥"
   },
   "typeLoginPlural": {
     "message": "登录"
@@ -663,8 +723,12 @@
     "message": "复制密码",
     "description": "Copy password to clipboard"
   },
+  "copyPassphrase": {
+    "message": "复制密码短语",
+    "description": "Copy passphrase to clipboard"
+  },
   "passwordCopied": {
-    "message": "Password copied"
+    "message": "密码已复制"
   },
   "copyUsername": {
     "message": "复制用户名",
@@ -920,6 +984,9 @@
   "loginWithDeviceEnabledNote": {
     "message": "必须在 Bitwarden App 的设置中启用设备登录。需要其他登录选项吗？"
   },
+  "needAnotherOptionV1": {
+    "message": "需要其他选项吗？"
+  },
   "loginWithMasterPassword": {
     "message": "使用主密码登录"
   },
@@ -932,8 +999,14 @@
   "useADifferentLogInMethod": {
     "message": "使用不同的登录方式"
   },
-  "loginWithPasskey": {
+  "logInWithPasskey": {
     "message": "使用通行密钥登录"
+  },
+  "useSingleSignOn": {
+    "message": "使用单点登录"
+  },
+  "welcomeBack": {
+    "message": "欢迎回来"
   },
   "invalidPasskeyPleaseTryAgain": {
     "message": "通行密钥无效。请重试。"
@@ -1016,6 +1089,9 @@
   "createAccount": {
     "message": "创建账户"
   },
+  "newToBitwarden": {
+    "message": "Bitwarden 新手吗？"
+  },
   "setAStrongPassword": {
     "message": "设置强密码"
   },
@@ -1030,6 +1106,9 @@
   },
   "logIn": {
     "message": "登录"
+  },
+  "logInToBitwarden": {
+    "message": "登录到 Bitwarden"
   },
   "verifyIdentity": {
     "message": "验证您的身份"
@@ -1200,7 +1279,7 @@
     "message": "您没有查看此集合中的所有项目的权限。"
   },
   "youDoNotHavePermissions": {
-    "message": "You do not have permissions to this collection"
+    "message": "您没有此集合的权限"
   },
   "noCollectionsInList": {
     "message": "没有可列出的集合。"
@@ -1225,6 +1304,12 @@
   },
   "notificationSentDevice": {
     "message": "通知已发送到您的设备。"
+  },
+  "aNotificationWasSentToYourDevice": {
+    "message": "通知已发送到您的设备"
+  },
+  "makeSureYourAccountIsUnlockedAndTheFingerprintEtc": {
+    "message": "确保您的账户已解锁，并且指纹短语与其他设备上的相匹配。"
   },
   "versionNumber": {
     "message": "版本: $VERSION_NUMBER$",
@@ -1537,38 +1622,6 @@
   "specialCharacters": {
     "message": "特殊字符 (!@#$%^&*)"
   },
-  "uppercaseDescription": {
-    "message": "包含大写字符",
-    "description": "Tooltip for the password generator uppercase character checkbox"
-  },
-  "uppercaseLabel": {
-    "message": "A-Z",
-    "description": "Label for the password generator uppercase character checkbox"
-  },
-  "lowercaseDescription": {
-    "message": "包含小写字符",
-    "description": "Full description for the password generator lowercase character checkbox"
-  },
-  "lowercaseLabel": {
-    "message": "a-z",
-    "description": "Label for the password generator lowercase character checkbox"
-  },
-  "numbersDescription": {
-    "message": "包含数字",
-    "description": "Full description for the password generator numbers checkbox"
-  },
-  "numbersLabel": {
-    "message": "0-9",
-    "description": "Label for the password generator numbers checkbox"
-  },
-  "specialCharactersDescription": {
-    "message": "包含特殊字符",
-    "description": "Full description for the password generator special characters checkbox"
-  },
-  "specialCharactersLabel": {
-    "message": "!@#$%^&*",
-    "description": "Label for the password generator special characters checkbox"
-  },
   "numWords": {
     "message": "单词数"
   },
@@ -1697,7 +1750,10 @@
     "message": "危险操作区"
   },
   "dangerZoneDesc": {
-    "message": "当心，这些操作是不可逆的！"
+    "message": "当心，这些操作无法撤销！"
+  },
+  "dangerZoneDescSingular": {
+    "message": "当心，此操作无法撤销！"
   },
   "deauthorizeSessions": {
     "message": "取消会话授权"
@@ -1710,6 +1766,15 @@
   },
   "sessionsDeauthorized": {
     "message": "已取消所有会话授权"
+  },
+  "accountIsManagedMessage": {
+    "message": "此账户由 $ORGANIZATIONNAME$ 管理",
+    "placeholders": {
+      "organizationName": {
+        "content": "$1",
+        "example": "Organization"
+      }
+    }
   },
   "purgeVault": {
     "message": "清空密码库"
@@ -2344,7 +2409,7 @@
     "message": "您的密码库中没有带弱密码的项目。"
   },
   "weakness": {
-    "message": "Weakness"
+    "message": "弱"
   },
   "reusedPasswordsReport": {
     "message": "重复使用的密码"
@@ -3106,7 +3171,7 @@
     "message": "确实要移除此用户吗？"
   },
   "removeOrgUserConfirmation": {
-    "message": "移除成员后，他们将不再具有对组织数据的访问权限，并且此操作是不可逆的。要将此成员添加回组织，必须再次邀请他们并加入。"
+    "message": "移除成员后，他们将不再具有对组织数据的访问权限，并且此操作无法撤销。要将此成员添加回组织，必须再次邀请他们并加入。"
   },
   "revokeUserConfirmation": {
     "message": "撤销成员后，他们将不再具有对组织数据的访问权限。要快速恢复此成员的访问权限，请转到「已撤销」标签页。"
@@ -3211,7 +3276,7 @@
     "message": "添加访问权限"
   },
   "addAccessFilter": {
-    "message": "添加访问过滤器"
+    "message": "添加访问权限筛选"
   },
   "refresh": {
     "message": "刷新"
@@ -3330,6 +3395,9 @@
         "example": "'Google'"
       }
     }
+  },
+  "viewAllLogInOptions": {
+    "message": "查看所有登录选项"
   },
   "viewAllLoginOptions": {
     "message": "查看所有登录选项"
@@ -3783,6 +3851,55 @@
   },
   "updateBrowserDesc": {
     "message": "您使用的是不受支持的 Web 浏览器。网页密码库可能无法正常运行。"
+  },
+  "freeTrialEndPrompt": {
+    "message": "您的免费试用将在 $COUNT$ 天后结束。要保留您的订阅，",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "You must set up 2FA on your user account before you can join this organization."
+      }
+    }
+  },
+  "freeTrialEndPromptAboveTwoDays": {
+    "message": "$ORGANIZATION$，您的免费试用将在 $COUNT$ 天后结束。要保留您的订阅，",
+    "placeholders": {
+      "count": {
+        "content": "$2",
+        "example": "organization name"
+      },
+      "organization": {
+        "content": "$1",
+        "example": "remaining days"
+      }
+    }
+  },
+  "freeTrialEndPromptForOneDay": {
+    "message": "$ORGANIZATION$，您的免费试用将在明天结束。要保留您的订阅，",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "organization name"
+      }
+    }
+  },
+  "freeTrialEndPromptForOneDayNoOrgName": {
+    "message": "您的免费试用将在每天结束。要保留您的订阅，"
+  },
+  "freeTrialEndPromptForLessThanADay": {
+    "message": "$ORGANIZATION$，您的免费试用将在今天结束。要保留您的订阅，",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "organization name"
+      }
+    }
+  },
+  "freeTrialEndingSoonWithoutOrgName": {
+    "message": "您的免费试用将在今天结束。要保留您的订阅，"
+  },
+  "routeToPaymentMethodTrigger": {
+    "message": "请添加一个付款方式。"
   },
   "joinOrganization": {
     "message": "加入组织"
@@ -4338,6 +4455,9 @@
     "message": "不再提示验证受邀用户的指纹短语（不推荐）",
     "description": "A 'fingerprint phrase' is a unique word phrase (similar to a passphrase) that a user can use to authenticate their public key with another user, for the purposes of sharing."
   },
+  "youWillBeNotifiedOnceTheRequestIsApproved": {
+    "message": "请求获得批准后，您将收到通知"
+  },
   "free": {
     "message": "免费",
     "description": "Free, as in 'Free beer'"
@@ -4635,11 +4755,17 @@
   "singleOrgDesc": {
     "message": "限制成员加入其他组织。"
   },
+  "singleOrgPolicyDesc": {
+    "message": "限制成员加入其他组织。对于已启用域名验证的组织来说，该策略是必需的。"
+  },
   "singleOrgBlockCreateMessage": {
     "message": "您当前的组织策略禁止您加入多个组织。请联系您的组织管理员，或从其他 Bitwarden 账户注册。"
   },
   "singleOrgPolicyWarning": {
     "message": "不是所有者或管理员并且已是其他组织的成员的组织成员将从您的组织中移除。"
+  },
+  "singleOrgPolicyMemberWarning": {
+    "message": "不符合要求的成员将被置于撤销状态，直到他们离开所有其他组织。管理员可以豁免，达到要求后，管理员可以恢复他们的成员资格。"
   },
   "requireSso": {
     "message": "要求单点登录身份验证"
@@ -5422,7 +5548,7 @@
     "message": "确定要移除以下用户吗？该过程可能需要几秒钟才能完成，并且不能中断或取消。"
   },
   "removeOrgUsersConfirmation": {
-    "message": "移除成员后，他们将不再具有对组织数据的访问权限，并且此操作是不可逆的。要将成员添加回组织，必须再次邀请他们并加入。该过程可能需要几秒钟才能完成，并且不能被中断或取消。"
+    "message": "移除成员后，他们将不再具有对组织数据的访问权限，并且此操作无法撤销。要将成员添加回组织，必须再次邀请他们并加入。该过程可能需要几秒钟才能完成，并且不能被中断或取消。"
   },
   "revokeUsersWarning": {
     "message": "撤销成员后，他们将不再具有对组织数据的访问权限。要快速恢复成员的访问权限，请转到「已撤销」标签页。该过程可能需要几秒钟才能完成，并且不能被中断或取消。"
@@ -6265,6 +6391,9 @@
   "idpSingleSignOnServiceUrlRequired": {
     "message": "如果实体 ID 不是一个 URL，则必填。"
   },
+  "offerNoLongerValid": {
+    "message": "此优惠不再可用。请联系组织管理员获取更多信息。"
+  },
   "openIdOptionalCustomizations": {
     "message": "个性化（可选）"
   },
@@ -6353,6 +6482,43 @@
   },
   "generateUsername": {
     "message": "生成用户名"
+  },
+  "generateEmail": {
+    "message": "生成电子邮件地址"
+  },
+  "spinboxBoundariesHint": {
+    "message": "值必须在 $MIN$ 和 $MAX$ 之间。",
+    "description": "Explains spin box minimum and maximum values to the user",
+    "placeholders": {
+      "min": {
+        "content": "$1",
+        "example": "8"
+      },
+      "max": {
+        "content": "$2",
+        "example": "128"
+      }
+    }
+  },
+  "passwordLengthRecommendationHint": {
+    "message": " 使用 $RECOMMENDED$ 或更多个字符生成强大的密码。",
+    "description": "Appended to `spinboxBoundariesHint` to recommend a length to the user. This must include any language-specific 'sentence' separator characters (e.g. a space in english).",
+    "placeholders": {
+      "recommended": {
+        "content": "$1",
+        "example": "14"
+      }
+    }
+  },
+  "passphraseNumWordsRecommendationHint": {
+    "message": " 使用 $RECOMMENDED$ 或更多个单词生成强大的密码短语。",
+    "description": "Appended to `spinboxBoundariesHint` to recommend a number of words to the user. This must include any language-specific 'sentence' separator characters (e.g. a space in english).",
+    "placeholders": {
+      "recommended": {
+        "content": "$1",
+        "example": "6"
+      }
+    }
   },
   "usernameType": {
     "message": "用户名类型"
@@ -6458,6 +6624,14 @@
   },
   "forwardedEmailDesc": {
     "message": "使用外部转发服务生成一个电子邮件别名。"
+  },
+  "forwarderDomainName": {
+    "message": "电子邮件域名",
+    "description": "Labels the domain name email forwarder service option"
+  },
+  "forwarderDomainNameHint": {
+    "message": "选择一个所选服务支持的域名",
+    "description": "Guidance provided for email forwarding services that support multiple email domains."
   },
   "forwarderError": {
     "message": "$SERVICENAME$ 错误：$ERRORMESSAGE$",
@@ -7877,8 +8051,17 @@
   "loginInitiated": {
     "message": "登录已发起"
   },
+  "rememberThisDeviceToMakeFutureLoginsSeamless": {
+    "message": "Remember this device to make future logins seamless"
+  },
   "deviceApprovalRequired": {
     "message": "需要设备批准。请在下面选择一个批准选项："
+  },
+  "deviceApprovalRequiredV2": {
+    "message": "Device approval required"
+  },
+  "selectAnApprovalOptionBelow": {
+    "message": "Select an approval option below"
   },
   "rememberThisDevice": {
     "message": "记住此设备"
@@ -8109,6 +8292,9 @@
   "userEmailMissing": {
     "message": "缺少用户电子邮件"
   },
+  "activeUserEmailNotFoundLoggingYouOut": {
+    "message": "Active user email not found. Logging you out."
+  },
   "deviceTrusted": {
     "message": "设备已信任"
   },
@@ -8258,6 +8444,10 @@
   "baseUrl": {
     "message": "服务器 URL"
   },
+  "selfHostBaseUrl": {
+    "message": "自托管服务器 URL",
+    "description": "Label for field requesting a self-hosted integration service URL"
+  },
   "aliasDomain": {
     "message": "别名域"
   },
@@ -8356,7 +8546,7 @@
   },
   "addAPaymentMethod": {
     "message": "请添加一个付款方式。",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'To maintain your subscription for $ORG$, add a payment method.'"
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'To maintain your subscription for $ORG$, add a payment method'"
   },
   "organizationInformation": {
     "message": "组织信息"
@@ -8929,6 +9119,12 @@
   "providerPlan": {
     "message": "托管服务提供商"
   },
+  "managedServiceProvider": {
+    "message": "托管服务提供商"
+  },
+  "multiOrganizationEnterprise": {
+    "message": "多组织企业"
+  },
   "orgSeats": {
     "message": "组织席位"
   },
@@ -9331,6 +9527,30 @@
   "additionalStorageGbMessage": {
     "message": "GB 附加存储"
   },
+  "sshKeyAlgorithm": {
+    "message": "密钥算法"
+  },
+  "sshKeyFingerprint": {
+    "message": "指纹"
+  },
+  "sshKeyPrivateKey": {
+    "message": "私钥"
+  },
+  "sshKeyPublicKey": {
+    "message": "公钥"
+  },
+  "sshKeyAlgorithmED25519": {
+    "message": "ED25519"
+  },
+  "sshKeyAlgorithmRSA2048": {
+    "message": "RSA 2048-Bit"
+  },
+  "sshKeyAlgorithmRSA3072": {
+    "message": "RSA 3072-Bit"
+  },
+  "sshKeyAlgorithmRSA4096": {
+    "message": "RSA 4096-Bit"
+  },
   "premiumAccounts": {
     "message": "6 个高级账户"
   },
@@ -9413,6 +9633,38 @@
   "linkedLabelHelpText": {
     "message": "输入字段的 html ID、名称、aria-label 或占位符。"
   },
+  "uppercaseDescription": {
+    "message": "包含大写字符",
+    "description": "Tooltip for the password generator uppercase character checkbox"
+  },
+  "uppercaseLabel": {
+    "message": "A-Z",
+    "description": "Label for the password generator uppercase character checkbox"
+  },
+  "lowercaseDescription": {
+    "message": "包含小写字符",
+    "description": "Full description for the password generator lowercase character checkbox"
+  },
+  "lowercaseLabel": {
+    "message": "a-z",
+    "description": "Label for the password generator lowercase character checkbox"
+  },
+  "numbersDescription": {
+    "message": "包含数字",
+    "description": "Full description for the password generator numbers checkbox"
+  },
+  "numbersLabel": {
+    "message": "0-9",
+    "description": "Label for the password generator numbers checkbox"
+  },
+  "specialCharactersDescription": {
+    "message": "包含特殊字符",
+    "description": "Full description for the password generator special characters checkbox"
+  },
+  "specialCharactersLabel": {
+    "message": "!@#$%^&*",
+    "description": "Label for the password generator special characters checkbox"
+  },
   "addAttachment": {
     "message": "添加附件"
   },
@@ -9421,5 +9673,104 @@
   },
   "permanentlyDeleteAttachmentConfirmation": {
     "message": "您确定要永久删除此附件吗？"
+  },
+  "manageSubscriptionFromThe": {
+    "message": "管理订阅，通过",
+    "description": "This represents the beginning of a sentence. The full sentence will be 'Manage subscription from the Provider Portal', but 'Provider Portal' will be a link and thus cannot be included in the translation file."
+  },
+  "toHostBitwardenOnYourOwnServer": {
+    "message": "要在您自己的服务器上托管 Bitwarden，您需要上传许可证文件。要支持自托管组织的免费家庭计划和高级计费功能，您需要在自托管组织中设置自动同步。"
+  },
+  "selfHostingTitleProper": {
+    "message": "自托管"
+  },
+  "verified-domain-single-org-warning": {
+    "message": "验证域名将启用单一组织策略。"
+  },
+  "single-org-revoked-user-warning": {
+    "message": "不符合要求的成员将被撤销。管理员可以在他们离开所有其他组织后恢复其成员资格。"
+  },
+  "deleteOrganizationUser": {
+    "message": "删除 $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "John Doe"
+      },
+      "description": "Title for the delete organization user dialog"
+    }
+  },
+  "deleteOrganizationUserWarning": {
+    "message": "当成员被删除时，他们的 Bitwarden 账户和个人密码库数据将被永久删除。集合数据将保留在组织中。要恢复它们，他们必须创建一个账户并重新加入。",
+    "description": "Warning for the delete organization user dialog"
+  },
+  "organizationUserDeleted": {
+    "message": "删除了 $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "John Doe"
+      }
+    }
+  },
+  "organizationUserDeletedDesc": {
+    "message": "该用户已从组织中删除，所有关联的用户数据也已删除。"
+  },
+  "deletedUserId": {
+    "message": "删除了用户 $ID$ - 某个所有者/管理员删除了此用户账户",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "First 8 Character of a GUID"
+      }
+    }
+  },
+  "userLeftOrganization": {
+    "message": "用户 $ID$ 离开了组织",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "First 8 Character of a GUID"
+      }
+    }
+  },
+  "suspendedOrganizationTitle": {
+    "message": "$ORGANIZATION$ 已停用",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme c"
+      }
+    }
+  },
+  "suspendedUserOrgMessage": {
+    "message": "联系您的组织所有者获取协助。"
+  },
+  "suspendedOwnerOrgMessage": {
+    "message": "要重新访问您的组织，请添加一个付款方式。"
+  },
+  "deleteMembers": {
+    "message": "删除成员"
+  },
+  "noSelectedMembersApplicable": {
+    "message": "此操作不适用于任何选定的成员。"
+  },
+  "deletedSuccessfully": {
+    "message": "删除成功"
+  },
+  "freeFamiliesSponsorship": {
+    "message": "删除免费的 Bitwarden 家庭赞助"
+  },
+  "freeFamiliesSponsorshipPolicyDesc": {
+    "message": "不允许成员通过此组织兑换家庭计划。"
+  },
+  "verifyBankAccountWithStatementDescriptorWarning": {
+    "message": "Payment with a bank account is only available to customers in the United States. You will be required to verify your bank account. We will make a micro-deposit within the next 1-2 business days. Enter the statement descriptor code from this deposit on the organization's billing page to verify the bank account. Failure to verify the bank account will result in a missed payment and your subscription being suspended."
+  },
+  "verifyBankAccountWithStatementDescriptorInstructions": {
+    "message": "We have made a micro-deposit to your bank account (this may take 1-2 business days). Enter the six-digit code starting with 'SM' found on the deposit description. Failure to verify the bank account will result in a missed payment and your subscription being suspended."
+  },
+  "descriptorCode": {
+    "message": "Descriptor code"
   }
 }

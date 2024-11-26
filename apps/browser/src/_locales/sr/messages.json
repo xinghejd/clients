@@ -19,6 +19,18 @@
   "createAccount": {
     "message": "Креирај налог"
   },
+  "newToBitwarden": {
+    "message": "Нови сте у Bitwarden-у?"
+  },
+  "logInWithPasskey": {
+    "message": "Пријавите се са приступним кључем"
+  },
+  "useSingleSignOn": {
+    "message": "Употребити једнократну пријаву"
+  },
+  "welcomeBack": {
+    "message": "Добродошли назад"
+  },
   "setAStrongPassword": {
     "message": "Поставите јаку лозинку"
   },
@@ -107,6 +119,9 @@
   "copyPassword": {
     "message": "Копирај лозинку"
   },
+  "copyPassphrase": {
+    "message": "Копирај приступну фразу"
+  },
   "copyNote": {
     "message": "Копирај белешку"
   },
@@ -137,6 +152,15 @@
   "copyLicenseNumber": {
     "message": "Копирај број лиценце"
   },
+  "copyPrivateKey": {
+    "message": "Копирај приватни кључ"
+  },
+  "copyPublicKey": {
+    "message": "Копирај јавни кључ"
+  },
+  "copyFingerprint": {
+    "message": "Копирати отисак"
+  },
   "copyCustomField": {
     "message": "Копирати $FIELD$",
     "placeholders": {
@@ -151,6 +175,10 @@
   },
   "copyNotes": {
     "message": "Копирати белешке"
+  },
+  "fill": {
+    "message": "Попуни",
+    "description": "This string is used on the vault page to indicate autofilling. Horizontal space is limited in the interface here so try and keep translations as concise as possible."
   },
   "autoFill": {
     "message": "Аутоматско допуњавање"
@@ -407,6 +435,9 @@
   "generatePassword": {
     "message": "Генерисање лозинке"
   },
+  "generatePassphrase": {
+    "message": "Генеришите приступну фразу"
+  },
   "regeneratePassword": {
     "message": "Поново генериши лозинку"
   },
@@ -567,6 +598,15 @@
   },
   "launchWebsite": {
     "message": "Покрените веб локацију"
+  },
+  "launchWebsiteName": {
+    "message": "Покренути сајт $ITEMNAME$",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret item"
+      }
+    }
   },
   "website": {
     "message": "Веб сајт"
@@ -813,6 +853,9 @@
   },
   "logIn": {
     "message": "Пријави се"
+  },
+  "logInToBitwarden": {
+    "message": "Пријавите се на Bitwarden"
   },
   "restartRegistration": {
     "message": "Поново покрените регистрацију"
@@ -1389,6 +1432,10 @@
   "baseUrl": {
     "message": "УРЛ Сервера"
   },
+  "selfHostBaseUrl": {
+    "message": "УРЛ сервера који се самостално хостује",
+    "description": "Label for field requesting a self-hosted integration service URL"
+  },
   "apiUrl": {
     "message": "УРЛ АПИ Сервера"
   },
@@ -1726,6 +1773,9 @@
   "typeIdentity": {
     "message": "Идентитет"
   },
+  "typeSshKey": {
+    "message": "SSH кључ"
+  },
   "newItemHeader": {
     "message": "New $TYPE$",
     "placeholders": {
@@ -1755,6 +1805,15 @@
   },
   "passwordHistory": {
     "message": "Историја Лозинке"
+  },
+  "generatorHistory": {
+    "message": "Генератор историје"
+  },
+  "clearGeneratorHistoryTitle": {
+    "message": "Испразнити генератор историје"
+  },
+  "cleargGeneratorHistoryDescription": {
+    "message": "Ако наставите, сви уноси ће бити трајно избрисани из генератора историје. Да ли сте сигурни да желите да наставите?"
   },
   "back": {
     "message": "Назад"
@@ -1791,6 +1850,9 @@
   },
   "secureNotes": {
     "message": "Сигурносне белешке"
+  },
+  "sshKeys": {
+    "message": "SSH Keys"
   },
   "clear": {
     "message": "Очисти",
@@ -1872,11 +1934,11 @@
   "clearHistory": {
     "message": "Обриши историју"
   },
-  "noPasswordsToShow": {
-    "message": "Нема лозинке за приказ"
+  "nothingToShow": {
+    "message": "Нема шта да се прикаже"
   },
-  "noRecentlyGeneratedPassword": {
-    "message": "Нисте недавно генерисали лозинку"
+  "nothingGeneratedRecently": {
+    "message": "Недавно нисте ништа генерисали"
   },
   "remove": {
     "message": "Уклони"
@@ -2136,7 +2198,7 @@
     "message": "Ваша нова главна лозинка не испуњава захтеве смерница."
   },
   "receiveMarketingEmailsV2": {
-    "message": "Get advice, announcements, and research opportunities from Bitwarden in your inbox."
+    "message": "Добијајте савете, најаве и могућности истраживања од Bitwarden-а у пријемном сандучету."
   },
   "unsubscribe": {
     "message": "Одјави се"
@@ -2464,8 +2526,8 @@
     "message": "Опционално захтевајте лозинку за приступ корисницима „Send“-у.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "sendPasswordDescV2": {
-    "message": "Захтева ову лозинку за преглед Send-а.",
+  "sendPasswordDescV3": {
+    "message": "Додајте опционалну лозинку за примаоце да приступе овом Send.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendNotesDesc": {
@@ -2827,6 +2889,43 @@
   "generateUsername": {
     "message": "Генериши име"
   },
+  "generateEmail": {
+    "message": "Генеришите имејл"
+  },
+  "spinboxBoundariesHint": {
+    "message": "Value must be between $MIN$ and $MAX$.",
+    "description": "Explains spin box minimum and maximum values to the user",
+    "placeholders": {
+      "min": {
+        "content": "$1",
+        "example": "8"
+      },
+      "max": {
+        "content": "$2",
+        "example": "128"
+      }
+    }
+  },
+  "passwordLengthRecommendationHint": {
+    "message": " Use $RECOMMENDED$ characters or more to generate a strong password.",
+    "description": "Appended to `spinboxBoundariesHint` to recommend a length to the user. This must include any language-specific 'sentence' separator characters (e.g. a space in english).",
+    "placeholders": {
+      "recommended": {
+        "content": "$1",
+        "example": "14"
+      }
+    }
+  },
+  "passphraseNumWordsRecommendationHint": {
+    "message": " Use $RECOMMENDED$ words or more to generate a strong passphrase.",
+    "description": "Appended to `spinboxBoundariesHint` to recommend a number of words to the user. This must include any language-specific 'sentence' separator characters (e.g. a space in english).",
+    "placeholders": {
+      "recommended": {
+        "content": "$1",
+        "example": "6"
+      }
+    }
+  },
   "usernameType": {
     "message": "Тип имена"
   },
@@ -2866,6 +2965,14 @@
   },
   "forwardedEmailDesc": {
     "message": "Генеришите псеудоним е-поште помоћу екстерне услуге прослеђивања."
+  },
+  "forwarderDomainName": {
+    "message": "Домен имејла",
+    "description": "Labels the domain name email forwarder service option"
+  },
+  "forwarderDomainNameHint": {
+    "message": "Изаберите домен који подржава изабрана услуга",
+    "description": "Guidance provided for email forwarding services that support multiple email domains."
   },
   "forwarderError": {
     "message": "$SERVICENAME$ грешка: $ERRORMESSAGE$",
@@ -3066,11 +3173,26 @@
   "resendNotification": {
     "message": "Поново послати обавештење"
   },
+  "viewAllLogInOptions": {
+    "message": "View all log in options"
+  },
   "viewAllLoginOptions": {
     "message": "Погледајте сав извештај у опције"
   },
   "notificationSentDevice": {
     "message": "Обавештење је послато на ваш уређај."
+  },
+  "aNotificationWasSentToYourDevice": {
+    "message": "A notification was sent to your device"
+  },
+  "makeSureYourAccountIsUnlockedAndTheFingerprintEtc": {
+    "message": "Make sure your account is unlocked and the fingerprint phrase matches on the other device"
+  },
+  "youWillBeNotifiedOnceTheRequestIsApproved": {
+    "message": "You will be notified once the request is approved"
+  },
+  "needAnotherOptionV1": {
+    "message": "Need another option?"
   },
   "loginInitiated": {
     "message": "Пријава је покренута"
@@ -3162,14 +3284,20 @@
       }
     }
   },
-  "loggingInOn": {
-    "message": "Пријављено на"
-  },
   "opensInANewWindow": {
     "message": "Отвара се у новом прозору"
   },
+  "rememberThisDeviceToMakeFutureLoginsSeamless": {
+    "message": "Remember this device to make future logins seamless"
+  },
   "deviceApprovalRequired": {
     "message": "Потребно је одобрење уређаја. Изаберите опцију одобрења испод:"
+  },
+  "deviceApprovalRequiredV2": {
+    "message": "Device approval required"
+  },
+  "selectAnApprovalOptionBelow": {
+    "message": "Select an approval option below"
   },
   "rememberThisDevice": {
     "message": "Запамти овај уређај"
@@ -3243,6 +3371,9 @@
   },
   "userEmailMissing": {
     "message": "Недостаје имејл корисника"
+  },
+  "activeUserEmailNotFoundLoggingYouOut": {
+    "message": "Active user email not found. Logging you out."
   },
   "deviceTrusted": {
     "message": "Уређај поуздан"
@@ -3332,7 +3463,7 @@
     "message": "1 поље захтева вашу пажњу."
   },
   "multipleFieldsNeedAttention": {
-    "message": "$COUNT$ fields need your attention.",
+    "message": "$COUNT$ поља захтевају вашу пажњу.",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -3595,7 +3726,7 @@
     "message": "Искачући додатак да бисте довршили пријаву."
   },
   "popoutExtension": {
-    "message": "Popout extension"
+    "message": "Искачући додатак"
   },
   "launchDuo": {
     "message": "Покренути DUO"
@@ -3675,25 +3806,28 @@
     "message": "Подаци из сефа су извезени"
   },
   "typePasskey": {
-    "message": "Приступачни кључ"
+    "message": "Приступни кључ"
   },
   "accessing": {
     "message": "Приступ"
   },
+  "loggedInExclamation": {
+    "message": "Logged in!"
+  },
   "passkeyNotCopied": {
-    "message": "Приступачни кључ неће бити копиран"
+    "message": "Приступни кључ неће бити копиран"
   },
   "passkeyNotCopiedAlert": {
-    "message": "Приступачни кључ неће бити копиран на клонирану ставку. Да ли желите да наставите са клонирањем ставке?"
+    "message": "Приступни кључ неће бити копиран на клонирану ставку. Да ли желите да наставите са клонирањем ставке?"
   },
   "passkeyFeatureIsNotImplementedForAccountsWithoutMasterPassword": {
     "message": "Верификацију захтева сајт који покреће. Ова функција још увек није имплементирана за налоге без главне лозинке."
   },
   "logInWithPasskeyQuestion": {
-    "message": "Пријавите се са приступачним кључем?"
+    "message": "Пријавите се са приступним кључем?"
   },
   "passkeyAlreadyExists": {
-    "message": "За ову апликацију већ постоји приступачни кључ."
+    "message": "За ову апликацију већ постоји приступни кључ."
   },
   "noPasskeysFoundForThisApplication": {
     "message": "Нису пронађени приступни кључеви за ову апликацију."
@@ -3723,7 +3857,7 @@
     "message": "Изаберите приступни кључ за пријаву"
   },
   "passkeyItem": {
-    "message": "Ставка приступачног кључа"
+    "message": "Ставка приступног кључа"
   },
   "overwritePasskey": {
     "message": "Заменити приступни кључ?"
@@ -3841,7 +3975,7 @@
     "message": "сервер"
   },
   "hostedAt": {
-    "message": "hosted at"
+    "message": "хостиран на"
   },
   "useDeviceOrHardwareKey": {
     "message": "Користите свој уређај или хардверски кључ"
@@ -3937,10 +4071,10 @@
     "message": "Успех"
   },
   "removePasskey": {
-    "message": "Уклонити приступачни кључ"
+    "message": "Уклонити приступни кључ"
   },
   "passkeyRemoved": {
-    "message": "Приступачни кључ је уклоњен"
+    "message": "Приступни кључ је уклоњен"
   },
   "autofillSuggestions": {
     "message": "Предлози за ауто-попуњавање"
@@ -4171,6 +4305,21 @@
   "filters": {
     "message": "Филтери"
   },
+  "filterVault": {
+    "message": "Filter vault"
+  },
+  "filterApplied": {
+    "message": "One filter applied"
+  },
+  "filterAppliedPlural": {
+    "message": "$COUNT$ filters applied",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
   "personalDetails": {
     "message": "Личне информације"
   },
@@ -4289,7 +4438,7 @@
     "message": "Подаци"
   },
   "passkeys": {
-    "message": "Приступачни кључеви",
+    "message": "Приступни кључеви",
     "description": "A section header for a list of passkeys."
   },
   "passwords": {
@@ -4297,7 +4446,7 @@
     "description": "A section header for a list of passwords."
   },
   "logInWithPasskeyAriaLabel": {
-    "message": "Пријавите се са приступачним кључем",
+    "message": "Пријавите се са приступним кључем",
     "description": "ARIA label for the inline menu button that logs in with a passkey."
   },
   "assign": {
@@ -4494,8 +4643,14 @@
   "itemLocation": {
     "message": "Смештај ставке"
   },
+  "fileSend": {
+    "message": "Датотека „Send“"
+  },
   "fileSends": {
     "message": "Датотека „Send“"
+  },
+  "textSend": {
+    "message": "Текст „Send“"
   },
   "textSends": {
     "message": "Текст „Send“"
@@ -4518,6 +4673,30 @@
   "enterprisePolicyRequirementsApplied": {
     "message": "Захтеви политике предузећа су примењени на ово подешавање"
   },
+  "sshPrivateKey": {
+    "message": "Приватни кључ"
+  },
+  "sshPublicKey": {
+    "message": "Јавни кључ"
+  },
+  "sshFingerprint": {
+    "message": "Отисак прста"
+  },
+  "sshKeyAlgorithm": {
+    "message": "Врста кључа"
+  },
+  "sshKeyAlgorithmED25519": {
+    "message": "ED25519"
+  },
+  "sshKeyAlgorithmRSA2048": {
+    "message": "RSA 2048-бита"
+  },
+  "sshKeyAlgorithmRSA3072": {
+    "message": "RSA 3072-бита"
+  },
+  "sshKeyAlgorithmRSA4096": {
+    "message": "RSA 4096-бита"
+  },
   "retry": {
     "message": "Пробај поново"
   },
@@ -4528,7 +4707,7 @@
     "message": "Додатни садржај је доступан"
   },
   "fileSavedToDevice": {
-    "message": "File saved to device. Manage from your device downloads."
+    "message": "Датотека је сачувана на уређају. Управљајте преузимањима са свог уређаја."
   },
   "showCharacterCount": {
     "message": "Прикажи бројање слова"
@@ -4559,5 +4738,164 @@
   },
   "authenticating": {
     "message": "Аутентификација"
+  },
+  "fillGeneratedPassword": {
+    "message": "Попуните генерисану лозинку",
+    "description": "Heading for the password generator within the inline menu"
+  },
+  "passwordRegenerated": {
+    "message": "Лозинка поново генерисана",
+    "description": "Notification message for when a password has been regenerated"
+  },
+  "saveLoginToBitwarden": {
+    "message": "Сачувати пријаву на Bitwarden?",
+    "description": "Confirmation message for saving a login to Bitwarden"
+  },
+  "spaceCharacterDescriptor": {
+    "message": "Простор",
+    "description": "Represents the space key in screen reader content as a readable word"
+  },
+  "tildeCharacterDescriptor": {
+    "message": "Тилда",
+    "description": "Represents the ~ key in screen reader content as a readable word"
+  },
+  "backtickCharacterDescriptor": {
+    "message": "Backtick",
+    "description": "Represents the ` key in screen reader content as a readable word"
+  },
+  "exclamationCharacterDescriptor": {
+    "message": "Узвичник",
+    "description": "Represents the ! key in screen reader content as a readable word"
+  },
+  "atSignCharacterDescriptor": {
+    "message": "Знак „ет“",
+    "description": "Represents the @ key in screen reader content as a readable word"
+  },
+  "hashSignCharacterDescriptor": {
+    "message": "Знак „хеш“",
+    "description": "Represents the # key in screen reader content as a readable word"
+  },
+  "dollarSignCharacterDescriptor": {
+    "message": "Знак долар",
+    "description": "Represents the $ key in screen reader content as a readable word"
+  },
+  "percentSignCharacterDescriptor": {
+    "message": "Знак постотак",
+    "description": "Represents the % key in screen reader content as a readable word"
+  },
+  "caretCharacterDescriptor": {
+    "message": "Caret",
+    "description": "Represents the ^ key in screen reader content as a readable word"
+  },
+  "ampersandCharacterDescriptor": {
+    "message": "Ampersand",
+    "description": "Represents the & key in screen reader content as a readable word"
+  },
+  "asteriskCharacterDescriptor": {
+    "message": "Asterisk",
+    "description": "Represents the * key in screen reader content as a readable word"
+  },
+  "parenLeftCharacterDescriptor": {
+    "message": "Left parenthesis",
+    "description": "Represents the ( key in screen reader content as a readable word"
+  },
+  "parenRightCharacterDescriptor": {
+    "message": "Right parenthesis",
+    "description": "Represents the ) key in screen reader content as a readable word"
+  },
+  "hyphenCharacterDescriptor": {
+    "message": "Underscore",
+    "description": "Represents the _ key in screen reader content as a readable word"
+  },
+  "underscoreCharacterDescriptor": {
+    "message": "Hyphen",
+    "description": "Represents the - key in screen reader content as a readable word"
+  },
+  "plusCharacterDescriptor": {
+    "message": "Plus",
+    "description": "Represents the + key in screen reader content as a readable word"
+  },
+  "equalsCharacterDescriptor": {
+    "message": "Equals",
+    "description": "Represents the = key in screen reader content as a readable word"
+  },
+  "braceLeftCharacterDescriptor": {
+    "message": "Left brace",
+    "description": "Represents the { key in screen reader content as a readable word"
+  },
+  "braceRightCharacterDescriptor": {
+    "message": "Right brace",
+    "description": "Represents the } key in screen reader content as a readable word"
+  },
+  "bracketLeftCharacterDescriptor": {
+    "message": "Left bracket",
+    "description": "Represents the [ key in screen reader content as a readable word"
+  },
+  "bracketRightCharacterDescriptor": {
+    "message": "Right bracket",
+    "description": "Represents the ] key in screen reader content as a readable word"
+  },
+  "pipeCharacterDescriptor": {
+    "message": "Pipe",
+    "description": "Represents the | key in screen reader content as a readable word"
+  },
+  "backSlashCharacterDescriptor": {
+    "message": "Back slash",
+    "description": "Represents the back slash key in screen reader content as a readable word"
+  },
+  "colonCharacterDescriptor": {
+    "message": "Colon",
+    "description": "Represents the : key in screen reader content as a readable word"
+  },
+  "semicolonCharacterDescriptor": {
+    "message": "Semicolon",
+    "description": "Represents the ; key in screen reader content as a readable word"
+  },
+  "doubleQuoteCharacterDescriptor": {
+    "message": "Double quote",
+    "description": "Represents the double quote key in screen reader content as a readable word"
+  },
+  "singleQuoteCharacterDescriptor": {
+    "message": "Single quote",
+    "description": "Represents the ' key in screen reader content as a readable word"
+  },
+  "lessThanCharacterDescriptor": {
+    "message": "Less than",
+    "description": "Represents the < key in screen reader content as a readable word"
+  },
+  "greaterThanCharacterDescriptor": {
+    "message": "Greater than",
+    "description": "Represents the > key in screen reader content as a readable word"
+  },
+  "commaCharacterDescriptor": {
+    "message": "Comma",
+    "description": "Represents the , key in screen reader content as a readable word"
+  },
+  "periodCharacterDescriptor": {
+    "message": "Period",
+    "description": "Represents the . key in screen reader content as a readable word"
+  },
+  "questionCharacterDescriptor": {
+    "message": "Question mark",
+    "description": "Represents the ? key in screen reader content as a readable word"
+  },
+  "forwardSlashCharacterDescriptor": {
+    "message": "Forward slash",
+    "description": "Represents the / key in screen reader content as a readable word"
+  },
+  "lowercaseAriaLabel": {
+    "message": "Lowercase"
+  },
+  "uppercaseAriaLabel": {
+    "message": "Uppercase"
+  },
+  "generatedPassword": {
+    "message": "Generated password"
+  },
+  "compactMode": {
+    "message": "Compact mode"
+  },
+  "beta": {
+    "message": "Beta"
   }
 }

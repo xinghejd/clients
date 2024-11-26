@@ -1,7 +1,7 @@
 import { ChangeDetectorRef, Component, NgZone, OnDestroy, OnInit, inject } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { NavigationEnd, Router, RouterOutlet } from "@angular/router";
-import { Subject, takeUntil, firstValueFrom, concatMap, filter, tap, catchError, of } from "rxjs";
+import { Subject, takeUntil, firstValueFrom, concatMap, filter, tap } from "rxjs";
 
 import { LogoutReason } from "@bitwarden/auth/common";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -24,6 +24,8 @@ import {
 } from "@bitwarden/components";
 
 import { flagEnabled } from "../platform/flags";
+import { PopupCompactModeService } from "../platform/popup/layout/popup-compact-mode.service";
+import { PopupWidthService } from "../platform/popup/layout/popup-width.service";
 import { PopupViewCacheService } from "../platform/popup/view-cache/popup-view-cache.service";
 import { initPopupClosedListener } from "../platform/services/popup-view-cache-background.service";
 import { BrowserSendStateService } from "../tools/popup/services/browser-send-state.service";
@@ -42,6 +44,8 @@ import { DesktopSyncVerificationDialogComponent } from "./components/desktop-syn
 })
 export class AppComponent implements OnInit, OnDestroy {
   private viewCacheService = inject(PopupViewCacheService);
+  private compactModeService = inject(PopupCompactModeService);
+  private widthService = inject(PopupWidthService);
 
   private lastActivity: Date;
   private activeUserId: UserId;
@@ -71,27 +75,33 @@ export class AppComponent implements OnInit, OnDestroy {
   ) {
     if (flagEnabled("sdk")) {
       // Warn if the SDK for some reason can't be initialized
-      this.sdkService.supported$
-        .pipe(
-          takeUntilDestroyed(),
-          catchError(() => {
-            return of(false);
-          }),
-        )
-        .subscribe((supported) => {
+      this.sdkService.supported$.pipe(takeUntilDestroyed()).subscribe({
+        next: (supported) => {
           if (!supported) {
             this.logService.debug("SDK is not supported");
-            this.sdkService.failedToInitialize().catch((e) => this.logService.error(e));
+            this.sdkService
+              .failedToInitialize("popup", undefined)
+              .catch((e) => this.logService.error(e));
           } else {
             this.logService.debug("SDK is supported");
           }
-        });
+        },
+        error: (e: unknown) => {
+          this.sdkService
+            .failedToInitialize("popup", e as Error)
+            .catch((e) => this.logService.error(e));
+          this.logService.error(e);
+        },
+      });
     }
   }
 
   async ngOnInit() {
     initPopupClosedListener();
     await this.viewCacheService.init();
+
+    this.compactModeService.init();
+    this.widthService.init();
 
     // Component states must not persist between closing and reopening the popup, otherwise they become dead objects
     // Clear them aggressively to make sure this doesn't occur

@@ -26,6 +26,9 @@
   "typeSecureNote": {
     "message": "Güvenli not"
   },
+  "typeSshKey": {
+    "message": "SSH anahtarı"
+  },
   "folders": {
     "message": "Klasörler"
   },
@@ -59,6 +62,9 @@
         "example": "Company Name"
       }
     }
+  },
+  "welcomeBack": {
+    "message": "Tekrar hoş geldiniz"
   },
   "moveToOrgDesc": {
     "message": "Bu kaydı taşımak istediğiniz kuruluşu seçin. Taşıdığınız kaydın sahipliği seçtiğiniz kuruluşa aktarılacak. Artık bu kaydın doğrudan sahibi olmayacaksınız."
@@ -174,6 +180,48 @@
   "address": {
     "message": "Adres"
   },
+  "sshPrivateKey": {
+    "message": "Özel anahtar"
+  },
+  "sshPublicKey": {
+    "message": "Ortak anahtar"
+  },
+  "sshFingerprint": {
+    "message": "Parmak izi"
+  },
+  "sshKeyAlgorithm": {
+    "message": "Anahtar türü"
+  },
+  "sshKeyAlgorithmED25519": {
+    "message": "ED25519"
+  },
+  "sshKeyAlgorithmRSA2048": {
+    "message": "RSA 2048 bit"
+  },
+  "sshKeyAlgorithmRSA3072": {
+    "message": "RSA 3072 bit"
+  },
+  "sshKeyAlgorithmRSA4096": {
+    "message": "RSA 4096 bit"
+  },
+  "sshKeyGenerated": {
+    "message": "A new SSH key was generated"
+  },
+  "sshAgentUnlockRequired": {
+    "message": "Please unlock your vault to approve the SSH key request."
+  },
+  "sshAgentUnlockTimeout": {
+    "message": "SSH key request timed out."
+  },
+  "enableSshAgent": {
+    "message": "Enable SSH agent"
+  },
+  "enableSshAgentDesc": {
+    "message": "Enable the SSH agent to sign SSH requests right from your Bitwarden vault."
+  },
+  "enableSshAgentHelp": {
+    "message": "The SSH agent is a service targeted at developers that allows you to sign SSH requests directly from your Bitwarden vault."
+  },
   "premiumRequired": {
     "message": "Premium gerekli"
   },
@@ -258,6 +306,9 @@
   },
   "generatePassword": {
     "message": "Parola oluştur"
+  },
+  "generatePassphrase": {
+    "message": "Parola üret"
   },
   "type": {
     "message": "Tür"
@@ -393,6 +444,16 @@
   },
   "copyPassword": {
     "message": "Parolayı kopyala"
+  },
+  "regenerateSshKey": {
+    "message": "Regenerate SSH key"
+  },
+  "copySshPrivateKey": {
+    "message": "Copy SSH private key"
+  },
+  "copyPassphrase": {
+    "message": "Parolayı kopyala",
+    "description": "Copy passphrase to clipboard"
   },
   "copyUri": {
     "message": "URI'yi kopyala"
@@ -547,6 +608,9 @@
   "createAccount": {
     "message": "Hesap oluştur"
   },
+  "newToBitwarden": {
+    "message": "Bitwarden'da yeni misiniz?"
+  },
   "setAStrongPassword": {
     "message": "Güçlü bir parola belirleyin"
   },
@@ -555,6 +619,18 @@
   },
   "logIn": {
     "message": "Giriş yap"
+  },
+  "logInToBitwarden": {
+    "message": "Bitwarden'a giriş yapın"
+  },
+  "logInWithPasskey": {
+    "message": "Geçiş anahtarıyla giriş yap"
+  },
+  "loginWithDevice": {
+    "message": "Cihazla giriş yap"
+  },
+  "useSingleSignOn": {
+    "message": "Çoklu oturum açma kullan"
   },
   "submit": {
     "message": "Gönder"
@@ -827,6 +903,10 @@
   },
   "baseUrl": {
     "message": "Sunucu URL'si"
+  },
+  "selfHostBaseUrl": {
+    "message": "Kendi kendine barındırılan sunucu URL'si",
+    "description": "Label for field requesting a self-hosted integration service URL"
   },
   "apiUrl": {
     "message": "API sunucu URL'si"
@@ -1217,6 +1297,9 @@
   "copyNumber": {
     "message": "Numarayı kopyala",
     "description": "Copy credit card number"
+  },
+  "copyEmail": {
+    "message": "E-postayı kopyala"
   },
   "copySecurityCode": {
     "message": "Güvenlik kodunu kopyala",
@@ -1651,6 +1734,12 @@
   "deleteAccountWarning": {
     "message": "Hesabınızı silmek kalıcıdır. Geri alınamaz."
   },
+  "cannotDeleteAccount": {
+    "message": "Cannot delete account"
+  },
+  "cannotDeleteAccountDesc": {
+    "message": "This action cannot be completed because your account is owned by an organization. Contact your organization administrator for additional details."
+  },
   "accountDeleted": {
     "message": "Hesap silindi"
   },
@@ -1748,7 +1837,7 @@
     "message": "Zaman aşımı eylem onayı"
   },
   "enterpriseSingleSignOn": {
-    "message": "Kurumsal tek oturum açma"
+    "message": "Kurumsal çoklu oturum açma"
   },
   "setMasterPassword": {
     "message": "Ana parolayı belirle"
@@ -2352,6 +2441,43 @@
   "generateUsername": {
     "message": "Kullanıcı adı oluştur"
   },
+  "generateEmail": {
+    "message": "E-posta oluştur"
+  },
+  "spinboxBoundariesHint": {
+    "message": "Değer $MIN$ ile $MAX$ arasında olmalıdır.",
+    "description": "Explains spin box minimum and maximum values to the user",
+    "placeholders": {
+      "min": {
+        "content": "$1",
+        "example": "8"
+      },
+      "max": {
+        "content": "$2",
+        "example": "128"
+      }
+    }
+  },
+  "passwordLengthRecommendationHint": {
+    "message": " Use $RECOMMENDED$ characters or more to generate a strong password.",
+    "description": "Appended to `spinboxBoundariesHint` to recommend a length to the user. This must include any language-specific 'sentence' separator characters (e.g. a space in english).",
+    "placeholders": {
+      "recommended": {
+        "content": "$1",
+        "example": "14"
+      }
+    }
+  },
+  "passphraseNumWordsRecommendationHint": {
+    "message": " Use $RECOMMENDED$ words or more to generate a strong passphrase.",
+    "description": "Appended to `spinboxBoundariesHint` to recommend a number of words to the user. This must include any language-specific 'sentence' separator characters (e.g. a space in english).",
+    "placeholders": {
+      "recommended": {
+        "content": "$1",
+        "example": "6"
+      }
+    }
+  },
   "usernameType": {
     "message": "Kullanıcı adı türü"
   },
@@ -2394,6 +2520,14 @@
   },
   "forwardedEmailDesc": {
     "message": "Harici bir yönlendirme servisiyle e-posta maskesi oluştur."
+  },
+  "forwarderDomainName": {
+    "message": "E-posta alan adı",
+    "description": "Labels the domain name email forwarder service option"
+  },
+  "forwarderDomainNameHint": {
+    "message": "Seçtiğiniz servisin desteklediği bir alan adı seçin",
+    "description": "Guidance provided for email forwarding services that support multiple email domains."
   },
   "forwarderError": {
     "message": "$SERVICENAME$ hatası: $ERRORMESSAGE$",
@@ -2740,9 +2874,6 @@
   "eu": {
     "message": "AB",
     "description": "European Union"
-  },
-  "loggingInOn": {
-    "message": "Giriş yapılan konum"
   },
   "selfHostedServer": {
     "message": "şirket içinde barındırılan"
@@ -3162,14 +3293,38 @@
   "textSends": {
     "message": "Metin Send'leri"
   },
-  "allowScreenshots": {
-    "message": "Ekran kaydına izin ver"
-  },
-  "allowScreenshotsDesc": {
-    "message": "Bitwarden masaüstü uygulamasının ekran kaydının alınmasına izin ver."
-  },
   "ssoError": {
     "message": "SSO girişi için açık port bulunamadı."
+  },
+  "authorize": {
+    "message": "Authorize"
+  },
+  "deny": {
+    "message": "Deny"
+  },
+  "sshkeyApprovalTitle": {
+    "message": "Confirm SSH key usage"
+  },
+  "sshkeyApprovalMessageInfix": {
+    "message": "is requesting access to"
+  },
+  "unknownApplication": {
+    "message": "An application"
+  },
+  "sshKeyPasswordUnsupported": {
+    "message": "Importing password protected SSH keys is not yet supported"
+  },
+  "invalidSshKey": {
+    "message": "The SSH key is invalid"
+  },
+  "sshKeyTypeUnsupported": {
+    "message": "The SSH key type is not supported"
+  },
+  "importSshKeyFromClipboard": {
+    "message": "Import key from clipboard"
+  },
+  "sshKeyPasted": {
+    "message": "SSH key imported successfully"
   },
   "fileSavedToDevice": {
     "message": "Dosya cihaza kaydedildi. Cihazınızın indirilenler klasöründen yönetebilirsiniz."

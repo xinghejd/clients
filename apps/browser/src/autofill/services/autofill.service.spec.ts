@@ -143,7 +143,7 @@ describe("AutofillService", () => {
   });
 
   describe("collectPageDetailsFromTab$", () => {
-    const tab = mock<chrome.tabs.Tab>({ id: 1 });
+    const tab = mock<chrome.tabs.Tab>({ id: 1, url: "https://www.example.com" });
     const messages = new Subject<CollectPageDetailsResponseMessage>();
 
     function mockCollectPageDetailsResponseMessage(
@@ -165,11 +165,16 @@ describe("AutofillService", () => {
     it("sends a `collectPageDetails` message to the passed tab", () => {
       autofillService.collectPageDetailsFromTab$(tab);
 
-      expect(BrowserApi.tabSendMessage).toHaveBeenCalledWith(tab, {
-        command: AutofillMessageCommand.collectPageDetails,
-        sender: AutofillMessageSender.collectPageDetailsFromTabObservable,
+      expect(BrowserApi.tabSendMessage).toHaveBeenCalledWith(
         tab,
-      });
+        {
+          command: AutofillMessageCommand.collectPageDetails,
+          sender: AutofillMessageSender.collectPageDetailsFromTabObservable,
+          tab,
+        },
+        null,
+        true,
+      );
     });
 
     it("builds an array of page details from received `collectPageDetailsResponse` messages", async () => {
@@ -217,6 +222,24 @@ describe("AutofillService", () => {
       await pausePromise;
 
       expect(tracker.emissions[1]).toBeUndefined();
+    });
+
+    it("returns an empty array when the tab.url is empty", async () => {
+      const tracker = subscribeTo(autofillService.collectPageDetailsFromTab$({ ...tab, url: "" }));
+
+      await tracker.pauseUntilReceived(1);
+
+      expect(tracker.emissions[0]).toEqual([]);
+    });
+
+    it("returns an empty array when the `BrowserApi.tabSendMessage` throws an error", async () => {
+      (BrowserApi.tabSendMessage as jest.Mock).mockRejectedValueOnce(undefined);
+
+      const tracker = subscribeTo(autofillService.collectPageDetailsFromTab$(tab));
+
+      await tracker.pauseUntilReceived(1);
+
+      expect(tracker.emissions[0]).toEqual([]);
     });
   });
 
@@ -287,41 +310,6 @@ describe("AutofillService", () => {
 
         expect(BrowserApi.tabsQuery).toHaveBeenCalledTimes(1);
         expect(BrowserApi.tabSendMessageData).not.toHaveBeenCalled();
-      });
-
-      describe("updates the inline menu visibility setting", () => {
-        it("when changing the inline menu from on focus of field to on button click", async () => {
-          inlineMenuVisibilityMock$.next(AutofillOverlayVisibility.OnButtonClick);
-          await flushPromises();
-
-          expect(BrowserApi.tabSendMessageData).toHaveBeenCalledWith(
-            tab1,
-            "updateAutofillInlineMenuVisibility",
-            { newSettingValue: AutofillOverlayVisibility.OnButtonClick },
-          );
-          expect(BrowserApi.tabSendMessageData).toHaveBeenCalledWith(
-            tab2,
-            "updateAutofillInlineMenuVisibility",
-            { newSettingValue: AutofillOverlayVisibility.OnButtonClick },
-          );
-        });
-
-        it("when changing the inline menu from button click to field focus", async () => {
-          inlineMenuVisibilityMock$.next(AutofillOverlayVisibility.OnButtonClick);
-          inlineMenuVisibilityMock$.next(AutofillOverlayVisibility.OnFieldFocus);
-          await flushPromises();
-
-          expect(BrowserApi.tabSendMessageData).toHaveBeenCalledWith(
-            tab1,
-            "updateAutofillInlineMenuVisibility",
-            { newSettingValue: AutofillOverlayVisibility.OnFieldFocus },
-          );
-          expect(BrowserApi.tabSendMessageData).toHaveBeenCalledWith(
-            tab2,
-            "updateAutofillInlineMenuVisibility",
-            { newSettingValue: AutofillOverlayVisibility.OnFieldFocus },
-          );
-        });
       });
 
       describe("reloads the autofill scripts", () => {
@@ -3292,10 +3280,6 @@ describe("AutofillService", () => {
             );
 
             expect(AutofillService.forCustomFieldsOnly).toHaveBeenCalledWith(excludedField);
-            expect(AutofillService["isExcludedFieldType"]).toHaveBeenCalledWith(
-              excludedField,
-              AutoFillConstants.ExcludedAutofillTypes,
-            );
             expect(AutofillService["isFieldMatch"]).not.toHaveBeenCalled();
             expect(value.script).toStrictEqual([]);
           });
@@ -4725,8 +4709,6 @@ describe("AutofillService", () => {
 
       const result = AutofillService["fieldIsFuzzyMatch"](field, ["some-value"]);
 
-      expect(AutofillService.hasValue).toHaveBeenCalledTimes(7);
-      expect(AutofillService["fuzzyMatch"]).not.toHaveBeenCalled();
       expect(result).toBe(false);
     });
 

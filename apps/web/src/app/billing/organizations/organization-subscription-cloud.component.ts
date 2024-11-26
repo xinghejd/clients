@@ -52,25 +52,13 @@ export class OrganizationSubscriptionCloudComponent implements OnInit, OnDestroy
   loading = true;
   locale: string;
   showUpdatedSubscriptionStatusSection$: Observable<boolean>;
-  enableTimeThreshold: boolean;
   preSelectedProductTier: ProductTierType = ProductTierType.Free;
   showSubscription = true;
   showSelfHost = false;
+  organizationIsManagedByConsolidatedBillingMSP = false;
 
   protected readonly subscriptionHiddenIcon = SubscriptionHiddenIcon;
   protected readonly teamsStarter = ProductTierType.TeamsStarter;
-
-  protected enableConsolidatedBilling$ = this.configService.getFeatureFlag$(
-    FeatureFlag.EnableConsolidatedBilling,
-  );
-
-  protected enableTimeThreshold$ = this.configService.getFeatureFlag$(
-    FeatureFlag.EnableTimeThreshold,
-  );
-
-  protected enableUpgradePasswordManagerSub$ = this.configService.getFeatureFlag$(
-    FeatureFlag.EnableUpgradePasswordManagerSub,
-  );
 
   protected deprecateStripeSourcesAPI$ = this.configService.getFeatureFlag$(
     FeatureFlag.AC2476_DeprecateStripeSourcesAPI,
@@ -116,7 +104,6 @@ export class OrganizationSubscriptionCloudComponent implements OnInit, OnDestroy
     this.showUpdatedSubscriptionStatusSection$ = this.configService.getFeatureFlag$(
       FeatureFlag.AC1795_UpdatedSubscriptionStatusSection,
     );
-    this.enableTimeThreshold = await firstValueFrom(this.enableTimeThreshold$);
   }
 
   ngOnDestroy() {
@@ -129,26 +116,21 @@ export class OrganizationSubscriptionCloudComponent implements OnInit, OnDestroy
     this.locale = await firstValueFrom(this.i18nService.locale$);
     this.userOrg = await this.organizationService.get(this.organizationId);
 
-    /*
-    +--------------------+--------------+----------------------+--------------+
-    |     User Type      | Has Provider | Consolidated Billing | Subscription |
-    +--------------------+--------------+----------------------+--------------+
-    | Organization Owner | False        | N/A                  | Shown        |
-    | Organization Owner | True         | N/A                  | Hidden       |
-    | Provider User      | True         | False                | Shown        |
-    | Provider User      | True         | True                 | Hidden       |
-    +--------------------+--------------+----------------------+--------------+
-     */
-
-    const consolidatedBillingEnabled = await firstValueFrom(this.enableConsolidatedBilling$);
-
-    this.showSubscription =
-      (!this.userOrg.hasProvider && this.userOrg.isOwner) ||
-      (this.userOrg.hasProvider && this.userOrg.isProviderUser && !consolidatedBillingEnabled);
+    const isIndependentOrganizationOwner = !this.userOrg.hasProvider && this.userOrg.isOwner;
+    const isResoldOrganizationOwner = this.userOrg.hasReseller && this.userOrg.isOwner;
+    const isMSPUser = this.userOrg.hasProvider && this.userOrg.isProviderUser;
 
     const metadata = await this.billingApiService.getOrganizationBillingMetadata(
       this.organizationId,
     );
+
+    this.organizationIsManagedByConsolidatedBillingMSP =
+      this.userOrg.hasProvider && metadata.isManaged;
+
+    this.showSubscription =
+      isIndependentOrganizationOwner ||
+      isResoldOrganizationOwner ||
+      (isMSPUser && !this.organizationIsManagedByConsolidatedBillingMSP);
 
     this.showSelfHost = metadata.isEligibleForSelfHost;
 
@@ -300,9 +282,6 @@ export class OrganizationSubscriptionCloudComponent implements OnInit, OnDestroy
         return this.i18nService.t("subscriptionUpgrade", this.sub.seats.toString());
       }
     } else if (this.sub.maxAutoscaleSeats === this.sub.seats && this.sub.seats != null) {
-      if (!this.enableTimeThreshold) {
-        return this.i18nService.t("subscriptionMaxReached", this.sub.seats.toString());
-      }
       const seatAdjustmentMessage = this.sub.plan.isAnnual
         ? "annualSubscriptionUserSeatsMessage"
         : "monthlySubscriptionUserSeatsMessage";
@@ -313,21 +292,11 @@ export class OrganizationSubscriptionCloudComponent implements OnInit, OnDestroy
     } else if (this.userOrg.productTierType === ProductTierType.TeamsStarter) {
       return this.i18nService.t("subscriptionUserSeatsWithoutAdditionalSeatsOption", 10);
     } else if (this.sub.maxAutoscaleSeats == null) {
-      if (!this.enableTimeThreshold) {
-        return this.i18nService.t("subscriptionUserSeatsUnlimitedAutoscale");
-      }
-
       const seatAdjustmentMessage = this.sub.plan.isAnnual
         ? "annualSubscriptionUserSeatsMessage"
         : "monthlySubscriptionUserSeatsMessage";
       return this.i18nService.t(seatAdjustmentMessage);
     } else {
-      if (!this.enableTimeThreshold) {
-        return this.i18nService.t(
-          "subscriptionUserSeatsLimitedAutoscale",
-          this.sub.maxAutoscaleSeats.toString(),
-        );
-      }
       const seatAdjustmentMessage = this.sub.plan.isAnnual
         ? "annualSubscriptionUserSeatsMessage"
         : "monthlySubscriptionUserSeatsMessage";
@@ -387,27 +356,20 @@ export class OrganizationSubscriptionCloudComponent implements OnInit, OnDestroy
   };
 
   async changePlan() {
-    const EnableUpgradePasswordManagerSub = await firstValueFrom(
-      this.enableUpgradePasswordManagerSub$,
-    );
-    if (EnableUpgradePasswordManagerSub) {
-      const reference = openChangePlanDialog(this.dialogService, {
-        data: {
-          organizationId: this.organizationId,
-          subscription: this.sub,
-          productTierType: this.userOrg.productTierType,
-        },
-      });
+    const reference = openChangePlanDialog(this.dialogService, {
+      data: {
+        organizationId: this.organizationId,
+        subscription: this.sub,
+        productTierType: this.userOrg.productTierType,
+      },
+    });
 
-      const result = await lastValueFrom(reference.closed);
+    const result = await lastValueFrom(reference.closed);
 
-      if (result === ChangePlanDialogResultType.Closed) {
-        return;
-      }
-      await this.load();
-    } else {
-      this.showChangePlan = !this.showChangePlan;
+    if (result === ChangePlanDialogResultType.Closed) {
+      return;
     }
+    await this.load();
   }
 
   isSecretsManagerTrial(): boolean {
@@ -523,6 +485,10 @@ export class OrganizationSubscriptionCloudComponent implements OnInit, OnDestroy
 
   get showChangePlanButton() {
     return this.sub.plan.productTier !== ProductTierType.Enterprise && !this.showChangePlan;
+  }
+
+  get canUseBillingSync() {
+    return this.userOrg.productTierType === ProductTierType.Enterprise;
   }
 }
 

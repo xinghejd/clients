@@ -19,6 +19,18 @@
   "createAccount": {
     "message": "Hesap oluştur"
   },
+  "newToBitwarden": {
+    "message": "Bitwarden'da yeni misiniz?"
+  },
+  "logInWithPasskey": {
+    "message": "Geçiş anahtarıyla giriş yap"
+  },
+  "useSingleSignOn": {
+    "message": "Çoklu oturum açma kullan"
+  },
+  "welcomeBack": {
+    "message": "Tekrar hoş geldiniz"
+  },
   "setAStrongPassword": {
     "message": "Güçlü bir parola belirleyin"
   },
@@ -107,6 +119,9 @@
   "copyPassword": {
     "message": "Parolayı kopyala"
   },
+  "copyPassphrase": {
+    "message": "Parolayı kopyala"
+  },
   "copyNote": {
     "message": "Notu kopyala"
   },
@@ -137,6 +152,15 @@
   "copyLicenseNumber": {
     "message": "Ruhsat numarasını kopyala"
   },
+  "copyPrivateKey": {
+    "message": "Özel anahtarı kopyala"
+  },
+  "copyPublicKey": {
+    "message": "Ortak anahtarı kopyala"
+  },
+  "copyFingerprint": {
+    "message": "Parmak izini kopyala"
+  },
   "copyCustomField": {
     "message": "$FIELD$ alanını kopyala",
     "placeholders": {
@@ -151,6 +175,10 @@
   },
   "copyNotes": {
     "message": "Notları kopyala"
+  },
+  "fill": {
+    "message": "Doldur",
+    "description": "This string is used on the vault page to indicate autofilling. Horizontal space is limited in the interface here so try and keep translations as concise as possible."
   },
   "autoFill": {
     "message": "Otomatik doldur"
@@ -299,7 +327,7 @@
     "message": "Bitwarden Authenticator"
   },
   "continueToAuthenticatorPageDesc": {
-    "message": "Bitwarden Authenticator allows you to store authenticator keys and generate TOTP codes for 2-step verification flows. Learn more on the bitwarden.com website"
+    "message": "Bitwarden Authenticator, kimlik doğrulama anahtarlarınızı saklama ve 2 aşamalı doğrulama akışları için TOTP anahtarı üretme imkânı sağlar. Bilgi almak için bitwarden.com sitesini ziyaret edin"
   },
   "bitwardenSecretsManager": {
     "message": "Bitwarden Secrets Manager"
@@ -406,6 +434,9 @@
   },
   "generatePassword": {
     "message": "Parola oluştur"
+  },
+  "generatePassphrase": {
+    "message": "Parola üret"
   },
   "regeneratePassword": {
     "message": "Yeni parola oluştur"
@@ -567,6 +598,15 @@
   },
   "launchWebsite": {
     "message": "Web sitesini aç"
+  },
+  "launchWebsiteName": {
+    "message": "$ITEMNAME$ sitesini aç",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret item"
+      }
+    }
   },
   "website": {
     "message": "Web sitesi"
@@ -813,6 +853,9 @@
   },
   "logIn": {
     "message": "Giriş yap"
+  },
+  "logInToBitwarden": {
+    "message": "Bitwarden'a giriş yapın"
   },
   "restartRegistration": {
     "message": "Kaydı yeniden başlat"
@@ -1222,7 +1265,7 @@
     "message": "Premium üyeliği bitwarden.com web kasası üzerinden satın alabilirsiniz. Şimdi siteye gitmek ister misiniz?"
   },
   "premiumPurchaseAlertV2": {
-    "message": "You can purchase Premium from your account settings on the Bitwarden web app."
+    "message": "Bitwarden web uygulamasındaki hesap ayarlarınızdan Premium abonelik satın alabilirsiniz."
   },
   "premiumCurrentMember": {
     "message": "Premium üyesiniz!"
@@ -1388,6 +1431,10 @@
   },
   "baseUrl": {
     "message": "Sunucu URL'si"
+  },
+  "selfHostBaseUrl": {
+    "message": "Kendi kendine barındırılan sunucu URL'si",
+    "description": "Label for field requesting a self-hosted integration service URL"
   },
   "apiUrl": {
     "message": "API sunucu URL'si"
@@ -1726,6 +1773,9 @@
   "typeIdentity": {
     "message": "Kimlik"
   },
+  "typeSshKey": {
+    "message": "SSH anahtarı"
+  },
   "newItemHeader": {
     "message": "Yeni $TYPE$",
     "placeholders": {
@@ -1755,6 +1805,15 @@
   },
   "passwordHistory": {
     "message": "Parola geçmişi"
+  },
+  "generatorHistory": {
+    "message": "Üreteç geçmişi"
+  },
+  "clearGeneratorHistoryTitle": {
+    "message": "Üreteç geçmişini temizle"
+  },
+  "cleargGeneratorHistoryDescription": {
+    "message": "Devam ederseniz üreteç geçmişindeki tüm kayıtlar kalıcı olarak silinecektir. Devam etmek istediğinizden emin misiniz?"
   },
   "back": {
     "message": "Geri"
@@ -1791,6 +1850,9 @@
   },
   "secureNotes": {
     "message": "Güvenli notlar"
+  },
+  "sshKeys": {
+    "message": "SSH anahtarları"
   },
   "clear": {
     "message": "Temizle",
@@ -1872,11 +1934,11 @@
   "clearHistory": {
     "message": "Geçmişi temizle"
   },
-  "noPasswordsToShow": {
-    "message": "Gösterilecek parola yok"
+  "nothingToShow": {
+    "message": "Gösterilecek bir şey yok"
   },
-  "noRecentlyGeneratedPassword": {
-    "message": "Yakın zamanda parola üretmediniz"
+  "nothingGeneratedRecently": {
+    "message": "Yakın zamanda herhangi bir şey üretmediniz"
   },
   "remove": {
     "message": "Kaldır"
@@ -2169,10 +2231,10 @@
     "message": "Tamam"
   },
   "errorRefreshingAccessToken": {
-    "message": "Access Token Refresh Error"
+    "message": "Erişim Anahtarı Yenileme Hatası"
   },
   "errorRefreshingAccessTokenDesc": {
-    "message": "No refresh token or API keys found. Please try logging out and logging back in."
+    "message": "Yenileme veya API anahtarı bulunamadı. Lütfen çıkış yapıp tekrar giriş yapmayı deneyin."
   },
   "desktopSyncVerificationTitle": {
     "message": "Masaüstü eşitleme doğrulaması"
@@ -2464,8 +2526,8 @@
     "message": "Kullanıcıların bu Send'e erişmek için parola girmelerini isteyebilirsiniz.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "sendPasswordDescV2": {
-    "message": "Send'i görüntülemek için bu parolayı iste.",
+  "sendPasswordDescV3": {
+    "message": "Alıcıların bu Send'e erişmesi için isterseniz parola ekleyebilirsiniz.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendNotesDesc": {
@@ -2827,6 +2889,43 @@
   "generateUsername": {
     "message": "Kullanıcı adı oluştur"
   },
+  "generateEmail": {
+    "message": "E-posta üret"
+  },
+  "spinboxBoundariesHint": {
+    "message": "Değer $MIN$ ile $MAX$ arasında olmalıdır.",
+    "description": "Explains spin box minimum and maximum values to the user",
+    "placeholders": {
+      "min": {
+        "content": "$1",
+        "example": "8"
+      },
+      "max": {
+        "content": "$2",
+        "example": "128"
+      }
+    }
+  },
+  "passwordLengthRecommendationHint": {
+    "message": " Use $RECOMMENDED$ characters or more to generate a strong password.",
+    "description": "Appended to `spinboxBoundariesHint` to recommend a length to the user. This must include any language-specific 'sentence' separator characters (e.g. a space in english).",
+    "placeholders": {
+      "recommended": {
+        "content": "$1",
+        "example": "14"
+      }
+    }
+  },
+  "passphraseNumWordsRecommendationHint": {
+    "message": " Use $RECOMMENDED$ words or more to generate a strong passphrase.",
+    "description": "Appended to `spinboxBoundariesHint` to recommend a number of words to the user. This must include any language-specific 'sentence' separator characters (e.g. a space in english).",
+    "placeholders": {
+      "recommended": {
+        "content": "$1",
+        "example": "6"
+      }
+    }
+  },
   "usernameType": {
     "message": "Kullanıcı adı türü"
   },
@@ -2866,6 +2965,14 @@
   },
   "forwardedEmailDesc": {
     "message": "Harici bir yönlendirme servisiyle e-posta maskesi oluştur."
+  },
+  "forwarderDomainName": {
+    "message": "E-posta alan adı",
+    "description": "Labels the domain name email forwarder service option"
+  },
+  "forwarderDomainNameHint": {
+    "message": "Seçtiğiniz servisin desteklediği bir alan adı seçin",
+    "description": "Guidance provided for email forwarding services that support multiple email domains."
   },
   "forwarderError": {
     "message": "$SERVICENAME$ hatası: $ERRORMESSAGE$",
@@ -3066,11 +3173,26 @@
   "resendNotification": {
     "message": "Bildirimi yeniden gönder"
   },
+  "viewAllLogInOptions": {
+    "message": "Tüm giriş seçeneklerini gör"
+  },
   "viewAllLoginOptions": {
     "message": "Tüm giriş seçeneklerini gör"
   },
   "notificationSentDevice": {
     "message": "Cihazınıza bir bildirim gönderildi."
+  },
+  "aNotificationWasSentToYourDevice": {
+    "message": "Cihazınıza bir bildirim gönderildi"
+  },
+  "makeSureYourAccountIsUnlockedAndTheFingerprintEtc": {
+    "message": "Lütfen hesabınızın kilidinin açık olduğundan ve parmak izi ifadesinin diğer cihazla eşleştiğinden emin olun"
+  },
+  "youWillBeNotifiedOnceTheRequestIsApproved": {
+    "message": "İsteğiniz onaylanınca size haber vereceğiz"
+  },
+  "needAnotherOptionV1": {
+    "message": "Başka bir seçeneğe mi ihtiyacınız var?"
   },
   "loginInitiated": {
     "message": "Giriş başlatıldı"
@@ -3162,14 +3284,20 @@
       }
     }
   },
-  "loggingInOn": {
-    "message": "Giriş yapılan konum"
-  },
   "opensInANewWindow": {
     "message": "Yeni pencerede açılır"
   },
+  "rememberThisDeviceToMakeFutureLoginsSeamless": {
+    "message": "Remember this device to make future logins seamless"
+  },
   "deviceApprovalRequired": {
     "message": "Cihaz onayı gerekiyor. Lütfen onay yönteminizi seçin:"
+  },
+  "deviceApprovalRequiredV2": {
+    "message": "Device approval required"
+  },
+  "selectAnApprovalOptionBelow": {
+    "message": "Select an approval option below"
   },
   "rememberThisDevice": {
     "message": "Bu cihazı hatırla"
@@ -3243,6 +3371,9 @@
   },
   "userEmailMissing": {
     "message": "Kullanıcının e-postası eksik"
+  },
+  "activeUserEmailNotFoundLoggingYouOut": {
+    "message": "Active user email not found. Logging you out."
   },
   "deviceTrusted": {
     "message": "Cihaza güvenildi"
@@ -3680,6 +3811,9 @@
   "accessing": {
     "message": "Accessing"
   },
+  "loggedInExclamation": {
+    "message": "Logged in!"
+  },
   "passkeyNotCopied": {
     "message": "Geçiş anahtarı kopyalanmayacak"
   },
@@ -3705,7 +3839,7 @@
     "message": "Bu siteyle eşleşen hesap bulunamadı"
   },
   "searchSavePasskeyNewLogin": {
-    "message": "Search or save passkey as new login"
+    "message": "Geçiş anahtarı ara veya yeni hesap olarak kaydet"
   },
   "confirm": {
     "message": "Onayla"
@@ -4171,6 +4305,21 @@
   "filters": {
     "message": "Filtreler"
   },
+  "filterVault": {
+    "message": "Filter vault"
+  },
+  "filterApplied": {
+    "message": "One filter applied"
+  },
+  "filterAppliedPlural": {
+    "message": "$COUNT$ filters applied",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
   "personalDetails": {
     "message": "Kişisel bilgiler"
   },
@@ -4445,7 +4594,7 @@
     "message": "Successfully assigned collections"
   },
   "nothingSelected": {
-    "message": "You have not selected anything."
+    "message": "Hiçbir şey seçmediniz."
   },
   "movedItemsToOrg": {
     "message": "Selected items moved to $ORGNAME$",
@@ -4457,7 +4606,7 @@
     }
   },
   "itemsMovedToOrg": {
-    "message": "Items moved to $ORGNAME$",
+    "message": "Kayıtlar $ORGNAME$ kuruluşuna taşındı",
     "placeholders": {
       "orgname": {
         "content": "$1",
@@ -4466,7 +4615,7 @@
     }
   },
   "itemMovedToOrg": {
-    "message": "Item moved to $ORGNAME$",
+    "message": "Kayıt $ORGNAME$ kuruluşuna taşındı",
     "placeholders": {
       "orgname": {
         "content": "$1",
@@ -4494,8 +4643,14 @@
   "itemLocation": {
     "message": "Kayıt konumu"
   },
+  "fileSend": {
+    "message": "Dosya Send'i"
+  },
   "fileSends": {
     "message": "Dosya Send'leri"
+  },
+  "textSend": {
+    "message": "Metin Send'i"
   },
   "textSends": {
     "message": "Metin Send'leri"
@@ -4517,6 +4672,30 @@
   },
   "enterprisePolicyRequirementsApplied": {
     "message": "Bu ayara kurumsal ilke gereksinimleri uygulandı"
+  },
+  "sshPrivateKey": {
+    "message": "Özel anahtar"
+  },
+  "sshPublicKey": {
+    "message": "Ortak anahtar"
+  },
+  "sshFingerprint": {
+    "message": "Parmak izi"
+  },
+  "sshKeyAlgorithm": {
+    "message": "Anahtar türü"
+  },
+  "sshKeyAlgorithmED25519": {
+    "message": "ED25519"
+  },
+  "sshKeyAlgorithmRSA2048": {
+    "message": "RSA 2048 bit"
+  },
+  "sshKeyAlgorithmRSA3072": {
+    "message": "RSA 3072 bit"
+  },
+  "sshKeyAlgorithmRSA4096": {
+    "message": "RSA 4096 bit"
   },
   "retry": {
     "message": "Yeniden dene"
@@ -4559,5 +4738,164 @@
   },
   "authenticating": {
     "message": "Kimlik doğrulanıyor"
+  },
+  "fillGeneratedPassword": {
+    "message": "Üretilen parolayı doldur",
+    "description": "Heading for the password generator within the inline menu"
+  },
+  "passwordRegenerated": {
+    "message": "Parola yeniden üretildi",
+    "description": "Notification message for when a password has been regenerated"
+  },
+  "saveLoginToBitwarden": {
+    "message": "Hesap Bitwarden'a kaydedilsin mi?",
+    "description": "Confirmation message for saving a login to Bitwarden"
+  },
+  "spaceCharacterDescriptor": {
+    "message": "Boşluk",
+    "description": "Represents the space key in screen reader content as a readable word"
+  },
+  "tildeCharacterDescriptor": {
+    "message": "Tilde",
+    "description": "Represents the ~ key in screen reader content as a readable word"
+  },
+  "backtickCharacterDescriptor": {
+    "message": "Ters tırnak",
+    "description": "Represents the ` key in screen reader content as a readable word"
+  },
+  "exclamationCharacterDescriptor": {
+    "message": "Ünlem işareti",
+    "description": "Represents the ! key in screen reader content as a readable word"
+  },
+  "atSignCharacterDescriptor": {
+    "message": "At işareti",
+    "description": "Represents the @ key in screen reader content as a readable word"
+  },
+  "hashSignCharacterDescriptor": {
+    "message": "Kare işareti",
+    "description": "Represents the # key in screen reader content as a readable word"
+  },
+  "dollarSignCharacterDescriptor": {
+    "message": "Dolar işareti",
+    "description": "Represents the $ key in screen reader content as a readable word"
+  },
+  "percentSignCharacterDescriptor": {
+    "message": "Yüzde işareti",
+    "description": "Represents the % key in screen reader content as a readable word"
+  },
+  "caretCharacterDescriptor": {
+    "message": "Düzeltme işareti",
+    "description": "Represents the ^ key in screen reader content as a readable word"
+  },
+  "ampersandCharacterDescriptor": {
+    "message": "Ve işareti",
+    "description": "Represents the & key in screen reader content as a readable word"
+  },
+  "asteriskCharacterDescriptor": {
+    "message": "Yıldız işareti",
+    "description": "Represents the * key in screen reader content as a readable word"
+  },
+  "parenLeftCharacterDescriptor": {
+    "message": "Sol parantez",
+    "description": "Represents the ( key in screen reader content as a readable word"
+  },
+  "parenRightCharacterDescriptor": {
+    "message": "Sağ parantez",
+    "description": "Represents the ) key in screen reader content as a readable word"
+  },
+  "hyphenCharacterDescriptor": {
+    "message": "Alt çizgi",
+    "description": "Represents the _ key in screen reader content as a readable word"
+  },
+  "underscoreCharacterDescriptor": {
+    "message": "Tire",
+    "description": "Represents the - key in screen reader content as a readable word"
+  },
+  "plusCharacterDescriptor": {
+    "message": "Artı",
+    "description": "Represents the + key in screen reader content as a readable word"
+  },
+  "equalsCharacterDescriptor": {
+    "message": "Eşittir",
+    "description": "Represents the = key in screen reader content as a readable word"
+  },
+  "braceLeftCharacterDescriptor": {
+    "message": "Sol küme parantezi",
+    "description": "Represents the { key in screen reader content as a readable word"
+  },
+  "braceRightCharacterDescriptor": {
+    "message": "Sağ küme parantezi",
+    "description": "Represents the } key in screen reader content as a readable word"
+  },
+  "bracketLeftCharacterDescriptor": {
+    "message": "Sol köşeli parantez",
+    "description": "Represents the [ key in screen reader content as a readable word"
+  },
+  "bracketRightCharacterDescriptor": {
+    "message": "Sağ köşeli parantez",
+    "description": "Represents the ] key in screen reader content as a readable word"
+  },
+  "pipeCharacterDescriptor": {
+    "message": "Çubuk",
+    "description": "Represents the | key in screen reader content as a readable word"
+  },
+  "backSlashCharacterDescriptor": {
+    "message": "Ters eğik çizgi",
+    "description": "Represents the back slash key in screen reader content as a readable word"
+  },
+  "colonCharacterDescriptor": {
+    "message": "İki nokta",
+    "description": "Represents the : key in screen reader content as a readable word"
+  },
+  "semicolonCharacterDescriptor": {
+    "message": "Noktalı virgül",
+    "description": "Represents the ; key in screen reader content as a readable word"
+  },
+  "doubleQuoteCharacterDescriptor": {
+    "message": "Çift tırnak",
+    "description": "Represents the double quote key in screen reader content as a readable word"
+  },
+  "singleQuoteCharacterDescriptor": {
+    "message": "Tek tırnak",
+    "description": "Represents the ' key in screen reader content as a readable word"
+  },
+  "lessThanCharacterDescriptor": {
+    "message": "Küçüktür",
+    "description": "Represents the < key in screen reader content as a readable word"
+  },
+  "greaterThanCharacterDescriptor": {
+    "message": "Büyüktür",
+    "description": "Represents the > key in screen reader content as a readable word"
+  },
+  "commaCharacterDescriptor": {
+    "message": "Virgül",
+    "description": "Represents the , key in screen reader content as a readable word"
+  },
+  "periodCharacterDescriptor": {
+    "message": "Nokta",
+    "description": "Represents the . key in screen reader content as a readable word"
+  },
+  "questionCharacterDescriptor": {
+    "message": "Soru işareti",
+    "description": "Represents the ? key in screen reader content as a readable word"
+  },
+  "forwardSlashCharacterDescriptor": {
+    "message": "Bölü işareti",
+    "description": "Represents the / key in screen reader content as a readable word"
+  },
+  "lowercaseAriaLabel": {
+    "message": "Küçük harf"
+  },
+  "uppercaseAriaLabel": {
+    "message": "Büyük harf"
+  },
+  "generatedPassword": {
+    "message": "Üretilen parola"
+  },
+  "compactMode": {
+    "message": "Kompakt mod"
+  },
+  "beta": {
+    "message": "Beta"
   }
 }

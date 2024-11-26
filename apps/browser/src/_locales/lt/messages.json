@@ -14,10 +14,22 @@
     "message": "Prisijunkite arba sukurkite naują paskyrą, kad galėtumėte pasiekti saugyklą."
   },
   "inviteAccepted": {
-    "message": "Invitation accepted"
+    "message": "Kvietimas priimtas"
   },
   "createAccount": {
     "message": "Sukurti paskyrą"
+  },
+  "newToBitwarden": {
+    "message": "New to Bitwarden?"
+  },
+  "logInWithPasskey": {
+    "message": "Log in with passkey"
+  },
+  "useSingleSignOn": {
+    "message": "Use single sign-on"
+  },
+  "welcomeBack": {
+    "message": "Welcome back"
   },
   "setAStrongPassword": {
     "message": "Nustatyti stiprų slaptažodį"
@@ -107,6 +119,9 @@
   "copyPassword": {
     "message": "Kopijuoti slaptažodį"
   },
+  "copyPassphrase": {
+    "message": "Copy passphrase"
+  },
   "copyNote": {
     "message": "Kopijuoti pastabą"
   },
@@ -137,6 +152,15 @@
   "copyLicenseNumber": {
     "message": "Copy license number"
   },
+  "copyPrivateKey": {
+    "message": "Copy private key"
+  },
+  "copyPublicKey": {
+    "message": "Copy public key"
+  },
+  "copyFingerprint": {
+    "message": "Copy fingerprint"
+  },
   "copyCustomField": {
     "message": "Copy $FIELD$",
     "placeholders": {
@@ -151,6 +175,10 @@
   },
   "copyNotes": {
     "message": "Copy notes"
+  },
+  "fill": {
+    "message": "Fill",
+    "description": "This string is used on the vault page to indicate autofilling. Horizontal space is limited in the interface here so try and keep translations as concise as possible."
   },
   "autoFill": {
     "message": "Automatinis užpildymas"
@@ -407,6 +435,9 @@
   "generatePassword": {
     "message": "Sugeneruoti slaptažodį"
   },
+  "generatePassphrase": {
+    "message": "Generate passphrase"
+  },
   "regeneratePassword": {
     "message": "Generuoti slaptažodį iš naujo"
   },
@@ -545,7 +576,7 @@
     "message": "Pastabos"
   },
   "privateNote": {
-    "message": "Private note"
+    "message": "Privati pastaba"
   },
   "note": {
     "message": "Pastaba"
@@ -567,6 +598,15 @@
   },
   "launchWebsite": {
     "message": "Atidaryti svetainę"
+  },
+  "launchWebsiteName": {
+    "message": "Launch website $ITEMNAME$",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret item"
+      }
+    }
   },
   "website": {
     "message": "Tinklapis"
@@ -699,16 +739,16 @@
     "message": "Apsauga"
   },
   "confirmMasterPassword": {
-    "message": "Confirm master password"
+    "message": "Patvirtinkite pagrindinį slaptažodį"
   },
   "masterPassword": {
-    "message": "Master password"
+    "message": "Pagrindinis slaptažodis"
   },
   "masterPassImportant": {
-    "message": "Your master password cannot be recovered if you forget it!"
+    "message": "Pagrindinio slaptažodžio negalima atkurti, jei jį pamiršite."
   },
   "masterPassHintLabel": {
-    "message": "Master password hint"
+    "message": "Pagrindinio slaptažodžio užuomina"
   },
   "errorOccurred": {
     "message": "Įvyko klaida"
@@ -760,7 +800,7 @@
     "message": "Būtinas patvirtinimo kodas."
   },
   "webauthnCancelOrTimeout": {
-    "message": "The authentication was cancelled or took too long. Please try again."
+    "message": "Tapatybės nustatymas buvo atšauktas arba užtruko per ilgai. Bandykite dar kartą."
   },
   "invalidVerificationCode": {
     "message": "Neteisingas patvirtinimo kodas"
@@ -812,13 +852,16 @@
     "message": "Sesijos laikas baigėsi."
   },
   "logIn": {
-    "message": "Log in"
+    "message": "Prisijungti"
+  },
+  "logInToBitwarden": {
+    "message": "Log in to Bitwarden"
   },
   "restartRegistration": {
     "message": "Restart registration"
   },
   "expiredLink": {
-    "message": "Expired link"
+    "message": "Nebegaliojanti nuoroda"
   },
   "pleaseRestartRegistrationOrTryLoggingIn": {
     "message": "Please restart registration or try logging in."
@@ -894,7 +937,7 @@
     "message": "Naujas URI"
   },
   "addDomain": {
-    "message": "Add domain",
+    "message": "Pridėti domeną",
     "description": "'Domain' here refers to an internet domain name (e.g. 'bitwarden.com') and the message in whole described the act of putting a domain value into the context."
   },
   "addedItem": {
@@ -1389,6 +1432,10 @@
   "baseUrl": {
     "message": "Serverio URL"
   },
+  "selfHostBaseUrl": {
+    "message": "Self-host server URL",
+    "description": "Label for field requesting a self-hosted integration service URL"
+  },
   "apiUrl": {
     "message": "API serverio nuoroda"
   },
@@ -1542,7 +1589,7 @@
     "message": "Taip/Ne"
   },
   "cfTypeCheckbox": {
-    "message": "Checkbox"
+    "message": "Žymimasis langelis"
   },
   "cfTypeLinked": {
     "message": "Susieta",
@@ -1726,6 +1773,9 @@
   "typeIdentity": {
     "message": "Tapatybė"
   },
+  "typeSshKey": {
+    "message": "SSH key"
+  },
   "newItemHeader": {
     "message": "Naujas $TYPE$",
     "placeholders": {
@@ -1745,7 +1795,7 @@
     }
   },
   "viewItemHeader": {
-    "message": "View $TYPE$",
+    "message": "Peržiūrėti $TYPE$",
     "placeholders": {
       "type": {
         "content": "$1",
@@ -1755,6 +1805,15 @@
   },
   "passwordHistory": {
     "message": "Slaptažodžio istorija"
+  },
+  "generatorHistory": {
+    "message": "Generator history"
+  },
+  "clearGeneratorHistoryTitle": {
+    "message": "Clear generator history"
+  },
+  "cleargGeneratorHistoryDescription": {
+    "message": "If you continue, all entries will be permanently deleted from generator's history. Are you sure you want to continue?"
   },
   "back": {
     "message": "Atgal"
@@ -1791,6 +1850,9 @@
   },
   "secureNotes": {
     "message": "Saugūs užrašai"
+  },
+  "sshKeys": {
+    "message": "SSH Keys"
   },
   "clear": {
     "message": "Išvalyti",
@@ -1872,11 +1934,11 @@
   "clearHistory": {
     "message": "Clear history"
   },
-  "noPasswordsToShow": {
-    "message": "No passwords to show"
+  "nothingToShow": {
+    "message": "Nothing to show"
   },
-  "noRecentlyGeneratedPassword": {
-    "message": "You haven't generated a password recently"
+  "nothingGeneratedRecently": {
+    "message": "You haven't generated anything recently"
   },
   "remove": {
     "message": "Pašalinti"
@@ -2268,7 +2330,7 @@
     "message": "Organizacijos politika blokavo elementų importavimą į Jūsų individualią saugyklą."
   },
   "domainsTitle": {
-    "message": "Domains",
+    "message": "Domenai",
     "description": "A category title describing the concept of web domains"
   },
   "excludedDomains": {
@@ -2302,14 +2364,14 @@
     "message": "Excluded domain changes saved"
   },
   "limitSendViews": {
-    "message": "Limit views"
+    "message": "Riboti peržiūrų"
   },
   "limitSendViewsHint": {
-    "message": "No one can view this Send after the limit is reached.",
+    "message": "Pasiekus ribą, niekas negali peržiūrėti šį „Send“.",
     "description": "Displayed under the limit views field on Send"
   },
   "limitSendViewsCount": {
-    "message": "$ACCESSCOUNT$ views left",
+    "message": "Liko $ACCESSCOUNT$ peržiūrų",
     "description": "Displayed under the limit views field on Send",
     "placeholders": {
       "accessCount": {
@@ -2464,8 +2526,8 @@
     "message": "Pasirinktinai reikalauti slaptažodžio, kad vartotojai galėtų pasiekti šį „Send“.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "sendPasswordDescV2": {
-    "message": "Require this password to view the Send.",
+  "sendPasswordDescV3": {
+    "message": "Add an optional password for recipients to access this Send.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendNotesDesc": {
@@ -2603,7 +2665,7 @@
     "message": "Slėpti mano el. pašto adresą nuo gavėjų."
   },
   "hideYourEmail": {
-    "message": "Hide your email address from viewers."
+    "message": "Slėpkite savo el. pašto adresą nuo žiūrėtojų."
   },
   "sendOptionsPolicyInEffect": {
     "message": "Viena ar daugiau organizacijos politikų turi įtakos Jūsų „Send“ nustatymams."
@@ -2621,7 +2683,7 @@
     "message": "Reikalingas elektroninio pašto patvirtinimas"
   },
   "emailVerifiedV2": {
-    "message": "Email verified"
+    "message": "Patvirtintas el. paštas"
   },
   "emailVerificationRequiredDesc": {
     "message": "Turite patvirtinti savo el. paštą, kad galėtumėte naudotis šia funkcija. Savo el. pašto adresą galite patvirtinti žiniatinklio saugykloje."
@@ -2827,6 +2889,43 @@
   "generateUsername": {
     "message": "Generuoti vartotojo vardą"
   },
+  "generateEmail": {
+    "message": "Generate email"
+  },
+  "spinboxBoundariesHint": {
+    "message": "Value must be between $MIN$ and $MAX$.",
+    "description": "Explains spin box minimum and maximum values to the user",
+    "placeholders": {
+      "min": {
+        "content": "$1",
+        "example": "8"
+      },
+      "max": {
+        "content": "$2",
+        "example": "128"
+      }
+    }
+  },
+  "passwordLengthRecommendationHint": {
+    "message": " Use $RECOMMENDED$ characters or more to generate a strong password.",
+    "description": "Appended to `spinboxBoundariesHint` to recommend a length to the user. This must include any language-specific 'sentence' separator characters (e.g. a space in english).",
+    "placeholders": {
+      "recommended": {
+        "content": "$1",
+        "example": "14"
+      }
+    }
+  },
+  "passphraseNumWordsRecommendationHint": {
+    "message": " Use $RECOMMENDED$ words or more to generate a strong passphrase.",
+    "description": "Appended to `spinboxBoundariesHint` to recommend a number of words to the user. This must include any language-specific 'sentence' separator characters (e.g. a space in english).",
+    "placeholders": {
+      "recommended": {
+        "content": "$1",
+        "example": "6"
+      }
+    }
+  },
   "usernameType": {
     "message": "Vartotojo prisijungimo vardo tipas"
   },
@@ -2866,6 +2965,14 @@
   },
   "forwardedEmailDesc": {
     "message": "Sugeneruoti el. pašto slapyvardį su išorine persiuntimo paslauga."
+  },
+  "forwarderDomainName": {
+    "message": "Email domain",
+    "description": "Labels the domain name email forwarder service option"
+  },
+  "forwarderDomainNameHint": {
+    "message": "Choose a domain that is supported by the selected service",
+    "description": "Guidance provided for email forwarding services that support multiple email domains."
   },
   "forwarderError": {
     "message": "„$SERVICENAME$“ klaida: $ERRORMESSAGE$.",
@@ -3066,11 +3173,26 @@
   "resendNotification": {
     "message": "Iš naujo siųsti pranešimą"
   },
+  "viewAllLogInOptions": {
+    "message": "View all log in options"
+  },
   "viewAllLoginOptions": {
     "message": "View all log in options"
   },
   "notificationSentDevice": {
     "message": "A notification has been sent to your device."
+  },
+  "aNotificationWasSentToYourDevice": {
+    "message": "A notification was sent to your device"
+  },
+  "makeSureYourAccountIsUnlockedAndTheFingerprintEtc": {
+    "message": "Make sure your account is unlocked and the fingerprint phrase matches on the other device"
+  },
+  "youWillBeNotifiedOnceTheRequestIsApproved": {
+    "message": "You will be notified once the request is approved"
+  },
+  "needAnotherOptionV1": {
+    "message": "Need another option?"
   },
   "loginInitiated": {
     "message": "Pradėtas prisijungimas"
@@ -3162,14 +3284,20 @@
       }
     }
   },
-  "loggingInOn": {
-    "message": "Logging in on"
-  },
   "opensInANewWindow": {
     "message": "Opens in a new window"
   },
+  "rememberThisDeviceToMakeFutureLoginsSeamless": {
+    "message": "Remember this device to make future logins seamless"
+  },
   "deviceApprovalRequired": {
     "message": "Įrenginio patvirtinimas reikalingas. Pasirink patvirtinimo būdą toliau:"
+  },
+  "deviceApprovalRequiredV2": {
+    "message": "Device approval required"
+  },
+  "selectAnApprovalOptionBelow": {
+    "message": "Select an approval option below"
   },
   "rememberThisDevice": {
     "message": "Prisiminti šį įrenginį"
@@ -3244,15 +3372,18 @@
   "userEmailMissing": {
     "message": "Trūksta naudotojo el. pašto"
   },
+  "activeUserEmailNotFoundLoggingYouOut": {
+    "message": "Active user email not found. Logging you out."
+  },
   "deviceTrusted": {
     "message": "Patikimas įrenginys"
   },
   "sendsNoItemsTitle": {
-    "message": "No active Sends",
+    "message": "Nėra aktyvų „Sends“",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendsNoItemsMessage": {
-    "message": "Use Send to securely share encrypted information with anyone.",
+    "message": "Naudokite „Send“, kad saugiai bendrintumėte užšifruotą informaciją su bet kuriuo asmeniu.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "inputRequired": {
@@ -3449,7 +3580,7 @@
     "description": "Button text to display in overlay when the account is locked."
   },
   "unlockAccountAria": {
-    "message": "Unlock your account, opens in a new window",
+    "message": "Atrakinti savo paskyrą, atidaromas naujame lange",
     "description": "Screen reader text (aria-label) for unlock account button in overlay"
   },
   "fillCredentialsFor": {
@@ -3477,7 +3608,7 @@
     "description": "Button text to display within inline menu when there are no matching items on a login field"
   },
   "addNewLoginItemAria": {
-    "message": "Add new vault login item, opens in a new window",
+    "message": "Pridėti naują saugyklos prisijungimo elementą, atidaromas naujame lange",
     "description": "Screen reader text (aria-label) for new login button within inline menu"
   },
   "newCard": {
@@ -3485,15 +3616,15 @@
     "description": "Button text to display within inline menu when there are no matching items on a credit card field"
   },
   "addNewCardItemAria": {
-    "message": "Add new vault card item, opens in a new window",
+    "message": "Pridėti naują saugyklos kortelės elementą, atidaromas naujame lange",
     "description": "Screen reader text (aria-label) for new card button within inline menu"
   },
   "newIdentity": {
-    "message": "New identity",
+    "message": "Nauja tapatybė",
     "description": "Button text to display within inline menu when there are no matching items on an identity field"
   },
   "addNewIdentityItemAria": {
-    "message": "Add new vault identity item, opens in a new window",
+    "message": "Pridėti naują saugyklos tapatybės elementą, atidaromas naujame lange",
     "description": "Screen reader text (aria-label) for new identity button within inline menu"
   },
   "bitwardenOverlayMenuAvailable": {
@@ -3583,7 +3714,7 @@
     }
   },
   "duoHealthCheckResultsInNullAuthUrlError": {
-    "message": "Error connecting with the Duo service. Use a different two-step login method or contact Duo for assistance."
+    "message": "Klaida prijungiant su „Duo“ paslauga. Naudokite kitą dvigubo prisijungimo būdą arba susisiekite su „Duo“ dėl pagalbos."
   },
   "launchDuoAndFollowStepsToFinishLoggingIn": {
     "message": "Paleisk DUO ir sek veiksmus, kad baigtum prisijungti."
@@ -3679,6 +3810,9 @@
   },
   "accessing": {
     "message": "Accessing"
+  },
+  "loggedInExclamation": {
+    "message": "Logged in!"
   },
   "passkeyNotCopied": {
     "message": "Passkey will not be copied"
@@ -4021,7 +4155,7 @@
     "message": "No values to copy"
   },
   "assignToCollections": {
-    "message": "Assign to collections"
+    "message": "Priskirti į kolekcijas"
   },
   "copyEmail": {
     "message": "Copy email"
@@ -4115,22 +4249,22 @@
     "message": "Items in deactivated organizations cannot be accessed. Contact your organization owner for assistance."
   },
   "additionalInformation": {
-    "message": "Additional information"
+    "message": "Papildoma informacija"
   },
   "itemHistory": {
-    "message": "Item history"
+    "message": "Elemento istorija"
   },
   "lastEdited": {
-    "message": "Last edited"
+    "message": "Paskutinį kartą redaguota"
   },
   "ownerYou": {
-    "message": "Owner: You"
+    "message": "Savininkas: Jūs"
   },
   "linked": {
-    "message": "Linked"
+    "message": "Susieta"
   },
   "copySuccessful": {
-    "message": "Copy Successful"
+    "message": "Kopijavimas sėkmingas"
   },
   "upload": {
     "message": "Įkelti"
@@ -4171,17 +4305,32 @@
   "filters": {
     "message": "Filtrai"
   },
+  "filterVault": {
+    "message": "Filter vault"
+  },
+  "filterApplied": {
+    "message": "One filter applied"
+  },
+  "filterAppliedPlural": {
+    "message": "$COUNT$ filters applied",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
   "personalDetails": {
-    "message": "Personal details"
+    "message": "Asmeniniai duomenys"
   },
   "identification": {
-    "message": "Identification"
+    "message": "Identifikavimas"
   },
   "contactInfo": {
-    "message": "Contact info"
+    "message": "Kontaktinė informacija"
   },
   "downloadAttachment": {
-    "message": "Download - $ITEMNAME$",
+    "message": "Atsisiųsti – $ITEMNAME$",
     "placeholders": {
       "itemname": {
         "content": "$1",
@@ -4190,14 +4339,14 @@
     }
   },
   "cardNumberEndsWith": {
-    "message": "card number ends with",
+    "message": "kortelės numeris baigiasi su",
     "description": "Used within the inline menu to provide an aria description when users are attempting to fill a card cipher."
   },
   "loginCredentials": {
-    "message": "Login credentials"
+    "message": "Prisijungimo kredencialai"
   },
   "authenticatorKey": {
-    "message": "Authenticator key"
+    "message": "Autentifikatoriaus raktas"
   },
   "autofillOptions": {
     "message": "Autofill options"
@@ -4283,10 +4432,10 @@
     "message": "Pridėti paskyrą"
   },
   "loading": {
-    "message": "Loading"
+    "message": "Įkeliama"
   },
   "data": {
-    "message": "Data"
+    "message": "Duomenys"
   },
   "passkeys": {
     "message": "Passkeys",
@@ -4301,7 +4450,7 @@
     "description": "ARIA label for the inline menu button that logs in with a passkey."
   },
   "assign": {
-    "message": "Assign"
+    "message": "Priskirti"
   },
   "bulkCollectionAssignmentDialogDescriptionSingular": {
     "message": "Only organization members with access to these collections will be able to see the item."
@@ -4322,25 +4471,25 @@
     }
   },
   "addField": {
-    "message": "Add field"
+    "message": "Pridėti lauką"
   },
   "add": {
-    "message": "Add"
+    "message": "Pridėti"
   },
   "fieldType": {
-    "message": "Field type"
+    "message": "Lauko tipas"
   },
   "fieldLabel": {
-    "message": "Field label"
+    "message": "Lauko etiketė"
   },
   "textHelpText": {
-    "message": "Use text fields for data like security questions"
+    "message": "Naudokite tekstinius laukus duomenims, pavyzdžiui, saugumo klausimams"
   },
   "hiddenHelpText": {
-    "message": "Use hidden fields for sensitive data like a password"
+    "message": "Naudokite paslėptus laukus slaptiems duomenims, pavyzdžiui, slaptažodžiams"
   },
   "checkBoxHelpText": {
-    "message": "Use checkboxes if you'd like to autofill a form's checkbox, like a remember email"
+    "message": "Naudokite žymimuosius langelius, jei norite automatiškai užpildyti formos žymimąjį langelį, pavyzdžiui, prisiminti el. paštą"
   },
   "linkedHelpText": {
     "message": "Use a linked field when you are experiencing autofill issues for a specific website."
@@ -4349,10 +4498,10 @@
     "message": "Enter the the field's html id, name, aria-label, or placeholder."
   },
   "editField": {
-    "message": "Edit field"
+    "message": "Redaguoti lauką"
   },
   "editFieldLabel": {
-    "message": "Edit $LABEL$",
+    "message": "Redaguoti $LABEL$",
     "placeholders": {
       "label": {
         "content": "$1",
@@ -4361,7 +4510,7 @@
     }
   },
   "deleteCustomField": {
-    "message": "Delete $LABEL$",
+    "message": "Ištrinti $LABEL$",
     "placeholders": {
       "label": {
         "content": "$1",
@@ -4370,7 +4519,7 @@
     }
   },
   "fieldAdded": {
-    "message": "$LABEL$ added",
+    "message": "Pridėtas $LABEL$",
     "placeholders": {
       "label": {
         "content": "$1",
@@ -4492,10 +4641,16 @@
     }
   },
   "itemLocation": {
-    "message": "Item Location"
+    "message": "Elemento vieta"
+  },
+  "fileSend": {
+    "message": "File Send"
   },
   "fileSends": {
     "message": "File Sends"
+  },
+  "textSend": {
+    "message": "Text Send"
   },
   "textSends": {
     "message": "Text Sends"
@@ -4517,6 +4672,30 @@
   },
   "enterprisePolicyRequirementsApplied": {
     "message": "Enterprise policy requirements have been applied to this setting"
+  },
+  "sshPrivateKey": {
+    "message": "Private key"
+  },
+  "sshPublicKey": {
+    "message": "Public key"
+  },
+  "sshFingerprint": {
+    "message": "Fingerprint"
+  },
+  "sshKeyAlgorithm": {
+    "message": "Key type"
+  },
+  "sshKeyAlgorithmED25519": {
+    "message": "ED25519"
+  },
+  "sshKeyAlgorithmRSA2048": {
+    "message": "RSA 2048-Bit"
+  },
+  "sshKeyAlgorithmRSA3072": {
+    "message": "RSA 3072-Bit"
+  },
+  "sshKeyAlgorithmRSA4096": {
+    "message": "RSA 4096-Bit"
   },
   "retry": {
     "message": "Retry"
@@ -4559,5 +4738,164 @@
   },
   "authenticating": {
     "message": "Authenticating"
+  },
+  "fillGeneratedPassword": {
+    "message": "Fill generated password",
+    "description": "Heading for the password generator within the inline menu"
+  },
+  "passwordRegenerated": {
+    "message": "Password regenerated",
+    "description": "Notification message for when a password has been regenerated"
+  },
+  "saveLoginToBitwarden": {
+    "message": "Save login to Bitwarden?",
+    "description": "Confirmation message for saving a login to Bitwarden"
+  },
+  "spaceCharacterDescriptor": {
+    "message": "Space",
+    "description": "Represents the space key in screen reader content as a readable word"
+  },
+  "tildeCharacterDescriptor": {
+    "message": "Tilde",
+    "description": "Represents the ~ key in screen reader content as a readable word"
+  },
+  "backtickCharacterDescriptor": {
+    "message": "Backtick",
+    "description": "Represents the ` key in screen reader content as a readable word"
+  },
+  "exclamationCharacterDescriptor": {
+    "message": "Exclamation mark",
+    "description": "Represents the ! key in screen reader content as a readable word"
+  },
+  "atSignCharacterDescriptor": {
+    "message": "At sign",
+    "description": "Represents the @ key in screen reader content as a readable word"
+  },
+  "hashSignCharacterDescriptor": {
+    "message": "Hash sign",
+    "description": "Represents the # key in screen reader content as a readable word"
+  },
+  "dollarSignCharacterDescriptor": {
+    "message": "Dollar sign",
+    "description": "Represents the $ key in screen reader content as a readable word"
+  },
+  "percentSignCharacterDescriptor": {
+    "message": "Percent sign",
+    "description": "Represents the % key in screen reader content as a readable word"
+  },
+  "caretCharacterDescriptor": {
+    "message": "Caret",
+    "description": "Represents the ^ key in screen reader content as a readable word"
+  },
+  "ampersandCharacterDescriptor": {
+    "message": "Ampersand",
+    "description": "Represents the & key in screen reader content as a readable word"
+  },
+  "asteriskCharacterDescriptor": {
+    "message": "Asterisk",
+    "description": "Represents the * key in screen reader content as a readable word"
+  },
+  "parenLeftCharacterDescriptor": {
+    "message": "Left parenthesis",
+    "description": "Represents the ( key in screen reader content as a readable word"
+  },
+  "parenRightCharacterDescriptor": {
+    "message": "Right parenthesis",
+    "description": "Represents the ) key in screen reader content as a readable word"
+  },
+  "hyphenCharacterDescriptor": {
+    "message": "Underscore",
+    "description": "Represents the _ key in screen reader content as a readable word"
+  },
+  "underscoreCharacterDescriptor": {
+    "message": "Hyphen",
+    "description": "Represents the - key in screen reader content as a readable word"
+  },
+  "plusCharacterDescriptor": {
+    "message": "Plus",
+    "description": "Represents the + key in screen reader content as a readable word"
+  },
+  "equalsCharacterDescriptor": {
+    "message": "Equals",
+    "description": "Represents the = key in screen reader content as a readable word"
+  },
+  "braceLeftCharacterDescriptor": {
+    "message": "Left brace",
+    "description": "Represents the { key in screen reader content as a readable word"
+  },
+  "braceRightCharacterDescriptor": {
+    "message": "Right brace",
+    "description": "Represents the } key in screen reader content as a readable word"
+  },
+  "bracketLeftCharacterDescriptor": {
+    "message": "Left bracket",
+    "description": "Represents the [ key in screen reader content as a readable word"
+  },
+  "bracketRightCharacterDescriptor": {
+    "message": "Right bracket",
+    "description": "Represents the ] key in screen reader content as a readable word"
+  },
+  "pipeCharacterDescriptor": {
+    "message": "Pipe",
+    "description": "Represents the | key in screen reader content as a readable word"
+  },
+  "backSlashCharacterDescriptor": {
+    "message": "Back slash",
+    "description": "Represents the back slash key in screen reader content as a readable word"
+  },
+  "colonCharacterDescriptor": {
+    "message": "Colon",
+    "description": "Represents the : key in screen reader content as a readable word"
+  },
+  "semicolonCharacterDescriptor": {
+    "message": "Semicolon",
+    "description": "Represents the ; key in screen reader content as a readable word"
+  },
+  "doubleQuoteCharacterDescriptor": {
+    "message": "Double quote",
+    "description": "Represents the double quote key in screen reader content as a readable word"
+  },
+  "singleQuoteCharacterDescriptor": {
+    "message": "Single quote",
+    "description": "Represents the ' key in screen reader content as a readable word"
+  },
+  "lessThanCharacterDescriptor": {
+    "message": "Less than",
+    "description": "Represents the < key in screen reader content as a readable word"
+  },
+  "greaterThanCharacterDescriptor": {
+    "message": "Greater than",
+    "description": "Represents the > key in screen reader content as a readable word"
+  },
+  "commaCharacterDescriptor": {
+    "message": "Comma",
+    "description": "Represents the , key in screen reader content as a readable word"
+  },
+  "periodCharacterDescriptor": {
+    "message": "Period",
+    "description": "Represents the . key in screen reader content as a readable word"
+  },
+  "questionCharacterDescriptor": {
+    "message": "Question mark",
+    "description": "Represents the ? key in screen reader content as a readable word"
+  },
+  "forwardSlashCharacterDescriptor": {
+    "message": "Forward slash",
+    "description": "Represents the / key in screen reader content as a readable word"
+  },
+  "lowercaseAriaLabel": {
+    "message": "Lowercase"
+  },
+  "uppercaseAriaLabel": {
+    "message": "Uppercase"
+  },
+  "generatedPassword": {
+    "message": "Generated password"
+  },
+  "compactMode": {
+    "message": "Compact mode"
+  },
+  "beta": {
+    "message": "Beta"
   }
 }

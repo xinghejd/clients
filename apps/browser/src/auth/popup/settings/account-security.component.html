@@ -65,17 +65,14 @@
         </auth-vault-timeout-input>
         <bit-form-field disableMargin>
           <bit-label for="vaultTimeoutAction">{{ "vaultTimeoutAction1" | i18n }}</bit-label>
-          <select
-            aria-describedby="vaultTimeoutActionHelp"
-            bitInput
-            id="vaultTimeoutAction"
-            name="VaultTimeoutActions"
-            formControlName="vaultTimeoutAction"
-          >
-            <option *ngFor="let action of availableVaultTimeoutActions" [ngValue]="action">
-              {{ action | i18n }}
-            </option>
-          </select>
+          <bit-select id="vaultTimeoutAction" formControlName="vaultTimeoutAction">
+            <bit-option
+              *ngFor="let action of availableVaultTimeoutActions"
+              [value]="action"
+              [label]="action | i18n"
+            >
+            </bit-option>
+          </bit-select>
           <bit-hint class="tw-text-sm" id="vaultTimeoutActionHelp">
             {{ "vaultTimeoutActionDesc" | i18n }}
           </bit-hint>
@@ -94,7 +91,7 @@
       </bit-section-header>
       <bit-item>
         <button bit-item-content type="button" appStopClick (click)="fingerprint()">
-          <div class="row-main">{{ "fingerprintPhrase" | i18n }}</div>
+          {{ "fingerprintPhrase" | i18n }}
         </button>
       </bit-item>
       <bit-item>
@@ -115,11 +112,11 @@
         "
       >
         <button bit-item-content type="button" appStopClick (click)="lock()"></button>
-        <div class="row-main">{{ "lockNow" | i18n }}</div>
+        {{ "lockNow" | i18n }}
       </bit-item>
       <bit-item *ngIf="!accountSwitcherEnabled">
         <button bit-item-content type="button" appStopClick (click)="logOut()"></button>
-        <div class="row-main">{{ "logOut" | i18n }}</div>
+        {{ "logOut" | i18n }}
       </bit-item>
     </bit-section>
   </div>

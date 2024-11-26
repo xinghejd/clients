@@ -2,11 +2,29 @@
   "allApplications": {
     "message": "Všetky aplikácie"
   },
-  "priorityApplications": {
-    "message": "Prioritné aplikácie"
+  "criticalApplications": {
+    "message": "Kritické aplikácie"
   },
   "accessIntelligence": {
-    "message": "Access Intelligence"
+    "message": "Prehľad o prístupe"
+  },
+  "riskInsights": {
+    "message": "Prehľad o rizikách"
+  },
+  "passwordRisk": {
+    "message": "Ohrozenie hesla"
+  },
+  "reviewAtRiskPasswords": {
+    "message": "Skontrolujte ohrozené heslá (slabé, odhalené, alebo opätovne použité) naprieč aplikáciami. Vyberte najkritickejšie aplikácie a priorizujte vaším používateľom bezpečnostné opatrenia ohľadom ohrozených hesiel."
+  },
+  "dataLastUpdated": {
+    "message": "Posledná aktualizácia dát: $DATE$",
+    "placeholders": {
+      "date": {
+        "content": "$1",
+        "example": "2021-01-01"
+      }
+    }
   },
   "notifiedMembers": {
     "message": "Notified members"
@@ -20,8 +38,11 @@
       }
     }
   },
-  "priorityApplicationsWithCount": {
-    "message": "Prioritné aplikácie ($COUNT$)",
+  "createNewLoginItem": {
+    "message": "Pridať novu položku s prihlásením"
+  },
+  "criticalApplicationsWithCount": {
+    "message": "Kritické aplikácie ($COUNT$)",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -38,14 +59,47 @@
       }
     }
   },
+  "noAppsInOrgTitle": {
+    "message": "Neboli nájdené žiadne aplikácie v $ORG NAME$",
+    "placeholders": {
+      "org name": {
+        "content": "$1",
+        "example": "Company Name"
+      }
+    }
+  },
+  "noAppsInOrgDescription": {
+    "message": "Keď používatelia uložia prihlasovacie údaje, tu sa zobrazia aplikácie a ohrozené heslá. Označte kritické aplikácie a upozornite používateľov, aby si aktualizovali heslá."
+  },
+  "noCriticalAppsTitle": {
+    "message": "Neoznačili ste žiadne aplikácie ako kritické"
+  },
+  "noCriticalAppsDescription": {
+    "message": "Pre odhalenie ohrozených hesiel a upozornenie používateľov aby si ich zmenili vyberte vaše najkritickejšie aplikácie."
+  },
+  "markCriticalApps": {
+    "message": "Označiť kritické aplikácie"
+  },
+  "markAppAsCritical": {
+    "message": "Označiť aplikáciu ako kritickú"
+  },
+  "appsMarkedAsCritical": {
+    "message": "Aplikácie označené ako kritické"
+  },
   "application": {
     "message": "Aplikácia"
   },
   "atRiskPasswords": {
     "message": "Ohrozených hesiel"
   },
+  "requestPasswordChange": {
+    "message": "Požiadať o zmenu hesla"
+  },
   "totalPasswords": {
     "message": "Celkom hesiel"
+  },
+  "searchApps": {
+    "message": "Vyhľadať aplikácie"
   },
   "atRiskMembers": {
     "message": "Ohrozených členov"
@@ -405,6 +459,9 @@
   "generatePassword": {
     "message": "Generovať heslo"
   },
+  "generatePassphrase": {
+    "message": "Generovať prístupovú frázu"
+  },
   "checkPassword": {
     "message": "Overiť či došlo k úniku hesla."
   },
@@ -504,6 +561,9 @@
   },
   "typeSecureNote": {
     "message": "Zabezpečená poznámka"
+  },
+  "typeSshKey": {
+    "message": "Kľúč SSH"
   },
   "typeLoginPlural": {
     "message": "Prihlásenia"
@@ -662,6 +722,10 @@
   "copyPassword": {
     "message": "Kopírovať heslo",
     "description": "Copy password to clipboard"
+  },
+  "copyPassphrase": {
+    "message": "Kopírovať prístupovú frázu",
+    "description": "Copy passphrase to clipboard"
   },
   "passwordCopied": {
     "message": "Heslo skopírované"
@@ -920,6 +984,9 @@
   "loginWithDeviceEnabledNote": {
     "message": "Prihlásenie pomocou zariadenia musí byť nastavené v nastaveniach aplikácie Bitwarden. Potrebujete inú možnosť?"
   },
+  "needAnotherOptionV1": {
+    "message": "Potrebujete inú možnosť?"
+  },
   "loginWithMasterPassword": {
     "message": "Prihlásenie pomocou hlavného hesla"
   },
@@ -932,8 +999,14 @@
   "useADifferentLogInMethod": {
     "message": "Použiť iný spôsob prihlásenia"
   },
-  "loginWithPasskey": {
+  "logInWithPasskey": {
     "message": "Prihlásiť sa s prístupovým kľúčom"
+  },
+  "useSingleSignOn": {
+    "message": "Použiť jednotné prihlásenie"
+  },
+  "welcomeBack": {
+    "message": "Vitajte späť"
   },
   "invalidPasskeyPleaseTryAgain": {
     "message": "Nesprávne Passkey heslo. Prosím skúste to znovu."
@@ -1016,6 +1089,9 @@
   "createAccount": {
     "message": "Vytvoriť účet"
   },
+  "newToBitwarden": {
+    "message": "Ste noví na Bitwardene?"
+  },
   "setAStrongPassword": {
     "message": "Nastavte silné heslo"
   },
@@ -1030,6 +1106,9 @@
   },
   "logIn": {
     "message": "Prihlásiť sa"
+  },
+  "logInToBitwarden": {
+    "message": "Prihlásenie do Bitwardenu"
   },
   "verifyIdentity": {
     "message": "Overte svoju totožnosť"
@@ -1225,6 +1304,12 @@
   },
   "notificationSentDevice": {
     "message": "Do vášho zariadenia bolo odoslané upozornenie."
+  },
+  "aNotificationWasSentToYourDevice": {
+    "message": "Do vášho zariadenia bolo odoslané upozornenie"
+  },
+  "makeSureYourAccountIsUnlockedAndTheFingerprintEtc": {
+    "message": "Uistite sa, že je váš účet odomknutý a fráza odtlačku prsta sa zhoduje s frázou na druhom zariadení"
   },
   "versionNumber": {
     "message": "Verzia $VERSION_NUMBER$",
@@ -1537,38 +1622,6 @@
   "specialCharacters": {
     "message": "Špeciálne znaky (!@#$%^&*)"
   },
-  "uppercaseDescription": {
-    "message": "Zahrnúť veľké písmená",
-    "description": "Tooltip for the password generator uppercase character checkbox"
-  },
-  "uppercaseLabel": {
-    "message": "A-Z",
-    "description": "Label for the password generator uppercase character checkbox"
-  },
-  "lowercaseDescription": {
-    "message": "Zahrnúť malé písmená",
-    "description": "Full description for the password generator lowercase character checkbox"
-  },
-  "lowercaseLabel": {
-    "message": "a-z",
-    "description": "Label for the password generator lowercase character checkbox"
-  },
-  "numbersDescription": {
-    "message": "Vrátane čísiel",
-    "description": "Full description for the password generator numbers checkbox"
-  },
-  "numbersLabel": {
-    "message": "0-9",
-    "description": "Label for the password generator numbers checkbox"
-  },
-  "specialCharactersDescription": {
-    "message": "Zahrnúť špeciálne znaky",
-    "description": "Full description for the password generator special characters checkbox"
-  },
-  "specialCharactersLabel": {
-    "message": "!@#$%^&*",
-    "description": "Label for the password generator special characters checkbox"
-  },
   "numWords": {
     "message": "Počet slov"
   },
@@ -1699,6 +1752,9 @@
   "dangerZoneDesc": {
     "message": "Opatrne, tieto zmeny nemožno vrátiť späť!"
   },
+  "dangerZoneDescSingular": {
+    "message": "Opatrne, túto zmenu nemožno vrátiť späť!"
+  },
   "deauthorizeSessions": {
     "message": "Odhlásiť sedenia"
   },
@@ -1710,6 +1766,15 @@
   },
   "sessionsDeauthorized": {
     "message": "Všetky sedenia odhlásené"
+  },
+  "accountIsManagedMessage": {
+    "message": "Tento účet spravuje $ORGANIZATIONNAME$",
+    "placeholders": {
+      "organizationName": {
+        "content": "$1",
+        "example": "Organization"
+      }
+    }
   },
   "purgeVault": {
     "message": "Vyprázdniť trezor"
@@ -3331,6 +3396,9 @@
       }
     }
   },
+  "viewAllLogInOptions": {
+    "message": "Zobraziť všetky možnosti prihlásenia"
+  },
   "viewAllLoginOptions": {
     "message": "Zobraziť všetky možnosti prihlásenia"
   },
@@ -3783,6 +3851,55 @@
   },
   "updateBrowserDesc": {
     "message": "Používate nepodporovaný prehliadač. Webový trezor nemusí úplne fungovať."
+  },
+  "freeTrialEndPrompt": {
+    "message": "Vaše bezplatné skúšobné obdobie vyprší o $COUNT$ dni. Ak si chcete udržať predplatné,",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "You must set up 2FA on your user account before you can join this organization."
+      }
+    }
+  },
+  "freeTrialEndPromptAboveTwoDays": {
+    "message": "$ORGANIZATION$, vaše bezplatné skúšobné obdobie vyprší o $COUNT$ dni. Ak si chcete udržať predplatné,",
+    "placeholders": {
+      "count": {
+        "content": "$2",
+        "example": "organization name"
+      },
+      "organization": {
+        "content": "$1",
+        "example": "remaining days"
+      }
+    }
+  },
+  "freeTrialEndPromptForOneDay": {
+    "message": "$ORGANIZATION$, zajtra vyprší vaše bezplatné skúšobné obdobie. Ak si chcete udržať predplatné,",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "organization name"
+      }
+    }
+  },
+  "freeTrialEndPromptForOneDayNoOrgName": {
+    "message": "Zajtra vyprší vaše bezplatné skúšobné obdobie. Ak si chcete udržať predplatné,"
+  },
+  "freeTrialEndPromptForLessThanADay": {
+    "message": "$ORGANIZATION$, dnes vyprší vaše bezplatné skúšobné obdobie. Ak si chcete udržať predplatné,",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "organization name"
+      }
+    }
+  },
+  "freeTrialEndingSoonWithoutOrgName": {
+    "message": "Dnes vyprší vaše bezplatné skúšobné obdobie. Ak si chcete udržať predplatné,"
+  },
+  "routeToPaymentMethodTrigger": {
+    "message": "pridajte spôsob platby."
   },
   "joinOrganization": {
     "message": "Pripojte sa k organizácii"
@@ -4338,6 +4455,9 @@
     "message": "Nepýtať sa pozvaných používateľov na overenie frázy odtlačku. (neodporúča sa)",
     "description": "A 'fingerprint phrase' is a unique word phrase (similar to a passphrase) that a user can use to authenticate their public key with another user, for the purposes of sharing."
   },
+  "youWillBeNotifiedOnceTheRequestIsApproved": {
+    "message": "Po schválení žiadosti budete informovaní"
+  },
   "free": {
     "message": "Zadarmo",
     "description": "Free, as in 'Free beer'"
@@ -4635,11 +4755,17 @@
   "singleOrgDesc": {
     "message": "Zakázať používateľom stať sa členmi inej organizácie."
   },
+  "singleOrgPolicyDesc": {
+    "message": "Zakázať používateľom stať sa členmi inej organizácie. Toto pravidlo sa vyžaduje od organizácií, ktoré povolili overovanie domény."
+  },
   "singleOrgBlockCreateMessage": {
     "message": "Vaša súčasná organizácia má pravidlo, ktoré vám nedovoľuje pripojiť sa k viac než jednej organizácii. Kontaktujte, prosím, administrátorov vašej organizácie alebo sa prihláste prostredníctvom iného Bitwarden účtu."
   },
   "singleOrgPolicyWarning": {
     "message": "Členovia organizácie, ktorí nie sú vlastníkmi alebo administrátormi a už sú členmi inej organizácie, budú odstránení z vašej organizácie."
+  },
+  "singleOrgPolicyMemberWarning": {
+    "message": "Členovia, ktorí nedodržiavajú pravidlo, budú zaradení do zrušeného stavu, kým neopustia všetky ostatné organizácie. Správcovia majú výnimku a môžu obnoviť členov po splnení požiadaviek pravidiel organizácie."
   },
   "requireSso": {
     "message": "Požadovať overovanie prostredníctvom jednotného prihlasovania (SSO)"
@@ -6265,6 +6391,9 @@
   "idpSingleSignOnServiceUrlRequired": {
     "message": "Required if Entity ID is not a URL."
   },
+  "offerNoLongerValid": {
+    "message": "Táto ponuka už nie je platná. Pre viac informácií kontaktujte správcu vašej organizácie."
+  },
   "openIdOptionalCustomizations": {
     "message": "Optional customizations"
   },
@@ -6353,6 +6482,43 @@
   },
   "generateUsername": {
     "message": "Vygenerovať používateľské meno"
+  },
+  "generateEmail": {
+    "message": "Generovať e-mail"
+  },
+  "spinboxBoundariesHint": {
+    "message": "Hodnota musí byť medzi $MIN$ a $MAX$.",
+    "description": "Explains spin box minimum and maximum values to the user",
+    "placeholders": {
+      "min": {
+        "content": "$1",
+        "example": "8"
+      },
+      "max": {
+        "content": "$2",
+        "example": "128"
+      }
+    }
+  },
+  "passwordLengthRecommendationHint": {
+    "message": " Na vytvorenie silného hesla použite $RECOMMENDED$ znakov alebo viac.",
+    "description": "Appended to `spinboxBoundariesHint` to recommend a length to the user. This must include any language-specific 'sentence' separator characters (e.g. a space in english).",
+    "placeholders": {
+      "recommended": {
+        "content": "$1",
+        "example": "14"
+      }
+    }
+  },
+  "passphraseNumWordsRecommendationHint": {
+    "message": " Na vytvorenie silnej prístupovej frázy použite $RECOMMENDED$ slov alebo viac.",
+    "description": "Appended to `spinboxBoundariesHint` to recommend a number of words to the user. This must include any language-specific 'sentence' separator characters (e.g. a space in english).",
+    "placeholders": {
+      "recommended": {
+        "content": "$1",
+        "example": "6"
+      }
+    }
   },
   "usernameType": {
     "message": "Typ používateľského mena"
@@ -6458,6 +6624,14 @@
   },
   "forwardedEmailDesc": {
     "message": "Vytvoriť e-mailový alias pomocou externej služby preposielania."
+  },
+  "forwarderDomainName": {
+    "message": "E-mailová doména",
+    "description": "Labels the domain name email forwarder service option"
+  },
+  "forwarderDomainNameHint": {
+    "message": "Vyberte doménu, ktorá je podporovaná vybranou službou",
+    "description": "Guidance provided for email forwarding services that support multiple email domains."
   },
   "forwarderError": {
     "message": "$SERVICENAME$ error: $ERRORMESSAGE$",
@@ -7877,8 +8051,17 @@
   "loginInitiated": {
     "message": "Iniciované prihlásenie"
   },
+  "rememberThisDeviceToMakeFutureLoginsSeamless": {
+    "message": "Remember this device to make future logins seamless"
+  },
   "deviceApprovalRequired": {
     "message": "Vyžaduje sa schválenie zariadenia. Vyberte možnosť schválenia nižšie:"
+  },
+  "deviceApprovalRequiredV2": {
+    "message": "Device approval required"
+  },
+  "selectAnApprovalOptionBelow": {
+    "message": "Select an approval option below"
   },
   "rememberThisDevice": {
     "message": "Zapamätať si toto zariadenie"
@@ -8109,6 +8292,9 @@
   "userEmailMissing": {
     "message": "Chýba e-mail používateľa"
   },
+  "activeUserEmailNotFoundLoggingYouOut": {
+    "message": "Active user email not found. Logging you out."
+  },
   "deviceTrusted": {
     "message": "Dôveryhodné zariadenie"
   },
@@ -8258,6 +8444,10 @@
   "baseUrl": {
     "message": "URL servera"
   },
+  "selfHostBaseUrl": {
+    "message": "Adresa URL vlastného hostingu",
+    "description": "Label for field requesting a self-hosted integration service URL"
+  },
   "aliasDomain": {
     "message": "Alias doména"
   },
@@ -8356,7 +8546,7 @@
   },
   "addAPaymentMethod": {
     "message": "pridajte spôsob platby",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'To maintain your subscription for $ORG$, add a payment method.'"
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'To maintain your subscription for $ORG$, add a payment method'"
   },
   "organizationInformation": {
     "message": "Informácie o organizácii"
@@ -8929,6 +9119,12 @@
   "providerPlan": {
     "message": "Managed Service Provider"
   },
+  "managedServiceProvider": {
+    "message": "Spravovaný poskytovateľ služieb"
+  },
+  "multiOrganizationEnterprise": {
+    "message": "Spoločnosť s viacerými organizáciami"
+  },
   "orgSeats": {
     "message": "Organization Seats"
   },
@@ -9331,6 +9527,30 @@
   "additionalStorageGbMessage": {
     "message": "GB additional storage"
   },
+  "sshKeyAlgorithm": {
+    "message": "Algoritmus kľúča"
+  },
+  "sshKeyFingerprint": {
+    "message": "Odtlačok"
+  },
+  "sshKeyPrivateKey": {
+    "message": "Súkromný kľúč"
+  },
+  "sshKeyPublicKey": {
+    "message": "Verejný kľúč"
+  },
+  "sshKeyAlgorithmED25519": {
+    "message": "ED25519"
+  },
+  "sshKeyAlgorithmRSA2048": {
+    "message": "RSA 2048-Bit"
+  },
+  "sshKeyAlgorithmRSA3072": {
+    "message": "RSA 3072-Bit"
+  },
+  "sshKeyAlgorithmRSA4096": {
+    "message": "RSA 4096-Bit"
+  },
   "premiumAccounts": {
     "message": "6 prémiových účtov"
   },
@@ -9413,6 +9633,38 @@
   "linkedLabelHelpText": {
     "message": "Zadajte html atribút poľa id, name, aria-label, alebo placeholder."
   },
+  "uppercaseDescription": {
+    "message": "Zahrnúť veľké písmená",
+    "description": "Tooltip for the password generator uppercase character checkbox"
+  },
+  "uppercaseLabel": {
+    "message": "A-Z",
+    "description": "Label for the password generator uppercase character checkbox"
+  },
+  "lowercaseDescription": {
+    "message": "Zahrnúť malé písmená",
+    "description": "Full description for the password generator lowercase character checkbox"
+  },
+  "lowercaseLabel": {
+    "message": "a-z",
+    "description": "Label for the password generator lowercase character checkbox"
+  },
+  "numbersDescription": {
+    "message": "Vrátane čísiel",
+    "description": "Full description for the password generator numbers checkbox"
+  },
+  "numbersLabel": {
+    "message": "0-9",
+    "description": "Label for the password generator numbers checkbox"
+  },
+  "specialCharactersDescription": {
+    "message": "Zahrnúť špeciálne znaky",
+    "description": "Full description for the password generator special characters checkbox"
+  },
+  "specialCharactersLabel": {
+    "message": "!@#$%^&*",
+    "description": "Label for the password generator special characters checkbox"
+  },
   "addAttachment": {
     "message": "Priložiť prílohu"
   },
@@ -9421,5 +9673,104 @@
   },
   "permanentlyDeleteAttachmentConfirmation": {
     "message": "Naozaj chcete natrvalo odstrániť túto prílohu?"
+  },
+  "manageSubscriptionFromThe": {
+    "message": "Spravovať predplatné z",
+    "description": "This represents the beginning of a sentence. The full sentence will be 'Manage subscription from the Provider Portal', but 'Provider Portal' will be a link and thus cannot be included in the translation file."
+  },
+  "toHostBitwardenOnYourOwnServer": {
+    "message": "Ak chcete prevádzkovať Bitwarden na vlastnom serveri, musíte nahrať licenčný súbor. Pre podporu Free Families plánu a pokročilé možnosti fakturácie pre vašu organizáciu s vlastným hostingom, budete musieť nastaviť automatickú synchronizáciu v organizácii vo vlastnom hostingu."
+  },
+  "selfHostingTitleProper": {
+    "message": "Vlastný hosting"
+  },
+  "verified-domain-single-org-warning": {
+    "message": "Overenie domény zapne pravidlo jedinej organizácie."
+  },
+  "single-org-revoked-user-warning": {
+    "message": "Členovia, ktorí nedodržiavajú pravidlo, budú odvolaní. Správcovia môžu obnoviť členov po ich odchode zo všetkých ostatných organizácií."
+  },
+  "deleteOrganizationUser": {
+    "message": "Odstrániť $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "John Doe"
+      },
+      "description": "Title for the delete organization user dialog"
+    }
+  },
+  "deleteOrganizationUserWarning": {
+    "message": "Keď je člen odstránený, jeho účet Bitwarden a individuálne údaje z trezora sa natrvalo odstránia. Údaje zo zbierky zostanú v organizácii. Ak ho chcete znovu pridať, musí si vytvoriť účet a byť znovu zaradený do systému.",
+    "description": "Warning for the delete organization user dialog"
+  },
+  "organizationUserDeleted": {
+    "message": "Odstránený $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "John Doe"
+      }
+    }
+  },
+  "organizationUserDeletedDesc": {
+    "message": "Používateľ bol odstránený z organizácie a všetky súvisiace dáta boli vymazané."
+  },
+  "deletedUserId": {
+    "message": "Odstránený používateľ $ID$ - vlastnik / správca vymazal používateľský účet",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "First 8 Character of a GUID"
+      }
+    }
+  },
+  "userLeftOrganization": {
+    "message": "Používateľ $ID$ opustil organizáciu",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "First 8 Character of a GUID"
+      }
+    }
+  },
+  "suspendedOrganizationTitle": {
+    "message": "$ORGANIZATION$ je pozastavené",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme c"
+      }
+    }
+  },
+  "suspendedUserOrgMessage": {
+    "message": "Kontaktujte o pomoc vlastníka organizácie."
+  },
+  "suspendedOwnerOrgMessage": {
+    "message": "Pre obnovenie prístupu k vašej organizácii pridajte platobnú metódu."
+  },
+  "deleteMembers": {
+    "message": "Vymazať členov"
+  },
+  "noSelectedMembersApplicable": {
+    "message": "Táto akcia sa nevzťahuje na žiadneho z vybraných členov."
+  },
+  "deletedSuccessfully": {
+    "message": "Úspešne odstránené"
+  },
+  "freeFamiliesSponsorship": {
+    "message": "Odstrániť sponzorovaný bezplatný Bitwarden plán pre Rodiny"
+  },
+  "freeFamiliesSponsorshipPolicyDesc": {
+    "message": "Neumožnite členom používať plán pre rodiny prostredníctvom tejto organizácie."
+  },
+  "verifyBankAccountWithStatementDescriptorWarning": {
+    "message": "Platba prostredníctvom bankového účtu je dostupná len pre zákazníkov v Spojených Štátoch. Budete musieť overiť svoj bankový účet. V priebehu nasledujúcich 1-2 pracovných dní vykonáme mikro vklad. Na overenie bankového účtu zadajte kód popisu výpisu z tohto vkladu na fakturačnej stránke organizácie. Neoverenie bankového účtu bude mať za následok neuskutočnenie platby a pozastavenie vášho predplatného."
+  },
+  "verifyBankAccountWithStatementDescriptorInstructions": {
+    "message": "Na váš bankový účet sme vykonali mikro vklad (môže to trvať 1-2 pracovné dni). Zadajte šesťmiestny kód začínajúci na „SM“, ktorý nájdete v popise vkladu. Neoverenie bankového účtu bude mať za následok neuskutočnenie platby a pozastavenie vášho predplatného."
+  },
+  "descriptorCode": {
+    "message": "Kód výpisu"
   }
 }

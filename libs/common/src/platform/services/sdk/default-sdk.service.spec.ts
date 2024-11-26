@@ -1,15 +1,13 @@
 import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject, firstValueFrom, of } from "rxjs";
 
+import { KdfConfigService, KeyService, PBKDF2KdfConfig } from "@bitwarden/key-management";
 import { BitwardenClient } from "@bitwarden/sdk-internal";
 
 import { ApiService } from "../../../abstractions/api.service";
 import { AccountInfo, AccountService } from "../../../auth/abstractions/account.service";
-import { KdfConfigService } from "../../../auth/abstractions/kdf-config.service";
-import { PBKDF2KdfConfig } from "../../../auth/models/domain/kdf-config";
 import { UserId } from "../../../types/guid";
 import { UserKey } from "../../../types/key";
-import { CryptoService } from "../../abstractions/crypto.service";
 import { Environment, EnvironmentService } from "../../abstractions/environment.service";
 import { PlatformUtilsService } from "../../abstractions/platform-utils.service";
 import { SdkClientFactory } from "../../abstractions/sdk/sdk-client-factory";
@@ -25,7 +23,7 @@ describe("DefaultSdkService", () => {
     let platformUtilsService!: MockProxy<PlatformUtilsService>;
     let accountService!: MockProxy<AccountService>;
     let kdfConfigService!: MockProxy<KdfConfigService>;
-    let cryptoService!: MockProxy<CryptoService>;
+    let keyService!: MockProxy<KeyService>;
     let apiService!: MockProxy<ApiService>;
     let service!: DefaultSdkService;
 
@@ -37,7 +35,7 @@ describe("DefaultSdkService", () => {
       platformUtilsService = mock<PlatformUtilsService>();
       accountService = mock<AccountService>();
       kdfConfigService = mock<KdfConfigService>();
-      cryptoService = mock<CryptoService>();
+      keyService = mock<KeyService>();
       apiService = mock<ApiService>();
 
       // Can't use `of(mock<Environment>())` for some reason
@@ -49,7 +47,7 @@ describe("DefaultSdkService", () => {
         platformUtilsService,
         accountService,
         kdfConfigService,
-        cryptoService,
+        keyService,
         apiService,
       );
 
@@ -68,13 +66,13 @@ describe("DefaultSdkService", () => {
         kdfConfigService.getKdfConfig$
           .calledWith(userId)
           .mockReturnValue(of(new PBKDF2KdfConfig()));
-        cryptoService.userKey$
+        keyService.userKey$
           .calledWith(userId)
           .mockReturnValue(of(new SymmetricCryptoKey(new Uint8Array(64)) as UserKey));
-        cryptoService.userEncryptedPrivateKey$
+        keyService.userEncryptedPrivateKey$
           .calledWith(userId)
           .mockReturnValue(of("private-key" as EncryptedString));
-        cryptoService.encryptedOrgKeys$.calledWith(userId).mockReturnValue(of({}));
+        keyService.encryptedOrgKeys$.calledWith(userId).mockReturnValue(of({}));
       });
 
       it("creates an SDK client when called the first time", async () => {
@@ -115,7 +113,7 @@ describe("DefaultSdkService", () => {
 
       it("destroys the SDK client when the userKey is unset (i.e. lock or logout)", async () => {
         const userKey$ = new BehaviorSubject(new SymmetricCryptoKey(new Uint8Array(64)) as UserKey);
-        cryptoService.userKey$.calledWith(userId).mockReturnValue(userKey$);
+        keyService.userKey$.calledWith(userId).mockReturnValue(userKey$);
 
         const subject = new BehaviorSubject(undefined);
         service.userClient$(userId).subscribe(subject);

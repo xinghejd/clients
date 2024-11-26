@@ -2,11 +2,29 @@
   "allApplications": {
     "message": "Все приложения"
   },
-  "priorityApplications": {
-    "message": "Приоритетные приложения"
+  "criticalApplications": {
+    "message": "Критичные приложения"
   },
   "accessIntelligence": {
     "message": "Access Intelligence"
+  },
+  "riskInsights": {
+    "message": "Информация о рисках"
+  },
+  "passwordRisk": {
+    "message": "Риск пароля"
+  },
+  "reviewAtRiskPasswords": {
+    "message": "Проанализируйте пароли, подверженные риску (слабые, скомпрометированные или повторно используемые), во всех приложениях. Выберите наиболее важные приложения, чтобы определить приоритетные меры безопасности для пользователей, направленные на устранение подверженных риску паролей."
+  },
+  "dataLastUpdated": {
+    "message": "Последнее обновление: $DATE$",
+    "placeholders": {
+      "date": {
+        "content": "$1",
+        "example": "2021-01-01"
+      }
+    }
   },
   "notifiedMembers": {
     "message": "Уведомленные участники"
@@ -20,8 +38,11 @@
       }
     }
   },
-  "priorityApplicationsWithCount": {
-    "message": "Приоритетные приложения ($COUNT$)",
+  "createNewLoginItem": {
+    "message": "Создать новый логин"
+  },
+  "criticalApplicationsWithCount": {
+    "message": "Критичные приложения ($COUNT$)",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -38,14 +59,47 @@
       }
     }
   },
+  "noAppsInOrgTitle": {
+    "message": "Не найдено приложений в $ORG NAME$",
+    "placeholders": {
+      "org name": {
+        "content": "$1",
+        "example": "Company Name"
+      }
+    }
+  },
+  "noAppsInOrgDescription": {
+    "message": "По мере сохранения пользователями логинов, здесь отображаются приложения, с подверженными риску паролями. Отметьте критичные приложения и уведомите пользователей об необходимости обновления пароля."
+  },
+  "noCriticalAppsTitle": {
+    "message": "Вы не отметили ни одного приложения в качестве критичного"
+  },
+  "noCriticalAppsDescription": {
+    "message": "Выберите наиболее важные приложения, чтобы обнаружить пароли, подверженные риску, и уведомить пользователей о необходимости сменить эти пароли."
+  },
+  "markCriticalApps": {
+    "message": "Отметить критичные приложения"
+  },
+  "markAppAsCritical": {
+    "message": "Пометить приложение как критическое"
+  },
+  "appsMarkedAsCritical": {
+    "message": "Приложения помечены как критические"
+  },
   "application": {
     "message": "Приложение"
   },
   "atRiskPasswords": {
     "message": "Пароли, подверженные риску"
   },
+  "requestPasswordChange": {
+    "message": "Запросить смену пароля"
+  },
   "totalPasswords": {
     "message": "Всего паролей"
+  },
+  "searchApps": {
+    "message": "Поиск приложений"
   },
   "atRiskMembers": {
     "message": "Участники группы риска"
@@ -405,6 +459,9 @@
   "generatePassword": {
     "message": "Сгенерировать пароль"
   },
+  "generatePassphrase": {
+    "message": "Создать парольную фразу"
+  },
   "checkPassword": {
     "message": "Проверьте, не скомпрометирован ли пароль."
   },
@@ -504,6 +561,9 @@
   },
   "typeSecureNote": {
     "message": "Защищенная заметка"
+  },
+  "typeSshKey": {
+    "message": "Ключ SSH"
   },
   "typeLoginPlural": {
     "message": "Логины"
@@ -662,6 +722,10 @@
   "copyPassword": {
     "message": "Скопировать пароль",
     "description": "Copy password to clipboard"
+  },
+  "copyPassphrase": {
+    "message": "Скопировать парольную фразу",
+    "description": "Copy passphrase to clipboard"
   },
   "passwordCopied": {
     "message": "Пароль скопирован"
@@ -920,6 +984,9 @@
   "loginWithDeviceEnabledNote": {
     "message": "Вход с устройства должен быть настроен в настройках мобильного приложения Bitwarden. Нужен другой вариант?"
   },
+  "needAnotherOptionV1": {
+    "message": "Нужен другой вариант?"
+  },
   "loginWithMasterPassword": {
     "message": "Войти с мастер-паролем"
   },
@@ -932,8 +999,14 @@
   "useADifferentLogInMethod": {
     "message": "Использовать другой способ авторизации"
   },
-  "loginWithPasskey": {
+  "logInWithPasskey": {
     "message": "Войти с passkey"
+  },
+  "useSingleSignOn": {
+    "message": "Использовать единый вход"
+  },
+  "welcomeBack": {
+    "message": "С возвращением"
   },
   "invalidPasskeyPleaseTryAgain": {
     "message": "Неверный passkey. Попробуйте снова."
@@ -1016,6 +1089,9 @@
   "createAccount": {
     "message": "Создать аккаунт"
   },
+  "newToBitwarden": {
+    "message": "Впервые на Bitwarden?"
+  },
   "setAStrongPassword": {
     "message": "Задайте надежный пароль"
   },
@@ -1030,6 +1106,9 @@
   },
   "logIn": {
     "message": "Войти"
+  },
+  "logInToBitwarden": {
+    "message": "Войти в Bitwarden"
   },
   "verifyIdentity": {
     "message": "Подтвердите вашу личность"
@@ -1225,6 +1304,12 @@
   },
   "notificationSentDevice": {
     "message": "На ваше устройство отправлено уведомление."
+  },
+  "aNotificationWasSentToYourDevice": {
+    "message": "На ваше устройство было отправлено уведомление"
+  },
+  "makeSureYourAccountIsUnlockedAndTheFingerprintEtc": {
+    "message": "Убедитесь, что ваш аккаунт разблокирован и фраза отпечатка совпадает с фразой на другом устройстве"
   },
   "versionNumber": {
     "message": "Версия $VERSION_NUMBER$",
@@ -1537,38 +1622,6 @@
   "specialCharacters": {
     "message": "Специальные символы (!@#$%^&*)"
   },
-  "uppercaseDescription": {
-    "message": "Включить заглавные символы",
-    "description": "Tooltip for the password generator uppercase character checkbox"
-  },
-  "uppercaseLabel": {
-    "message": "A-Z",
-    "description": "Label for the password generator uppercase character checkbox"
-  },
-  "lowercaseDescription": {
-    "message": "Включить строчные символы",
-    "description": "Full description for the password generator lowercase character checkbox"
-  },
-  "lowercaseLabel": {
-    "message": "a-z",
-    "description": "Label for the password generator lowercase character checkbox"
-  },
-  "numbersDescription": {
-    "message": "Включить цифры",
-    "description": "Full description for the password generator numbers checkbox"
-  },
-  "numbersLabel": {
-    "message": "0-9",
-    "description": "Label for the password generator numbers checkbox"
-  },
-  "specialCharactersDescription": {
-    "message": "Включить специальные символы",
-    "description": "Full description for the password generator special characters checkbox"
-  },
-  "specialCharactersLabel": {
-    "message": "!@#$%^&*",
-    "description": "Label for the password generator special characters checkbox"
-  },
   "numWords": {
     "message": "Количество слов"
   },
@@ -1699,6 +1752,9 @@
   "dangerZoneDesc": {
     "message": "Осторожно, эти действия необратимы!"
   },
+  "dangerZoneDescSingular": {
+    "message": "Будьте внимательны - это действие не обратимо!"
+  },
   "deauthorizeSessions": {
     "message": "Деавторизовать сессии"
   },
@@ -1710,6 +1766,15 @@
   },
   "sessionsDeauthorized": {
     "message": "Все сессии деавторизованы"
+  },
+  "accountIsManagedMessage": {
+    "message": "Управление этим аккаунтом осуществляет $ORGANIZATIONNAME$",
+    "placeholders": {
+      "organizationName": {
+        "content": "$1",
+        "example": "Organization"
+      }
+    }
   },
   "purgeVault": {
     "message": "Очистить хранилище"
@@ -2307,7 +2372,7 @@
     "message": "Проверить пароли на компрометацию"
   },
   "timesExposed": {
-    "message": "Times exposed"
+    "message": "Количество утечек"
   },
   "exposedXTimes": {
     "message": "Скомпрометирован $COUNT$ раз(а)",
@@ -2344,7 +2409,7 @@
     "message": "В вашем хранилище нет слабых паролей."
   },
   "weakness": {
-    "message": "Weakness"
+    "message": "Уязвимость"
   },
   "reusedPasswordsReport": {
     "message": "Повторно использованные пароли"
@@ -2372,7 +2437,7 @@
     "message": "В вашем хранилище нет повторно использованных паролей."
   },
   "timesReused": {
-    "message": "Times reused"
+    "message": "Повторных использований"
   },
   "reusedXTimes": {
     "message": "Повторно использован $COUNT$ раз(а)",
@@ -3331,6 +3396,9 @@
       }
     }
   },
+  "viewAllLogInOptions": {
+    "message": "Посмотреть все варианты авторизации"
+  },
   "viewAllLoginOptions": {
     "message": "Посмотреть все варианты авторизации"
   },
@@ -3783,6 +3851,55 @@
   },
   "updateBrowserDesc": {
     "message": "Вы используете неподдерживаемый браузер. Веб-хранилище может работать некорректно."
+  },
+  "freeTrialEndPrompt": {
+    "message": "Ваша бесплатная пробная версия заканчивается через $COUNT$ дней. Чтобы сохранить подписку,",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "You must set up 2FA on your user account before you can join this organization."
+      }
+    }
+  },
+  "freeTrialEndPromptAboveTwoDays": {
+    "message": "$ORGANIZATION$, ваша бесплатная пробная версия заканчивается через $COUNT$ дней. Чтобы сохранить подписку,",
+    "placeholders": {
+      "count": {
+        "content": "$2",
+        "example": "organization name"
+      },
+      "organization": {
+        "content": "$1",
+        "example": "remaining days"
+      }
+    }
+  },
+  "freeTrialEndPromptForOneDay": {
+    "message": "$ORGANIZATION$, ваша бесплатная пробная версия заканчивается завтра. Чтобы сохранить подписку,",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "organization name"
+      }
+    }
+  },
+  "freeTrialEndPromptForOneDayNoOrgName": {
+    "message": "Ваша бесплатная пробная версия заканчивается завтра. Чтобы сохранить подписку,"
+  },
+  "freeTrialEndPromptForLessThanADay": {
+    "message": "$ORGANIZATION$, ваша бесплатная пробная версия заканчивается сегодня. Чтобы сохранить подписку,",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "organization name"
+      }
+    }
+  },
+  "freeTrialEndingSoonWithoutOrgName": {
+    "message": "Ваша бесплатная пробная версия заканчивается сегодня. Чтобы сохранить подписку,"
+  },
+  "routeToPaymentMethodTrigger": {
+    "message": "добавьте способ оплаты."
   },
   "joinOrganization": {
     "message": "Присоединиться к организации"
@@ -4338,6 +4455,9 @@
     "message": "Никогда не запрашивать верификацию фразы отпечатка для приглашенных пользователей (не рекомендуется)",
     "description": "A 'fingerprint phrase' is a unique word phrase (similar to a passphrase) that a user can use to authenticate their public key with another user, for the purposes of sharing."
   },
+  "youWillBeNotifiedOnceTheRequestIsApproved": {
+    "message": "Вы получите уведомление, когда запрос будет одобрен"
+  },
   "free": {
     "message": "Бесплатно",
     "description": "Free, as in 'Free beer'"
@@ -4635,11 +4755,17 @@
   "singleOrgDesc": {
     "message": "Запретить пользователям присоединяться к другим организациям."
   },
+  "singleOrgPolicyDesc": {
+    "message": "Запретить членам организации присоединяться к другим организациям. Эта политика необходима для организаций, в которых включена проверка домена."
+  },
   "singleOrgBlockCreateMessage": {
     "message": "Политика вашей текущей организации не позволяет вам присоединиться к более чем одной организации. Пожалуйста, свяжитесь с администраторами вашей организации или авторизуйтесь под другим аккаунтом Bitwarden."
   },
   "singleOrgPolicyWarning": {
     "message": "Пользователи организации, которые не являются владельцами или администраторами и уже входят в другую организацию, будут удалены из вашей организации."
+  },
+  "singleOrgPolicyMemberWarning": {
+    "message": "Члены, не соблюдающие требования, будут аннулированы до тех пор, пока не покинут все остальные организации. Администраторы имеют этих ограничений и могут восстанавливать членов, если они соответствуют требованиям."
   },
   "requireSso": {
     "message": "Требовать авторизацию через единый вход (SSO)"
@@ -6265,6 +6391,9 @@
   "idpSingleSignOnServiceUrlRequired": {
     "message": "Обязательно, если ID сущности не является URL."
   },
+  "offerNoLongerValid": {
+    "message": "Это предложение больше не действует. Для получения дополнительной информации обратитесь к администраторам вашей организации."
+  },
   "openIdOptionalCustomizations": {
     "message": "Дополнительные настройки"
   },
@@ -6353,6 +6482,43 @@
   },
   "generateUsername": {
     "message": "Создать имя пользователя"
+  },
+  "generateEmail": {
+    "message": "Сгенерировать email"
+  },
+  "spinboxBoundariesHint": {
+    "message": "Значение должно быть между $MIN$ и $MAX$.",
+    "description": "Explains spin box minimum and maximum values to the user",
+    "placeholders": {
+      "min": {
+        "content": "$1",
+        "example": "8"
+      },
+      "max": {
+        "content": "$2",
+        "example": "128"
+      }
+    }
+  },
+  "passwordLengthRecommendationHint": {
+    "message": " Для создания надежного пароля используйте $RECOMMENDED$ символов или больше.",
+    "description": "Appended to `spinboxBoundariesHint` to recommend a length to the user. This must include any language-specific 'sentence' separator characters (e.g. a space in english).",
+    "placeholders": {
+      "recommended": {
+        "content": "$1",
+        "example": "14"
+      }
+    }
+  },
+  "passphraseNumWordsRecommendationHint": {
+    "message": " Для создания надежной парольной фразы используйте $RECOMMENDED$ слов или больше.",
+    "description": "Appended to `spinboxBoundariesHint` to recommend a number of words to the user. This must include any language-specific 'sentence' separator characters (e.g. a space in english).",
+    "placeholders": {
+      "recommended": {
+        "content": "$1",
+        "example": "6"
+      }
+    }
   },
   "usernameType": {
     "message": "Тип имени пользователя"
@@ -6458,6 +6624,14 @@
   },
   "forwardedEmailDesc": {
     "message": "Создать псевдоним электронной почты для внешней службы пересылки."
+  },
+  "forwarderDomainName": {
+    "message": "Домен электронной почты",
+    "description": "Labels the domain name email forwarder service option"
+  },
+  "forwarderDomainNameHint": {
+    "message": "Выберите домен, который поддерживается выбранным сервисом",
+    "description": "Guidance provided for email forwarding services that support multiple email domains."
   },
   "forwarderError": {
     "message": "Ошибка $SERVICENAME$: $ERRORMESSAGE$",
@@ -7877,8 +8051,17 @@
   "loginInitiated": {
     "message": "Вход инициирован"
   },
+  "rememberThisDeviceToMakeFutureLoginsSeamless": {
+    "message": "Remember this device to make future logins seamless"
+  },
   "deviceApprovalRequired": {
     "message": "Требуется одобрение устройства. Выберите вариант ниже:"
+  },
+  "deviceApprovalRequiredV2": {
+    "message": "Device approval required"
+  },
+  "selectAnApprovalOptionBelow": {
+    "message": "Select an approval option below"
   },
   "rememberThisDevice": {
     "message": "Запомнить это устройство"
@@ -8109,6 +8292,9 @@
   "userEmailMissing": {
     "message": "Отсутствует email пользователя"
   },
+  "activeUserEmailNotFoundLoggingYouOut": {
+    "message": "Active user email not found. Logging you out."
+  },
   "deviceTrusted": {
     "message": "Доверенное устройство"
   },
@@ -8258,6 +8444,10 @@
   "baseUrl": {
     "message": "URL сервера"
   },
+  "selfHostBaseUrl": {
+    "message": "URL собственного сервера",
+    "description": "Label for field requesting a self-hosted integration service URL"
+  },
   "aliasDomain": {
     "message": "Псевдоним домена"
   },
@@ -8356,7 +8546,7 @@
   },
   "addAPaymentMethod": {
     "message": "добавьте способ оплаты",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'To maintain your subscription for $ORG$, add a payment method.'"
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'To maintain your subscription for $ORG$, add a payment method'"
   },
   "organizationInformation": {
     "message": "Информация об организации"
@@ -8929,6 +9119,12 @@
   "providerPlan": {
     "message": "Поставщик управляемых услуг"
   },
+  "managedServiceProvider": {
+    "message": "Поставщик управляемых услуг"
+  },
+  "multiOrganizationEnterprise": {
+    "message": "Многоорганизационное предприятие"
+  },
   "orgSeats": {
     "message": "Места организации"
   },
@@ -9331,6 +9527,30 @@
   "additionalStorageGbMessage": {
     "message": "Дополнительное место в хранилище"
   },
+  "sshKeyAlgorithm": {
+    "message": "Алгоритм ключа"
+  },
+  "sshKeyFingerprint": {
+    "message": "Отпечаток"
+  },
+  "sshKeyPrivateKey": {
+    "message": "Приватный ключ"
+  },
+  "sshKeyPublicKey": {
+    "message": "Публичный ключ"
+  },
+  "sshKeyAlgorithmED25519": {
+    "message": "ED25519"
+  },
+  "sshKeyAlgorithmRSA2048": {
+    "message": "RSA 2048-Bit"
+  },
+  "sshKeyAlgorithmRSA3072": {
+    "message": "RSA 3072-Bit"
+  },
+  "sshKeyAlgorithmRSA4096": {
+    "message": "RSA 4096-Bit"
+  },
   "premiumAccounts": {
     "message": "6 Премиум-аккаунтов"
   },
@@ -9413,6 +9633,38 @@
   "linkedLabelHelpText": {
     "message": "Введите HTML-идентификатор поля, имя, aria-label, или плейсхолдер."
   },
+  "uppercaseDescription": {
+    "message": "Включить заглавные символы",
+    "description": "Tooltip for the password generator uppercase character checkbox"
+  },
+  "uppercaseLabel": {
+    "message": "A-Z",
+    "description": "Label for the password generator uppercase character checkbox"
+  },
+  "lowercaseDescription": {
+    "message": "Включить строчные символы",
+    "description": "Full description for the password generator lowercase character checkbox"
+  },
+  "lowercaseLabel": {
+    "message": "a-z",
+    "description": "Label for the password generator lowercase character checkbox"
+  },
+  "numbersDescription": {
+    "message": "Включить цифры",
+    "description": "Full description for the password generator numbers checkbox"
+  },
+  "numbersLabel": {
+    "message": "0-9",
+    "description": "Label for the password generator numbers checkbox"
+  },
+  "specialCharactersDescription": {
+    "message": "Включить специальные символы",
+    "description": "Full description for the password generator special characters checkbox"
+  },
+  "specialCharactersLabel": {
+    "message": "!@#$%^&*",
+    "description": "Label for the password generator special characters checkbox"
+  },
   "addAttachment": {
     "message": "Добавить вложение"
   },
@@ -9421,5 +9673,104 @@
   },
   "permanentlyDeleteAttachmentConfirmation": {
     "message": "Вы уверены, что хотите навсегда удалить это вложение?"
+  },
+  "manageSubscriptionFromThe": {
+    "message": "Управление подпиской с",
+    "description": "This represents the beginning of a sentence. The full sentence will be 'Manage subscription from the Provider Portal', but 'Provider Portal' will be a link and thus cannot be included in the translation file."
+  },
+  "toHostBitwardenOnYourOwnServer": {
+    "message": "Чтобы разместить Bitwarden на собственном сервере, вам нужно загрузить файл лицензии. Для поддержки тарифных планов Free Families и расширенных возможностей выставления счетов для вашей организации, размещенной на собственном сервере вам необходимо настроить автоматическую синхронизацию в вашей организации."
+  },
+  "selfHostingTitleProper": {
+    "message": "Собственное размещение"
+  },
+  "verified-domain-single-org-warning": {
+    "message": "Проверка домена включит политику единой организации."
+  },
+  "single-org-revoked-user-warning": {
+    "message": "Участники, не соблюдающие требования, будут аннулированы. Администраторы могут восстановить участников, как только они покинут все другие организации."
+  },
+  "deleteOrganizationUser": {
+    "message": "Удалить $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "John Doe"
+      },
+      "description": "Title for the delete organization user dialog"
+    }
+  },
+  "deleteOrganizationUserWarning": {
+    "message": "При удалении участника его аккаунт Bitwarden и личные данные хранилища будут удалены навсегда. Данные коллекций останутся в организации. Чтобы восстановить их, необходимо создать аккаунт и заново пройти процедуру регистрации.",
+    "description": "Warning for the delete organization user dialog"
+  },
+  "organizationUserDeleted": {
+    "message": "Аккаунт $NAME$ удален",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "John Doe"
+      }
+    }
+  },
+  "organizationUserDeletedDesc": {
+    "message": "Пользователь был удален из организации, и все связанные с ним данные были удалены."
+  },
+  "deletedUserId": {
+    "message": "Владелец - удаленный пользователь $ID$ / администратор удалил аккаунт пользователя",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "First 8 Character of a GUID"
+      }
+    }
+  },
+  "userLeftOrganization": {
+    "message": "Пользователь $ID$ покинул организацию",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "First 8 Character of a GUID"
+      }
+    }
+  },
+  "suspendedOrganizationTitle": {
+    "message": "$ORGANIZATION$ приостановлена",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme c"
+      }
+    }
+  },
+  "suspendedUserOrgMessage": {
+    "message": "Обратитесь за помощью к владельцу организации."
+  },
+  "suspendedOwnerOrgMessage": {
+    "message": "Чтобы восстановить доступ к своей организации, добавьте способ оплаты."
+  },
+  "deleteMembers": {
+    "message": "Удалить участников"
+  },
+  "noSelectedMembersApplicable": {
+    "message": "Это действие не применимо ни к одному из выбранных участников."
+  },
+  "deletedSuccessfully": {
+    "message": "Успешно удален"
+  },
+  "freeFamiliesSponsorship": {
+    "message": "Удалить спонсорство Free Bitwarden Families"
+  },
+  "freeFamiliesSponsorshipPolicyDesc": {
+    "message": "Не разрешать участникам выкупать план Families через эту организацию."
+  },
+  "verifyBankAccountWithStatementDescriptorWarning": {
+    "message": "Оплата с помощью банковского счета доступна только для клиентов в США. Вам потребуется подтвердить свой банковский счет. Мы сделаем микродепозит в течение следующих 1-2 рабочих дней. Введите код дескриптора выписки из этого депозита на странице выставления счетов организации, чтобы подтвердить банковский счет. Неподтверждение банковского счета приведет к пропуску платежа и приостановке подписки."
+  },
+  "verifyBankAccountWithStatementDescriptorInstructions": {
+    "message": "Мы перевели микродепозит на ваш банковский счет (это может занять 1-2 рабочих дня). Введите шестизначный код, начинающийся с 'SM', который указан в описании депозита. Если вы не подтвердите банковский счет, это приведет к пропуску платежа и приостановке подписки."
+  },
+  "descriptorCode": {
+    "message": "Код дескриптора"
   }
 }

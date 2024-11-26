@@ -26,6 +26,9 @@
   "typeSecureNote": {
     "message": "Nota segura"
   },
+  "typeSshKey": {
+    "message": "Chave SSH"
+  },
   "folders": {
     "message": "Pastas"
   },
@@ -59,6 +62,9 @@
         "example": "Company Name"
       }
     }
+  },
+  "welcomeBack": {
+    "message": "Bem-vindo de volta"
   },
   "moveToOrgDesc": {
     "message": "Escolha uma organização para a qual pretende mover este item. Mover para uma organização transfere a propriedade do item para essa organização. Deixará de ser o proprietário direto deste item depois de este ter sido movido."
@@ -174,6 +180,48 @@
   "address": {
     "message": "Endereço"
   },
+  "sshPrivateKey": {
+    "message": "Chave privada"
+  },
+  "sshPublicKey": {
+    "message": "Chave pública"
+  },
+  "sshFingerprint": {
+    "message": "Impressão digital"
+  },
+  "sshKeyAlgorithm": {
+    "message": "Tipo de chave"
+  },
+  "sshKeyAlgorithmED25519": {
+    "message": "ED25519"
+  },
+  "sshKeyAlgorithmRSA2048": {
+    "message": "RSA 2048-Bit"
+  },
+  "sshKeyAlgorithmRSA3072": {
+    "message": "RSA 3072-Bit"
+  },
+  "sshKeyAlgorithmRSA4096": {
+    "message": "RSA 4096-Bit"
+  },
+  "sshKeyGenerated": {
+    "message": "Foi gerada uma nova chave SSH"
+  },
+  "sshAgentUnlockRequired": {
+    "message": "Por favor, desbloqueie o seu cofre para aprovar o pedido de chave SSH."
+  },
+  "sshAgentUnlockTimeout": {
+    "message": "O pedido de chave SSH expirou."
+  },
+  "enableSshAgent": {
+    "message": "Ativar o agente SSH"
+  },
+  "enableSshAgentDesc": {
+    "message": "Ative o agente SSH para assinar pedidos SSH diretamente do seu cofre Bitwarden."
+  },
+  "enableSshAgentHelp": {
+    "message": "O agente SSH é um serviço direcionado a programadores que lhe permite assinar pedidos SSH diretamente do seu cofre Bitwarden."
+  },
   "premiumRequired": {
     "message": "É necessária uma subscrição Premium"
   },
@@ -258,6 +306,9 @@
   },
   "generatePassword": {
     "message": "Gerar palavra-passe"
+  },
+  "generatePassphrase": {
+    "message": "Gerar frase de acesso"
   },
   "type": {
     "message": "Tipo"
@@ -393,6 +444,16 @@
   },
   "copyPassword": {
     "message": "Copiar palavra-passe"
+  },
+  "regenerateSshKey": {
+    "message": "Regenerar chave SSH"
+  },
+  "copySshPrivateKey": {
+    "message": "Copiar chave privada SSH"
+  },
+  "copyPassphrase": {
+    "message": "Copiar frase de acesso",
+    "description": "Copy passphrase to clipboard"
   },
   "copyUri": {
     "message": "Copiar URI"
@@ -547,6 +608,9 @@
   "createAccount": {
     "message": "Criar conta"
   },
+  "newToBitwarden": {
+    "message": "Novo no Bitwarden?"
+  },
   "setAStrongPassword": {
     "message": "Defina uma palavra-passe forte"
   },
@@ -555,6 +619,18 @@
   },
   "logIn": {
     "message": "Iniciar sessão"
+  },
+  "logInToBitwarden": {
+    "message": "Iniciar sessão no Bitwarden"
+  },
+  "logInWithPasskey": {
+    "message": "Iniciar sessão com a chave de acesso"
+  },
+  "loginWithDevice": {
+    "message": "Iniciar sessão com o dispositivo"
+  },
+  "useSingleSignOn": {
+    "message": "Utilizar início de sessão único"
   },
   "submit": {
     "message": "Submeter"
@@ -827,6 +903,10 @@
   },
   "baseUrl": {
     "message": "URL do servidor"
+  },
+  "selfHostBaseUrl": {
+    "message": "URL do servidor auto-hospedado",
+    "description": "Label for field requesting a self-hosted integration service URL"
   },
   "apiUrl": {
     "message": "URL do servidor da API"
@@ -1217,6 +1297,9 @@
   "copyNumber": {
     "message": "Copiar número",
     "description": "Copy credit card number"
+  },
+  "copyEmail": {
+    "message": "Copiar e-mail"
   },
   "copySecurityCode": {
     "message": "Copiar código de segurança",
@@ -1650,6 +1733,12 @@
   },
   "deleteAccountWarning": {
     "message": "A eliminação da sua conta é permanente. Não pode ser anulada."
+  },
+  "cannotDeleteAccount": {
+    "message": "Não é possível eliminar a conta"
+  },
+  "cannotDeleteAccountDesc": {
+    "message": "Esta ação não pode ser concluída porque a sua conta é propriedade de uma organização. Contacte o administrador da sua organização para obter mais informações."
   },
   "accountDeleted": {
     "message": "Conta eliminada"
@@ -2352,6 +2441,43 @@
   "generateUsername": {
     "message": "Gerar nome de utilizador"
   },
+  "generateEmail": {
+    "message": "Gerar e-mail"
+  },
+  "spinboxBoundariesHint": {
+    "message": "O valor deve estar entre $MIN$ e $MAX$.",
+    "description": "Explains spin box minimum and maximum values to the user",
+    "placeholders": {
+      "min": {
+        "content": "$1",
+        "example": "8"
+      },
+      "max": {
+        "content": "$2",
+        "example": "128"
+      }
+    }
+  },
+  "passwordLengthRecommendationHint": {
+    "message": " Utilize $RECOMMENDED$ caracteres ou mais para gerar uma palavra-passe forte.",
+    "description": "Appended to `spinboxBoundariesHint` to recommend a length to the user. This must include any language-specific 'sentence' separator characters (e.g. a space in english).",
+    "placeholders": {
+      "recommended": {
+        "content": "$1",
+        "example": "14"
+      }
+    }
+  },
+  "passphraseNumWordsRecommendationHint": {
+    "message": " Utilize $RECOMMENDED$ palavras ou mais para gerar uma frase de acesso forte.",
+    "description": "Appended to `spinboxBoundariesHint` to recommend a number of words to the user. This must include any language-specific 'sentence' separator characters (e.g. a space in english).",
+    "placeholders": {
+      "recommended": {
+        "content": "$1",
+        "example": "6"
+      }
+    }
+  },
   "usernameType": {
     "message": "Tipo de nome de utilizador"
   },
@@ -2394,6 +2520,14 @@
   },
   "forwardedEmailDesc": {
     "message": "Gerar um alias de e-mail com um serviço de reencaminhamento externo."
+  },
+  "forwarderDomainName": {
+    "message": "Domínio de e-mail",
+    "description": "Labels the domain name email forwarder service option"
+  },
+  "forwarderDomainNameHint": {
+    "message": "Escolha um domínio que seja suportado pelo serviço selecionado",
+    "description": "Guidance provided for email forwarding services that support multiple email domains."
   },
   "forwarderError": {
     "message": "Erro no $SERVICENAME$: $ERRORMESSAGE$",
@@ -2740,9 +2874,6 @@
   "eu": {
     "message": "UE",
     "description": "European Union"
-  },
-  "loggingInOn": {
-    "message": "A iniciar sessão em"
   },
   "selfHostedServer": {
     "message": "auto-hospedado"
@@ -3162,14 +3293,38 @@
   "textSends": {
     "message": "Sends de texto"
   },
-  "allowScreenshots": {
-    "message": "Permitir a captura de ecrã"
-  },
-  "allowScreenshotsDesc": {
-    "message": "Permitir a captura de ecrã da aplicação para computador do Bitwarden."
-  },
   "ssoError": {
     "message": "Não foi possível encontrar portas livres para o início de sessão sso."
+  },
+  "authorize": {
+    "message": "Autorizar"
+  },
+  "deny": {
+    "message": "Recusar"
+  },
+  "sshkeyApprovalTitle": {
+    "message": "Confirmar a utilização da chave SSH"
+  },
+  "sshkeyApprovalMessageInfix": {
+    "message": "está a pedir acesso a"
+  },
+  "unknownApplication": {
+    "message": "Uma aplicação"
+  },
+  "sshKeyPasswordUnsupported": {
+    "message": "A importação de chaves SSH protegidas por palavra-passe ainda não é suportada"
+  },
+  "invalidSshKey": {
+    "message": "A chave SSH é inválida"
+  },
+  "sshKeyTypeUnsupported": {
+    "message": "O tipo de chave SSH não é suportado"
+  },
+  "importSshKeyFromClipboard": {
+    "message": "Importar chave da área de transferência"
+  },
+  "sshKeyPasted": {
+    "message": "Chave SSH importada com sucesso"
   },
   "fileSavedToDevice": {
     "message": "Ficheiro guardado no dispositivo. Gira-o a partir das transferências do seu dispositivo."

@@ -26,6 +26,9 @@
   "typeSecureNote": {
     "message": "Biztonságos jegyzet"
   },
+  "typeSshKey": {
+    "message": "SSH kulcs"
+  },
   "folders": {
     "message": "Mappák"
   },
@@ -59,6 +62,9 @@
         "example": "Company Name"
       }
     }
+  },
+  "welcomeBack": {
+    "message": "Üdvözlet újra"
   },
   "moveToOrgDesc": {
     "message": "Válasszunk egy szervezetet, ahová áthelyezni szeretnénk ezt az elemet. A szervezetbe áthelyezés átruházza az elem tulajdonjogát az adott szervezetre. Az áthelyezés után többé nem leszünk az elem közvetlen tulajdonosa."
@@ -174,6 +180,48 @@
   "address": {
     "message": "Postai cím"
   },
+  "sshPrivateKey": {
+    "message": "Személyes kulcs"
+  },
+  "sshPublicKey": {
+    "message": "Nyilvános kulcs"
+  },
+  "sshFingerprint": {
+    "message": "Ujjlenyomat"
+  },
+  "sshKeyAlgorithm": {
+    "message": "Kulcs típusa"
+  },
+  "sshKeyAlgorithmED25519": {
+    "message": "ED25519"
+  },
+  "sshKeyAlgorithmRSA2048": {
+    "message": "RSA 2048-Bit"
+  },
+  "sshKeyAlgorithmRSA3072": {
+    "message": "RSA 3072-Bit"
+  },
+  "sshKeyAlgorithmRSA4096": {
+    "message": "RSA 4096-Bit"
+  },
+  "sshKeyGenerated": {
+    "message": "Új SSH-kulcs jött létre."
+  },
+  "sshAgentUnlockRequired": {
+    "message": "Az SSH-kulcskérés jóváhagyásához oldjuk fel a széfet."
+  },
+  "sshAgentUnlockTimeout": {
+    "message": "Az SSH-kulcs kérése időtúllépést okozott."
+  },
+  "enableSshAgent": {
+    "message": "SSH ügynök engedélyezése"
+  },
+  "enableSshAgentDesc": {
+    "message": "Engedélyezzük az SSH ügynök számára az SSH kérelmek aláírását közvetlenül a Bitwarden széfből."
+  },
+  "enableSshAgentHelp": {
+    "message": "Az SSH ügynök egy fejlesztőknek szánt szolgáltatás, amely lehetővé teszi az SSH kérések közvetlenül a Bitwarden széfből történő aláírását."
+  },
   "premiumRequired": {
     "message": "Prémium szükséges"
   },
@@ -258,6 +306,9 @@
   },
   "generatePassword": {
     "message": "Jelszó generálása"
+  },
+  "generatePassphrase": {
+    "message": "Jelmondat generálás"
   },
   "type": {
     "message": "Típus"
@@ -393,6 +444,16 @@
   },
   "copyPassword": {
     "message": "Jelszó másolása"
+  },
+  "regenerateSshKey": {
+    "message": "SSH kulcs újragenerálása"
+  },
+  "copySshPrivateKey": {
+    "message": "SSH személyes kulcs másolása"
+  },
+  "copyPassphrase": {
+    "message": "Jelmondat másolása",
+    "description": "Copy passphrase to clipboard"
   },
   "copyUri": {
     "message": "URI másolása"
@@ -547,6 +608,9 @@
   "createAccount": {
     "message": "Fiók létrehozása"
   },
+  "newToBitwarden": {
+    "message": "Új vagyunk a Bitwardenben?"
+  },
   "setAStrongPassword": {
     "message": "Erős jelszó beállítása"
   },
@@ -555,6 +619,18 @@
   },
   "logIn": {
     "message": "Bejelentkezés"
+  },
+  "logInToBitwarden": {
+    "message": "Bejelentkezés a Bitwardenbe"
+  },
+  "logInWithPasskey": {
+    "message": "Bejelentkezés hozzáférési kulccsal"
+  },
+  "loginWithDevice": {
+    "message": "Bejelentkezés eszközzel"
+  },
+  "useSingleSignOn": {
+    "message": "Egyszeri bejelentkezés használata"
   },
   "submit": {
     "message": "Beküldés"
@@ -603,7 +679,7 @@
     "message": "Csatlakozás szervezethez"
   },
   "joinOrganizationName": {
-    "message": "Join $ORGANIZATIONNAME$",
+    "message": "Csatlakozás: $ORGANIZATIONNAME$",
     "placeholders": {
       "organizationName": {
         "content": "$1",
@@ -827,6 +903,10 @@
   },
   "baseUrl": {
     "message": "Szerver webcím"
+  },
+  "selfHostBaseUrl": {
+    "message": "Saját üzemeltetésű szerver webcím",
+    "description": "Label for field requesting a self-hosted integration service URL"
   },
   "apiUrl": {
     "message": "API szerver webcím"
@@ -1217,6 +1297,9 @@
   "copyNumber": {
     "message": "Szám másolása",
     "description": "Copy credit card number"
+  },
+  "copyEmail": {
+    "message": "Email cím másolása"
   },
   "copySecurityCode": {
     "message": "Biztonsági kód másolása",
@@ -1650,6 +1733,12 @@
   },
   "deleteAccountWarning": {
     "message": "A fiók véglegesen törlésre kerül. A művelet nem vonható vissza."
+  },
+  "cannotDeleteAccount": {
+    "message": "A fiók nem törölhető."
+  },
+  "cannotDeleteAccountDesc": {
+    "message": "Ez a művelet nem hajtható végre, mert a fiók egy szervezet tulajdonában van. További részletekért forduljunk a szervezet adminisztrátorához."
   },
   "accountDeleted": {
     "message": "A fiók törlésre került."
@@ -2352,6 +2441,43 @@
   "generateUsername": {
     "message": "Felhasználónév generálása"
   },
+  "generateEmail": {
+    "message": "Email generálása"
+  },
+  "spinboxBoundariesHint": {
+    "message": "Az érték legyen $MIN$ és $MAX$ között.",
+    "description": "Explains spin box minimum and maximum values to the user",
+    "placeholders": {
+      "min": {
+        "content": "$1",
+        "example": "8"
+      },
+      "max": {
+        "content": "$2",
+        "example": "128"
+      }
+    }
+  },
+  "passwordLengthRecommendationHint": {
+    "message": " Használjunk $RECOMMENDED$ vagy több karaktert egy erős jelszó előállításához.",
+    "description": "Appended to `spinboxBoundariesHint` to recommend a length to the user. This must include any language-specific 'sentence' separator characters (e.g. a space in english).",
+    "placeholders": {
+      "recommended": {
+        "content": "$1",
+        "example": "14"
+      }
+    }
+  },
+  "passphraseNumWordsRecommendationHint": {
+    "message": " $RECOMMENDED$ vagy több szó erős jelmondat generálásához.",
+    "description": "Appended to `spinboxBoundariesHint` to recommend a number of words to the user. This must include any language-specific 'sentence' separator characters (e.g. a space in english).",
+    "placeholders": {
+      "recommended": {
+        "content": "$1",
+        "example": "6"
+      }
+    }
+  },
   "usernameType": {
     "message": "Felhasználónév típusa"
   },
@@ -2394,6 +2520,14 @@
   },
   "forwardedEmailDesc": {
     "message": "Email álnév generálása külső továbbító szolgáltatással."
+  },
+  "forwarderDomainName": {
+    "message": "Email tartomány",
+    "description": "Labels the domain name email forwarder service option"
+  },
+  "forwarderDomainNameHint": {
+    "message": "Válasszunk a kiválasztott szolgáltatás által támogatott tartományt.",
+    "description": "Guidance provided for email forwarding services that support multiple email domains."
   },
   "forwarderError": {
     "message": "$SERVICENAME$ hiba: $ERRORMESSAGE$",
@@ -2741,9 +2875,6 @@
     "message": "EU",
     "description": "European Union"
   },
-  "loggingInOn": {
-    "message": "Bejelentkezés:"
-  },
   "selfHostedServer": {
     "message": "saját üzemeltetésű"
   },
@@ -2875,19 +3006,19 @@
     "message": "Almenü"
   },
   "toggleSideNavigation": {
-    "message": "Toggle side navigation"
+    "message": "Oldal navigáció váltás"
   },
   "skipToContent": {
     "message": "Ugrás a tartalomra"
   },
   "typePasskey": {
-    "message": "Hozzáférési kulcs"
+    "message": "Azonosító kulcs"
   },
   "passkeyNotCopied": {
-    "message": "A hozzáférési kulcs nem kerül másolásra."
+    "message": "Az azonosító kulcs nem kerül másolásra."
   },
   "passkeyNotCopiedAlert": {
-    "message": "A hozzáférési kulcs nem kerül másolásra a klónozott elembe. Folytatjuk ennek az elemnek a klónozását?"
+    "message": "Az azonosító kulcs nem kerül másolásra a klónozott elembe. Folytatjuk ennek az elemnek a klónozását?"
   },
   "aliasDomain": {
     "message": "Áldomain"
@@ -3089,7 +3220,7 @@
     "message": "Gyűjtemény"
   },
   "lastPassYubikeyDesc": {
-    "message": "Insert the YubiKey associated with your LastPass account into your computer's USB port, then touch its button."
+    "message": "Illesszük be a LastPass fiókhoz társított YubiKey eszközt a számítógép USB portjába, majd érintsük meg annak gombját."
   },
   "commonImportFormats": {
     "message": "Általános formátumok",
@@ -3108,10 +3239,10 @@
     "message": "A hardveres gyorsítás engedélyezése és újraindítás"
   },
   "removePasskey": {
-    "message": "Remove passkey"
+    "message": "Azonosító kulcs eltávolítás"
   },
   "passkeyRemoved": {
-    "message": "Passkey removed"
+    "message": "Az azonosító  kucs eltávolításra került."
   },
   "errorAssigningTargetCollection": {
     "message": "Hiba történt a célgyűjtemény hozzárendelése során."
@@ -3162,14 +3293,38 @@
   "textSends": {
     "message": "Szöveg küldés"
   },
-  "allowScreenshots": {
-    "message": "Képernyőrögzítés engedélyezése"
-  },
-  "allowScreenshotsDesc": {
-    "message": "A Bitwarden asztali alkalmazás képernyőfelvételének engedélyezése."
-  },
   "ssoError": {
     "message": "Nem található szabad port az sso bejelentkezéshez."
+  },
+  "authorize": {
+    "message": "Hitelesítés"
+  },
+  "deny": {
+    "message": "Elutasítás"
+  },
+  "sshkeyApprovalTitle": {
+    "message": "SSH kulcs használat megerősítése"
+  },
+  "sshkeyApprovalMessageInfix": {
+    "message": "hozzáférést kér:"
+  },
+  "unknownApplication": {
+    "message": "Egy alkalmazás"
+  },
+  "sshKeyPasswordUnsupported": {
+    "message": "A jelszóval védett SSH kulcsok importálása még nem támogatott."
+  },
+  "invalidSshKey": {
+    "message": "Az SSH kulcs érvénytelen."
+  },
+  "sshKeyTypeUnsupported": {
+    "message": "Az SSH kulcstípus nem támogatott."
+  },
+  "importSshKeyFromClipboard": {
+    "message": "Kulcs importálása vágólapból"
+  },
+  "sshKeyPasted": {
+    "message": "Az SSH kulcs sikeresen importálásra került."
   },
   "fileSavedToDevice": {
     "message": "A fájl mentésre került az eszközre. Kezeljük az eszközről a letöltéseket."

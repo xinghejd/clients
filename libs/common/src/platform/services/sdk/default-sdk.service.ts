@@ -8,8 +8,10 @@ import {
   distinctUntilChanged,
   tap,
   switchMap,
+  catchError,
 } from "rxjs";
 
+import { KeyService, KdfConfigService, KdfConfig, KdfType } from "@bitwarden/key-management";
 import {
   BitwardenClient,
   ClientSettings,
@@ -20,17 +22,13 @@ import {
 import { ApiService } from "../../../abstractions/api.service";
 import { EncryptedOrganizationKeyData } from "../../../admin-console/models/data/encrypted-organization-key.data";
 import { AccountInfo, AccountService } from "../../../auth/abstractions/account.service";
-import { KdfConfigService } from "../../../auth/abstractions/kdf-config.service";
-import { KdfConfig } from "../../../auth/models/domain/kdf-config";
 import { DeviceType } from "../../../enums/device-type.enum";
 import { OrganizationId, UserId } from "../../../types/guid";
 import { UserKey } from "../../../types/key";
-import { CryptoService } from "../../abstractions/crypto.service";
 import { Environment, EnvironmentService } from "../../abstractions/environment.service";
 import { PlatformUtilsService } from "../../abstractions/platform-utils.service";
 import { SdkClientFactory } from "../../abstractions/sdk/sdk-client-factory";
 import { SdkService } from "../../abstractions/sdk/sdk.service";
-import { KdfType } from "../../enums";
 import { compareValues } from "../../misc/compare-values";
 import { EncryptedString } from "../../models/domain/enc-string";
 
@@ -51,13 +49,18 @@ export class DefaultSdkService implements SdkService {
     }),
   );
 
+  version$ = this.client$.pipe(
+    map((client) => client.version()),
+    catchError(() => "Unsupported"),
+  );
+
   constructor(
     private sdkClientFactory: SdkClientFactory,
     private environmentService: EnvironmentService,
     private platformUtilsService: PlatformUtilsService,
     private accountService: AccountService,
     private kdfConfigService: KdfConfigService,
-    private cryptoService: CryptoService,
+    private keyService: KeyService,
     private apiService: ApiService, // Yes we shouldn't import ApiService, but it's temporary
     private userAgent: string = null,
   ) {}
@@ -73,11 +76,11 @@ export class DefaultSdkService implements SdkService {
       distinctUntilChanged(),
     );
     const kdfParams$ = this.kdfConfigService.getKdfConfig$(userId).pipe(distinctUntilChanged());
-    const privateKey$ = this.cryptoService
+    const privateKey$ = this.keyService
       .userEncryptedPrivateKey$(userId)
       .pipe(distinctUntilChanged());
-    const userKey$ = this.cryptoService.userKey$(userId).pipe(distinctUntilChanged());
-    const orgKeys$ = this.cryptoService.encryptedOrgKeys$(userId).pipe(
+    const userKey$ = this.keyService.userKey$(userId).pipe(distinctUntilChanged());
+    const orgKeys$ = this.keyService.encryptedOrgKeys$(userId).pipe(
       distinctUntilChanged(compareValues), // The upstream observable emits different objects with the same values
     );
 
@@ -96,7 +99,7 @@ export class DefaultSdkService implements SdkService {
           let client: BitwardenClient;
 
           const createAndInitializeClient = async () => {
-            if (privateKey == null || userKey == null || orgKeys == null) {
+            if (privateKey == null || userKey == null) {
               return undefined;
             }
 
@@ -130,7 +133,7 @@ export class DefaultSdkService implements SdkService {
     return client$;
   }
 
-  async failedToInitialize(): Promise<void> {
+  async failedToInitialize(category: string, error?: Error): Promise<void> {
     // Only log on cloud instances
     if (
       this.platformUtilsService.isDev() ||
@@ -139,9 +142,20 @@ export class DefaultSdkService implements SdkService {
       return;
     }
 
-    return this.apiService.send("POST", "/wasm-debug", null, false, false, null, (headers) => {
-      headers.append("SDK-Version", "1.0.0");
-    });
+    return this.apiService.send(
+      "POST",
+      "/wasm-debug",
+      {
+        category: category,
+        error: error?.message,
+      },
+      false,
+      false,
+      null,
+      (headers) => {
+        headers.append("SDK-Version", "1.0.0");
+      },
+    );
   }
 
   private async initializeClient(
@@ -150,7 +164,7 @@ export class DefaultSdkService implements SdkService {
     kdfParams: KdfConfig,
     privateKey: EncryptedString,
     userKey: UserKey,
-    orgKeys: Record<OrganizationId, EncryptedOrganizationKeyData>,
+    orgKeys?: Record<OrganizationId, EncryptedOrganizationKeyData>,
   ) {
     await client.crypto().initialize_user_crypto({
       email: account.email,
@@ -169,9 +183,12 @@ export class DefaultSdkService implements SdkService {
             },
       privateKey,
     });
+
+    // We initialize the org crypto even if the org_keys are
+    // null to make sure any existing org keys are cleared.
     await client.crypto().initialize_org_crypto({
       organizationKeys: new Map(
-        Object.entries(orgKeys)
+        Object.entries(orgKeys ?? {})
           .filter(([_, v]) => v.type === "organization")
           .map(([k, v]) => [k, v.key]),
       ),

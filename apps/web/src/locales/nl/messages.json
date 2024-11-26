@@ -2,11 +2,29 @@
   "allApplications": {
     "message": "Alle applicaties"
   },
-  "priorityApplications": {
-    "message": "Applicaties met prioriteit"
+  "criticalApplications": {
+    "message": "Belangrijke applicaties"
   },
   "accessIntelligence": {
     "message": "Toegangsintelligentie"
+  },
+  "riskInsights": {
+    "message": "Risicoinzichten"
+  },
+  "passwordRisk": {
+    "message": "Wachtwoordrisico"
+  },
+  "reviewAtRiskPasswords": {
+    "message": "Herzie risicovolle wachtwoorden (zwak, blootgelegd of herbruikt) tussen applicaties. Selecteer je meest belangrijke applicaties om prioriteit te geven aan beveiligingsacties voor je gebruikers om risicovolle wachtwoorden aan te pakken."
+  },
+  "dataLastUpdated": {
+    "message": "Datum laatste wijziging: $DATE$",
+    "placeholders": {
+      "date": {
+        "content": "$1",
+        "example": "2021-01-01"
+      }
+    }
   },
   "notifiedMembers": {
     "message": "Geînformeerde leden"
@@ -20,8 +38,11 @@
       }
     }
   },
-  "priorityApplicationsWithCount": {
-    "message": "Applicaties met prioriteit ($COUNT$)",
+  "createNewLoginItem": {
+    "message": "Nieuw login item aanmaken"
+  },
+  "criticalApplicationsWithCount": {
+    "message": "Belangrijke applicaties ($COUNT$)",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -38,14 +59,47 @@
       }
     }
   },
+  "noAppsInOrgTitle": {
+    "message": "Nieuwe applicaties gevonden in $ORG NAME$",
+    "placeholders": {
+      "org name": {
+        "content": "$1",
+        "example": "Company Name"
+      }
+    }
+  },
+  "noAppsInOrgDescription": {
+    "message": "Als gebruikers inloggegevens opslaan, verschijnen hier applicaties met wachtwoorden die risico lopen. Markeer belangrijke applicaties en attendeer gebruikers op het bijwerken van wachtwoorden."
+  },
+  "noCriticalAppsTitle": {
+    "message": "Je hebt nog geen applicaties als belangrijk aangewezen"
+  },
+  "noCriticalAppsDescription": {
+    "message": "Wijs je meest belangrijke applicaties aan om risicovolle wachtwoorden te ontdekken en gebruikers te attenderen deze te wijzigen."
+  },
+  "markCriticalApps": {
+    "message": "Markeer belangrijke apps"
+  },
+  "markAppAsCritical": {
+    "message": "App aanwijzen als belangrijk"
+  },
+  "appsMarkedAsCritical": {
+    "message": "App als belangrijk gemarkeerd"
+  },
   "application": {
     "message": "Applicatie"
   },
   "atRiskPasswords": {
     "message": "Wachtwoorden in gevaar"
   },
+  "requestPasswordChange": {
+    "message": "Hoofdwachtwijziging vragen"
+  },
   "totalPasswords": {
     "message": "Totaal wachtwoorden"
+  },
+  "searchApps": {
+    "message": "Applicaties zoeken"
   },
   "atRiskMembers": {
     "message": "Leden in gevaar"
@@ -405,6 +459,9 @@
   "generatePassword": {
     "message": "Wachtwoord genereren"
   },
+  "generatePassphrase": {
+    "message": "Wachtwoordzin genereren"
+  },
   "checkPassword": {
     "message": "Controleer of wachtwoord is gelekt."
   },
@@ -504,6 +561,9 @@
   },
   "typeSecureNote": {
     "message": "Veilige notitie"
+  },
+  "typeSshKey": {
+    "message": "SSH-sleutel"
   },
   "typeLoginPlural": {
     "message": "Logins"
@@ -662,6 +722,10 @@
   "copyPassword": {
     "message": "Wachtwoord kopiëren",
     "description": "Copy password to clipboard"
+  },
+  "copyPassphrase": {
+    "message": "Wachtwoordzin kopiëren",
+    "description": "Copy passphrase to clipboard"
   },
   "passwordCopied": {
     "message": "Wachtwoord gekopieerd"
@@ -920,6 +984,9 @@
   "loginWithDeviceEnabledNote": {
     "message": "Je moet Inloggen met apparaat instellen in de instellingen van de Bitwarden-app. Behoefte aan een andere mogelijkheid?"
   },
+  "needAnotherOptionV1": {
+    "message": "Nog een optie nodig?"
+  },
   "loginWithMasterPassword": {
     "message": "Inloggen met je hoofdwachtwoord"
   },
@@ -932,8 +999,14 @@
   "useADifferentLogInMethod": {
     "message": "Gebruik een andere loginmethode"
   },
-  "loginWithPasskey": {
+  "logInWithPasskey": {
     "message": "Inloggen met passkey"
+  },
+  "useSingleSignOn": {
+    "message": "Single sign-on gebruiken"
+  },
+  "welcomeBack": {
+    "message": "Welkom terug"
   },
   "invalidPasskeyPleaseTryAgain": {
     "message": "Ongeldige passkey. Probeer het opnieuw."
@@ -1016,6 +1089,9 @@
   "createAccount": {
     "message": "Account aanmaken"
   },
+  "newToBitwarden": {
+    "message": "Nieuw bij Bitwarden?"
+  },
   "setAStrongPassword": {
     "message": "Sterk wachtwoord instellen"
   },
@@ -1030,6 +1106,9 @@
   },
   "logIn": {
     "message": "Inloggen"
+  },
+  "logInToBitwarden": {
+    "message": "Inloggen op Bitwarden"
   },
   "verifyIdentity": {
     "message": "Verify your Identity"
@@ -1225,6 +1304,12 @@
   },
   "notificationSentDevice": {
     "message": "Er is een bericht naar je apparaat verstuurd."
+  },
+  "aNotificationWasSentToYourDevice": {
+    "message": "Er is een melding naar je apparaat verzonden"
+  },
+  "makeSureYourAccountIsUnlockedAndTheFingerprintEtc": {
+    "message": "Zorg ervoor dat je kluis is ontgrendeld en de vingerafdrukzin hetzelfde is op het andere apparaat"
   },
   "versionNumber": {
     "message": "Versie $VERSION_NUMBER$",
@@ -1537,38 +1622,6 @@
   "specialCharacters": {
     "message": "Speciale tekens (!@#$%^&*)"
   },
-  "uppercaseDescription": {
-    "message": "Hoofdletters toevoegen",
-    "description": "Tooltip for the password generator uppercase character checkbox"
-  },
-  "uppercaseLabel": {
-    "message": "A-Z",
-    "description": "Label for the password generator uppercase character checkbox"
-  },
-  "lowercaseDescription": {
-    "message": "Kleine letters toevoegen",
-    "description": "Full description for the password generator lowercase character checkbox"
-  },
-  "lowercaseLabel": {
-    "message": "a-z",
-    "description": "Label for the password generator lowercase character checkbox"
-  },
-  "numbersDescription": {
-    "message": "Nummers toevoegen",
-    "description": "Full description for the password generator numbers checkbox"
-  },
-  "numbersLabel": {
-    "message": "0-9",
-    "description": "Label for the password generator numbers checkbox"
-  },
-  "specialCharactersDescription": {
-    "message": "Speciale tekens toevoegen",
-    "description": "Full description for the password generator special characters checkbox"
-  },
-  "specialCharactersLabel": {
-    "message": "!@#$%^&*",
-    "description": "Label for the password generator special characters checkbox"
-  },
   "numWords": {
     "message": "Aantal woorden"
   },
@@ -1699,6 +1752,9 @@
   "dangerZoneDesc": {
     "message": "Waarschuwing - deze acties zijn niet terug te draaien!"
   },
+  "dangerZoneDescSingular": {
+    "message": "Waarschuwing - deze actie is niet terug te draaien!"
+  },
   "deauthorizeSessions": {
     "message": "Sessie-autorisaties intrekken"
   },
@@ -1710,6 +1766,15 @@
   },
   "sessionsDeauthorized": {
     "message": "Autorisatie van alle sessies ingetrokken"
+  },
+  "accountIsManagedMessage": {
+    "message": "Dit account wordt beheerd door $ORGANIZATIONNAME$",
+    "placeholders": {
+      "organizationName": {
+        "content": "$1",
+        "example": "Organization"
+      }
+    }
   },
   "purgeVault": {
     "message": "Kluis verwijderen"
@@ -3331,6 +3396,9 @@
       }
     }
   },
+  "viewAllLogInOptions": {
+    "message": "Alle inlogopties bekijken"
+  },
   "viewAllLoginOptions": {
     "message": "Alle loginopties bekijken"
   },
@@ -3783,6 +3851,55 @@
   },
   "updateBrowserDesc": {
     "message": "Je maakt gebruik van webbrowser die we niet ondersteunen. De webkluis werkt mogelijk niet goed."
+  },
+  "freeTrialEndPrompt": {
+    "message": "Je gratis proefperiode eindigt over $COUNT$ dagen. Om je abonnement te behouden,",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "You must set up 2FA on your user account before you can join this organization."
+      }
+    }
+  },
+  "freeTrialEndPromptAboveTwoDays": {
+    "message": "$ORGANIZATION$, je gratis proefperiode eindigt over $COUNT$ dagen. Om je abonnement te behouden,",
+    "placeholders": {
+      "count": {
+        "content": "$2",
+        "example": "organization name"
+      },
+      "organization": {
+        "content": "$1",
+        "example": "remaining days"
+      }
+    }
+  },
+  "freeTrialEndPromptForOneDay": {
+    "message": "$ORGANIZATION$, je gratis proefperiode eindigt morgen. Om je abonnement te behouden,",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "organization name"
+      }
+    }
+  },
+  "freeTrialEndPromptForOneDayNoOrgName": {
+    "message": "Je gratis proefperiode eindigt morgen. Om je abonnement te behouden,"
+  },
+  "freeTrialEndPromptForLessThanADay": {
+    "message": "$ORGANIZATION$, je gratis proefperiode eindigt vandaag. Om je abonnement te behouden,",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "organization name"
+      }
+    }
+  },
+  "freeTrialEndingSoonWithoutOrgName": {
+    "message": "Je gratis proefperiode eindigt vandaag. Om je abonnement te behouden,"
+  },
+  "routeToPaymentMethodTrigger": {
+    "message": "moet je een betaalmethode toevoegen."
   },
   "joinOrganization": {
     "message": "Lid worden van organisatie"
@@ -4338,6 +4455,9 @@
     "message": "Vraag nooit om de vingerafdrukzin te controleren voor uitgenodigde leden (niet aanbevolen)",
     "description": "A 'fingerprint phrase' is a unique word phrase (similar to a passphrase) that a user can use to authenticate their public key with another user, for the purposes of sharing."
   },
+  "youWillBeNotifiedOnceTheRequestIsApproved": {
+    "message": "Je krijgt een melding zodra de aanvraag is goedgekeurd"
+  },
   "free": {
     "message": "Gratis",
     "description": "Free, as in 'Free beer'"
@@ -4635,11 +4755,17 @@
   "singleOrgDesc": {
     "message": "Beperk de mogelijkheid voor gebruikers om deel te nemen aan andere organisaties."
   },
+  "singleOrgPolicyDesc": {
+    "message": "Beperk leden in het aansluiten bij andere organisaties. Dit beleid is vereist voor organisaties die domeinverificatie hebben ingeschakeld."
+  },
   "singleOrgBlockCreateMessage": {
     "message": "Jouw huidige organisatie heeft een beleid dat je niet toestaat om deel te nemen aan meer dan één organisatie. Neem contact op met de beheerders van jouw organisatie of meld je aan met een ander Bitwarden-account."
   },
   "singleOrgPolicyWarning": {
     "message": "Leden van de organisatie die geen eigenaar of beheerder zijn en die al lid zijn van een andere organisatie, worden verwijderd uit jouw organisatie."
+  },
+  "singleOrgPolicyMemberWarning": {
+    "message": "Niet-conforme leden krijgen de status ingetrokken totdat ze alle andere organisaties hebben verlaten. Beheerders zijn uitgezonderd en kunnen leden herstellen zodra ze aan de naleving voldoen."
   },
   "requireSso": {
     "message": "Single Sign-On Authenticatie"
@@ -6265,6 +6391,9 @@
   "idpSingleSignOnServiceUrlRequired": {
     "message": "Vereist als Entiteit ID geen URL is."
   },
+  "offerNoLongerValid": {
+    "message": "Deze aanbieding is niet langer geldig. Neem contact op met je organisatiebeheerders voor meer informatie."
+  },
   "openIdOptionalCustomizations": {
     "message": "Optionele aanpassingen"
   },
@@ -6353,6 +6482,43 @@
   },
   "generateUsername": {
     "message": "Gebruikersnaam genereren"
+  },
+  "generateEmail": {
+    "message": "E-mailadres genereren"
+  },
+  "spinboxBoundariesHint": {
+    "message": "Waarde moet tussen $MIN$ en $MAX$ liggen.",
+    "description": "Explains spin box minimum and maximum values to the user",
+    "placeholders": {
+      "min": {
+        "content": "$1",
+        "example": "8"
+      },
+      "max": {
+        "content": "$2",
+        "example": "128"
+      }
+    }
+  },
+  "passwordLengthRecommendationHint": {
+    "message": " Gebruik $RECOMMENDED$ tekens of meer om een sterk wachtwoord te genereren.",
+    "description": "Appended to `spinboxBoundariesHint` to recommend a length to the user. This must include any language-specific 'sentence' separator characters (e.g. a space in english).",
+    "placeholders": {
+      "recommended": {
+        "content": "$1",
+        "example": "14"
+      }
+    }
+  },
+  "passphraseNumWordsRecommendationHint": {
+    "message": " Gebruik $RECOMMENDED$ woorden of meer om een sterke wachtwoordzin te genereren.",
+    "description": "Appended to `spinboxBoundariesHint` to recommend a number of words to the user. This must include any language-specific 'sentence' separator characters (e.g. a space in english).",
+    "placeholders": {
+      "recommended": {
+        "content": "$1",
+        "example": "6"
+      }
+    }
   },
   "usernameType": {
     "message": "Type gebruikersnaam"
@@ -6458,6 +6624,14 @@
   },
   "forwardedEmailDesc": {
     "message": "Genereer een e-mailalias met een externe doorschakelservice."
+  },
+  "forwarderDomainName": {
+    "message": "E-maildomein",
+    "description": "Labels the domain name email forwarder service option"
+  },
+  "forwarderDomainNameHint": {
+    "message": "Kies een domein dat wordt ondersteund door de geselecteerde dienst",
+    "description": "Guidance provided for email forwarding services that support multiple email domains."
   },
   "forwarderError": {
     "message": "$SERVICENAME$ error: $ERRORMESSAGE$",
@@ -7877,8 +8051,17 @@
   "loginInitiated": {
     "message": "Inloggen gestart"
   },
+  "rememberThisDeviceToMakeFutureLoginsSeamless": {
+    "message": "Onthoud dit apparaat om in het vervolg naadloos in te loggen"
+  },
   "deviceApprovalRequired": {
     "message": "Apparaattoestemming vereist. Kies een goedkeuringsoptie hieronder:"
+  },
+  "deviceApprovalRequiredV2": {
+    "message": "Toestemming apparaat vereist"
+  },
+  "selectAnApprovalOptionBelow": {
+    "message": "Kies hieronder een goedkeuringsoptie"
   },
   "rememberThisDevice": {
     "message": "Dit apparaat onthouden"
@@ -8109,6 +8292,9 @@
   "userEmailMissing": {
     "message": "Gebruikerse-mailadres ontbreekt"
   },
+  "activeUserEmailNotFoundLoggingYouOut": {
+    "message": "E-mailadres voor actieve gebruiker niet gevonden. Je wordt uitgelogd."
+  },
   "deviceTrusted": {
     "message": "Vertrouwd apparaat"
   },
@@ -8258,6 +8444,10 @@
   "baseUrl": {
     "message": "Server-URL"
   },
+  "selfHostBaseUrl": {
+    "message": "URL zelfgehoste server",
+    "description": "Label for field requesting a self-hosted integration service URL"
+  },
   "aliasDomain": {
     "message": "Aliasdomein"
   },
@@ -8356,7 +8546,7 @@
   },
   "addAPaymentMethod": {
     "message": "moet je een betaalmethode toevoegen",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'To maintain your subscription for $ORG$, add a payment method.'"
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'To maintain your subscription for $ORG$, add a payment method'"
   },
   "organizationInformation": {
     "message": "Organisatieinformatie"
@@ -8929,6 +9119,12 @@
   "providerPlan": {
     "message": "Managed Service Provider"
   },
+  "managedServiceProvider": {
+    "message": "Managed service provider"
+  },
+  "multiOrganizationEnterprise": {
+    "message": "Multi-organisatie onderneming"
+  },
   "orgSeats": {
     "message": "Organization Seats"
   },
@@ -9331,6 +9527,30 @@
   "additionalStorageGbMessage": {
     "message": "GB extra opslagruimte"
   },
+  "sshKeyAlgorithm": {
+    "message": "Sleutelalgoritme"
+  },
+  "sshKeyFingerprint": {
+    "message": "Vingerafdruk"
+  },
+  "sshKeyPrivateKey": {
+    "message": "Privésleutel"
+  },
+  "sshKeyPublicKey": {
+    "message": "Publieke sleutel"
+  },
+  "sshKeyAlgorithmED25519": {
+    "message": "ED25519"
+  },
+  "sshKeyAlgorithmRSA2048": {
+    "message": "RSA 2048-bit"
+  },
+  "sshKeyAlgorithmRSA3072": {
+    "message": "RSA 3072-bit"
+  },
+  "sshKeyAlgorithmRSA4096": {
+    "message": "RSA 4096-bit"
+  },
   "premiumAccounts": {
     "message": "6 premium accounts"
   },
@@ -9413,6 +9633,38 @@
   "linkedLabelHelpText": {
     "message": "Html-id, naam, aria-label of placeholder van het veld invullen."
   },
+  "uppercaseDescription": {
+    "message": "Hoofdletters toevoegen",
+    "description": "Tooltip for the password generator uppercase character checkbox"
+  },
+  "uppercaseLabel": {
+    "message": "A-Z",
+    "description": "Label for the password generator uppercase character checkbox"
+  },
+  "lowercaseDescription": {
+    "message": "Kleine letters toevoegen",
+    "description": "Full description for the password generator lowercase character checkbox"
+  },
+  "lowercaseLabel": {
+    "message": "a-z",
+    "description": "Label for the password generator lowercase character checkbox"
+  },
+  "numbersDescription": {
+    "message": "Nummers toevoegen",
+    "description": "Full description for the password generator numbers checkbox"
+  },
+  "numbersLabel": {
+    "message": "0-9",
+    "description": "Label for the password generator numbers checkbox"
+  },
+  "specialCharactersDescription": {
+    "message": "Speciale tekens toevoegen",
+    "description": "Full description for the password generator special characters checkbox"
+  },
+  "specialCharactersLabel": {
+    "message": "!@#$%^&*",
+    "description": "Label for the password generator special characters checkbox"
+  },
   "addAttachment": {
     "message": "Bijlage toevoegen"
   },
@@ -9421,5 +9673,104 @@
   },
   "permanentlyDeleteAttachmentConfirmation": {
     "message": "Weet je zeker dat je deze bijlage definitief wilt verwijderen?"
+  },
+  "manageSubscriptionFromThe": {
+    "message": "Abonnement beheren vanuit het",
+    "description": "This represents the beginning of a sentence. The full sentence will be 'Manage subscription from the Provider Portal', but 'Provider Portal' will be a link and thus cannot be included in the translation file."
+  },
+  "toHostBitwardenOnYourOwnServer": {
+    "message": "Om Bitwarden op je eigen server te hosten, moet je je licentiebestand uploaden. Om gratis familie-abonnementen en geavanceerde factureringsmogelijkheden voor je zelfgehoste organisatie te ondersteunen, moet je automatische synchronisatie instellen in je zelfgehoste organisatie."
+  },
+  "selfHostingTitleProper": {
+    "message": "Zelf hosten"
+  },
+  "verified-domain-single-org-warning": {
+    "message": "Het verifiëren van een domein zal het enkelvoudig organisatiebeleid inschakelen."
+  },
+  "single-org-revoked-user-warning": {
+    "message": "Niet-conforme leden worden ingetrokken. Beheerders kunnen leden herstellen zodra ze alle andere organisaties verlaten."
+  },
+  "deleteOrganizationUser": {
+    "message": "$NAME$ verwijderen",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "John Doe"
+      },
+      "description": "Title for the delete organization user dialog"
+    }
+  },
+  "deleteOrganizationUserWarning": {
+    "message": "Als je een lid verwijdert, verwijder je permanent hun Bitwarden-account en individuele kluisgegevens. Collectiegegevens blijven in de organisatie. Om het account te heractiveren, moet het lid een account aanmaken en opnieuw on-boarding doorlopen.",
+    "description": "Warning for the delete organization user dialog"
+  },
+  "organizationUserDeleted": {
+    "message": "$NAME$ verwijderd",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "John Doe"
+      }
+    }
+  },
+  "organizationUserDeletedDesc": {
+    "message": "De gebruiker is verwijderd uit de organisatie en alle bijbehorende gebruikersgegevens zijn verwijderd."
+  },
+  "deletedUserId": {
+    "message": "Gebruiker $ID$ verwijderd - een eigenaar / beheerder heeft het gebruikersaccount verwijderd",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "First 8 Character of a GUID"
+      }
+    }
+  },
+  "userLeftOrganization": {
+    "message": "Gebruiker $ID$ heeft organisatie verlaten",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "First 8 Character of a GUID"
+      }
+    }
+  },
+  "suspendedOrganizationTitle": {
+    "message": "De $ORGANIZATION$ is geschorst",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "Acme c"
+      }
+    }
+  },
+  "suspendedUserOrgMessage": {
+    "message": "Neem contact op met de eigenaar van je organisatie voor hulp."
+  },
+  "suspendedOwnerOrgMessage": {
+    "message": "Voeg een betaalmethode toe om toegang tot je organisatie te krijgen."
+  },
+  "deleteMembers": {
+    "message": "Leden verwijderen"
+  },
+  "noSelectedMembersApplicable": {
+    "message": "Deze actie is niet van toepassing op de geselecteerde leden."
+  },
+  "deletedSuccessfully": {
+    "message": "Succesvol verwijderd"
+  },
+  "freeFamiliesSponsorship": {
+    "message": "Gratis Bitwarden Families-sponsoring verwijderen"
+  },
+  "freeFamiliesSponsorshipPolicyDesc": {
+    "message": "Sta leden niet toe om een familieplan te verzilveren via deze organisatie."
+  },
+  "verifyBankAccountWithStatementDescriptorWarning": {
+    "message": "Betaling met een bankrekening is alleen beschikbaar voor klanten in de Verenigde Staten. Je moet je bankrekening verifiëren. We zullen binnen 1-2 werkdagen een microbetaling uitvoeren. Voer de code van het bankafschrift uit deze storting in op de factuurpagina van de organisatie om de bankrekening te verifiëren. Als de bankrekening niet wordt geverifieerd, wordt er een betaling gemist en wordt je abonnement opgeschort."
+  },
+  "verifyBankAccountWithStatementDescriptorInstructions": {
+    "message": "We hebben een microbetaling op je bankrekening gedaan (dit kan 1-2 werkdagen duren). Voer de zescijferige code van je bankafschrift in die begint met 'SM'. Als de bankrekening niet wordt geverifieerd, wordt er een betaling gemist en wordt je abonnement opgeschort."
+  },
+  "descriptorCode": {
+    "message": "Code bankafschrift"
   }
 }
